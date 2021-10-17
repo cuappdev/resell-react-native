@@ -1,8 +1,6 @@
-import { processFontFamily } from 'expo-font';
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-
 import Icon from '../assets/svg-icons/settings.svg';
+import { StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
 
 export default function TabTwoScreen() {
@@ -47,25 +45,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
   },
   profileTextContainer: {
-    display: 'flex',
     flexGrow: 4,
+    display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start'
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
   profileNameText: {
     fontFamily: 'Roboto-Bold',
-    paddingBottom: 5,
-    fontSize: 23
+    fontSize: 23,
+    paddingBottom: 5
   },
   profileBioText: {
     fontFamily: 'Roboto-Regular',
