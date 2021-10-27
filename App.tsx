@@ -1,18 +1,12 @@
-import * as Font from "expo-font";
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import useCachedResources from './hooks/useCachedResources';
-import useColorScheme from './hooks/useColorScheme';
-import Navigation from './navigation';
 import SignIn from "./screens/SignIn";
 import { StyleSheet, Text, View } from 'react-native';
-
+import SignInLogo from './assets/svg-icons/SignInLogo.svg'
 
 export default function App() {
     return (
       <View style={styles.container}>
-        <Text>Test</Text>
+        <SignIn/>
       </View>
     );
 

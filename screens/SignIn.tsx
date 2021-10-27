@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import Image from '../assets/svg-icons/settings.svg';
 
 export default function SignIn() {
     return (
         <View style={styles.container}>
-            <Text>HELLO WORLD</Text>
-            <StatusBar style="auto" />
+            <Image width={230} height={230}/>
+            <View style={styles.signInButton}>
+                <Text style={styles.signInText}>Sign in with Google</Text>
+            </View>
         </View>
     );
 }
@@ -14,10 +16,24 @@ export default function SignIn() {
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        margin: '20% 0% 0% 0%'
     },
+
+    signInButton: {
+        width: 230,
+        flexDirection: 'column',
+        alignItems: 'center',
+        backgroundColor: '#ECECEC',
+        padding: '5%',
+        borderRadius: 25,
+        marginTop: 100
+    },
+
+    signInText: {
+        fontSize: 22,
+    }
   });
   
