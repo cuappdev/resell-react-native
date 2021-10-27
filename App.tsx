@@ -1,7 +1,6 @@
 import React from 'react';
 import SignIn from "./screens/SignIn";
 import { StyleSheet, Text, View } from 'react-native';
-import SignInLogo from './assets/svg-icons/SignInLogo.svg'
 
 export default function App() {
     return (
