@@ -12,22 +12,22 @@ export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
         <View style={styles.upperContainer}>
-              <TouchableOpacity activeOpacity={pressedOpacity}>
-                <SettingsIcon />
-              </TouchableOpacity>
+            <TouchableOpacity activeOpacity={pressedOpacity}>
+              <SettingsIcon />
+            </TouchableOpacity>
             <View style={styles.profileTextContainer}>
                 <View style={styles.profileBubble} />
-                <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
-                <Text style={styles.profileBioText}>Junior in the college of engineering. Selling meth, pot, and crack cocaine. This some more sample text to see whether or not the padding disappears.</Text>
             </View>
-            <View>
-              <TouchableOpacity activeOpacity={pressedOpacity}>
-                <SearchIcon />
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity activeOpacity={pressedOpacity}>
+              <SearchIcon />
+            </TouchableOpacity>
+        </View>
+        <View style={styles.profileTextContainer}>
+            <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
+            <Text style={styles.profileBioText}>Junior in the college of engineering. Selling meth, pot, and crack cocaine. This some more sample text to see whether or not the padding disappears.</Text>
         </View>
         <TouchableOpacity style={styles.plusButton}>
-                <PlusIcon width={36} height={36} />
+          <PlusIcon width={36} height={36} />
         </TouchableOpacity>
     </View>
   );
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     paddingVertical: 18,
-    paddingHorizontal: 24
+    paddingHorizontal: 18
   },
   upperContainer: {
     display: 'flex',
@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
   },
   profileTextContainer: {
-    flexGrow: 4,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
   profileBioText: {
     fontFamily: 'Roboto-Regular',
     fontSize: 16,
-    maxWidth: '88%',
+    maxWidth: '93%',
     textAlign: 'center'
   },
   smallIcon: {
@@ -79,12 +78,19 @@ const styles = StyleSheet.create({
   },
   plusButton: {
     position: 'absolute',
-    backgroundColor: '#000',
-    float: 'right',
+    right: 24,
+    bottom: 30,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
     width: 60,
     height: 60,
     borderRadius: 30,
-    marginRight: 5
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+    shadowOpacity: 0.4
   },
   plusIcon: {
     height: 36,
