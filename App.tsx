@@ -8,7 +8,6 @@ export default function App() {
         <SignIn/>
       </View>
     );
-
 }
 
 const styles = StyleSheet.create({

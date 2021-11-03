@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Image from '../assets/svg-icons/settings.svg';
+import { StyleSheet, Text, View, Image } from 'react-native';
 
 export default function SignIn() {
     return (
         <View style={styles.container}>
-            <Image width={230} height={230}/>
+            <Image width={200} height={200} source={require('../assets/images/signinlogo.png')}/>
             <View style={styles.signInButton}>
                 <Text style={styles.signInText}>Sign in with Google</Text>
             </View>
