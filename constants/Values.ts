@@ -1,1 +1,1 @@
-export const pressedOpacity = 0.3; 
+export const pressedOpacity = 0.3;
