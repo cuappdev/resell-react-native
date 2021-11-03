@@ -1,12 +1,8 @@
 import * as React from 'react';
-import PlusIcon from '../assets/svg-icons/plus-circle.svg';
-import SettingsIcon from '../assets/svg-icons/settings.svg';
-import SearchIcon from '../assets/svg-icons/search.svg';
+import { PlusIcon, SearchIcon, SettingsIcon } from '../SVGDirectory'
+import { pressedOpacity } from '../constants/Values';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
-
-/* Constants for in TSX inherited properties */
-const pressedOpacity = 0.3;
 
 export default function TabTwoScreen() {
   return (
@@ -24,7 +20,7 @@ export default function TabTwoScreen() {
         </View>
         <View style={styles.profileTextContainer}>
             <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
-            <Text style={styles.profileBioText}>Junior in the college of engineering. Selling meth, pot, and crack cocaine. This some more sample text to see whether or not the padding disappears.</Text>
+            <Text style={styles.profileBioText}>Junior in the college of engineering. Selling a bunch of textbooks and clothes I don't need.</Text>
         </View>
         <TouchableOpacity style={styles.plusButton}>
           <PlusIcon width={36} height={36} />
@@ -37,8 +33,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
-    paddingVertical: 18,
-    paddingHorizontal: 18
+    padding: 18
   },
   upperContainer: {
     display: 'flex',
