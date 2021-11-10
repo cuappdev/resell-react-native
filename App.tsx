@@ -1,6 +1,6 @@
 import React from 'react';
 import SignIn from "./screens/SignIn";
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function App() {
     return (

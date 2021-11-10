@@ -4014,6 +4014,15 @@ expect@^25.5.0:
     jest-message-util "^25.5.0"
     jest-regex-util "^25.2.6"
 
+expo-app-auth@~10.2.2:
+  version "10.2.2"
+  resolved "https://registry.yarnpkg.com/expo-app-auth/-/expo-app-auth-10.2.2.tgz#f0d76d376384da2a1c843f154f5027ffbd0219ed"
+  integrity sha512-eS0Z2zLgOR4Qa+B7MgOpBHqZFKVAU0yWVQ70euBv8Hp9fcJ+XD6s0f4xOqv07cS5b1ITWNmSD5buqCTSfvCgJw==
+  dependencies:
+    "@expo/config-plugins" "^3.0.0"
+    expo-modules-core "~0.2.0"
+    invariant "^2.2.4"
+
 expo-application@~3.2.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/expo-application/-/expo-application-3.2.0.tgz"
@@ -4060,6 +4069,13 @@ expo-font@~9.2.1:
   dependencies:
     expo-modules-core "~0.2.0"
     fontfaceobserver "^2.1.0"
+
+expo-google-app-auth@~8.2.5:
+  version "8.2.5"
+  resolved "https://registry.yarnpkg.com/expo-google-app-auth/-/expo-google-app-auth-8.2.5.tgz#b47d45d171706ffd627df547885496d802159cc3"
+  integrity sha512-q+6ZWjSneywmyB7aqOYRNJKG43573h+f5//EZrUfSVqSiV8qpg4LNsNvvSfhOOR12kDLgRfZpi3MG36xj58kdA==
+  dependencies:
+    expo-app-auth "~10.2.2"
 
 expo-google-sign-in@~9.2.1:
   version "9.2.1"
