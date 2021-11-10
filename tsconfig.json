@@ -2,5 +2,9 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  "include": [
+    "src/components",
+    "src/custom.d.ts"
+  ]
 }
