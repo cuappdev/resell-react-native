@@ -18,7 +18,7 @@ const handleGoogleSignIn = () => {
           console.log('Google SignIn', 'SUCCESS', result);
           
         }else{
-          console.log('Google SignIn', 'SUCCESS', result);
+          console.log('Google SignIn', 'FAILURE', result);
         }
       })
   
