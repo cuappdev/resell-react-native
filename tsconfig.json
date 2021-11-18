@@ -6,5 +6,9 @@
   "typeRoots": [
     "../nodule_modules/@types",
     "../@types"
+  ],
+  "include": [
+    "src/components",
+    "src/custom.d.ts"
   ]
 }
