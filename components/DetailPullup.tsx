@@ -1,49 +1,43 @@
 import React from "react";
-import { StyleSheet, Image, FlatList } from "react-native";
-import { View, Text } from "./Themed";
+import { FlatList, Image, StyleSheet } from "react-native";
+import { Text, View } from "./Themed";
 
-const item = {
-  title: "Blue Pants",
-  user: "ravina patel",
-  description: `
-  Vintage blue pants that are super comfy and cool!
-  Condition
-  ISBN
-  Additional Information
-  `,
-  price: 25.00
+export type Item = {
+  images: string[];
+  title: string;
+  price: number;
+  sellerName: string;
+  sellerProfile: string;
+  description: string;
+  similarItems: string[]
 }
 
-const similarItems: string[] = [
-  "rainbow pants",
-  "clear pants",
-  "khaki pants",
-  "jean pants",
-  "short pants",
-  "long pants",
-  "pant legs",
-  "fancy pants"
-]
-
-export default function DetailPullUp() {
+export function DetailPullUpHeader({ item }: { item: Item }) {
   return (
     <View style={styles.container}>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.price}>{"$ " + item.price + ".00"}</Text>
+        <Text style={styles.price}>{"$ " + item.price}</Text>
       </View>
       <View style={styles.paddedRow}>
-        <Image source={require("../assets/images/icon.png")} style={styles.profileImage} />
-        <Text style={styles.profile}>{item.user}</Text>
+        <Image source={{ uri: item.sellerProfile }} style={styles.profileImage} />
+        <Text style={styles.profile}>{item.sellerName}</Text>
       </View>
+    </View>
+  );
+}
+
+export default function DetailPullUpBody({ item }: { item: Item }) {
+  return (
+    <View style={styles.container}>
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
-        data={similarItems}
+        data={item.similarItems}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Image source={require("../assets/images/icon.png")} style={styles.similarItem}>
+          <Image source={{ uri: item }} style={styles.similarItem}>
           </Image>
         )}
         keyExtractor={(item, index) => index.toString()}
@@ -55,8 +49,8 @@ export default function DetailPullUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: "center"
+    justifyContent: "center",
+    width: "100%"
   },
   expandRow: {
     flexDirection: 'row',

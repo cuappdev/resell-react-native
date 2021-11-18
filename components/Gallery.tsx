@@ -1,41 +1,38 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { Children, ReactElement } from "react";
 import { Image, StyleSheet } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 import PagerView from "react-native-pager-view";
-import { View, Text } from "./Themed";
+import { Text, View } from "./Themed";
 
-export default function Gallery() {
+function Background({ children }: { children: JSX.Element }) {
+  return (
+    <LinearGradient
+      colors={['#D4D4D4', '#ECECEC', '#ECECEC']}
+      start={{ x: 0, y: 0.01 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.gradientBackground}>
+      {children}
+    </LinearGradient>
+  )
+}
+
+export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
+  var images: JSX.Element[] = [];
+  for (let i = 0; i < imagePaths.length; i++) {
+    console.log(imagePaths[i])
+    images.push(
+      <View key={i.toString()} style={styles.page}>
+        <Background>
+          <Image style={styles.itemImage} source={{ uri: imagePaths[i] }} />
+        </Background>
+      </View>
+    )
+  }
   return (
     <View style={styles.container}>
       <PagerView style={styles.pagerView} initialPage={0} showPageIndicator={true}>
-        <View key="1" style={styles.page}>
-          <LinearGradient
-            colors={['#D4D4D4', '#ECECEC', '#ECECEC']}
-            start={{ x: 0, y: 0.01 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.button}>
-            <Image style={styles.itemImage} source={require("../assets/images/favicon.png")} />
-          </LinearGradient>
-        </View>
-        <View key="2" style={styles.page}>
-          <LinearGradient
-            colors={['#D4D4D4', '#ECECEC', '#ECECEC']}
-            start={{ x: 0, y: 0.01 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.button}
-          >
-            <Image style={styles.itemImage} source={require("../assets/images/icon.png")} />
-          </LinearGradient>
-        </View>
-        <View key="3">
-          <LinearGradient
-            colors={['#D4D4D4', '#ECECEC', '#ECECEC']}
-            start={{ x: 0, y: 0.01 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.button}>
-            <Image style={styles.itemImage} source={require("../assets/images/splash.png")} />
-          </LinearGradient>
-        </View>
+        {images}
       </PagerView >
     </View >
   );
@@ -53,14 +50,14 @@ const styles = StyleSheet.create({
   },
   page: {
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   itemImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover"
   },
-  button: {
+  gradientBackground: {
     width: "100%",
     height: "100%"
   }

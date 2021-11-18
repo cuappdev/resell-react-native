@@ -6,18 +6,18 @@ import { Text, View } from '../components/Themed';
 export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
-        <View style={styles.upperContainer}>
-            <View style={styles.profileBubbleContainer}>
-              <View style={styles.profileBubble} />
-            </View>
-            <View style={styles.profileTextContainer}>
-                <Text style={styles.profileNameText}>ravina</Text>
-                <Text style={styles.profileBioText}>selling cool stuff!</Text>
-            </View>
-            <View>
-                <Icon width={26} height={26} />
-            </View>
+      <View style={styles.upperContainer}>
+        <View style={styles.profileBubbleContainer}>
+          <View style={styles.profileBubble} />
         </View>
+        <View style={styles.profileTextContainer}>
+          <Text style={styles.profileNameText}>ravina</Text>
+          <Text style={styles.profileBioText}>selling cool stuff!</Text>
+        </View>
+        <View>
+          <Icon width={26} height={26} />
+        </View>
+      </View>
     </View>
   );
 }
