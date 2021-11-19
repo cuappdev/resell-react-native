@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PlusIcon, SearchIcon, SettingsIcon } from '../SVGDirectory'
+import { Feather } from '@expo/vector-icons';
 import { pressedOpacity } from '../constants/Values';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
@@ -9,13 +9,13 @@ export default function TabTwoScreen() {
     <View style={styles.container}>
         <View style={styles.upperContainer}>
             <TouchableOpacity activeOpacity={pressedOpacity}>
-              <SettingsIcon />
+              <ProfileScreenIcon name="search" color="black" size={24} />
             </TouchableOpacity>
             <View style={styles.profileTextContainer}>
                 <View style={styles.profileBubble} />
             </View>
             <TouchableOpacity activeOpacity={pressedOpacity}>
-              <SearchIcon />
+              <ProfileScreenIcon name="settings" color="black" size={24} />
             </TouchableOpacity>
         </View>
         <View style={styles.profileTextContainer}>
@@ -23,10 +23,18 @@ export default function TabTwoScreen() {
             <Text style={styles.profileBioText}>Junior in the college of engineering. Selling a bunch of textbooks and clothes I don't need.</Text>
         </View>
         <TouchableOpacity style={styles.plusButton}>
-          <PlusIcon width={36} height={36} />
+          <ProfileScreenIcon name="plus" color="black" size={36} />
         </TouchableOpacity>
     </View>
   );
+}
+
+function ProfileScreenIcon(props: {
+  name: React.ComponentProps<typeof Feather>['name'];
+  color: string;
+  size: number;
+}) {
+  return <Feather size={props.size} {...props} />;
 }
 
 const styles = StyleSheet.create({
@@ -67,10 +75,6 @@ const styles = StyleSheet.create({
     maxWidth: '93%',
     textAlign: 'center'
   },
-  smallIcon: {
-    height: 24,
-    width: 24
-  },
   plusButton: {
     position: 'absolute',
     right: 24,
@@ -86,9 +90,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
     shadowOpacity: 0.4
-  },
-  plusIcon: {
-    height: 36,
-    width: 36
   }
 });
