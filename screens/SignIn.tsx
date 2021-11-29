@@ -27,18 +27,32 @@ const handleGoogleSignIn = () => {
 
 export default function SignIn() {
     return (
-        <View style={styles.container}>
+      <View style={styles.container}>
+        <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('../assets/images/signinbackgroundhue.png')} />
+        <View style={styles.innerContainer}>
             <Image width={200} height={200} source={require('../assets/images/signinlogo.png')}/>
             <View style={styles.signInButton}>
                 <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
             </View>
+            
         </View>
+        
+      </View>
+
+        
     );
 }
 
 
 const styles = StyleSheet.create({
-    container: {
+    container:{
+      position: 'relative',
+      height: '100%',
+      width: '100%'
+    },
+
+    innerContainer: {
+        marginTop: '50%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -48,14 +62,24 @@ const styles = StyleSheet.create({
         width: 230,
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#ECECEC',
+        backgroundColor: '#FFFFFF',
         padding: '3%',
         borderRadius: 25,
-        marginTop: 100
-    },
+        marginTop:'80%',
+        shadowOffset:{  width: 3,  height: 3,  },
+        shadowColor: 'grey',
+        shadowOpacity: 0.5,
+  },
 
     signInText: {
-        fontSize: 22,
+        fontSize: 19,
+        fontWeight: 'bold',
+    },
+
+    gradient0:{
+        position:'absolute',
+        bottom: '-10%',
+        left: 0,
     }
   });
   
