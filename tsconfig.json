@@ -5,5 +5,9 @@
     "jsx": "react",
     "jsx": "react",
     "strict": true
-  }
+  },
+  "include": [
+    "src/components",
+    "src/custom.d.ts"
+  ]
 }
