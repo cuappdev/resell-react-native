@@ -11,13 +11,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
 
 function Button(props) {
-  const [clicked, setClicked] = useState(false);
-
+  const [clicked, setClicked] = useState(props.count === "0");
   useEffect(() => {
     setClicked(props.count === props.id);
   }, [props.count]);
   const onPress = () => props.setCount(props.id);
 
+  useEffect(() => {
+    setClicked(props.count === props.id);
+  }, [props.clicked]);
   return clicked ? (
     <LinearGradient
       colors={["#6F30F5", "#DD67AE", "#FEB6A2"]}
@@ -49,6 +51,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 2.5,
     borderWidth: 1,
     borderColor: "#D3D3D3",
+    minWidth: 60,
   },
   appUnclickedContainer: {
     elevation: 8,
@@ -60,6 +63,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderWidth: 1,
     borderColor: "#D3D3D3",
+    minWidth: 60,
   },
   appUnclickText: {
     fontWeight: "bold",

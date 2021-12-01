@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 export default function TabOneScreen({
   navigation,
 }: RootTabScreenProps<"TabOne">) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState("0");
 
   const renderItem = ({ item }) => {
     return (
@@ -57,7 +57,10 @@ export default function TabOneScreen({
         />
       </SafeAreaView>
 
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+      >
         <SafeAreaView style={styles.outer}>
           <FlatList
             data={DATA}
