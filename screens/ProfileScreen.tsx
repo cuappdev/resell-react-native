@@ -19,48 +19,50 @@ export default function ProfileScreen({ navigation }) {
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.upperContainer}>
-          <TouchableOpacity activeOpacity={pressedOpacity}>
-            <ProfileScreenIcon name="search" color="black" size={24} />
-          </TouchableOpacity>
-          <View style={styles.profileTextContainer}>
-            <Image
-              source={require("../assets/images/profilePic.jpg")}
-              style={{ width: 89, height: 89, borderRadius: 50 }}
-            />
+        <SafeAreaView>
+          <View style={styles.upperContainer}>
+            <TouchableOpacity activeOpacity={pressedOpacity}>
+              <ProfileScreenIcon name="search" color="black" size={24} />
+            </TouchableOpacity>
+            <View style={styles.profileTextContainer}>
+              <Image
+                source={require("../assets/images/profilePic.jpg")}
+                style={{ width: 89, height: 89, borderRadius: 50 }}
+              />
+            </View>
+            <TouchableOpacity activeOpacity={pressedOpacity}>
+              <ProfileScreenIcon name="settings" color="black" size={24} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity activeOpacity={pressedOpacity}>
-            <ProfileScreenIcon name="settings" color="black" size={24} />
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
+            <Text style={styles.profileBioText}>
+              Junior in the college of engineering. Selling a bunch of textbooks
+              and clothes I don't need.
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.plusButton}
+            onPress={() => navigation.navigate("NewPost")}
+          >
+            <ProfileScreenIcon name="plus" color="black" size={36} />
           </TouchableOpacity>
-        </View>
-        <View style={styles.profileTextContainer}>
-          <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
-          <Text style={styles.profileBioText}>
-            Junior in the college of engineering. Selling a bunch of textbooks
-            and clothes I don't need.
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={styles.plusButton}
-          onPress={() => navigation.navigate("NewPost")}
-        >
-          <ProfileScreenIcon name="plus" color="black" size={36} />
-        </TouchableOpacity>
-        <SafeAreaView style={styles.outer}>
-          <FlatList
-            data={DATA}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-          />
-          <FlatList
-            data={DATA1}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-          />
+          <SafeAreaView style={styles.outer}>
+            <FlatList
+              data={DATA}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={false}
+            />
+            <FlatList
+              data={DATA1}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={false}
+            />
+          </SafeAreaView>
         </SafeAreaView>
       </ScrollView>
     </View>
@@ -146,11 +148,11 @@ const styles = StyleSheet.create({
     marginTop: 32,
     backgroundColor: "transparent",
     marginVertical: 8,
+    marginHorizontal: 8,
   },
   container: {
     flex: 1,
     justifyContent: "flex-start",
-    padding: 18,
     paddingBottom: 75,
   },
   upperContainer: {
@@ -158,6 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "stretch",
+    paddingHorizontal: 18,
   },
   profileBubbleContainer: {
     flexGrow: 1,
@@ -172,6 +175,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    paddingHorizontal: 18,
   },
   profileNameText: {
     fontFamily: "Roboto-Bold",

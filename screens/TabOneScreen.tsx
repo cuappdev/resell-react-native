@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Pressable } from "react-native";
 
 import EditScreenInfo from "../components/EditScreenInfo";
 import { Text, View } from "../components/Themed";
@@ -15,6 +15,8 @@ import ProductCard from "../components/ProductCard";
 import Button from "../components/Button";
 import { ListItem } from "react-native-elements/dist/list/ListItem";
 import { useState, useEffect } from "react";
+import { FAB } from "react-native-paper";
+import { white } from "react-native-paper/lib/typescript/styles/colors";
 
 export default function TabOneScreen({
   navigation,
@@ -78,6 +80,13 @@ export default function TabOneScreen({
           />
         </SafeAreaView>
       </ScrollView>
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        onPress={() => navigation.navigate("NewPost")}
+        color={"#808080"}
+        theme={{ colors: { accent: "white" } }}
+      />
     </View>
   );
 }
@@ -171,4 +180,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   filter: { marginStart: 12, marginTop: 9, marginBottom: 12 },
+  fab: {
+    position: "absolute",
+    margin: 16,
+    right: 10,
+    bottom: 90,
+  },
 });
