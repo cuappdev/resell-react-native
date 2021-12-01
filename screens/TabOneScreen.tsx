@@ -17,6 +17,9 @@ import { ListItem } from "react-native-elements/dist/list/ListItem";
 import { useState, useEffect } from "react";
 import { FAB } from "react-native-paper";
 import { white } from "react-native-paper/lib/typescript/styles/colors";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 
 export default function TabOneScreen({
   navigation,

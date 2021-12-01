@@ -6,6 +6,9 @@ import { Text, View } from "../components/Themed";
 import { FlatList, SafeAreaView, StatusBar, Image } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 
 export default function ProfileScreen({ navigation }) {
   const renderItem = ({ item }) => {

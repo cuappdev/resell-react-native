@@ -10,9 +10,17 @@ import {
   DefaultTheme,
   DarkTheme,
 } from "@react-navigation/native";
+import { pressedOpacity } from "../constants/Values";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { ColorSchemeName, Pressable, View } from "react-native";
+import {
+  StyleSheet,
+  ColorSchemeName,
+  Pressable,
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
@@ -132,12 +140,12 @@ function BottomTabNavigator() {
             <Header style={{ marginLeft: 26, marginBottom: 12 }} />
           ),
           headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate("Modal")}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}
-            ></Pressable>
+            <TouchableOpacity
+              activeOpacity={pressedOpacity}
+              style={{ marginRight: 20 }}
+            >
+              <HeaderIcon name="search" color="black" size={24} />
+            </TouchableOpacity>
           ),
           title: "",
           tabBarShowLabel: false,
@@ -149,14 +157,28 @@ function BottomTabNavigator() {
         options={{
           title: "",
           tabBarShowLabel: false,
+          headerStyle: {
+            shadowColor: "transparent",
+            backgroundColor: "#F9F9F9",
+          },
+          headerLeft: () => <Text style={styles.savedHeader}>Saved</Text>,
+          headerRight: () => (
+            <TouchableOpacity
+              activeOpacity={pressedOpacity}
+              style={{ marginRight: 20 }}
+            >
+              <HeaderIcon name="search" color="black" size={24} />
+            </TouchableOpacity>
+          ),
         }}
       />
       <BottomTab.Screen
         name="TabThree"
-        component={TabTwoScreen}
+        component={ModalScreen}
         options={{
           tabBarShowLabel: false,
           title: "",
+          headerShown: false,
         }}
       />
       <BottomTab.Screen
@@ -170,4 +192,23 @@ function BottomTabNavigator() {
       />
     </BottomTab.Navigator>
   );
+}
+
+const styles = StyleSheet.create({
+  savedHeader: {
+    fontFamily: "Rubik-Medium",
+    fontStyle: "normal",
+    fontWeight: "500",
+    fontSize: 32,
+    lineHeight: 38,
+    marginStart: 24,
+    marginTop: 8,
+  },
+});
+function HeaderIcon(props: {
+  name: React.ComponentProps<typeof Feather>["name"];
+  color: string;
+  size: number;
+}) {
+  return <Feather size={props.size} {...props} />;
 }
