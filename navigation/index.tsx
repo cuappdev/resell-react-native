@@ -26,6 +26,8 @@ import {
   RootTabScreenProps,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
+import ProfileScreen from '../screens/ProfileScreen';
+import PostScreen from '../screens/PostScreen';
 import { LinearGradient } from "expo-linear-gradient";
 import Home from "../assets/svg-components/home";
 import Header from "../assets/svg-components/header";
@@ -73,6 +75,7 @@ function RootNavigator() {
       />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="NewPost" component={PostScreen} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -159,7 +162,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="TabFour"
-        component={TabTwoScreen}
+        component={ProfileScreen}
         options={{
           tabBarShowLabel: false,
           title: "",

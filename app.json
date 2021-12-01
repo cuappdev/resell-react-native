@@ -12,6 +12,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins":[
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Resell to access your photos to let you share them.",
+          "cameraPermission": "Allow Resell to access your camera."
+        }
+      ]
+
+    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -20,6 +30,7 @@
     ],
     "ios": {
       "supportsTablet": true
+  
     },
     "android": {
       "adaptiveIcon": {
