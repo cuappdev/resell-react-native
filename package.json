@@ -20,7 +20,11 @@
     "expo-asset": "~8.3.2",
     "expo-constants": "~11.0.1",
     "expo-font": "~9.2.1",
+<<<<<<< HEAD
     "expo-image-picker": "^11.0.3",
+=======
+    "expo-google-app-auth": "^9.0.0",
+>>>>>>> main
     "expo-linear-gradient": "^10.0.3",
     "expo-linking": "~2.3.1",
     "expo-splash-screen": "~0.11.2",
