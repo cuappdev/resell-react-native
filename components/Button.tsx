@@ -20,7 +20,7 @@ function Button(props) {
   useEffect(() => {
     setClicked(props.count === props.id);
   }, [props.clicked]);
-  return clicked ? (
+  return clicked || props.alwaysColor ? (
     <LinearGradient
       colors={["#6F30F5", "#DD67AE", "#FEB6A2"]}
       style={styles.highLight}

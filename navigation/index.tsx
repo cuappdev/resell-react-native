@@ -46,6 +46,7 @@ import ClickedChat from "../assets/svg-components/clicked_chat";
 import Chat from "../assets/svg-components/chat";
 import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
+import TabThreeScreen from "../screens/TabThreeScreen";
 
 export default function Navigation({
   colorScheme,
@@ -174,7 +175,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="TabThree"
-        component={ModalScreen}
+        component={TabThreeScreen}
         options={{
           tabBarShowLabel: false,
           title: "",
