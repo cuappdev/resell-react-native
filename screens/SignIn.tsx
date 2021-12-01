@@ -30,7 +30,7 @@ export default function SignIn() {
       <View style={styles.container}>
         <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('../assets/images/signinbackgroundhue.png')} />
         <View style={styles.innerContainer}>
-            <Image width={200} height={200} source={require('../assets/images/signinlogo.png')}/>
+            <Image width={100} height={100} source={require('../assets/images/signinlogoblurry.png')}/>
             <View style={styles.signInButton}>
                 <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
             </View>
