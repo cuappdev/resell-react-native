@@ -8,7 +8,6 @@ export default function App() {
       <View>
         <PostScreen/>
         <View style={styles.container}>
-    
         </View>
       </View>
       
