@@ -81,12 +81,16 @@ export default function TabOneScreen({
 const FILTER = [
   {
     id: "0",
+    title: "All",
+  },
+  {
+    id: "1",
     title: "Funiture",
   },
-  { id: "1", title: "Books" },
-  { id: "2", title: "Kitchen Supplies" },
-  { id: "3", title: "Electronics" },
-  { id: "4", title: "Clothes" },
+  { id: "2", title: "Books" },
+  { id: "3", title: "Kitchen Supplies" },
+  { id: "4", title: "Electronics" },
+  { id: "5", title: "Clothes" },
 ];
 
 const DATA = [
