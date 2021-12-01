@@ -66,14 +66,16 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   appUnclickText: {
+    fontFamily: "Rubik-Medium",
     fontWeight: "bold",
     fontSize: 15,
     lineHeight: 18,
     color: "#4D4D4D",
     alignSelf: "center",
-    marginTop: 4,
+    marginTop: 3,
   },
   appButtonText: {
+    fontFamily: "Rubik-Medium",
     fontWeight: "bold",
     fontSize: 15,
     lineHeight: 18,

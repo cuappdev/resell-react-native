@@ -43,6 +43,7 @@ const ProductCard = (props) => {
             margin: 6,
             flexDirection: "row",
             justifyContent: "space-between",
+            marginVertical: 8,
           }}
         >
           <Text style={styles.itemName}>{props.title}</Text>
@@ -68,18 +69,24 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   itemName: {
+    fontFamily: "Rubik-Medium",
+
     fontStyle: "normal",
     fontWeight: "500",
     fontSize: 14,
     lineHeight: 17,
     width: "65%",
     margin: 1,
+    paddingEnd: 15,
   },
   priceTag: {
+    fontFamily: "Rubik-Regular",
+
     fontStyle: "normal",
     fontWeight: "normal",
     fontSize: 13,
     lineHeight: 15,
     margin: 1,
+    marginTop: 2,
   },
 });
