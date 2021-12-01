@@ -21,15 +21,30 @@ const ProductCard = (props) => {
           backgroundColor: "#ffffff",
           borderRadius: 10,
           overflow: "hidden",
-          width: "90%",
           marginHorizontal: 4,
           marginVertical: 8,
+          borderWidth: 1,
+          borderColor: "#CECECE",
         }}
       >
         <View>
-          <Image source={props.image} />
+          <Image
+            source={props.image}
+            style={{
+              width: "100%",
+              borderRadius: 10,
+              resizeMode: "cover",
+            }}
+          />
         </View>
-        <View style={{ padding: 8, flexDirection: "row" }}>
+        <View
+          style={{
+            padding: 4,
+            margin: 6,
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
           <Text style={styles.itemName}>{props.title}</Text>
           <Text>{props.price}</Text>
         </View>
@@ -58,11 +73,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 17,
     width: "65%",
+    margin: 1,
   },
   priceTag: {
     fontStyle: "normal",
     fontWeight: "normal",
     fontSize: 13,
     lineHeight: 15,
+    margin: 1,
   },
 });

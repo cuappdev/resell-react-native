@@ -145,9 +145,6 @@ function BottomTabNavigator() {
         name="TabTwo"
         component={TabTwoScreen}
         options={{
-          // tabBarIcon: ({ color }) => (
-          //   <TabBarIcon name="bookmark" color={color} />
-          // ),
           title: "",
           tabBarShowLabel: false,
         }}
@@ -156,9 +153,6 @@ function BottomTabNavigator() {
         name="TabThree"
         component={TabTwoScreen}
         options={{
-          // tabBarIcon: ({ color }) => (
-          //   <TabBarIcon name="message-circle" color={color} />
-          // ),
           tabBarShowLabel: false,
           title: "",
         }}
@@ -167,30 +161,10 @@ function BottomTabNavigator() {
         name="TabFour"
         component={TabTwoScreen}
         options={{
-          // tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
           tabBarShowLabel: false,
           title: "",
         }}
       />
     </BottomTab.Navigator>
   );
-}
-
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof Feather>["name"];
-  color: string;
-  focused: boolean;
-}) {
-  if (props.color === "TabOne") {
-    return props.focused ? <ClickedHome /> : <Home />;
-  } else if (props.color === "TabTwo") {
-    return props.focused ? <ClickedBookMark /> : <BookMark />;
-  } else if (props.color === "TabThree") {
-    return props.focused ? <ClickedChat /> : <Chat />;
-  } else if (props.color === "TabFour") {
-    return props.focused ? <ClickedProfile /> : <Profile />;
-  }
 }

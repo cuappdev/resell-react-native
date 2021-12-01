@@ -10,52 +10,47 @@ import {
   StatusBar,
   TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 import Button from "../components/Button";
 import { ListItem } from "react-native-elements/dist/list/ListItem";
+import { useState, useEffect } from "react";
+
 export default function TabOneScreen({
   navigation,
 }: RootTabScreenProps<"TabOne">) {
-  const [selectedId, setSelectedId] = useState(null);
+  const [count, setCount] = useState(0);
 
   const renderItem = ({ item }) => {
-    const backgroundColor = item.id === selectedId ? "#ECECEC" : "#ECECEC";
-    const color = item.id === selectedId ? "white" : "black";
-
     return (
       <ProductCard title={item.title} price={item.price} image={item.image} />
-      // <Item
-      //   item={item}
-      //   onPress={() => setSelectedId(item.id)}
-      //   backgroundColor={{ backgroundColor }}
-      //   textColor={{ color }}
-      // />
     );
   };
-  const renderButton = ({ item }) => {
-    const backgroundColor = item.id === selectedId ? "#ECECEC" : "#ECECEC";
-    const color = item.id === selectedId ? "white" : "black";
 
+  const renderButton = ({ item }) => {
     return (
-      <Button title={"Funiture"} />
-      // <Item
-      //   item={item}
-      //   onPress={() => setSelectedId(item.id)}
-      //   backgroundColor={{ backgroundColor }}
-      //   textColor={{ color }}
-      // />
+      <Button
+        title={item.title}
+        id={item.id}
+        count={count}
+        setCount={setCount}
+      />
     );
   };
   return (
-    <View style={{ backgroundColor: "#F9F9F9", height: "100%" }}>
-      <SafeAreaView>
+    <View
+      style={{
+        backgroundColor: "#F9F9F9",
+        height: "100%",
+        padding: 0,
+        paddingBottom: 75,
+      }}
+    >
+      <SafeAreaView style={styles.filter}>
         <FlatList
-          data={DATA}
+          data={FILTER}
           renderItem={renderButton}
           keyExtractor={(item) => item.id}
-          extraData={selectedId}
           showsHorizontalScrollIndicator={false}
           scrollEnabled={true}
           horizontal={true}
@@ -68,7 +63,6 @@ export default function TabOneScreen({
             data={DATA}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            extraData={selectedId}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
           />
@@ -76,7 +70,6 @@ export default function TabOneScreen({
             data={DATA1}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            extraData={selectedId}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
           />
@@ -85,6 +78,16 @@ export default function TabOneScreen({
     </View>
   );
 }
+const FILTER = [
+  {
+    id: "0",
+    title: "Funiture",
+  },
+  { id: "1", title: "Books" },
+  { id: "2", title: "Kitchen Supplies" },
+  { id: "3", title: "Electronics" },
+  { id: "4", title: "Clothes" },
+];
 
 const DATA = [
   {
@@ -101,14 +104,20 @@ const DATA = [
   },
   {
     id: "3",
-    title: "Nice Pair of Jeans",
-    image: require("../assets/images/item5.png"),
-    price: "$18.00",
+    title: "Pants",
+    image: require("../assets/images/Pants.png"),
+    price: "$52.00",
   },
   {
     id: "4",
     title: "Nike Air Force - Size 9.5",
     image: require("../assets/images/item1.png"),
+    price: "$90.00",
+  },
+  {
+    id: "5",
+    title: "Guitar",
+    image: require("../assets/images/Guitar.png"),
     price: "$90.00",
   },
 ];
@@ -131,6 +140,18 @@ const DATA1 = [
     image: require("../assets/images/item5.png"),
     price: "$18.00",
   },
+  {
+    id: "4",
+    title: "Clock",
+    image: require("../assets/images/Clock.png"),
+    price: "$14.00",
+  },
+  {
+    id: "5",
+    title: "White Shirt",
+    image: require("../assets/images/WhiteT.png"),
+    price: "$14.00",
+  },
 ];
 
 const styles = StyleSheet.create({
@@ -140,6 +161,7 @@ const styles = StyleSheet.create({
     marginTop: StatusBar.currentHeight || 0,
     backgroundColor: "transparent",
     marginVertical: 8,
-    marginHorizontal: 4,
+    marginHorizontal: 8,
   },
+  filter: { marginStart: 12, marginTop: 9, marginBottom: 12 },
 });
