@@ -7,24 +7,24 @@ import { Text, View } from '../components/Themed';
 export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
-        <View style={styles.upperContainer}>
-            <TouchableOpacity activeOpacity={pressedOpacity}>
-              <ProfileScreenIcon name="search" color="black" size={24} />
-            </TouchableOpacity>
-            <View style={styles.profileTextContainer}>
-                <View style={styles.profileBubble} />
-            </View>
-            <TouchableOpacity activeOpacity={pressedOpacity}>
-              <ProfileScreenIcon name="settings" color="black" size={24} />
-            </TouchableOpacity>
-        </View>
-        <View style={styles.profileTextContainer}>
-            <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
-            <Text style={styles.profileBioText}>Junior in the college of engineering. Selling a bunch of textbooks and clothes I don't need.</Text>
-        </View>
-        <TouchableOpacity style={styles.plusButton}>
-          <ProfileScreenIcon name="plus" color="black" size={36} />
+      <View style={styles.upperContainer}>
+        <TouchableOpacity activeOpacity={pressedOpacity}>
+          <ProfileScreenIcon name="search" color="black" size={24} />
         </TouchableOpacity>
+        <View style={styles.profileTextContainer}>
+          <View style={styles.profileBubble} />
+        </View>
+        <TouchableOpacity activeOpacity={pressedOpacity}>
+          <ProfileScreenIcon name="settings" color="black" size={24} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.profileTextContainer}>
+        <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
+        <Text style={styles.profileBioText}>Junior in the college of engineering. Selling a bunch of textbooks and clothes I don't need.</Text>
+      </View>
+      <TouchableOpacity style={styles.plusButton}>
+        <ProfileScreenIcon name="plus" color="black" size={36} />
+      </TouchableOpacity>
     </View>
   );
 }
