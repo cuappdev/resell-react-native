@@ -1,27 +1,16 @@
 import * as Font from "expo-font";
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-<<<<<<< HEAD
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-=======
 import SignIn from "./screens/SignIn";
 import { StyleSheet, Text, View, Image } from 'react-native';
 import * as Font from "expo-font";
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
->>>>>>> main
 
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
-<<<<<<< HEAD
-
-export default function App() {
-  const isLoadingComplete = useCachedResources();
-  const colorScheme = useColorScheme();
-
-=======
 import * as Google from 'expo-google-app-auth';
 
 export default function App() {
@@ -51,7 +40,6 @@ export default function App() {
           }
         })  
   }
->>>>>>> main
 
   Font.loadAsync({
     "Roboto-Black": require("./assets/fonts/Roboto-Black.ttf"),
@@ -73,14 +61,6 @@ export default function App() {
   } else {
     return (
       <SafeAreaProvider>
-<<<<<<< HEAD
-        <Navigation colorScheme={colorScheme} />
-        <StatusBar />
-      </SafeAreaProvider>
-    );
-  }
-}
-=======
        {!signedIn && 
        <View style={styles.containerSignIn}>
           <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
@@ -147,4 +127,3 @@ const styles = StyleSheet.create({
       left: 0,
   }
 });
->>>>>>> main
