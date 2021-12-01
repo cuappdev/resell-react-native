@@ -26,8 +26,8 @@ import {
   RootTabScreenProps,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
-import ProfileScreen from '../screens/ProfileScreen';
-import PostScreen from '../screens/PostScreen';
+import ProfileScreen from "../screens/ProfileScreen";
+import PostScreen from "../screens/PostScreen";
 import { LinearGradient } from "expo-linear-gradient";
 import Home from "../assets/svg-components/home";
 import Header from "../assets/svg-components/header";
@@ -124,7 +124,6 @@ function BottomTabNavigator() {
         component={TabOneScreen}
         options={({ navigation }: RootTabScreenProps<"TabOne">) => ({
           // tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerStatusBarHeight: 60,
           headerStyle: {
             shadowColor: "transparent",
             backgroundColor: "#F9F9F9",
@@ -166,6 +165,7 @@ function BottomTabNavigator() {
         options={{
           tabBarShowLabel: false,
           title: "",
+          headerShown: false,
         }}
       />
     </BottomTab.Navigator>

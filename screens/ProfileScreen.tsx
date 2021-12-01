@@ -3,7 +3,7 @@ import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "../components/Themed";
-import { FlatList, SafeAreaView, StatusBar } from "react-native";
+import { FlatList, SafeAreaView, StatusBar, Image } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 
@@ -24,7 +24,10 @@ export default function ProfileScreen({ navigation }) {
             <ProfileScreenIcon name="search" color="black" size={24} />
           </TouchableOpacity>
           <View style={styles.profileTextContainer}>
-            <View style={styles.profileBubble} />
+            <Image
+              source={require("../assets/images/profilePic.jpg")}
+              style={{ width: 89, height: 89, borderRadius: 50 }}
+            />
           </View>
           <TouchableOpacity activeOpacity={pressedOpacity}>
             <ProfileScreenIcon name="settings" color="black" size={24} />
@@ -143,7 +146,6 @@ const styles = StyleSheet.create({
     marginTop: 32,
     backgroundColor: "transparent",
     marginVertical: 8,
-    marginHorizontal: 8,
   },
   container: {
     flex: 1,
