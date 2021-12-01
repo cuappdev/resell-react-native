@@ -4,7 +4,7 @@ import { pressedOpacity } from '../constants/Values';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 
-export default function TabTwoScreen() {
+export default function ProfileScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.upperContainer}>
@@ -22,7 +22,7 @@ export default function TabTwoScreen() {
         <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
         <Text style={styles.profileBioText}>Junior in the college of engineering. Selling a bunch of textbooks and clothes I don't need.</Text>
       </View>
-      <TouchableOpacity style={styles.plusButton}>
+      <TouchableOpacity style={styles.plusButton} onPress={() => navigation.navigate('NewPost')}>
         <ProfileScreenIcon name="plus" color="black" size={36} />
       </TouchableOpacity>
     </View>
