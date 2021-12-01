@@ -20,13 +20,8 @@
     "expo-asset": "~8.3.2",
     "expo-constants": "~11.0.1",
     "expo-font": "~9.2.1",
-<<<<<<< HEAD
-    "expo-google-app-auth": "~8.2.5",
-    "expo-google-sign-in": "~9.2.1",
-    "expo-image-picker": "~10.2.2",
-=======
+    "expo-image-picker": "^11.0.3",
     "expo-linear-gradient": "^10.0.3",
->>>>>>> main
     "expo-linking": "~2.3.1",
     "expo-splash-screen": "~0.11.2",
     "expo-status-bar": "~1.0.4",
@@ -35,11 +30,8 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
     "react-native-gesture-handler": "~1.10.2",
-<<<<<<< HEAD
-    "react-native-paper": "^4.10.0",
-=======
     "react-native-pager-view": "^5.4.8",
->>>>>>> main
+    "react-native-paper": "^4.10.1",
     "react-native-reanimated": "~2.2.0",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
@@ -50,8 +42,8 @@
     "react-native-svg": "^12.1.1",
     "react-native-swipe-modal-up-down": "^1.1.0",
     "react-native-swipe-up-down": "^1.0.7",
-    "rn-sliding-up-panel": "^2.4.5",
-    "react-native-web": "~0.13.12"
+    "react-native-web": "~0.13.12",
+    "rn-sliding-up-panel": "^2.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
