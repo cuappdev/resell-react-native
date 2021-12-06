@@ -7,15 +7,11 @@ import { FlatList, SafeAreaView, StatusBar, Image } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 import { LogBox } from "react-native";
+import { ProductRecyclerView } from "../components/ProductRecyclerView";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 export default function ProfileScreen({ navigation }) {
-  const renderItem = ({ item }) => {
-    return (
-      <ProductCard title={item.title} price={item.price} image={item.image} />
-    );
-  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -50,22 +46,7 @@ export default function ProfileScreen({ navigation }) {
           >
             <ProfileScreenIcon name="plus" color="black" size={36} />
           </TouchableOpacity>
-          <SafeAreaView style={styles.outer}>
-            <FlatList
-              data={DATA}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              showsHorizontalScrollIndicator={false}
-              scrollEnabled={false}
-            />
-            <FlatList
-              data={DATA1}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              showsHorizontalScrollIndicator={false}
-              scrollEnabled={false}
-            />
-          </SafeAreaView>
+          <ProductRecyclerView count={null} data={DATA} filter={null} />
         </SafeAreaView>
       </ScrollView>
     </View>
@@ -88,56 +69,55 @@ const DATA = [
   },
   {
     id: "2",
-    title: "Brown Rotating Chair",
-    image: require("../assets/images/item3.png"),
-    price: "$52.00",
-  },
-  {
-    id: "3",
-    title: "Pants",
-    image: require("../assets/images/Pants.png"),
-    price: "$52.00",
-  },
-  {
-    id: "4",
-    title: "Nike Air Force - Size 9.5",
-    image: require("../assets/images/item1.png"),
-    price: "$90.00",
-  },
-  {
-    id: "5",
-    title: "Guitar",
-    image: require("../assets/images/Guitar.png"),
-    price: "$90.00",
-  },
-];
-const DATA1 = [
-  {
-    id: "1",
     title: "Milk and Honey Paperback",
     image: require("../assets/images/item1.png"),
     price: "$16.00",
   },
   {
-    id: "2",
+    id: "3",
+    title: "Brown Rotating Chair",
+    image: require("../assets/images/item3.png"),
+    price: "$52.00",
+  },
+  {
+    id: "4",
     title: "Lamp",
     image: require("../assets/images/item4.png"),
     price: "$14.00",
   },
   {
-    id: "3",
+    id: "5",
+    title: "Pants",
+    image: require("../assets/images/Pants.png"),
+    price: "$52.00",
+  },
+  {
+    id: "6",
     title: "Nice Pair of Jeans",
     image: require("../assets/images/item5.png"),
     price: "$18.00",
   },
   {
-    id: "4",
+    id: "7",
+    title: "Nike Air Force - Size 9.5",
+    image: require("../assets/images/item1.png"),
+    price: "$90.00",
+  },
+
+  {
+    id: "8",
     title: "Clock",
     image: require("../assets/images/Clock.png"),
     price: "$14.00",
   },
   {
-    id: "5",
+    id: "9",
+    title: "Guitar",
+    image: require("../assets/images/Guitar.png"),
+    price: "$90.00",
+  },
+  {
+    id: "10",
     title: "White Shirt",
     image: require("../assets/images/WhiteT.png"),
     price: "$14.00",
@@ -145,14 +125,6 @@ const DATA1 = [
 ];
 
 const styles = StyleSheet.create({
-  outer: {
-    flexDirection: "row",
-    flex: 1,
-    marginTop: 32,
-    backgroundColor: "transparent",
-    marginVertical: 8,
-    marginHorizontal: 8,
-  },
   container: {
     flex: 1,
     justifyContent: "flex-start",

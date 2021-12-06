@@ -1,54 +1,17 @@
 import React from "react";
 
 // import all the components we are going to use
-import { SafeAreaView, StyleSheet, View, Text, Image } from "react-native";
-
-//import Card
-import { Card } from "react-native-elements";
-import { clockRunning } from "react-native-reanimated";
+import { StyleSheet, View, Text, Image } from "react-native";
 
 const ProductCard = (props) => {
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: 10,
-          overflow: "hidden",
-          marginHorizontal: 4,
-          marginVertical: 8,
-          borderWidth: 1,
-          borderColor: "#CECECE",
-        }}
-      >
-        <View>
-          <Image
-            source={props.image}
-            style={{
-              width: "100%",
-              borderRadius: 10,
-              resizeMode: "cover",
-            }}
-          />
-        </View>
-        <View
-          style={{
-            padding: 4,
-            margin: 6,
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginVertical: 8,
-          }}
-        >
-          <Text style={styles.itemName}>{props.title}</Text>
-          <Text>{props.price}</Text>
-        </View>
+    <View style={styles.container}>
+      <View>
+        <Image source={props.image} style={styles.image} />
+      </View>
+      <View style={styles.textBox}>
+        <Text style={styles.itemName}>{props.title}</Text>
+        <Text style={styles.priceTag}>{props.price}</Text>
       </View>
     </View>
   );
@@ -58,14 +21,26 @@ export default ProductCard;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffff",
     borderRadius: 10,
+    overflow: "hidden",
+    marginHorizontal: 4,
+    marginVertical: 8,
     borderWidth: 1,
-    shadowRadius: 1,
-    display: "flex",
+    borderColor: "#CECECE",
     flex: 1,
+    justifyContent: "center",
+  },
+  textBox: {
+    padding: 4,
+    margin: 6,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 8,
   },
   image: {
+    width: "100%",
+    borderRadius: 10,
     resizeMode: "cover",
   },
   itemName: {
@@ -75,13 +50,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontSize: 14,
     lineHeight: 17,
-    width: "65%",
+    width: "75%",
     margin: 1,
     paddingEnd: 15,
   },
   priceTag: {
     fontFamily: "Rubik-Regular",
-
     fontStyle: "normal",
     fontWeight: "normal",
     fontSize: 13,
