@@ -1,3 +1,5 @@
+import GlobalStore from './state_manage/store';
+import { Provider } from 'react-redux'; 
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import * as Font from "expo-font";
@@ -58,22 +60,24 @@ export default function App() {
   } else {
     return (
       <SafeAreaProvider>
-       {!signedIn && 
-       <View style={styles.containerSignIn}>
-          <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
-          <View style={styles.innerContainer}>
-              <Image width={100} height={100} source={require('./assets/images/signinlogoblurry.png')}/>
-              <View style={styles.signInButton}>
-                  <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
+        <Provider store={GlobalStore}>
+          {!signedIn && 
+          <View style={styles.containerSignIn}>
+              <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
+              <View style={styles.innerContainer}>
+                  <Image width={100} height={100} source={require('./assets/images/signinlogoblurry.png')}/>
+                  <View style={styles.signInButton}>
+                      <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
+                  </View>
+                  
               </View>
               
           </View>
-          
-        </View>
-        }
-       {signedIn && 
-            <Navigation colorScheme={colorScheme} />
-      }
+          }
+          {signedIn && 
+                <Navigation colorScheme={colorScheme} />
+          }
+        </Provider>
       </SafeAreaProvider>
       
     );
