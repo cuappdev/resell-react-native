@@ -6,8 +6,8 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 
 // State imports
-import { setBio, setName } from '../state_manage/actions/actions';
-import { RootState } from '../state_manage/reducers';
+import { setBio, setName } from '../state_manage/actions/profileScreenActions';
+import { RootState } from '../state_manage/reducers/profileScreenReducer';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function ProfileScreen({ navigation }) {
@@ -33,7 +33,10 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.profileTextContainer}>
           <View style={styles.profileBubble} />
         </View>
-        <TouchableOpacity activeOpacity={pressedOpacity}>
+        <TouchableOpacity activeOpacity={pressedOpacity} onPress={() => {
+          changeName('Thub')
+          changeBio('Whats up')
+        }}>
           <ProfileScreenIcon name="settings" color="black" size={24} />
         </TouchableOpacity>
       </View>

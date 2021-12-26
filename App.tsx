@@ -1,11 +1,10 @@
 import GlobalStore from './state_manage/store';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { Provider } from 'react-redux'; 
-import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import * as Font from "expo-font";
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useEffect, useState } from 'react';
 
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
@@ -59,8 +58,8 @@ export default function App() {
     return null;
   } else {
     return (
-      <SafeAreaProvider>
-        <Provider store={GlobalStore}>
+      <Provider store={GlobalStore}>
+        <SafeAreaProvider>
           {!signedIn && 
           <View style={styles.containerSignIn}>
               <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
@@ -77,9 +76,8 @@ export default function App() {
           {signedIn && 
                 <Navigation colorScheme={colorScheme} />
           }
-        </Provider>
-      </SafeAreaProvider>
-      
+        </SafeAreaProvider>
+      </Provider>
     );
   }
 }

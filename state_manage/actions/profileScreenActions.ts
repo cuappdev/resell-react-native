@@ -1,11 +1,11 @@
-import * as ActionTypes from './actionTypes';
+import * as ActionTypes from './profileScreenActionTypes';
 
 export const setName = (name: string) => ({
     type: ActionTypes.SET_NAME,
-    name
+    payload: name
 })
 
 export const setBio = (bio: string) => ({
     type: ActionTypes.SET_BIO,
-    bio
+    payload: bio
 })
