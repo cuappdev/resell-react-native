@@ -7,7 +7,6 @@ import { Text, View } from '../components/Themed';
 
 // State imports
 import { setBio, setName } from '../state_manage/actions/profileScreenActions';
-import { RootState } from '../state_manage/reducers/profileScreenReducer';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function ProfileScreen({ navigation }) {
@@ -16,11 +15,11 @@ export default function ProfileScreen({ navigation }) {
   const changeName = (name: string) => dispatch(setName(name))
   const changeBio = (bio: string) => dispatch(setBio(bio))
 
-  const name = useSelector((state: RootState) => {
+  const name = useSelector((state: any) => {
     return state.profile.name
   })
 
-  const bio = useSelector((state: RootState) => {
+  const bio = useSelector((state: any) => {
     return state.profile.bio
   })
 
@@ -33,10 +32,7 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.profileTextContainer}>
           <View style={styles.profileBubble} />
         </View>
-        <TouchableOpacity activeOpacity={pressedOpacity} onPress={() => {
-          changeName('Thub')
-          changeBio('Whats up')
-        }}>
+        <TouchableOpacity activeOpacity={pressedOpacity}>
           <ProfileScreenIcon name="settings" color="black" size={24} />
         </TouchableOpacity>
       </View>
