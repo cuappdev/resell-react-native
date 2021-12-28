@@ -1,10 +1,28 @@
+// Style imports
 import * as React from 'react';
 import { Feather } from '@expo/vector-icons';
 import { pressedOpacity } from '../constants/Values';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 
+// State imports
+import { setBio, setName } from '../state_manage/actions/profileScreenActions';
+import { useDispatch, useSelector } from 'react-redux';
+
 export default function ProfileScreen({ navigation }) {
+  const dispatch = useDispatch()
+
+  const changeName = (name: string) => dispatch(setName(name))
+  const changeBio = (bio: string) => dispatch(setBio(bio))
+
+  const name = useSelector((state: any) => {
+    return state.profile.name
+  })
+
+  const bio = useSelector((state: any) => {
+    return state.profile.bio
+  })
+
   return (
     <View style={styles.container}>
       <View style={styles.upperContainer}>
@@ -19,8 +37,8 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
       </View>
       <View style={styles.profileTextContainer}>
-        <Text style={styles.profileNameText}>Sergio Pablo Diaz</Text>
-        <Text style={styles.profileBioText}>Junior in the college of engineering. Selling a bunch of textbooks and clothes I don't need.</Text>
+        <Text style={styles.profileNameText}>{name}</Text>
+        <Text style={styles.profileBioText}>{bio}</Text>
       </View>
       <TouchableOpacity style={styles.plusButton} onPress={() => navigation.navigate('NewPost')}>
         <ProfileScreenIcon name="plus" color="black" size={36} />

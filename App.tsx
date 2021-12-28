@@ -1,14 +1,14 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
 import * as Font from "expo-font";
+import * as Google from 'expo-google-app-auth';
+import GlobalStore from './state_manage/store';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import Navigation from './navigation';
+import { Provider } from 'react-redux'; 
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useEffect, useState } from 'react';
-
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
-import Navigation from './navigation';
-import * as Google from 'expo-google-app-auth';
 
 export default function App() {
 
@@ -57,25 +57,26 @@ export default function App() {
     return null;
   } else {
     return (
-      <SafeAreaProvider>
-       {!signedIn && 
-       <View style={styles.containerSignIn}>
-          <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
-          <View style={styles.innerContainer}>
-              <Image width={100} height={100} source={require('./assets/images/signinlogoblurry.png')}/>
-              <View style={styles.signInButton}>
-                  <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
+      <Provider store={GlobalStore}>
+        <SafeAreaProvider>
+          {!signedIn && 
+          <View style={styles.containerSignIn}>
+              <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
+              <View style={styles.innerContainer}>
+                  <Image width={100} height={100} source={require('./assets/images/signinlogoblurry.png')}/>
+                  <View style={styles.signInButton}>
+                      <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
+                  </View>
+                  
               </View>
               
           </View>
-          
-        </View>
-        }
-       {signedIn && 
-            <Navigation colorScheme={colorScheme} />
-      }
-      </SafeAreaProvider>
-      
+          }
+          {signedIn && 
+                <Navigation colorScheme={colorScheme} />
+          }
+        </SafeAreaProvider>
+      </Provider>
     );
   }
 }
