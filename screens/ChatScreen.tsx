@@ -14,8 +14,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef } from "react";
 import { RootTabScreenProps } from "../types";
 import { ButtonBanner } from "../components/ButtonBanner";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 
 export default function ChatScreen({
   navigation,

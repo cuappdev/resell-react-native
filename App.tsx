@@ -1,19 +1,15 @@
-
 import * as Font from "expo-font";
-import * as Google from 'expo-google-app-auth';
 import React from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
-import * as Font from "expo-font";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
-import { Provider } from 'react-redux';
+import { Provider } from "react-redux";
 import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 import * as Google from "expo-google-app-auth";
-import GlobalStore from './state_manage/store';
-
+import GlobalStore from "./state_manage/store";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -73,22 +69,29 @@ export default function App() {
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
-          {!signedIn &&
-          <View style={styles.containerSignIn}>
-              <Image style={styles.gradient0} width={'100%'} height={'70%'} source={require('./assets/images/signinbackgroundhue.png')} />
+          {!signedIn && (
+            <View style={styles.containerSignIn}>
+              <Image
+                style={styles.gradient0}
+                width={"100%"}
+                height={"70%"}
+                source={require("./assets/images/signinbackgroundhue.png")}
+              />
               <View style={styles.innerContainer}>
-                  <Image width={100} height={100} source={require('./assets/images/signinlogoblurry.png')}/>
-                  <View style={styles.signInButton}>
-                      <Text onPress={handleGoogleSignIn} style={styles.signInText}>Sign in with Google</Text>
-                  </View>
-
+                <Image
+                  width={100}
+                  height={100}
+                  source={require("./assets/images/signinlogoblurry.png")}
+                />
+                <View style={styles.signInButton}>
+                  <Text onPress={handleGoogleSignIn} style={styles.signInText}>
+                    Sign in with Google
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-          }
-          {signedIn &&
-                <Navigation colorScheme={colorScheme} />
-          }
+          )}
+          {signedIn && <Navigation colorScheme={colorScheme} />}
         </SafeAreaProvider>
       </Provider>
     );

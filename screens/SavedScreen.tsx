@@ -7,8 +7,8 @@ import ProductCard from "../components/ProductCard";
 import { ProductRecyclerView } from "../components/ProductRecyclerView";
 
 import { RootTabScreenProps } from "../types";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 
 export default function SavedScreen({
   navigation,

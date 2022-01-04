@@ -14,8 +14,8 @@ import { DATA } from "../data/product";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductRecyclerView } from "../components/ProductRecyclerView";
 
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 
 export default function HomeScreen({
   navigation,

@@ -8,26 +8,26 @@ import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 import { LogBox } from "react-native";
 import { ProductRecyclerView } from "../components/ProductRecyclerView";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 
 // State imports
-import { setBio, setName } from '../state_manage/actions/profileScreenActions';
-import { useDispatch, useSelector } from 'react-redux';
+import { setBio, setName } from "../state_manage/actions/profileScreenActions";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function ProfileScreen({ navigation }) {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const changeName = (name: string) => dispatch(setName(name))
-  const changeBio = (bio: string) => dispatch(setBio(bio))
+  const changeName = (name: string) => dispatch(setName(name));
+  const changeBio = (bio: string) => dispatch(setBio(bio));
 
   const name = useSelector((state: any) => {
-    return state.profile.name
-  })
+    return state.profile.name;
+  });
 
   const bio = useSelector((state: any) => {
-    return state.profile.bio
-  })
+    return state.profile.bio;
+  });
 
   return (
     <View style={styles.container}>
@@ -41,7 +41,7 @@ export default function ProfileScreen({ navigation }) {
               <ProfileScreenIcon name="search" color="black" size={24} />
             </TouchableOpacity>
             <View style={styles.profileTextContainer}>
-                <View style={styles.profileBubble} />
+              <View style={styles.profileBubble} />
             </View>
             <TouchableOpacity activeOpacity={pressedOpacity}>
               <ProfileScreenIcon name="settings" color="black" size={24} />
