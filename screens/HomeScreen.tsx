@@ -12,7 +12,7 @@ import { LogBox } from "react-native";
 import { FILTER } from "../data/filter";
 import { DATA } from "../data/product";
 import { ButtonBanner } from "../components/ButtonBanner";
-import { ProductRecyclerView } from "../components/ProductRecyclerView";
+import { ProductList } from "../components/ProductList";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
@@ -25,7 +25,7 @@ export default function HomeScreen({
   return (
     <View style={styles.outer}>
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-      <ProductRecyclerView count={count} data={DATA} filter={FILTER} />
+      <ProductList count={count} data={DATA} filter={FILTER} />
       <FAB
         style={styles.fab}
         icon="plus"

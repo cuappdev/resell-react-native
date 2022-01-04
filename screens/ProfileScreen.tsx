@@ -7,7 +7,7 @@ import { FlatList, SafeAreaView, StatusBar, Image } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 import { LogBox } from "react-native";
-import { ProductRecyclerView } from "../components/ProductRecyclerView";
+import { ProductList } from "../components/ProductList";
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 
@@ -57,7 +57,7 @@ export default function ProfileScreen({ navigation }) {
           >
             <ProfileScreenIcon name="plus" color="black" size={36} />
           </TouchableOpacity>
-          <ProductRecyclerView count={null} data={DATA} filter={null} />
+          <ProductList count={null} data={DATA} filter={null} />
         </SafeAreaView>
       </ScrollView>
     </View>

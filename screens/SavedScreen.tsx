@@ -4,7 +4,7 @@ import { LogBox } from "react-native";
 import { View } from "../components/Themed";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
-import { ProductRecyclerView } from "../components/ProductRecyclerView";
+import { ProductList } from "../components/ProductList";
 
 import { RootTabScreenProps } from "../types";
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
@@ -15,7 +15,7 @@ export default function SavedScreen({
 }: RootTabScreenProps<"SavedTab">) {
   return (
     <View style={styles.outer}>
-      <ProductRecyclerView count={null} data={DATA} filter={null} />
+      <ProductList count={null} data={DATA} filter={null} />
     </View>
   );
 }

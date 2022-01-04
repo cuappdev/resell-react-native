@@ -10,10 +10,10 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import Button from "../components/Button";
-import ProductCard from "../components/ProductCard";
+import Button from "./Button";
+import ProductCard from "./ProductCard";
 
-export function ProductRecyclerView({ count, filter, data }) {
+export function ProductList({ count, filter, data }) {
   const renderItem = ({ item }) => {
     var show = true;
     if (filter && count) {
