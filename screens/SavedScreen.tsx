@@ -15,7 +15,7 @@ export default function SavedScreen({
 }: RootTabScreenProps<"SavedTab">) {
   return (
     <View style={styles.outer}>
-      <ProductList count={null} data={DATA} filter={null} />
+      <ProductList count={null} data={DATA} filter={null} navigation={navigation}/>
     </View>
   );
 }

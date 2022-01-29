@@ -3,7 +3,7 @@ import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "../components/Themed";
-import { FlatList, SafeAreaView, StatusBar, Image } from "react-native";
+import { FlatList, SafeAreaView, StatusBar, Image, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 import { LogBox } from "react-native";
@@ -57,7 +57,7 @@ export default function ProfileScreen({ navigation }) {
           >
             <ProfileScreenIcon name="plus" color="black" size={36} />
           </TouchableOpacity>
-          <ProductList count={null} data={DATA} filter={null} />
+          <ProductList count={null} data={DATA} filter={null} navigation={navigation}/>
         </SafeAreaView>
       </ScrollView>
     </View>
@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     paddingBottom: 75,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   upperContainer: {
     display: "flex",
