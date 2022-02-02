@@ -1,6 +1,9 @@
 const tintColorLight = '#000000';
 const tintColorDark = '#fff';
 
+// Declare global colors here
+export const homeBackgroundGray = '#F9F9F9';
+
 export default {
   light: {
     text: '#000',

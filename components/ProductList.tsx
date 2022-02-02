@@ -13,7 +13,7 @@ import {
 import Button from "./Button";
 import ProductCard from "./ProductCard";
 
-export function ProductList({ count, filter, data }) {
+export function ProductList({ count, filter, data, navigation }) {
   const renderItem = ({ item }) => {
     var show = true;
     if (filter && count) {
@@ -23,7 +23,7 @@ export function ProductList({ count, filter, data }) {
       show = true;
     }
     return show ? (
-      <ProductCard title={item.title} price={item.price} image={item.image} />
+      <ProductCard title={item.title} price={item.price} image={item.image} onPress={() => navigation.navigate("ProductHome")}/>
     ) : null;
   };
   var i,

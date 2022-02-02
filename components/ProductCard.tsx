@@ -1,11 +1,11 @@
 import React from "react";
 
 // import all the components we are going to use
-import { StyleSheet, View, Text, Image } from "react-native";
+import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 
 const ProductCard = (props) => {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={props.onPress}>
       <View>
         <Image source={props.image} style={styles.image} />
       </View>
@@ -13,7 +13,7 @@ const ProductCard = (props) => {
         <Text style={styles.itemName}>{props.title}</Text>
         <Text style={styles.priceTag}>{props.price}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

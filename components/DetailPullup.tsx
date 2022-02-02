@@ -3,18 +3,18 @@ import { FlatList, Image, StyleSheet } from "react-native";
 import { Text, View } from "./Themed";
 
 export type Item = {
-  images: string[];
+  images: number[];
   title: string;
   price: number;
   sellerName: string;
   sellerProfile: string;
   description: string;
-  similarItems: string[]
+  similarItems: number[]
 }
 
 export function DetailPullUpHeader({ item }: { item: Item }) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, styles.roundCorner]}>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.price}>{"$ " + item.price}</Text>
@@ -27,7 +27,7 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
   );
 }
 
-export default function DetailPullUpBody({ item }: { item: Item }) {
+export function DetailPullUpBody({ item }: { item: Item }) {
   return (
     <View style={styles.container}>
       <Text style={styles.details}>{item.description}</Text>
@@ -37,7 +37,7 @@ export default function DetailPullUpBody({ item }: { item: Item }) {
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Image source={{ uri: item }} style={styles.similarItem}>
+          <Image source={item} style={styles.similarItem}>
           </Image>
         )}
         keyExtractor={(item, index) => index.toString()}
@@ -51,6 +51,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     width: "100%"
+  },
+  roundCorner: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
   },
   expandRow: {
     flexDirection: 'row',

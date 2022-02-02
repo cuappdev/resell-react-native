@@ -19,6 +19,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Button
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -34,9 +35,13 @@ import {
   RootStackParamList,
   RootTabParamList,
   RootTabScreenProps,
+  HomeStackParamList,
+  SavedStackParamList,
+  ProfileStackParamList,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
+import ProductDetailsScreen from '../screens/ProductDetailsScreen';
 import Home from "../assets/svg-components/home";
 import Header from "../assets/svg-components/header";
 import ClickedHome from "../assets/svg-components/home_clicked";
@@ -46,6 +51,8 @@ import ClickedChat from "../assets/svg-components/clicked_chat";
 import Chat from "../assets/svg-components/chat";
 import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
+
+import { bottomTabsHeight } from '../constants/Layout';
 
 export default function Navigation({
   colorScheme,
@@ -68,6 +75,15 @@ export default function Navigation({
  */
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+/**
+ * A stack navigator for handling all screens displayed under home tab.
+ */
+const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+
+const SavedStack = createNativeStackNavigator<SavedStackParamList>();
+
+const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
+
 function RootNavigator() {
   return (
     <Stack.Navigator>
@@ -88,6 +104,44 @@ function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
+function HomeNavigator({ navigation }) {
+  return (
+    <HomeStack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}>
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+      />
+      <HomeStack.Screen
+        name="ProductHome"
+        component={ProductDetailsScreen}
+        options={{
+          headerShown: false,
+          headerTitle: "",
+          headerTransparent: true,
+          headerLeft: () => (
+            <Button title="<" onPress={()=>navigation.goBack()} />
+          ),
+        }}
+      />
+    </HomeStack.Navigator>
+  );
+}
+
+// TODO: Write Navigator for other tabs. E.g., complete the saved navigator so that clicking item on saved page will open it up on the same tab
+// function SavedNavigator() {
+//   return (
+//     <SavedStack.Navigator>
+//       <SavedStack.Screen
+//         name="Saved"
+//         component={SavedScreen}
+//         options={{
+
+//   )
+// }
 
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
@@ -123,21 +177,10 @@ function BottomTabNavigator() {
     >
       <BottomTab.Screen
         name="HomeTab"
-        component={HomeScreen}
-        options={({ navigation }: RootTabScreenProps<"HomeTab">) => ({
-          headerStyle: styles.headerNoShadow,
-          headerLeft: () => (
-            <Header style={{ marginLeft: 26, marginBottom: 12 }} />
-          ),
-          headerRight: () => (
-            <TouchableOpacity
-              activeOpacity={pressedOpacity}
-              style={{ marginRight: 20 }}
-            >
-              <HeaderIcon name="search" color="black" size={24} />
-            </TouchableOpacity>
-          ),
-          title: "",
+        component={HomeNavigator}
+        options = {({ navigation }: RootTabScreenProps<"HomeTab">) => ({
+          headerStyle: styles.noHeader,
+          headerShown: false,
           tabBarShowLabel: false,
         })}
       />
@@ -205,12 +248,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
-    height: 85,
+    height: bottomTabsHeight,
     borderTopWidth: 0,
+    shadowOffset: { width: 0, height: -10}, 
+    shadowColor: 'gray',
+    shadowRadius: 10,
+    shadowOpacity: 0.3,
+    elevation: 5, // android
   },
   headerNoShadow: {
     shadowColor: "transparent",
     backgroundColor: "#F9F9F9",
+  },
+  noHeader: {
+    height: 0,
   },
   savedHeader: {
     fontFamily: "Rubik-Medium",
@@ -240,7 +291,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-function HeaderIcon(props: {
+export function HeaderIcon(props: {
   name: React.ComponentProps<typeof Feather>["name"];
   color: string;
   size: number;
