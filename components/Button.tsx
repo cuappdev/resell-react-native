@@ -10,6 +10,14 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
 
+/**
+ *
+ * @param {state} count - state passed in representing which button is getting clicked, should be less than equal to len(data) -1
+ * @param {setState} setCount - setState method passed in to change the current count when new button get clicked
+ * @param {int} id - presented current button id, starting from 0, comparing with count to determine whether is clicked
+ * @param {string} title - content on the button
+ * @returns a button with linear gradient outline, the "All" button will always be initially marked as clicked
+ */
 function Button(props) {
   const [clicked, setClicked] = useState(props.count === "0");
   useEffect(() => {

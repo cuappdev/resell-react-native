@@ -1,8 +1,6 @@
 import * as React from "react";
 import {
   StyleSheet,
-  Image,
-  FlatList,
   SafeAreaView,
   TouchableOpacity,
   Keyboard,
@@ -14,8 +12,16 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef } from "react";
 import { RootTabScreenProps } from "../types";
 import { ButtonBanner } from "../components/ButtonBanner";
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
+import {
+  Bubble,
+  GiftedChat,
+  IMessage,
+  Message,
+} from "react-native-gifted-chat";
+import { BottomTabBar } from "@react-navigation/bottom-tabs";
+import Colors from "../constants/Colors";
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 
 export default function ChatScreen({
   navigation,
@@ -26,6 +32,8 @@ export default function ChatScreen({
   const onKeyboardHide = () => setKeyboardOffset(0);
   const keyboardDidShowListener = useRef(null);
   const keyboardDidHideListener = useRef(null);
+  const [text, setText] = useState("");
+  const yourRef = useRef(null);
 
   useEffect(() => {
     keyboardDidShowListener.current = Keyboard.addListener(
@@ -44,6 +52,122 @@ export default function ChatScreen({
   }, []);
 
   const [count, setCount] = useState(0);
+  const [messages, setMessages] = React.useState<IMessage[]>([
+    {
+      _id: 1,
+      text: "Hello developer",
+      createdAt: new Date(),
+      user: {
+        _id: 4,
+        name: "GiftedChat",
+        avatar: "https://placeimg.com/140/140/any",
+      },
+    },
+    {
+      _id: 2,
+      text: "Hello developer",
+      createdAt: new Date(),
+      user: {
+        _id: 5,
+        name: "GiftedChat",
+        avatar: "https://placeimg.com/140/140/any",
+      },
+    },
+    {
+      _id: 3,
+      text: "Hello developerewew/nwqqwqmscmlkdcccccccccccccccmxxxxxxxxxxxxxxxcsdcs",
+      createdAt: new Date(),
+      user: {
+        _id: 6,
+        name: "GiftedChat",
+        avatar: "https://placeimg.com/140/140/any",
+      },
+    },
+  ]);
+  const onSend = (newMessages: IMessage[] = []) =>
+    setMessages(GiftedChat.append(messages, newMessages));
+  function renderMessage(props) {
+    return (
+      <Message
+        {...props}
+        containerStyle={{
+          left: { marginVertical: 10 },
+        }}
+      />
+    );
+  }
+  function renderBubble(props) {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          left: {
+            backgroundColor: "#ECECEC",
+            borderRadius: 12,
+            padding: 6,
+          },
+          right: {
+            backgroundColor: "#ECECEC",
+            marginVertical: 10,
+            borderRadius: 12,
+            borderTopRightRadius: 12,
+            padding: 6,
+          },
+        }}
+        textStyle={{
+          left: {
+            color: "#000000",
+            fontSize: 18,
+          },
+          right: {
+            color: "#000000",
+            fontSize: 18,
+          },
+        }}
+        timeTextStyle={{
+          left: {
+            color: "gray",
+          },
+          right: {
+            color: "gray",
+          },
+        }}
+      />
+    );
+  }
+  function renderInputToolbar(props) {
+    return (
+      <SafeAreaView style={styles.filter}>
+        <ButtonBanner count={count} setCount={setCount} data={FILTER} />
+        <SafeAreaView style={{ flexDirection: "row" }}>
+          <TextInput
+            style={[styles.input, { marginBottom: keyboardOffset - 125 }]}
+            onChangeText={(text) => setText(text)}
+            value={text}
+            //multiline={true}
+          />
+          <TouchableOpacity
+            style={{ marginRight: 20, marginLeft: "auto", marginTop: 2.5 }}
+            onPress={() => {
+              if (text.length > 0) {
+                props.onSend({ text: text }, true);
+                setText("");
+                setTimeout(() => {
+                  yourRef.current.scrollToBottom();
+                }, 100);
+              }
+            }}
+          >
+            <FontAwesome5
+              name="arrow-circle-up"
+              size={30}
+              color={text == "" ? "#878787" : "#2C2C2C"}
+            />
+          </TouchableOpacity>
+        </SafeAreaView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View
@@ -51,37 +175,43 @@ export default function ChatScreen({
         backgroundColor: "#F9F9F9",
         height: "100%",
         padding: 0,
-        paddingBottom: 75,
+        paddingBottom: 170,
       }}
     >
-      <SafeAreaView style={styles.filter}>
-        <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-        <SafeAreaView style={{ flexDirection: "row" }}>
-          <TextInput
-            style={[styles.input, { marginBottom: keyboardOffset - 75 }]}
-          />
-          <TouchableOpacity style={{ margin: 15 }} onPress={Keyboard.dismiss}>
-            <FontAwesome5 name="arrow-circle-up" size={30} color="#878787" />
-          </TouchableOpacity>
-        </SafeAreaView>
-      </SafeAreaView>
+      <GiftedChat
+        {...{ messages, onSend }}
+        user={{
+          _id: 1,
+        }}
+        listViewProps={{
+          keyboardDismissMode: "on-drag",
+        }}
+        ref={yourRef}
+        renderBubble={renderBubble}
+        renderInputToolbar={renderInputToolbar}
+        bottomOffset={75}
+        renderMessage={renderMessage}
+        scrollToBottom={true}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   filter: {
-    marginTop: "auto",
-    marginBottom: 20,
+    marginBottom: -30,
+    opacity: 3,
   },
   input: {
     width: "80%",
     height: 40,
     margin: 12,
     padding: 10,
-    opacity: 0.6,
-    backgroundColor: "#dedede",
+    backgroundColor: "#F4F4F4",
     borderRadius: 100,
+    marginTop: 0,
+    fontSize: 18,
+    color: "#000000",
   },
 });
 const FILTER = [
