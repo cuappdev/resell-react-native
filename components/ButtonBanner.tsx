@@ -14,6 +14,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
 
 export function ButtonBanner({ count, setCount, data }) {
+  /**
+   *
+   * @param {state} count - state passed in representing which button is getting clicked, should be less than equal to len(data) -1
+   * @param {setState} setCount - setState method passed in to change the current count when new button get clicked
+   * @param {list} data - a list of button names
+   * @returns a horizontally scrollable button banner
+   */
   const renderButton = ({ item }) => {
     return (
       <Button

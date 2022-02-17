@@ -13,6 +13,13 @@ import {
 import Button from "./Button";
 import ProductCard from "./ProductCard";
 
+/**
+ * Constructs a Button react component
+ * @param {int} count - position of the category selected, starting from 0
+ * @param {list} filter - a list of button names/ filter product categories
+ * @param {list} data - a list of product with basic information like, title, id, price, and images directory
+ * @returns two horizontal list of product cards
+ */
 export function ProductList({ count, filter, data, navigation }) {
   const renderItem = ({ item }) => {
     var show = true;
@@ -23,7 +30,12 @@ export function ProductList({ count, filter, data, navigation }) {
       show = true;
     }
     return show ? (
-      <ProductCard title={item.title} price={item.price} image={item.image} onPress={() => navigation.navigate("ProductHome")}/>
+      <ProductCard
+        title={item.title}
+        price={item.price}
+        image={item.image}
+        onPress={() => navigation.navigate("ProductHome")}
+      />
     ) : null;
   };
   var i,
