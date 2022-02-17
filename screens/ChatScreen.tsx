@@ -18,8 +18,6 @@ import {
   IMessage,
   Message,
 } from "react-native-gifted-chat";
-import { BottomTabBar } from "@react-navigation/bottom-tabs";
-import Colors from "../constants/Colors";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
@@ -149,7 +147,7 @@ export default function ChatScreen({
           <TouchableOpacity
             style={{ marginRight: 20, marginLeft: "auto", marginTop: 2.5 }}
             onPress={() => {
-              if (text.length > 0) {
+              if (text.length > 0 && text.trim().length > 0) {
                 props.onSend({ text: text }, true);
                 setText("");
                 setTimeout(() => {
@@ -161,7 +159,7 @@ export default function ChatScreen({
             <FontAwesome5
               name="arrow-circle-up"
               size={30}
-              color={text == "" ? "#878787" : "#2C2C2C"}
+              color={text.trim().length == 0 ? "#878787" : "#2C2C2C"}
             />
           </TouchableOpacity>
         </SafeAreaView>

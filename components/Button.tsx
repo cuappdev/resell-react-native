@@ -25,9 +25,6 @@ function Button(props) {
   }, [props.count]);
   const onPress = () => props.setCount(props.id);
 
-  useEffect(() => {
-    setClicked(props.count === props.id);
-  }, [props.clicked]);
   return clicked || props.alwaysColor ? (
     <LinearGradient
       colors={["#6F30F5", "#DD67AE", "#FEB6A2"]}
