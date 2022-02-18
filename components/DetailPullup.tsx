@@ -14,7 +14,7 @@ export type Item = {
 
 export function DetailPullUpHeader({ item }: { item: Item }) {
   return (
-    <View style={[styles.container, styles.roundCorner]}>
+    <View style={[styles.container_header, styles.roundCorner]}>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.price}>{"$ " + item.price}</Text>
@@ -29,7 +29,7 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
 
 export function DetailPullUpBody({ item }: { item: Item }) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container_body}>
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
@@ -47,9 +47,13 @@ export function DetailPullUpBody({ item }: { item: Item }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container_header: {
+    justifyContent: "flex-start",
+    width: "100%"
+  },
+  container_body: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     width: "100%"
   },
   roundCorner: {
@@ -58,7 +62,8 @@ const styles = StyleSheet.create({
   },
   expandRow: {
     flexDirection: 'row',
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    marginTop: 50
   },
   paddedRow: {
     flexDirection: 'row',
@@ -67,14 +72,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold"
+    fontWeight: "bold",
+    paddingLeft: 20
   },
   price: {
-    fontSize: 20
+    fontSize: 20,
+    paddingRight: 20,
   },
   profile: {
     fontSize: 16,
-    paddingLeft: 10
+    paddingLeft: 25,
   },
   profileImage: {
     width: 30,
@@ -83,12 +90,15 @@ const styles = StyleSheet.create({
   },
   details: {
     fontSize: 15,
-    marginBottom: 50
+    paddingLeft: 20
+
   },
   itemsHeader: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20
+    marginBottom: 20,
+    paddingLeft: 20,
+    paddingTop: 20
   },
   similarItem: {
     width: 85,
@@ -96,5 +106,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginHorizontal: 10,
     borderRadius: 15,
+    paddingLeft: 20
   }
 });
+
