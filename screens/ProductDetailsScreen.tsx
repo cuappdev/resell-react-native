@@ -4,7 +4,7 @@ import BookMarkButton from '../assets/svg-components/bookmark_button';
 import ExportButton from '../assets/svg-components/export_button';
 import { Item, DetailPullUpHeader, DetailPullUpBody } from "../components/DetailPullup";
 import Gallery from '../components/Gallery'
-import { View, TouchableOpacity, Text, SafeAreaView, StatusBar, StyleSheet, Platform} from 'react-native';
+import { View, TouchableOpacity, Text, SafeAreaView, StatusBar, StyleSheet, Platform } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import { useEffect } from 'react';
 
@@ -48,11 +48,12 @@ const styles = StyleSheet.create({
 export default function ProductDetailsScreen({ navigation }) {
   const item: Item = {
     images: [require('../assets/images/bluepants.png')],
-    title: 'Blue pants',
+    title: 'Blue Pants',
+
     price: 25,
     sellerName: 'ravina patel',
     sellerProfile: '../assets/images/profile-pic-test.png',
-    description: 'Comfy and cool',
+    description: 'Vintage blue pants that are super comfy and cool!',
     similarItems: [require('../assets/images/similar-items-test.png')]
   }
   useEffect(() => {
@@ -61,28 +62,28 @@ export default function ProductDetailsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={()=>navigation.goBack()}
+        onPress={() => navigation.goBack()}
         style={styles.backButton}
-        >
-        <BackButton/>
+      >
+        <BackButton />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={()=>{}}
+        onPress={() => { }}
         style={styles.bookmarkButton}
-        >
-        <BookMarkButton/>
+      >
+        <BookMarkButton />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={()=>{}}
+        onPress={() => { }}
         style={styles.exportButton}
-        >
-        <ExportButton/>
+      >
+        <ExportButton />
       </TouchableOpacity>
       <Gallery imagePaths={item.images} />
-      <SlidingUpPanel ref={c => this._panel = c} draggableRange={{top: 720, bottom: 300}}>
+      <SlidingUpPanel ref={c => this._panel = c} draggableRange={{ top: 720, bottom: 300 }}>
         <View style={styles.slideUp}>
-          <DetailPullUpHeader item={item}/>
-          <DetailPullUpBody item={item}/>
+          <DetailPullUpHeader item={item} />
+          <DetailPullUpBody item={item} />
         </View>
       </SlidingUpPanel>
     </View>
