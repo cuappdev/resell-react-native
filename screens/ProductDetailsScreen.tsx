@@ -7,8 +7,7 @@ import Gallery from '../components/Gallery'
 import { View, TouchableOpacity, Text, SafeAreaView, StatusBar, StyleSheet, Platform } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import { useEffect } from 'react';
-
-const menuBarTop = Platform.OS === 'android' ? 47 : 67
+import { menuBarTop } from '../constants/Layout';
 
 const styles = StyleSheet.create({
   container: {

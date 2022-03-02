@@ -43,7 +43,7 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.profileTextContainer}>
               <View style={styles.profileBubble} />
             </View>
-            <TouchableOpacity activeOpacity={pressedOpacity}>
+            <TouchableOpacity activeOpacity={pressedOpacity} onPress={() => navigation.navigate("Settings")}>
               <ProfileScreenIcon name="settings" color="black" size={24} />
             </TouchableOpacity>
           </View>

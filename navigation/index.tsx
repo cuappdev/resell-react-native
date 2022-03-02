@@ -30,6 +30,7 @@ import HomeScreen from "../screens/HomeScreen";
 import SavedScreen from "../screens/SavedScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import SettingsScreen from "../screens/SettingsScreen";
 
 import {
   RootStackParamList,
@@ -46,6 +47,7 @@ import Home from "../assets/svg-components/home";
 import Header from "../assets/svg-components/header";
 import ClickedHome from "../assets/svg-components/home_clicked";
 import BookMark from "../assets/svg-components/bookmark";
+import BackButton from "../assets/svg-components/back_button";
 import ClickedBookMark from "../assets/svg-components/bookmark_clicked";
 import ClickedChat from "../assets/svg-components/clicked_chat";
 import Chat from "../assets/svg-components/chat";
@@ -122,12 +124,30 @@ function HomeNavigator({ navigation }) {
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
-          headerLeft: () => (
-            <Button title="<" onPress={()=>navigation.goBack()} />
-          ),
         }}
       />
     </HomeStack.Navigator>
+  );
+}
+
+function ProfileNavigator({ navigation }) {
+  return (
+    <ProfileStack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}>
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+      />
+      <ProfileStack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -232,11 +252,11 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ProfileTab"
-        component={ProfileScreen}
-        options={({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
-          tabBarShowLabel: false,
-          title: "",
+        component={ProfileNavigator}
+        options = {({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
+          headerStyle: styles.noHeader,
           headerShown: false,
+          tabBarShowLabel: false,
         })}
       />
     </BottomTab.Navigator>
