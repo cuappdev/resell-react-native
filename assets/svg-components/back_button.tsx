@@ -13,7 +13,7 @@ const BackButton = (props) => (
         {...props}
     >
       <G
-        stroke="white"
+        stroke={props.color ? props.color : "white"}
         strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
