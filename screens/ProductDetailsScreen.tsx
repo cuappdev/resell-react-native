@@ -7,6 +7,7 @@ import Gallery from '../components/Gallery'
 import { View, TouchableOpacity, Text, SafeAreaView, StatusBar, StyleSheet, Platform } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import { useEffect } from 'react';
+import GreyButton from '../components/GreyButton';
 
 const menuBarTop = Platform.OS === 'android' ? 47 : 67
 
@@ -42,18 +43,28 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-  }
+  },
+  greyButton: {
+    position: 'absolute',
+    bottom: 100,
+    alignItems: "center",
+    width: '100 %',
+    zIndex: 10,
+    height: 170,
+    backgroundColor: 'white',
+
+  },
 });
 
 export default function ProductDetailsScreen({ navigation }) {
   const item: Item = {
     images: [require('../assets/images/bluepants.png')],
     title: 'Blue Pants',
-
     price: 25,
     sellerName: 'ravina patel',
     sellerProfile: '../assets/images/profile-pic-test.png',
     description: 'Vintage blue pants that are super comfy and cool!',
+
     similarItems: [require('../assets/images/similar-items-test.png')]
   }
   useEffect(() => {
@@ -79,11 +90,22 @@ export default function ProductDetailsScreen({ navigation }) {
       >
         <ExportButton />
       </TouchableOpacity>
+
+
+
       <Gallery imagePaths={item.images} />
       <SlidingUpPanel ref={c => this._panel = c} draggableRange={{ top: 720, bottom: 300 }}>
         <View style={styles.slideUp}>
           <DetailPullUpHeader item={item} />
           <DetailPullUpBody item={item} />
+
+          <View style={styles.greyButton}>
+            <GreyButton text={'Contact Seller'} />
+          </View>
+
+
+
+
         </View>
       </SlidingUpPanel>
     </View>
