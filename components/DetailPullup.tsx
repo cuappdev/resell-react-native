@@ -1,6 +1,5 @@
 import React from "react";
 import { FlatList, Image, StyleSheet, ScrollView } from "react-native";
-import { white } from "react-native-paper/lib/typescript/styles/colors";
 import { Text, View } from "./Themed";
 
 export type Item = {
@@ -32,7 +31,7 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
 
 export function DetailPullUpBody({ item }: { item: Item }) {
   return (
-    <ScrollView style={styles.scrollView} >
+    <ScrollView style={styles.pullUpScrollView} >
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
@@ -45,20 +44,17 @@ export function DetailPullUpBody({ item }: { item: Item }) {
         )}
         keyExtractor={(item, index) => index.toString()}
       ></FlatList>
-      <View style={{ height: 130 }}>
-
-
-      </View>
     </ScrollView >
   );
 }
 
 const styles = StyleSheet.create({
 
-  scrollView: {
+  pullUpScrollView: {
     flex: 1,
     width: "100%",
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    marginBottom: 130
   },
   container_header: {
     justifyContent: "flex-start",
@@ -104,8 +100,6 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 15,
     paddingLeft: 20,
-    // backgroundColor: 'white',
-
   },
   itemsHeader: {
     fontSize: 18,
@@ -123,4 +117,3 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
   }
 });
-
