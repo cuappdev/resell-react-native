@@ -73,13 +73,13 @@ export default function SettingsScreen({navigation}) {
         style={styles.list}
         data={[
           {icon: Edit, text: 'Edit Profile'},
-          {icon: Notifications, text: 'Notificaton Preferences'},
+          {icon: Notifications, text: 'Notificaton Preferences', onPress: () => navigation.navigate('NotificationPreferences')},
           {icon: Feedback, text: 'Send Feedback'},
           {icon: Logout, text: 'Log Out'},
         ]}
         renderItem={({item}) => 
           <TouchableOpacity
-            onPress={() => {}}
+            onPress={item.onPress ? item.onPress : () => {}}
             style={styles.item}
           >
             <item.icon/>
@@ -91,3 +91,4 @@ export default function SettingsScreen({navigation}) {
     </View>
   )
 }
+
