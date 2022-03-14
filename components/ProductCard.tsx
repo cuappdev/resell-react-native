@@ -1,7 +1,14 @@
 import React from "react";
 
-// import all the components we are going to use
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
+
+/**
+ *
+ * @param {directory} image - image directory surrounded by required() or image url
+ * @param {string} title - title of the product
+ * @param {double} price - boolean number of the price
+ * @returns one cardview containing some basic product information
+ */
 
 const ProductCard = (props) => {
   return (

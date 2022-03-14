@@ -8,8 +8,8 @@ import { View, TouchableOpacity, Text, SafeAreaView, StatusBar, StyleSheet, Plat
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import { useEffect } from 'react';
 import GreyButton from '../components/GreyButton';
+import { menuBarTop } from '../constants/Layout';
 
-const menuBarTop = Platform.OS === 'android' ? 47 : 67
 const styles = StyleSheet.create({
   container: {
     flex: 1,
