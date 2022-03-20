@@ -13,7 +13,7 @@ import Button from "../components/Button";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
 
-export function ButtonBanner({ count, setCount, data }) {
+export function ButtonBanner(props) {
   /**
    *
    * @param {state} count - state passed in representing which button is getting clicked, should be less than equal to len(data) -1
@@ -26,8 +26,13 @@ export function ButtonBanner({ count, setCount, data }) {
       <Button
         title={item.title}
         id={item.id}
-        count={count}
-        setCount={setCount}
+        count={props.count}
+        setCount={props.setCount}
+        modalVisible={props.modalVisible}
+        setModalVisible={props.setModalVisible}
+        availabilityVisible={props.availabilityVisible}
+        setAvailabilityVisible={props.setAvailabilityVisible}
+        alwaysColor={props.alwaysColor}
       />
     );
   };
@@ -35,7 +40,7 @@ export function ButtonBanner({ count, setCount, data }) {
   return (
     <SafeAreaView style={styles.filter}>
       <FlatList
-        data={data}
+        data={props.data}
         renderItem={renderButton}
         keyExtractor={(item) => item.id.toString(10)}
         showsHorizontalScrollIndicator={false}

@@ -19,7 +19,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button
+  Button,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -42,7 +42,7 @@ import {
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
-import ProductDetailsScreen from '../screens/ProductDetailsScreen';
+import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import Home from "../assets/svg-components/home";
 import Header from "../assets/svg-components/header";
 import ClickedHome from "../assets/svg-components/home_clicked";
@@ -54,7 +54,7 @@ import Chat from "../assets/svg-components/chat";
 import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
 
-import { bottomTabsHeight } from '../constants/Layout';
+import { bottomTabsHeight } from "../constants/Layout";
 
 export default function Navigation({
   colorScheme,
@@ -110,13 +110,11 @@ function RootNavigator() {
 function HomeNavigator({ navigation }) {
   return (
     <HomeStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
-      <HomeStack.Screen
-        name="Home"
-        component={HomeScreen}
-      />
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <HomeStack.Screen name="Home" component={HomeScreen} />
       <HomeStack.Screen
         name="ProductHome"
         component={ProductDetailsScreen}
@@ -133,13 +131,11 @@ function HomeNavigator({ navigation }) {
 function ProfileNavigator({ navigation }) {
   return (
     <ProfileStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
-      <ProfileStack.Screen
-        name="Profile"
-        component={ProfileScreen}
-      />
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
@@ -198,7 +194,7 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="HomeTab"
         component={HomeNavigator}
-        options = {({ navigation }: RootTabScreenProps<"HomeTab">) => ({
+        options={({ navigation }: RootTabScreenProps<"HomeTab">) => ({
           headerStyle: styles.noHeader,
           headerShown: false,
           tabBarShowLabel: false,
@@ -253,7 +249,7 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="ProfileTab"
         component={ProfileNavigator}
-        options = {({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
+        options={({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
           headerStyle: styles.noHeader,
           headerShown: false,
           tabBarShowLabel: false,
@@ -270,15 +266,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
     height: bottomTabsHeight,
     borderTopWidth: 0,
-    shadowOffset: { width: 0, height: -10}, 
-    shadowColor: 'gray',
+    shadowOffset: { width: 0, height: -10 },
+    shadowColor: "gray",
     shadowRadius: 10,
     shadowOpacity: 0.3,
     elevation: 5, // android
   },
   headerNoShadow: {
     shadowColor: "transparent",
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
   },
   noHeader: {
     height: 0,

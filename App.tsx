@@ -23,17 +23,19 @@ export default function App() {
       androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
       scopes: ["profile", "email"],
     };
+    console.log("Google SignIn", "SUCCESS", "");
+    setSignIn(true);
 
-    Google.logInAsync(config).then((result) => {
-      const { type } = result;
+    // Google.logInAsync(config).then((result) => {
+    //   const { type } = result;
 
-      if (type == "success") {
-        console.log("Google SignIn", "SUCCESS", result);
-        setSignIn(true);
-      } else {
-        console.log("Google SignIn", "FAILURE", result);
-      }
-    });
+    //   if (type == "success") {
+    //     console.log("Google SignIn", "SUCCESS", result);
+    //     setSignIn(true);
+    //   } else {
+    //     console.log("Google SignIn", "FAILURE", result);
+    //   }
+    // });
   };
 
   Font.loadAsync({

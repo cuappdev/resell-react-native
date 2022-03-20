@@ -13,7 +13,7 @@ import { DATA } from "../data/product";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductList } from "../components/ProductList";
 import Header from "../assets/svg-components/header";
-import { HeaderIcon } from '../navigation/index';
+import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
 
@@ -29,15 +29,23 @@ export default function HomeScreen({
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
         <Header style={styles.resellLogo} />
-        <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={styles.search}
-        >
+        <TouchableOpacity activeOpacity={pressedOpacity} style={styles.search}>
           <HeaderIcon name="search" color="black" size={28} />
         </TouchableOpacity>
       </View>
-      <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-      <ProductList count={count} data={DATA} filter={FILTER} navigation={navigation} />
+      <ButtonBanner
+        count={count}
+        setCount={setCount}
+        data={FILTER}
+        modalVisible={undefined}
+        setModalVisible={undefined}
+      />
+      <ProductList
+        count={count}
+        data={DATA}
+        filter={FILTER}
+        navigation={navigation}
+      />
       <FAB
         style={styles.fab}
         icon="plus"
@@ -65,11 +73,11 @@ const styles = StyleSheet.create({
     backgroundColor: homeBackgroundGray,
   },
   resellLogo: {
-    position: 'absolute', 
+    position: "absolute",
     left: 26,
   },
   search: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     top: 4,
   },

@@ -15,7 +15,12 @@ export default function SavedScreen({
 }: RootTabScreenProps<"SavedTab">) {
   return (
     <View style={styles.outer}>
-      <ProductList count={null} data={DATA} filter={null} navigation={navigation}/>
+      <ProductList
+        count={null}
+        data={DATA}
+        filter={null}
+        navigation={navigation}
+      />
     </View>
   );
 }
@@ -42,7 +47,7 @@ const DATA = [
 ];
 const styles = StyleSheet.create({
   outer: {
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
     height: "100%",
     padding: 0,
     paddingBottom: 75,
