@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Image, StyleSheet } from "react-native";
+import { FlatList, Image, StyleSheet, ScrollView } from "react-native";
 import { Text, View } from "./Themed";
 
 export type Item = {
@@ -14,7 +14,8 @@ export type Item = {
 
 export function DetailPullUpHeader({ item }: { item: Item }) {
   return (
-    <View style={[styles.container_header, styles.roundCorner]}>
+    <View
+      style={[styles.container_header, styles.roundCorner]}>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.price}>{"$ " + item.price}</Text>
@@ -24,12 +25,13 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
         <Text style={styles.profile}>{item.sellerName}</Text>
       </View>
     </View>
+
   );
 }
 
 export function DetailPullUpBody({ item }: { item: Item }) {
   return (
-    <View style={styles.container_body}>
+    <ScrollView style={styles.pullUpScrollView} >
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
@@ -42,11 +44,18 @@ export function DetailPullUpBody({ item }: { item: Item }) {
         )}
         keyExtractor={(item, index) => index.toString()}
       ></FlatList>
-    </View>
+    </ScrollView >
   );
 }
 
 const styles = StyleSheet.create({
+
+  pullUpScrollView: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: 'white',
+    marginBottom: 130
+  },
   container_header: {
     justifyContent: "flex-start",
     width: "100%"
@@ -90,8 +99,7 @@ const styles = StyleSheet.create({
   },
   details: {
     fontSize: 15,
-    paddingLeft: 20
-
+    paddingLeft: 20,
   },
   itemsHeader: {
     fontSize: 18,
@@ -106,7 +114,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginHorizontal: 10,
     borderRadius: 15,
-    paddingLeft: 20
+    paddingLeft: 20,
   }
 });
-

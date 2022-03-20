@@ -26,6 +26,7 @@ import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import ModalScreen from "../screens/ModalScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";
+import NotificationPreferencesScreen from "../screens/NotificationPreferencesScreen";
 import HomeScreen from "../screens/HomeScreen";
 import SavedScreen from "../screens/SavedScreen";
 import ChatScreen from "../screens/ChatScreen";
@@ -139,6 +140,13 @@ function ProfileNavigator({ navigation }) {
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileStack.Screen
+        name="NotificationPreferences"
+        component={NotificationPreferencesScreen}
         options={{
           headerShown: false,
         }}

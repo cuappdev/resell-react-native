@@ -7,6 +7,7 @@ import Gallery from '../components/Gallery'
 import { View, TouchableOpacity, Text, SafeAreaView, StatusBar, StyleSheet, Platform } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import { useEffect } from 'react';
+import GreyButton from '../components/GreyButton';
 import { menuBarTop } from '../constants/Layout';
 
 const styles = StyleSheet.create({
@@ -41,14 +42,21 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-  }
+  },
+  greyButton: {
+    position: 'absolute',
+    bottom: 100,
+    alignItems: "center",
+    width: '100 %',
+    zIndex: 10,
+    height: 170,
+    backgroundColor: 'white',
+  },
 });
-
 export default function ProductDetailsScreen({ navigation }) {
   const item: Item = {
     images: [require('../assets/images/bluepants.png')],
     title: 'Blue Pants',
-
     price: 25,
     sellerName: 'ravina patel',
     sellerProfile: '../assets/images/profile-pic-test.png',
@@ -83,6 +91,9 @@ export default function ProductDetailsScreen({ navigation }) {
         <View style={styles.slideUp}>
           <DetailPullUpHeader item={item} />
           <DetailPullUpBody item={item} />
+          <View style={styles.greyButton}>
+            <GreyButton text={'Contact Seller'} />
+          </View>
         </View>
       </SlidingUpPanel>
     </View>
