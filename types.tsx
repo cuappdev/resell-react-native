@@ -38,6 +38,7 @@ export type ProfileStackParamList = {
   ProductProfile: undefined;
   Settings: undefined;
   NotificationPreferences: undefined;
+  SendFeedback: undefined;
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

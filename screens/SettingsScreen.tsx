@@ -74,7 +74,7 @@ export default function SettingsScreen({navigation}) {
         data={[
           {icon: Edit, text: 'Edit Profile'},
           {icon: Notifications, text: 'Notificaton Preferences', onPress: () => navigation.navigate('NotificationPreferences')},
-          {icon: Feedback, text: 'Send Feedback'},
+          {icon: Feedback, text: 'Send Feedback', onPress: () => navigation.navigate('SendFeedback')},
           {icon: Logout, text: 'Log Out'},
         ]}
         renderItem={({item}) => 
