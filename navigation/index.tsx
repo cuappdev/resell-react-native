@@ -31,6 +31,7 @@ import HomeScreen from "../screens/HomeScreen";
 import SavedScreen from "../screens/SavedScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import SendFeedbackScreen from "../screens/SendFeedbackScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import SearchScreen from "../screens/SearchScreen";
 
@@ -72,7 +73,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
       <RootNavigator onboard={onboard} />
     </NavigationContainer>
@@ -133,7 +134,6 @@ function RootNavigator({ onboard }) {
           options={{
             headerShown: false,
             headerTitle: "",
-
             headerTransparent: true,
           }}
           component={ChatWindow}
@@ -203,6 +203,13 @@ function ProfileNavigator({ navigation }) {
       <ProfileStack.Screen
         name="NotificationPreferences"
         component={NotificationPreferencesScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileStack.Screen
+        name="SendFeedback"
+        component={SendFeedbackScreen}
         options={{
           headerShown: false,
         }}
