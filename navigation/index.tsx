@@ -19,6 +19,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Button,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
   },
   headerNoShadow: {
     shadowColor: "transparent",
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
   },
   noHeader: {
     height: 0,

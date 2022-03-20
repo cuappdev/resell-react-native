@@ -23,7 +23,15 @@ function Button(props) {
   useEffect(() => {
     setClicked(props.count === props.id);
   }, [props.count]);
-  const onPress = () => props.setCount(props.id);
+  const onPress = () => {
+    props.setCount(props.id);
+    if (props.title == "Negotiate") {
+      props.setModalVisible(!props.modalVisible);
+    }
+    if (props.title == "Send Availablity") {
+      props.setAvailabilityVisible(true);
+    }
+  };
 
   return clicked || props.alwaysColor ? (
     <LinearGradient
