@@ -32,6 +32,7 @@ import SavedScreen from "../screens/SavedScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import SearchScreen from "../screens/SearchScreen";
 
 import {
   RootStackParamList,
@@ -111,9 +112,9 @@ function RootNavigator() {
 function HomeNavigator({ navigation }) {
   return (
     <HomeStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
+      screenOptions={{
+        headerShown: false,
+      }}>
       <HomeStack.Screen
         name="Home"
         component={HomeScreen}
@@ -127,6 +128,10 @@ function HomeNavigator({ navigation }) {
           headerTransparent: true,
         }}
       />
+      <HomeStack.Screen
+        name="SearchHome"
+        component={SearchScreen}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -134,9 +139,9 @@ function HomeNavigator({ navigation }) {
 function ProfileNavigator({ navigation }) {
   return (
     <ProfileStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
+      screenOptions={{
+        headerShown: false,
+      }}>
       <ProfileStack.Screen
         name="Profile"
         component={ProfileScreen}
@@ -206,7 +211,7 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="HomeTab"
         component={HomeNavigator}
-        options = {({ navigation }: RootTabScreenProps<"HomeTab">) => ({
+        options={({ navigation }: RootTabScreenProps<"HomeTab">) => ({
           headerStyle: styles.noHeader,
           headerShown: false,
           tabBarShowLabel: false,
@@ -261,7 +266,7 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="ProfileTab"
         component={ProfileNavigator}
-        options = {({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
+        options={({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
           headerStyle: styles.noHeader,
           headerShown: false,
           tabBarShowLabel: false,
@@ -278,7 +283,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
     height: bottomTabsHeight,
     borderTopWidth: 0,
-    shadowOffset: { width: 0, height: -10}, 
+    shadowOffset: { width: 0, height: -10 },
     shadowColor: 'gray',
     shadowRadius: 10,
     shadowOpacity: 0.3,

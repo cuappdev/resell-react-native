@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
+
 export default function ProductDetailsScreen({ navigation }) {
   const item: Item = {
     images: [require('../assets/images/bluepants.png')],

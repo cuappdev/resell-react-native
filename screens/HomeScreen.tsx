@@ -16,25 +16,31 @@ import Header from "../assets/svg-components/header";
 import { HeaderIcon } from '../navigation/index';
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
+import SearchBar from "../components/SearchBar";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 
 export default function HomeScreen({
   navigation,
-}: RootTabScreenProps<"HomeTab">) {
+}) {
   const [count, setCount] = useState(0);
+  const search = () => { }
 
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
         <Header style={styles.resellLogo} />
-        <TouchableOpacity
+        {/* <TouchableOpacity
+          onPress={() => navigation.navigate('SearchHome')}
           activeOpacity={pressedOpacity}
           style={styles.search}
         >
           <HeaderIcon name="search" color="black" size={28} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <SearchBar
+          setSearchPhrase={search}
+        />
       </View>
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
       <ProductList count={count} data={DATA} filter={FILTER} navigation={navigation} />
@@ -62,10 +68,13 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 40,
-    backgroundColor: homeBackgroundGray,
+    width: "100%",
+    backgroundColor: "red",
+    flex: 1,
+    flexDirection: "row",
   },
   resellLogo: {
-    position: 'absolute', 
+    position: 'absolute',
     left: 26,
   },
   search: {
