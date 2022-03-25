@@ -1,30 +1,25 @@
-import { AntDesign } from '@expo/vector-icons';
-import React from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { AntDesign } from "@expo/vector-icons";
+import React from "react";
+import { View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 
-export default function SearchBar({ setSearchPhrase }) {
+export default function SearchBar({ back, setSearchResult }) {
   return (
     <View style={styles.general}>
       <View style={styles.container}>
-        <View
-          style={
-            styles.searchBar__clicked
-          }
-        >
+        <View style={styles.searchBar__clicked}>
           <TextInput
             style={styles.input}
             placeholder="What are you looking for"
-            onChangeText={setSearchPhrase}
+            //   onChangeText={Do something to searchresult and pass it back to home page}
           />
         </View>
       </View>
-      <TouchableOpacity style={{ marginStart: 15 }}>
+      <TouchableOpacity style={{ marginStart: 15 }} onPress={back}>
         <AntDesign name="close" size={25} color="#707070" />
       </TouchableOpacity>
     </View>
-
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -33,27 +28,24 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "row",
-    width: "60%",
-
+    width: "85%",
   },
   general: {
     flexDirection: "row",
-    marginTop: 60,
     alignItems: "center",
-    width: "60%"
+    width: "100%",
   },
   searchBar__clicked: {
     padding: 10,
     flexDirection: "row",
     width: "100%",
-    backgroundColor: "#d9dbda",
+    backgroundColor: "#F4F4F4",
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "space-evenly",
   },
   input: {
     fontSize: 16,
-    marginLeft: 10,
     width: "90%",
   },
 });

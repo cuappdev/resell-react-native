@@ -13,7 +13,7 @@ import { DATA } from "../data/product";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductList } from "../components/ProductList";
 import Header from "../assets/svg-components/header";
-import { HeaderIcon } from '../navigation/index';
+import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
 import SearchBar from "../components/SearchBar";
@@ -21,29 +21,51 @@ import SearchBar from "../components/SearchBar";
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 
-export default function HomeScreen({
-  navigation,
-}) {
+export default function HomeScreen({ navigation }) {
   const [count, setCount] = useState(0);
-  const search = () => { }
+  const [isSearch, setIsSearch] = useState(false);
+  const [search, setSearchResult] = useState([]);
+  const backtoHome = () => {
+    setIsSearch(false);
+  };
 
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
-        <Header style={styles.resellLogo} />
-        {/* <TouchableOpacity
-          onPress={() => navigation.navigate('SearchHome')}
-          activeOpacity={pressedOpacity}
-          style={styles.search}
-        >
-          <HeaderIcon name="search" color="black" size={28} />
-        </TouchableOpacity> */}
-        <SearchBar
-          setSearchPhrase={search}
-        />
+        {!isSearch && <Header style={styles.resellLogo} />}
+        {!isSearch && (
+          <TouchableOpacity
+            activeOpacity={pressedOpacity}
+            style={styles.searchButton}
+            onPress={() => {
+              setIsSearch(true);
+            }}
+          >
+            <HeaderIcon name="search" color="black" size={28} />
+          </TouchableOpacity>
+        )}
+        {isSearch && (
+          <TouchableOpacity
+            activeOpacity={pressedOpacity}
+            style={styles.searchBar}
+          >
+            <SearchBar back={backtoHome} setSearchResult={setSearchResult} />
+          </TouchableOpacity>
+        )}
       </View>
-      <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-      <ProductList count={count} data={DATA} filter={FILTER} navigation={navigation} />
+      <ButtonBanner
+        count={count}
+        setCount={setCount}
+        data={FILTER}
+        //   modalVisible={undefined}
+        //   setModalVisible={undefined}
+      />
+      <ProductList
+        count={count}
+        data={DATA}
+        filter={FILTER}
+        navigation={navigation}
+      />
       <FAB
         style={styles.fab}
         icon="plus"
@@ -68,17 +90,20 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 40,
-    width: "100%",
-    backgroundColor: "red",
-    flex: 1,
-    flexDirection: "row",
+    backgroundColor: homeBackgroundGray,
   },
   resellLogo: {
-    position: 'absolute',
+    position: "absolute",
     left: 26,
   },
-  search: {
-    position: 'absolute',
+  searchBar: {
+    position: "absolute",
+    right: 20,
+    top: 4,
+    left: 0,
+  },
+  searchButton: {
+    position: "absolute",
     right: 20,
     top: 4,
   },
