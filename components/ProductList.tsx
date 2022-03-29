@@ -20,15 +20,26 @@ import ProductCard from "./ProductCard";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({ count, filter, data, navigation }) {
+export function ProductList({
+  count,
+  filter,
+  data,
+  navigation,
+  searchKeyWord,
+}) {
   const renderItem = ({ item }) => {
     var show = true;
-    if (filter && count) {
-      show = filter[count].title === item.category;
-      if (filter[count].title === "All") show = true;
+    if (searchKeyWord == "") {
+      if (filter && count) {
+        show = filter[count].title === item.category;
+        if (filter[count].title === "All") show = true;
+      } else {
+        show = true;
+      }
     } else {
-      show = true;
+      show = item.title.includes(searchKeyWord);
     }
+
     return show ? (
       <ProductCard
         title={item.title}

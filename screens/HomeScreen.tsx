@@ -24,11 +24,23 @@ import SearchBar from "../components/SearchBar";
 export default function HomeScreen({ navigation }) {
   const [count, setCount] = useState(0);
   const [isSearch, setIsSearch] = useState(false);
-  const [search, setSearchResult] = useState([]);
+  const [searchKeyWord, setSearchKeyword] = useState("");
+  const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
+
   const backtoHome = () => {
     setIsSearch(false);
+    setIsSearchSubmitted(false);
+    setSearchKeyword("");
   };
 
+  const searchSubmit = (text) => {
+    setIsSearchSubmitted(true);
+    setSearchKeyword(text);
+  };
+  const searchChange = (text) => {
+    setIsSearchSubmitted(false);
+    setSearchKeyword(text);
+  };
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
@@ -49,30 +61,43 @@ export default function HomeScreen({ navigation }) {
             activeOpacity={pressedOpacity}
             style={styles.searchBar}
           >
-            <SearchBar back={backtoHome} setSearchResult={setSearchResult} />
+            <SearchBar
+              back={backtoHome}
+              searchSubmit={searchSubmit}
+              searchChange={searchChange}
+            />
           </TouchableOpacity>
         )}
       </View>
-      <ButtonBanner
-        count={count}
-        setCount={setCount}
-        data={FILTER}
-        //   modalVisible={undefined}
-        //   setModalVisible={undefined}
-      />
-      <ProductList
-        count={count}
-        data={DATA}
-        filter={FILTER}
-        navigation={navigation}
-      />
-      <FAB
-        style={styles.fab}
-        icon="plus"
-        onPress={() => navigation.navigate("NewPost")}
-        color={"#808080"}
-        theme={{ colors: { accent: "white" } }}
-      />
+      {!isSearch && (
+        <ButtonBanner
+          count={count}
+          setCount={setCount}
+          data={FILTER}
+          //   modalVisible={undefined}
+          //   setModalVisible={undefined}
+        />
+      )}
+      {(!isSearch || isSearchSubmitted) && (
+        <ProductList
+          searchKeyWord={searchKeyWord}
+          count={count}
+          data={DATA}
+          filter={FILTER}
+          navigation={navigation}
+        />
+      )}
+      {/*  {isSearch && (<a flatlist that has an filtered titles>) */}
+
+      {!isSearch && (
+        <FAB
+          style={styles.fab}
+          icon="plus"
+          onPress={() => navigation.navigate("NewPost")}
+          color={"#808080"}
+          theme={{ colors: { accent: "white" } }}
+        />
+      )}
     </SafeAreaView>
   );
 }

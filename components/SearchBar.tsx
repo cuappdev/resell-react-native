@@ -2,7 +2,7 @@ import { AntDesign } from "@expo/vector-icons";
 import React from "react";
 import { View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 
-export default function SearchBar({ back, setSearchResult }) {
+export default function SearchBar({ back, searchSubmit, searchChange }) {
   return (
     <View style={styles.general}>
       <View style={styles.container}>
@@ -10,7 +10,10 @@ export default function SearchBar({ back, setSearchResult }) {
           <TextInput
             style={styles.input}
             placeholder="What are you looking for"
-            //   onChangeText={Do something to searchresult and pass it back to home page}
+            returnKeyType="search"
+            autoFocus={true}
+            onChangeText={(text) => searchChange({ text })}
+            onSubmitEditing={(event) => searchSubmit(event.nativeEvent.text)}
           />
         </View>
       </View>

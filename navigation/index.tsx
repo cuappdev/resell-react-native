@@ -19,7 +19,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button
+  Button,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -44,7 +44,7 @@ import {
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
-import ProductDetailsScreen from '../screens/ProductDetailsScreen';
+import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import Home from "../assets/svg-components/home";
 import Header from "../assets/svg-components/header";
 import ClickedHome from "../assets/svg-components/home_clicked";
@@ -56,7 +56,7 @@ import Chat from "../assets/svg-components/chat";
 import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
 
-import { bottomTabsHeight } from '../constants/Layout';
+import { bottomTabsHeight } from "../constants/Layout";
 
 export default function Navigation({
   colorScheme,
@@ -114,11 +114,9 @@ function HomeNavigator({ navigation }) {
     <HomeStack.Navigator
       screenOptions={{
         headerShown: false,
-      }}>
-      <HomeStack.Screen
-        name="Home"
-        component={HomeScreen}
-      />
+      }}
+    >
+      <HomeStack.Screen name="Home" component={HomeScreen} />
       <HomeStack.Screen
         name="ProductHome"
         component={ProductDetailsScreen}
@@ -128,10 +126,7 @@ function HomeNavigator({ navigation }) {
           headerTransparent: true,
         }}
       />
-      <HomeStack.Screen
-        name="SearchHome"
-        component={SearchScreen}
-      />
+      <HomeStack.Screen name="SearchHome" component={SearchScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -141,11 +136,9 @@ function ProfileNavigator({ navigation }) {
     <ProfileStack.Navigator
       screenOptions={{
         headerShown: false,
-      }}>
-      <ProfileStack.Screen
-        name="Profile"
-        component={ProfileScreen}
-      />
+      }}
+    >
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
@@ -203,9 +196,11 @@ function BottomTabNavigator() {
             return focused ? <ClickedProfile /> : <Profile />;
           }
         },
+
         tabBarIconStyle: { justifyContent: "center" },
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarStyle: styles.BottomTab,
+        tabBarHideOnKeyboard: true,
       })}
     >
       <BottomTab.Screen
@@ -284,7 +279,7 @@ const styles = StyleSheet.create({
     height: bottomTabsHeight,
     borderTopWidth: 0,
     shadowOffset: { width: 0, height: -10 },
-    shadowColor: 'gray',
+    shadowColor: "gray",
     shadowRadius: 10,
     shadowOpacity: 0.3,
     elevation: 5, // android
