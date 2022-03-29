@@ -29,15 +29,11 @@ export function ProductList({
 }) {
   const renderItem = ({ item }) => {
     var show = true;
-    if (searchKeyWord == "") {
-      if (filter && count) {
-        show = filter[count].title === item.category;
-        if (filter[count].title === "All") show = true;
-      } else {
-        show = true;
-      }
+    if (filter && count) {
+      show = filter[count].title === item.category;
+      if (filter[count].title === "All") show = true;
     } else {
-      show = item.title.includes(searchKeyWord);
+      show = true;
     }
 
     return show ? (
@@ -49,6 +45,7 @@ export function ProductList({
       />
     ) : null;
   };
+  // item.title.includes(searchKeyWord); filterhere and set it to data
   var i,
     j,
     data1 = [],
