@@ -74,8 +74,8 @@ export default function HomeScreen({ navigation }) {
           count={count}
           setCount={setCount}
           data={FILTER}
-          //   modalVisible={undefined}
-          //   setModalVisible={undefined}
+        //   modalVisible={undefined}
+        //   setModalVisible={undefined}
         />
       )}
       {(!isSearch || isSearchSubmitted) && (

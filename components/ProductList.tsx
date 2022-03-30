@@ -25,7 +25,7 @@ export function ProductList({
   filter,
   data,
   navigation,
-  searchKeyWord,
+  searchKeyWord
 }) {
   const renderItem = ({ item }) => {
     var show = true;
@@ -45,7 +45,13 @@ export function ProductList({
       />
     ) : null;
   };
-  // item.title.includes(searchKeyWord); filterhere and set it to data
+
+  function compareItem(item) {
+    return item.title.toLowerCase().includes(searchKeyWord.toLowerCase())
+  }
+
+  data = data.filter(compareItem)
+
   var i,
     j,
     data1 = [],

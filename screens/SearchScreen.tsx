@@ -17,7 +17,6 @@ export default function SearchScreen({ }) {
     <View>
       <View style={styles.container}>
         <SearchBar
-
           setSearchPhrase={search} />
         <TouchableOpacity style={{ marginStart: 15 }}>
           <AntDesign name="close" size={25} color="#707070" />
