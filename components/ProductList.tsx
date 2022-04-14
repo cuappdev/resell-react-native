@@ -20,13 +20,7 @@ import ProductCard from "./ProductCard";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({
-  count,
-  filter,
-  data,
-  navigation,
-  searchKeyWord
-}) {
+export function ProductList({ count, filter, data, navigation }) {
   const renderItem = ({ item }) => {
     var show = true;
     if (filter && count) {
@@ -41,16 +35,13 @@ export function ProductList({
         title={item.title}
         price={item.price}
         image={item.image}
-        onPress={() => navigation.navigate("ProductHome")}
+        onPress={() => {
+          navigation.setOptions({ animationEnabled: false });
+          navigation.navigate("ProductHome");
+        }}
       />
     ) : null;
   };
-
-  function compareItem(item) {
-    return item.title.toLowerCase().includes(searchKeyWord.toLowerCase())
-  }
-
-  data = data.filter(compareItem)
 
   var i,
     j,
@@ -95,9 +86,7 @@ const styles = StyleSheet.create({
   inner: {
     flexDirection: "row",
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
     backgroundColor: "transparent",
-    marginVertical: 8,
     marginHorizontal: 8,
   },
 });

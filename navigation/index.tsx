@@ -19,7 +19,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -46,10 +45,8 @@ import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
 import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import Home from "../assets/svg-components/home";
-import Header from "../assets/svg-components/header";
 import ClickedHome from "../assets/svg-components/home_clicked";
 import BookMark from "../assets/svg-components/bookmark";
-import BackButton from "../assets/svg-components/back_button";
 import ClickedBookMark from "../assets/svg-components/bookmark_clicked";
 import ClickedChat from "../assets/svg-components/clicked_chat";
 import Chat from "../assets/svg-components/chat";
@@ -82,6 +79,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 /**
  * A stack navigator for handling all screens displayed under home tab.
  */
+
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 const SavedStack = createNativeStackNavigator<SavedStackParamList>();
@@ -104,6 +102,16 @@ function RootNavigator() {
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen name="NewPost" component={PostScreen} />
+        <Stack.Screen
+          name="ProductHome"
+          component={ProductDetailsScreen}
+          options={{
+            headerShown: false,
+            headerTitle: "",
+            headerTransparent: true,
+            animation: "none",
+          }}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -117,16 +125,17 @@ function HomeNavigator({ navigation }) {
       }}
     >
       <HomeStack.Screen name="Home" component={HomeScreen} />
+
       <HomeStack.Screen
-        name="ProductHome"
-        component={ProductDetailsScreen}
+        name="SearchHome"
+        component={SearchScreen}
         options={{
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
+          animation: "none",
         }}
       />
-      <HomeStack.Screen name="SearchHome" component={SearchScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -158,16 +167,19 @@ function ProfileNavigator({ navigation }) {
 }
 
 // TODO: Write Navigator for other tabs. E.g., complete the saved navigator so that clicking item on saved page will open it up on the same tab
-// function SavedNavigator() {
-//   return (
-//     <SavedStack.Navigator>
-//       <SavedStack.Screen
-//         name="Saved"
-//         component={SavedScreen}
-//         options={{
-
-//   )
-// }
+function SavedNavigator() {
+  return (
+    <SavedStack.Navigator>
+      <SavedStack.Screen
+        name="Saved"
+        component={SavedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </SavedStack.Navigator>
+  );
+}
 
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
@@ -214,7 +226,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="SavedTab"
-        component={SavedScreen}
+        component={SavedNavigator}
         options={({ navigation }: RootTabScreenProps<"SavedTab">) => ({
           title: "",
           tabBarShowLabel: false,

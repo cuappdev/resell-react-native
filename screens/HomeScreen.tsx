@@ -1,8 +1,8 @@
 import * as React from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, FlatList } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { View } from "../components/Themed";
-import { RootTabScreenProps } from "../types";
 // import { SafeAreaView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
@@ -16,95 +16,65 @@ import Header from "../assets/svg-components/header";
 import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
-import SearchBar from "../components/SearchBar";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 
 export default function HomeScreen({ navigation }) {
   const [count, setCount] = useState(0);
-  const [isSearch, setIsSearch] = useState(false);
-  const [searchKeyWord, setSearchKeyword] = useState("");
-  const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
 
-  const backtoHome = () => {
-    setIsSearch(false);
-    setIsSearchSubmitted(false);
-    setSearchKeyword("");
-  };
-
-  const searchSubmit = (text) => {
-    setIsSearchSubmitted(true);
-    setSearchKeyword(text);
-  };
-  const searchChange = (text) => {
-    setIsSearchSubmitted(false);
-    setSearchKeyword(text);
-  };
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
-        {!isSearch && <Header style={styles.resellLogo} />}
-        {!isSearch && (
-          <TouchableOpacity
-            activeOpacity={pressedOpacity}
-            style={styles.searchButton}
-            onPress={() => {
-              setIsSearch(true);
-            }}
-          >
-            <HeaderIcon name="search" color="black" size={28} />
-          </TouchableOpacity>
-        )}
-        {isSearch && (
-          <TouchableOpacity
-            activeOpacity={pressedOpacity}
-            style={styles.searchBar}
-          >
-            <SearchBar
-              back={backtoHome}
-              searchSubmit={searchSubmit}
-              searchChange={searchChange}
-            />
-          </TouchableOpacity>
-        )}
+        <Header style={styles.resellLogo} />
+
+        <TouchableOpacity
+          activeOpacity={pressedOpacity}
+          style={styles.searchButton}
+          onPress={() => {
+            AsyncStorage.getItem("history", (errs, result) => {
+              if (!errs) {
+                var tempt = result !== null ? JSON.parse(result) : [];
+                navigation.navigate("SearchHome", {
+                  history: tempt,
+                });
+              }
+            });
+          }}
+        >
+          <HeaderIcon name="search" color="black" size={28} />
+        </TouchableOpacity>
       </View>
-      {!isSearch && (
-        <ButtonBanner
-          count={count}
-          setCount={setCount}
-          data={FILTER}
+
+      <ButtonBanner
+        count={count}
+        setCount={setCount}
+        data={FILTER}
         //   modalVisible={undefined}
         //   setModalVisible={undefined}
-        />
-      )}
-      {(!isSearch || isSearchSubmitted) && (
-        <ProductList
-          searchKeyWord={searchKeyWord}
-          count={count}
-          data={DATA}
-          filter={FILTER}
-          navigation={navigation}
-        />
-      )}
-      {/*  {isSearch && (<a flatlist that has an filtered titles>) */}
+      />
 
-      {!isSearch && (
-        <FAB
-          style={styles.fab}
-          icon="plus"
-          onPress={() => navigation.navigate("NewPost")}
-          color={"#808080"}
-          theme={{ colors: { accent: "white" } }}
-        />
-      )}
+      <ProductList
+        count={count}
+        data={DATA}
+        filter={FILTER}
+        navigation={navigation}
+      />
+
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        onPress={() => navigation.navigate("NewPost")}
+        color={"#808080"}
+        theme={{ colors: { accent: "white" } }}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   outer: {
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
     flex: 1,
   },
   fab: {
@@ -115,18 +85,12 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 40,
-    backgroundColor: homeBackgroundGray,
   },
   resellLogo: {
     position: "absolute",
     left: 26,
   },
-  searchBar: {
-    position: "absolute",
-    right: 20,
-    top: 4,
-    left: 0,
-  },
+
   searchButton: {
     position: "absolute",
     right: 20,

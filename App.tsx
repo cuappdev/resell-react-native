@@ -24,16 +24,16 @@ export default function App() {
       scopes: ["profile", "email"],
     };
 
-    // Google.logInAsync(config).then((result) => {
-    //   const { type } = result;
+    Google.logInAsync(config).then((result) => {
+      const { type } = result;
 
-    //   if (type == "success") {
-    //     console.log("Google SignIn", "SUCCESS", result);
-    //     setSignIn(true);
-    //   } else {
-    //     console.log("Google SignIn", "FAILURE", result);
-    //   }
-    // });
+      if (type == "success") {
+        console.log("Google SignIn", "SUCCESS", result);
+        setSignIn(true);
+      } else {
+        console.log("Google SignIn", "FAILURE", result);
+      }
+    });
     setSignIn(true);
   };
 
