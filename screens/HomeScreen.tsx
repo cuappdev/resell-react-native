@@ -50,8 +50,6 @@ export default function HomeScreen({ navigation }) {
         count={count}
         setCount={setCount}
         data={FILTER}
-        //   modalVisible={undefined}
-        //   setModalVisible={undefined}
       />
 
       <ProductList
