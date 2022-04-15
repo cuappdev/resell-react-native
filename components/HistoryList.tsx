@@ -10,7 +10,7 @@ import React from "react";
 export default function HistoryList({ searchHistory, searchSubmit }) {
   /**
    *
-   * @param {state} searchHistory - state passed in research a list of search history
+   * @param {state} searchHistory - state passed in from search screen a list of search history
    * @param {state} searchSubmit - method that will update keyword and issearchsubmit in the search home screen, will also update the history list
    */
   const renderItem = ({ item }) => (
