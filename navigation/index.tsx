@@ -19,7 +19,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -32,6 +31,7 @@ import SavedScreen from "../screens/SavedScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import SearchScreen from "../screens/SearchScreen";
 
 import {
   RootStackParamList,
@@ -43,19 +43,17 @@ import {
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
-import ProductDetailsScreen from '../screens/ProductDetailsScreen';
+import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import Home from "../assets/svg-components/home";
-import Header from "../assets/svg-components/header";
 import ClickedHome from "../assets/svg-components/home_clicked";
 import BookMark from "../assets/svg-components/bookmark";
-import BackButton from "../assets/svg-components/back_button";
 import ClickedBookMark from "../assets/svg-components/bookmark_clicked";
 import ClickedChat from "../assets/svg-components/clicked_chat";
 import Chat from "../assets/svg-components/chat";
 import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
 
-import { bottomTabsHeight } from '../constants/Layout';
+import { bottomTabsHeight } from "../constants/Layout";
 
 export default function Navigation({
   colorScheme,
@@ -81,6 +79,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 /**
  * A stack navigator for handling all screens displayed under home tab.
  */
+
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 const SavedStack = createNativeStackNavigator<SavedStackParamList>();
@@ -103,6 +102,16 @@ function RootNavigator() {
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen name="NewPost" component={PostScreen} />
+        <Stack.Screen
+          name="ProductHome"
+          component={ProductDetailsScreen}
+          options={{
+            headerShown: false,
+            headerTitle: "",
+            headerTransparent: true,
+            animation: "none",
+          }}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -111,20 +120,20 @@ function RootNavigator() {
 function HomeNavigator({ navigation }) {
   return (
     <HomeStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <HomeStack.Screen name="Home" component={HomeScreen} />
+
       <HomeStack.Screen
-        name="Home"
-        component={HomeScreen}
-      />
-      <HomeStack.Screen
-        name="ProductHome"
-        component={ProductDetailsScreen}
+        name="SearchHome"
+        component={SearchScreen}
         options={{
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
+          animation: "none",
         }}
       />
     </HomeStack.Navigator>
@@ -134,13 +143,11 @@ function HomeNavigator({ navigation }) {
 function ProfileNavigator({ navigation }) {
   return (
     <ProfileStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
-      <ProfileStack.Screen
-        name="Profile"
-        component={ProfileScreen}
-      />
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
@@ -160,16 +167,19 @@ function ProfileNavigator({ navigation }) {
 }
 
 // TODO: Write Navigator for other tabs. E.g., complete the saved navigator so that clicking item on saved page will open it up on the same tab
-// function SavedNavigator() {
-//   return (
-//     <SavedStack.Navigator>
-//       <SavedStack.Screen
-//         name="Saved"
-//         component={SavedScreen}
-//         options={{
-
-//   )
-// }
+function SavedNavigator() {
+  return (
+    <SavedStack.Navigator>
+      <SavedStack.Screen
+        name="Saved"
+        component={SavedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </SavedStack.Navigator>
+  );
+}
 
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
@@ -198,15 +208,17 @@ function BottomTabNavigator() {
             return focused ? <ClickedProfile /> : <Profile />;
           }
         },
+
         tabBarIconStyle: { justifyContent: "center" },
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarStyle: styles.BottomTab,
+        tabBarHideOnKeyboard: true,
       })}
     >
       <BottomTab.Screen
         name="HomeTab"
         component={HomeNavigator}
-        options = {({ navigation }: RootTabScreenProps<"HomeTab">) => ({
+        options={({ navigation }: RootTabScreenProps<"HomeTab">) => ({
           headerStyle: styles.noHeader,
           headerShown: false,
           tabBarShowLabel: false,
@@ -214,7 +226,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="SavedTab"
-        component={SavedScreen}
+        component={SavedNavigator}
         options={({ navigation }: RootTabScreenProps<"SavedTab">) => ({
           title: "",
           tabBarShowLabel: false,
@@ -261,7 +273,7 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="ProfileTab"
         component={ProfileNavigator}
-        options = {({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
+        options={({ navigation }: RootTabScreenProps<"ProfileTab">) => ({
           headerStyle: styles.noHeader,
           headerShown: false,
           tabBarShowLabel: false,
@@ -278,8 +290,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
     height: bottomTabsHeight,
     borderTopWidth: 0,
-    shadowOffset: { width: 0, height: -10}, 
-    shadowColor: 'gray',
+    shadowOffset: { width: 0, height: -10 },
+    shadowColor: "gray",
     shadowRadius: 10,
     shadowOpacity: 0.3,
     elevation: 5, // android

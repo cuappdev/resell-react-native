@@ -46,7 +46,7 @@ export function ButtonBanner({ count, setCount, data }) {
   );
 }
 const styles = StyleSheet.create({
-  filter: { marginStart: 12, marginTop: 9, marginBottom: 12 },
+  filter: { marginStart: 12, marginTop: 9, marginBottom: 6 },
 });
 
 export default ButtonBanner;
