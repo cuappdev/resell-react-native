@@ -34,7 +34,6 @@ export default function App() {
         console.log("Google SignIn", "FAILURE", result);
       }
     });
-    setSignIn(true);
   };
 
   Font.loadAsync({

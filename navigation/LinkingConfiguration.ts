@@ -41,7 +41,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       Modal: 'modal',
       NotFound: '*',
       NewPost:'NewPost',
-                    ProductHome: 'product/:id', // allow product details to be opened with a link specifying the product id
+      ProductHome: 'product/:id', // allow product details to be opened with a link specifying the product id
 
     },
   },
