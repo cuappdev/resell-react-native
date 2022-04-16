@@ -14,7 +14,7 @@ const ProductCard = (props) => {
   return (
     <TouchableOpacity style={styles.container} onPress={props.onPress}>
       <View>
-        <Image source={props.image} style={styles.image} />
+        <Image source={{uri: props.image}} style={styles.image} />
       </View>
       <View style={styles.textBox}>
         <Text style={styles.itemName}>{props.title}</Text>
@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   image: {
+    height: 200,
     width: "100%",
     borderRadius: 10,
     resizeMode: "cover",

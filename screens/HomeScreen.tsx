@@ -1,11 +1,10 @@
-import * as React from "react";
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 import { View } from "../components/Themed";
 import { RootTabScreenProps } from "../types";
 // import { SafeAreaView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
 import { FAB } from "react-native-paper";
 import { LogBox } from "react-native";
 import { FILTER } from "../data/filter";
@@ -24,6 +23,25 @@ export default function HomeScreen({
   navigation,
 }: RootTabScreenProps<"HomeTab">) {
   const [count, setCount] = useState(0);
+  const [isLoading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+
+  const getPosts = async () => {
+    try {
+      const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
+      const json = await response.json();
+      setPosts(json.posts);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  useEffect(() => {
+    getPosts();
+  }, []);
+
 
   return (
     <SafeAreaView style={styles.outer}>
@@ -37,7 +55,7 @@ export default function HomeScreen({
         </TouchableOpacity>
       </View>
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-      <ProductList count={count} data={DATA} filter={FILTER} navigation={navigation} />
+      <ProductList count={count} data={posts} filter={FILTER} navigation={navigation} />
       <FAB
         style={styles.fab}
         icon="plus"

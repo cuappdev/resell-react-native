@@ -33,8 +33,8 @@ export function ProductList({ count, filter, data, navigation }) {
       <ProductCard
         title={item.title}
         price={item.price}
-        image={item.image}
-        onPress={() => navigation.navigate("ProductHome")}
+        image={item.images ? item.images[0] : null}
+        onPress={() => navigation.navigate("ProductHome", {id: item.id})}
       />
     ) : null;
   };
