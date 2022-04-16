@@ -35,10 +35,7 @@ export function ProductList({ count, filter, data, navigation }) {
         title={item.title}
         price={item.price}
         image={item.images ? item.images[0] : null}
-        onPress={() => {
-          navigation.setOptions({ animationEnabled: false });
-          navigation.navigate("ProductHome", {id: item.id});
-        }}
+        onPress={() => navigation.navigate("ProductHome", {id: item.id})}
       />
     ) : null;
   };

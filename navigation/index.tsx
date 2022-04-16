@@ -100,19 +100,19 @@ function RootNavigator() {
         component={NotFoundScreen}
         options={{ title: "Oops!" }}
       />
-      <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-        <Stack.Screen name="NewPost" component={PostScreen} />
-        <Stack.Screen
+      <Stack.Screen
           name="ProductHome"
           component={ProductDetailsScreen}
           options={{
             headerShown: false,
             headerTitle: "",
             headerTransparent: true,
-            animation: "none",
           }}
-        />
+      />
+      <Stack.Group screenOptions={{ presentation: "modal" }}>
+        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="NewPost" component={PostScreen} />
+        
       </Stack.Group>
     </Stack.Navigator>
   );
