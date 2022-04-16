@@ -3,7 +3,13 @@ import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "../components/Themed";
-import { FlatList, SafeAreaView, StatusBar, Image, Platform } from "react-native";
+import {
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+  Image,
+  Platform,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import ProductCard from "../components/ProductCard";
 import { LogBox } from "react-native";
@@ -43,7 +49,10 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.profileTextContainer}>
               <View style={styles.profileBubble} />
             </View>
-            <TouchableOpacity activeOpacity={pressedOpacity} onPress={() => navigation.navigate("Settings")}>
+            <TouchableOpacity
+              activeOpacity={pressedOpacity}
+              onPress={() => navigation.navigate("Settings")}
+            >
               <ProfileScreenIcon name="settings" color="black" size={24} />
             </TouchableOpacity>
           </View>
@@ -57,7 +66,12 @@ export default function ProfileScreen({ navigation }) {
           >
             <ProfileScreenIcon name="plus" color="black" size={36} />
           </TouchableOpacity>
-          <ProductList count={null} data={DATA} filter={null} navigation={navigation}/>
+          <ProductList
+            count={null}
+            data={DATA}
+            filter={null}
+            navigation={navigation}
+          />
         </SafeAreaView>
       </ScrollView>
     </View>
@@ -163,6 +177,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     paddingHorizontal: 18,
+    marginBottom: 10,
   },
   profileNameText: {
     fontFamily: "Roboto-Bold",

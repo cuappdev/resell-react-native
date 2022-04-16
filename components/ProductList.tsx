@@ -29,15 +29,20 @@ export function ProductList({ count, filter, data, navigation }) {
     } else {
       show = true;
     }
+
     return show ? (
       <ProductCard
         title={item.title}
         price={item.price}
         image={item.images ? item.images[0] : null}
-        onPress={() => navigation.navigate("ProductHome", {id: item.id})}
+        onPress={() => {
+          navigation.setOptions({ animationEnabled: false });
+          navigation.navigate("ProductHome", {id: item.id});
+        }}
       />
     ) : null;
   };
+
   var i,
     j,
     data1 = [],
@@ -81,9 +86,7 @@ const styles = StyleSheet.create({
   inner: {
     flexDirection: "row",
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
     backgroundColor: "transparent",
-    marginVertical: 8,
     marginHorizontal: 8,
   },
 });

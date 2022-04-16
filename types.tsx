@@ -21,25 +21,30 @@ export type RootStackParamList = {
   Modal: undefined;
   NotFound: undefined;
   NewPost: undefined;
+  ProductHome: undefined;
 };
 
 export type HomeStackParamList = {
   Home: undefined;
-  ProductHome: undefined;
-}
+  SearchHome: undefined;
+};
 
 export type SavedStackParamList = {
   Saved: undefined;
   ProductSaved: undefined;
-}
+};
 
 export type ProfileStackParamList = {
   Profile: undefined;
   ProductProfile: undefined;
   Settings: undefined;
   NotificationPreferences: undefined;
+<<<<<<< HEAD
   SendFeedback: undefined;
 }
+=======
+};
+>>>>>>> ce408512b41f98c113927c1fa103523356cecd32
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
