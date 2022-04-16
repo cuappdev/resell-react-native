@@ -42,9 +42,7 @@ export function NumberPad({
   };
   return (
     <View style={styles.outer}>
-      <View
-        style={{ flexDirection: "row", marginBottom: 36, alignItems: "center" }}
-      >
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Text style={{ fontFamily: "Roboto-Medium", fontSize: 40 }}>$</Text>
         <TextInput
           onFocus={() => Keyboard.dismiss()}
@@ -115,7 +113,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 40,
   },
   inner: {
     flex: 1,
@@ -126,8 +123,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   button: {
-    padding: 10,
+    width: "30%",
     backgroundColor: "transparent",
+    alignSelf: "center",
   },
 
   buttonContinue: {
@@ -158,12 +156,11 @@ const styles = StyleSheet.create({
   input: {
     width: 180,
     height: 80,
-    margin: 12,
+    marginHorizontal: 12,
     padding: 10,
     backgroundColor: "#F4F4F4",
     borderRadius: 20,
-    marginTop: 0,
-    fontSize: 18,
+    fontSize: 24,
     color: "#000000",
   },
 });

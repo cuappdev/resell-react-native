@@ -26,16 +26,15 @@ export default function App() {
     console.log("Google SignIn", "SUCCESS", "");
     setSignIn(true);
 
-    // Google.logInAsync(config).then((result) => {
-    //   const { type } = result;
-
-    //   if (type == "success") {
-    //     console.log("Google SignIn", "SUCCESS", result);
-    //     setSignIn(true);
-    //   } else {
-    //     console.log("Google SignIn", "FAILURE", result);
-    //   }
-    // });
+    Google.logInAsync(config).then((result) => {
+      // const { type } = result;
+      // if (type == "success") {
+      //   console.log("Google SignIn", "SUCCESS", result);
+      setSignIn(true);
+      // } else {
+      //   console.log("Google SignIn", "FAILURE", result);
+      // }
+    });
   };
 
   Font.loadAsync({
@@ -128,6 +127,7 @@ const styles = StyleSheet.create({
     padding: "3%",
     borderRadius: 25,
     marginTop: 0,
+    marginBottom: "20%",
     shadowOffset: { width: 3, height: 3 },
     shadowColor: "grey",
     shadowOpacity: 0.5,

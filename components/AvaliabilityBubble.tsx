@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import WeekView, { createFixedWeekDate } from "react-native-week-view";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 
 export function AvaliabilityBubble({ userName, schedule }) {
   return (
@@ -23,7 +23,7 @@ export function AvaliabilityBubble({ userName, schedule }) {
         }}
         onPress={() => {}}
       >
-        <AntDesign name="right" size={24} color="#9E70F6" />
+        <Feather name="chevron-right" size={24} color="#9E70F6" />
       </TouchableOpacity>
     </View>
   );
@@ -32,10 +32,11 @@ export function AvaliabilityBubble({ userName, schedule }) {
 const styles = StyleSheet.create({
   outer: {
     flex: 1,
+
     flexDirection: "row",
-    width: 300,
+    width: "80%",
     backgroundColor: "rgba(158, 112, 246, 0.1)",
-    borderRadius: 50,
+    borderRadius: 15,
     alignItems: "center",
     paddingHorizontal: 15,
     paddingVertical: 10,

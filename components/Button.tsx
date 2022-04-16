@@ -35,8 +35,10 @@ function Button(props) {
 
   return clicked || props.alwaysColor ? (
     <LinearGradient
-      colors={["#6F30F5", "#DD67AE", "#FEB6A2"]}
+      colors={["#DF9856", "#DE6CD3", "#AD68E3"]}
       style={styles.highLight}
+      start={{ x: 0.9, y: 0 }}
+      end={{ x: 0.1, y: 1 }}
     >
       <TouchableOpacity style={styles.appButtonContainer} onPress={onPress}>
         <Text style={styles.appButtonText}>{props.title}</Text>

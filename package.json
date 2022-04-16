@@ -29,8 +29,8 @@
     "expo-splash-screen": "~0.11.2",
     "expo-status-bar": "~1.0.4",
     "expo-web-browser": "~9.2.0",
-    "react": "16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
     "react-native-dialog-component": "^0.2.17",
     "react-native-elements": "^3.4.2",
@@ -45,9 +45,6 @@
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
     "react-native-slack-bottom-sheet": "^0.5.0",
-    "react-native-slide-down-panel": "^1.0.8",
-    "react-native-sliding-up-down-panels": "^1.0.0",
-    "react-native-sliding-up-panel": "^1.1.12",
     "react-native-svg": "^12.1.1",
     "react-native-swipe-modal-up-down": "^1.1.0",
     "react-native-swipe-up-down": "^1.0.7",
@@ -70,6 +67,10 @@
     "jest-expo": "~41.0.0-beta.0",
     "react-native-svg-transformer": "^0.14.3",
     "typescript": "~4.0.0"
+  },
+  "resolutions": {
+    "d2/left-pad": "1.1.1",
+    "c/**/left-pad": "^1.1.2"
   },
   "private": true
 }

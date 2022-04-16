@@ -102,29 +102,9 @@ export default function SearchScreen({ navigation, route }) {
       </View>
 
       {isSearchSubmitted && noResult && (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "Rubik-Medium",
-              fontSize: 18,
-              marginBottom: 8,
-            }}
-          >
-            No results
-          </Text>
-          <Text
-            style={{
-              fontFamily: "Rubik-Regular",
-              fontSize: 16,
-              color: "#707070",
-            }}
-          >
+        <View style={styles.noResultView}>
+          <Text style={styles.noResultHeader}>No results</Text>
+          <Text style={styles.noResultSubHeader}>
             Please try another search
           </Text>
         </View>
@@ -190,5 +170,17 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Regular",
     fontSize: 18,
     width: "90%",
+  },
+  noResultView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
+  noResultSubHeader: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    color: "#707070",
   },
 });
