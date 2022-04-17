@@ -12,27 +12,36 @@ import {
 import WeekView, { createFixedWeekDate } from "react-native-week-view";
 import { AntDesign, Feather } from "@expo/vector-icons";
 
-export function AvaliabilityBubble({ userName, schedule }) {
+export function AvaliabilityBubble({
+  userName,
+  setIsBubble,
+  setAvailabilityVisible,
+}) {
   return (
-    <View style={styles.outer}>
+    <TouchableOpacity
+      style={styles.outer}
+      activeOpacity={0.7}
+      onPress={() => {
+        setIsBubble(true);
+        setAvailabilityVisible(true);
+      }}
+    >
       <Text style={styles.textStyle}>{userName}'s Avaliability</Text>
-      <TouchableOpacity
+      <View
         style={{
           marginLeft: 15,
           marginTop: "auto",
         }}
-        onPress={() => {}}
       >
         <Feather name="chevron-right" size={24} color="#9E70F6" />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   outer: {
     flex: 1,
-
     flexDirection: "row",
     width: "80%",
     backgroundColor: "rgba(158, 112, 246, 0.1)",
@@ -45,10 +54,11 @@ const styles = StyleSheet.create({
   },
 
   textStyle: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 16,
-    fontWeight: "500",
+    fontFamily: "Rubik-Regular",
+    fontSize: 17,
     color: "#9E70F6",
+    lineHeight: 20,
+    fontWeight: "700",
     textAlign: "center",
   },
   modalText: {

@@ -46,7 +46,8 @@ export default function ChatWindow({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
   const [isSendingAvalibility, setIsSendingAvaliability] = useState(false);
-
+  const [scheduleCallback, setScheduleCallback] = useState([]);
+  const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -169,7 +170,11 @@ export default function ChatWindow({ navigation }) {
         <View
           style={{ width: "80%", alignItems: "flex-end", marginVertical: 10 }}
         >
-          <AvaliabilityBubble userName={"jessie"} schedule={[]} />
+          <AvaliabilityBubble
+            userName={"Jessie"}
+            setIsBubble={setIsBubble}
+            setAvailabilityVisible={setAvailabilityVisible}
+          />
         </View>
       );
     }
@@ -201,6 +206,7 @@ export default function ChatWindow({ navigation }) {
           setModalVisible={setModalVisible}
           availabilityVisible={availabilityVisible}
           setAvailabilityVisible={setAvailabilityVisible}
+          setIsBubble={setIsBubble}
           alwaysColor={true}
         />
 
@@ -242,7 +248,16 @@ export default function ChatWindow({ navigation }) {
                     color: "#000000",
                   },
                 ]}
-                onChangeText={(text) => setText(text)}
+                onChangeText={(text) => {
+                  if (!isSendingAvalibility) {
+                    setText(text);
+                  }
+                }}
+                onKeyPress={({ nativeEvent }) => {
+                  if (nativeEvent.key === "Backspace") {
+                    setIsSendingAvaliability(false);
+                  }
+                }}
                 value={text}
                 onContentSizeChange={(event) => {
                   setHeight(event.nativeEvent.contentSize.height);
@@ -260,7 +275,11 @@ export default function ChatWindow({ navigation }) {
                   backgroundColor: "transparent",
                 }}
               >
-                <AvaliabilityBubble userName={"jessie"} schedule={[]} />
+                <AvaliabilityBubble
+                  userName={"jessie"}
+                  setIsBubble={null}
+                  setAvailabilityVisible={null}
+                />
               </View>
             )}
             {(text.trim().length != 0 || isSendingAvalibility) && (
@@ -300,10 +319,15 @@ export default function ChatWindow({ navigation }) {
           setText={setText}
         />
         <AvaliabilityModal
+          scheduleCallback={scheduleCallback}
+          setScheduleCallback={setScheduleCallback}
           availabilityVisible={availabilityVisible}
           setAvailabilityVisible={setAvailabilityVisible}
           setIsSendingAvaliability={setIsSendingAvaliability}
+          isBubble={isBubble}
+          setIsBubble={setIsBubble}
           setHeight={setHeight}
+          username={"Jessie"}
         />
       </SafeAreaView>
     );

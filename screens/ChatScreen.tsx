@@ -35,7 +35,7 @@ import ChatTbas from "../components/ChatTabs";
 //import { IMessage } from "./CustomizedMessage";
 
 export default function ChatScreen({ navigation }) {
-  const [isPurchase, setIsPurchase] = useState(false);
+  const [isPurchase, setIsPurchase] = useState(true);
   var temptPuchrase = 0;
   var temptOrder = 0;
 

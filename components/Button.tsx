@@ -30,6 +30,7 @@ function Button(props) {
     }
     if (props.title == "Send Availablity") {
       props.setAvailabilityVisible(true);
+      props.setIsBubble(false);
     }
   };
 

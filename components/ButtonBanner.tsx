@@ -32,6 +32,7 @@ export function ButtonBanner(props) {
         setModalVisible={props.setModalVisible}
         availabilityVisible={props.availabilityVisible}
         setAvailabilityVisible={props.setAvailabilityVisible}
+        setIsBubble={props.setIsBubble}
         alwaysColor={props.alwaysColor}
       />
     );

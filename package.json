@@ -6,7 +6,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "preinstall": "npx npm-force-resolutions"
   },
   "jest": {
     "preset": "jest-expo"
@@ -14,7 +15,7 @@
   "dependencies": {
     "@expo/vector-icons": "^12.0.0",
     "@react-native-async-storage/async-storage": "^1.15.17",
-    "@react-navigation/bottom-tabs": "^6.0.5",
+    "@react-navigation/bottom-tabs": "^6.3.1",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.1.0",
     "core-js": "^3.21.1",
@@ -70,7 +71,9 @@
   },
   "resolutions": {
     "d2/left-pad": "1.1.1",
-    "c/**/left-pad": "^1.1.2"
+    "c/**/left-pad": "^1.1.2",
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.2"
   },
   "private": true
 }

@@ -114,7 +114,6 @@ function RootNavigator() {
             headerShown: false,
             headerTitle: "",
             headerTransparent: true,
-            animation: "none",
           }}
         />
       </Stack.Group>

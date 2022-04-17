@@ -8,15 +8,24 @@ export function AvaliabilityModal({
   availabilityVisible,
   setAvailabilityVisible,
   setIsSendingAvaliability,
+  setScheduleCallback,
+  isBubble,
+  setIsBubble,
+  scheduleCallback,
   setHeight,
+  username,
 }) {
-  const [numDate, setNumDate] = useState(true);
+  const [hasPrev, setHasPrev] = useState(false);
   const [schedule, setSchedule] = useState([]);
+
+  useEffect(() => {
+    console.log(schedule);
+  }, [schedule]);
   const MyEventComponent = ({ event, position }) => {
-    console.log("wq" + event.color);
     switch (event.color) {
       case "#c8b9fa":
         return (
+          //While deleting an event style
           <View
             style={{
               width: position.width,
@@ -30,6 +39,7 @@ export function AvaliabilityModal({
         );
       case "#9E70F6":
         return (
+          //a complete event style
           <View
             style={{
               width: position.width,
@@ -40,6 +50,7 @@ export function AvaliabilityModal({
         );
       case "":
         return (
+          //Start time of an event style, start event always have color of ""
           <View
             style={{
               width: position.width,
@@ -55,60 +66,66 @@ export function AvaliabilityModal({
   };
 
   const onClickGrid = (event, startHour, date) => {
-    let day = date.getDay();
-    let length = schedule.length;
-    let minute = date.getMinutes();
-    for (let i = 0; i < schedule.length; i++) {
-      if (schedule[i].startDate <= date && schedule[i].endDate >= date) {
-        return;
-      }
-    }
+    if (!isBubble) {
+      //Make sure it's not avaliability bubble mode, which is not editable
+      let year = date.getFullYear();
+      let month = date.getMonth();
+      let day = date.getDate();
+      let minute = date.getMinutes();
+      let length = schedule.length;
 
-    if (length == 0) {
-      setSchedule([
-        {
-          id: 0,
-          startDate: createFixedWeekDate(day, startHour, minute >= 30 ? 30 : 0),
-          endDate: createFixedWeekDate(
-            day,
-            minute >= 30 ? startHour + 1 : startHour,
-            minute >= 30 ? 0 : 30
-          ),
-          color: "",
-        },
-      ]);
-      setNumDate(true);
-    } else {
-      if (!numDate) {
+      for (let i = 0; i < schedule.length; i++) {
+        //If current grid is already an event in schedule, return
+        if (schedule[i].startDate <= date && schedule[i].endDate >= date) {
+          return;
+        }
+      }
+
+      if (!hasPrev) {
+        // If there is no previous event, create a 30 minute start event, with color ""
         setSchedule([
           ...schedule,
           {
             id: length,
-            startDate: createFixedWeekDate(
+            startDate: new Date(
+              year,
+              month,
               day,
               startHour,
-              minute >= 30 ? 30 : 0
+              minute >= 30 ? 30 : 0,
+              0,
+              0
             ),
-            endDate: createFixedWeekDate(
+
+            endDate: new Date(
+              year,
+              month,
               day,
               minute >= 30 ? startHour + 1 : startHour,
-              minute >= 30 ? 0 : 30
+              minute >= 30 ? 0 : 30,
+              0,
+              0
             ),
             color: "",
           },
         ]);
-
-        setNumDate(true);
+        setHasPrev(true);
       } else {
         if (
+          //Make sure event are on the same day, and after the start event start date
           schedule[length - 1].startDate <= date &&
           schedule[length - 1].startDate.getDay() == date.getDay()
         ) {
-          var endDate = createFixedWeekDate(
+          var endDate = new Date(
+            year,
+            month,
             day,
             minute >= 30 ? startHour + 1 : startHour,
-            minute >= 30 ? 0 : 30
+            minute >= 30 ? 0 : 30,
+            0,
+            0
           );
+
           var oldStartDate = schedule[length - 1].startDate;
           var temptSchedule = [
             ...schedule
@@ -123,7 +140,7 @@ export function AvaliabilityModal({
           ];
           resetScheduleIndex(temptSchedule);
           setSchedule(temptSchedule);
-          setNumDate(false);
+          setHasPrev(false);
         }
       }
     }
@@ -131,59 +148,65 @@ export function AvaliabilityModal({
 
   const onEventPress = (event) => {
     let length = schedule.length;
+    if (!isBubble) {
+      //Make sure it's not avaliability bubble mode, which is not editable
 
-    if (numDate) {
-      if (
-        schedule[length - 1].startDate <= event.startDate &&
-        schedule[length - 1].startDate.getDay() == event.startDate.getDay()
-      ) {
+      if (hasPrev) {
+        // connect two events, if an event is clicked after the start event, rather than a grid is clicked
+        if (
+          schedule[length - 1].startDate <= event.startDate &&
+          schedule[length - 1].startDate.getDay() == event.startDate.getDay()
+        ) {
+          var temptSchedule = [
+            ...schedule.slice(0, length - 1).filter((e) => e.id !== event.id),
+            {
+              id: length - 1,
+              startDate: schedule[length - 1].startDate,
+              endDate: event.endDate,
+              color: "#9E70F6",
+            },
+          ];
+          setHasPrev(false);
+          resetScheduleIndex(temptSchedule);
+          setSchedule(temptSchedule);
+        }
+      } else {
+        //Delete an event, changed the event color
         var temptSchedule = [
-          ...schedule.slice(0, length - 1).filter((e) => e.id !== event.id),
+          ...schedule.filter((e) => e.id !== event.id),
           {
-            id: length - 1,
-            startDate: schedule[length - 1].startDate,
+            id: parseInt(event.id),
+            startDate: event.startDate as Date,
             endDate: event.endDate,
-            color: "#9E70F6",
+            color: "#c8b9fa",
           },
         ];
-        setNumDate(false);
-        resetScheduleIndex(temptSchedule);
         setSchedule(temptSchedule);
-      }
-    } else {
-      var temptSchedule = [
-        ...schedule.filter((e) => e.id !== event.id),
-        {
-          id: event.id,
-          startDate: event.startDate,
-          endDate: event.endDate,
-          color: "#c8b9fa",
-        },
-      ];
-      setSchedule(temptSchedule);
-      Alert.alert("Delete an Avaliability", event.startDate.toString(), [
-        {
-          text: "Cancel",
-          onPress: () => {
-            var temptSchedule = [
-              ...schedule.filter((e) => e.id !== event.id),
-              {
-                id: event.id,
-                startDate: event.startDate,
-                endDate: event.endDate,
-                color: "#c8b9fa",
-              },
-            ];
-            setSchedule(temptSchedule);
-          },
+        Alert.alert("Delete an Avaliability", event.startDate.toString(), [
+          {
+            text: "Cancel",
+            onPress: () => {
+              var temptSchedule = [
+                ...schedule.filter((e) => e.id !== event.id),
+                {
+                  id: event.id,
+                  startDate: event.startDate,
+                  endDate: event.endDate,
+                  color: "#9E70F6",
+                },
+              ];
+              setSchedule(temptSchedule);
+            },
 
-          style: "cancel",
-        },
-        { text: "OK", onPress: () => deleteEvent(event) },
-      ]);
+            style: "cancel",
+          },
+          { text: "OK", onPress: () => deleteEvent(event) },
+        ]);
+      }
     }
   };
   const resetScheduleIndex = (temptSchedule) => {
+    //reorder the id, make sure each id is unique
     for (let i = 0; i < temptSchedule.length; i++) {
       temptSchedule[i].id = i;
     }
@@ -212,7 +235,9 @@ export function AvaliabilityModal({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={[styles.textStyle, { marginBottom: 30 }]}>
-            When are you free to meet?
+            {isBubble
+              ? username + "'s Avaliability"
+              : "When are you free to meet?"}
           </Text>
           <WeekView
             selectedDate={new Date()}
@@ -230,7 +255,7 @@ export function AvaliabilityModal({
               color: "#7B7B7B",
               fontSize: 14,
             }}
-            events={schedule}
+            events={isBubble ? scheduleCallback : schedule}
             fixedHorizontally={false}
             showTitle={false}
             numberOfDays={4}
@@ -248,9 +273,16 @@ export function AvaliabilityModal({
             style={[styles.buttonContinue]}
             onPress={() => {
               setAvailabilityVisible(!availabilityVisible);
-              setIsSendingAvaliability(true);
-              setSchedule([]);
-              setHeight(80);
+              if (!isBubble) {
+                if (schedule.length > 0) {
+                  setIsSendingAvaliability(true);
+                  setScheduleCallback(schedule);
+                  setSchedule([]);
+                  setHeight(80);
+                }
+              } else {
+                setIsBubble(false);
+              }
             }}
           >
             <Text style={styles.textStyle}>Continue</Text>
