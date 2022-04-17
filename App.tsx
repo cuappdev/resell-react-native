@@ -27,13 +27,13 @@ export default function App() {
     setSignIn(true);
 
     Google.logInAsync(config).then((result) => {
-      // const { type } = result;
-      // if (type == "success") {
-      //   console.log("Google SignIn", "SUCCESS", result);
-      setSignIn(true);
-      // } else {
-      //   console.log("Google SignIn", "FAILURE", result);
-      // }
+      const { type } = result;
+      if (type == "success") {
+        console.log("Google SignIn", "SUCCESS", result);
+        setSignIn(true);
+      } else {
+        console.log("Google SignIn", "FAILURE", result);
+      }
     });
   };
 
