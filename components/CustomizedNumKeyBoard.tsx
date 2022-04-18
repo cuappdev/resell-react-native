@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 import {
-  Alert,
   StyleSheet,
   Text,
   Pressable,
@@ -15,6 +14,7 @@ export function NumberPad({
   setModalVisible,
   originalText,
   setOriginalText,
+  itemName,
 }) {
   const [input, setInput] = useState("");
   const changeInput = (text) => {
@@ -33,7 +33,9 @@ export function NumberPad({
     if (input != "") {
       setOriginalText(
         original.concat(
-          "Hi! I'm interested in buying your Blue Pants, but would you be open to selling it for $" +
+          "Hi! I'm interested in buying your " +
+            itemName +
+            ", but would you be open to selling it for $" +
             input +
             "?"
         )

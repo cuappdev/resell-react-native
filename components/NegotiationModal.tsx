@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import Modal from "react-native-modal";
 
-import { StyleSheet, Text, Pressable, View, Alert } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { NumberPad } from "./CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
 
@@ -10,6 +10,7 @@ export function NegotiationModal({
   setModalVisible,
   text,
   setText,
+  itemName,
 }) {
   return (
     <Modal
@@ -43,6 +44,7 @@ export function NegotiationModal({
             setModalVisible={setModalVisible}
             originalText={text}
             setOriginalText={setText}
+            itemName={itemName}
           />
         </View>
       </View>

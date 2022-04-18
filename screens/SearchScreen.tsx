@@ -1,23 +1,15 @@
 import * as React from "react";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  FlatList,
-  TextInput,
-  LogBox,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, Text, TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { View } from "../components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { FILTER } from "../data/filter";
 import { DATA } from "../data/product";
 import { ProductList } from "../components/ProductList";
 
-import { homeBackgroundGray } from "../constants/Colors";
 import HistoryList from "../components/HistoryList";
 import { AntDesign } from "@expo/vector-icons";
 

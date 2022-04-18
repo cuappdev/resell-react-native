@@ -26,8 +26,8 @@ import {
 } from "react-native-gifted-chat";
 import { NegotiationModal } from "../components/NegotiationModal";
 import { AntDesign } from "@expo/vector-icons";
-import { AvaliabilityModal } from "../components/AvaliablitiyMatch";
-import { AvaliabilityBubble } from "../components/AvaliabilityBubble";
+import { AvaliabilityModal } from "../components/AvailabilityMatch";
+import { AvaliabilityBubble } from "../components/AvailabilityBubble";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 import * as ImagePicker from "expo-image-picker";

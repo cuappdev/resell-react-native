@@ -1,18 +1,9 @@
-import React, { useState } from "react";
-import Modal from "react-native-modal";
+import React from "react";
 
-import {
-  StyleSheet,
-  Text,
-  Pressable,
-  View,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import WeekView, { createFixedWeekDate } from "react-native-week-view";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
-export function AvaliabilityBubble({
+export function AvailabilityBubble({
   userName,
   setIsBubble,
   setAvailabilityVisible,

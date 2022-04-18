@@ -5,27 +5,23 @@ import {
   Keyboard,
   TextInput,
   TouchableOpacity,
-  Dimensions,
   Text,
 } from "react-native";
 import { LogBox } from "react-native";
 import { View } from "../components/Themed";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef } from "react";
-import { RootTabScreenProps } from "../types";
 import { ButtonBanner } from "../components/ButtonBanner";
 import {
-  Actions,
   Bubble,
   GiftedChat,
   Message,
-  MessageImage,
   MessageText,
 } from "react-native-gifted-chat";
 import { NegotiationModal } from "../components/NegotiationModal";
 import { AntDesign } from "@expo/vector-icons";
-import { AvaliabilityModal } from "../components/AvaliablitiyMatch";
-import { AvaliabilityBubble } from "../components/AvaliabilityBubble";
+import { AvailabilityModal } from "../components/AvailabilityMatch";
+import { AvailabilityBubble } from "../components/AvailabilityBubble";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 import * as ImagePicker from "expo-image-picker";
@@ -45,7 +41,7 @@ export default function ChatWindow({ navigation }) {
   const yourRef = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
-  const [isSendingAvalibility, setIsSendingAvaliability] = useState(false);
+  const [isSendingAvailability, setIsSendingAvailability] = useState(false);
   const [scheduleCallback, setScheduleCallback] = useState([]);
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
@@ -170,7 +166,7 @@ export default function ChatWindow({ navigation }) {
         <View
           style={{ width: "80%", alignItems: "flex-end", marginVertical: 10 }}
         >
-          <AvaliabilityBubble
+          <AvailabilityBubble
             userName={"Jessie"}
             setIsBubble={setIsBubble}
             setAvailabilityVisible={setAvailabilityVisible}
@@ -228,7 +224,7 @@ export default function ChatWindow({ navigation }) {
               {
                 flexDirection: "row",
               },
-              isSendingAvalibility
+              isSendingAvailability
                 ? { alignItems: "flex-start" }
                 : { alignItems: "center" },
               {
@@ -236,7 +232,7 @@ export default function ChatWindow({ navigation }) {
               },
             ]}
           >
-            {!isSendingAvalibility && (
+            {!isSendingAvailability && (
               <TextInput
                 style={[
                   {
@@ -249,13 +245,13 @@ export default function ChatWindow({ navigation }) {
                   },
                 ]}
                 onChangeText={(text) => {
-                  if (!isSendingAvalibility) {
+                  if (!isSendingAvailability) {
                     setText(text);
                   }
                 }}
                 onKeyPress={({ nativeEvent }) => {
                   if (nativeEvent.key === "Backspace") {
-                    setIsSendingAvaliability(false);
+                    setIsSendingAvailability(false);
                   }
                 }}
                 value={text}
@@ -265,7 +261,7 @@ export default function ChatWindow({ navigation }) {
                 multiline={true}
               />
             )}
-            {isSendingAvalibility && (
+            {isSendingAvailability && (
               <View
                 style={{
                   height: 50,
@@ -275,14 +271,14 @@ export default function ChatWindow({ navigation }) {
                   backgroundColor: "transparent",
                 }}
               >
-                <AvaliabilityBubble
+                <AvailabilityBubble
                   userName={"jessie"}
                   setIsBubble={null}
                   setAvailabilityVisible={null}
                 />
               </View>
             )}
-            {(text.trim().length != 0 || isSendingAvalibility) && (
+            {(text.trim().length != 0 || isSendingAvailability) && (
               <TouchableOpacity
                 style={{
                   marginRight: 10,
@@ -297,8 +293,8 @@ export default function ChatWindow({ navigation }) {
                     setTimeout(() => {
                       yourRef.current.scrollToBottom();
                     }, 100);
-                  } else if (isSendingAvalibility) {
-                    setIsSendingAvaliability(false);
+                  } else if (isSendingAvailability) {
+                    setIsSendingAvailability(false);
                     props.onSend({ text: "" }, true);
                   }
                 }}
@@ -317,13 +313,14 @@ export default function ChatWindow({ navigation }) {
           setModalVisible={setModalVisible}
           text={text}
           setText={setText}
+          itemName={"Blue Pants"}
         />
-        <AvaliabilityModal
+        <AvailabilityModal
           scheduleCallback={scheduleCallback}
           setScheduleCallback={setScheduleCallback}
           availabilityVisible={availabilityVisible}
           setAvailabilityVisible={setAvailabilityVisible}
-          setIsSendingAvaliability={setIsSendingAvaliability}
+          setIsSendingAvailability={setIsSendingAvailability}
           isBubble={isBubble}
           setIsBubble={setIsBubble}
           setHeight={setHeight}

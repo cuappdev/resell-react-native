@@ -1,14 +1,6 @@
 import React from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useEffect } from "react";
 
 /**
  *
@@ -80,7 +72,6 @@ function ChatTbas({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
                   borderRadius: 8,
                   alignItems: "center",
                   justifyContent: "center",
-
                   marginStart: 12,
                 }}
               >
