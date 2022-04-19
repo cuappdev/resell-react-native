@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import { LogBox } from "react-native";
 import { View } from "../components/Themed";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef } from "react";
@@ -22,11 +21,10 @@ import { NegotiationModal } from "../components/NegotiationModal";
 import { AntDesign } from "@expo/vector-icons";
 import { AvailabilityModal } from "../components/AvailabilityMatch";
 import { AvailabilityBubble } from "../components/AvailabilityBubble";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 import * as ImagePicker from "expo-image-picker";
 import { pressedOpacity } from "../constants/Values";
-//import { IMessage } from "./CustomizedMessage";
 
 export default function ChatWindow({ navigation }) {
   const [keyboardOffset, setKeyboardOffset] = useState(0);

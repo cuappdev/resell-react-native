@@ -1,38 +1,19 @@
 import * as React from "react";
 import {
   StyleSheet,
-  SafeAreaView,
-  Keyboard,
   Text,
   FlatList,
   Image,
   View,
-  TextInput,
   TouchableOpacity,
-  Dimensions,
 } from "react-native";
 import { LogBox } from "react-native";
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
-import { useState, useEffect, useRef } from "react";
-import { RootTabScreenProps } from "../types";
-import { ButtonBanner } from "../components/ButtonBanner";
-import {
-  Actions,
-  Bubble,
-  GiftedChat,
-  Message,
-  MessageImage,
-  MessageText,
-} from "react-native-gifted-chat";
-import { NegotiationModal } from "../components/NegotiationModal";
-import { AntDesign } from "@expo/vector-icons";
-import { AvaliabilityModal } from "../components/AvailabilityMatch";
-import { AvaliabilityBubble } from "../components/AvailabilityBubble";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
-import * as ImagePicker from "expo-image-picker";
+import { Feather } from "@expo/vector-icons";
+import { useState } from "react";
+
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 import ChatTbas from "../components/ChatTabs";
-//import { IMessage } from "./CustomizedMessage";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
