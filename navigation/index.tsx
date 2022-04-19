@@ -149,7 +149,6 @@ function HomeNavigator({ navigation }) {
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
-          animation: "none",
         }}
       />
     </HomeStack.Navigator>
