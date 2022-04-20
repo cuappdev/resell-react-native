@@ -40,6 +40,8 @@ import {
   HomeStackParamList,
   SavedStackParamList,
   ProfileStackParamList,
+  OnboardStackParamList
+
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
@@ -54,6 +56,8 @@ import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
 
 import { bottomTabsHeight } from "../constants/Layout";
+import LinkVenmoScreen from "../screens/LinkVenmoScreen";
+import OnBoardScreen from "../screens/OnBoardScreen";
 
 export default function Navigation({
   colorScheme,
@@ -86,9 +90,16 @@ const SavedStack = createNativeStackNavigator<SavedStackParamList>();
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
+const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
+
 function RootNavigator() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="ProfileOnboard"
+        component={OnboardNavigator}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="Root"
         component={BottomTabNavigator}
@@ -112,6 +123,8 @@ function RootNavigator() {
             animation: "none",
           }}
         />
+
+
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -181,13 +194,34 @@ function SavedNavigator() {
   );
 }
 
+export function OnboardNavigator({ navigation }) {
+  return (
+    <OnboardStack.Navigator>
+      <OnboardStack.Screen
+        name="Onboard"
+        component={OnBoardScreen}
+        options={(navigation) => ({
+          headerShown: false,
+        })}
+      />
+      <OnboardStack.Screen
+        name="Venmo"
+        component={LinkVenmoScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </OnboardStack.Navigator>
+  );
+}
+
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
-function BottomTabNavigator() {
+export function BottomTabNavigator() {
   const colorScheme = useColorScheme();
 
   return (

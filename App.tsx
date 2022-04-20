@@ -7,15 +7,18 @@ import { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
-import Navigation from "./navigation";
+import Navigation, { BottomTabNavigator, OnboardNavigator } from "./navigation";
 import * as Google from "expo-google-app-auth";
 import GlobalStore from "./state_manage/store";
+import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native";
+import LinkingConfiguration from "./navigation/LinkingConfiguration";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
   const [signedIn, setSignIn] = useState(false);
+  const [onBoard, hasOnBoarded] = useState(false);
 
   const handleGoogleSignIn = () => {
     const config = {
@@ -70,12 +73,11 @@ export default function App() {
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
-          {!signedIn && (
+          {/* {!signedIn  */}
+          {false && (
             <View style={styles.containerSignIn}>
               <Image
                 style={styles.gradient0}
-                width={"100%"}
-                height={"70%"}
                 source={require("./assets/images/signinbackgroundhue.png")}
               />
               <View style={styles.innerContainer}>
@@ -92,7 +94,16 @@ export default function App() {
               </View>
             </View>
           )}
-          {signedIn && <Navigation colorScheme={colorScheme} />}
+          {/* {signedIn && !onBoard  */}
+          {true && <Navigation colorScheme={colorScheme} />}
+
+
+          {/* {signedIn && onBoard && <NavigationContainer
+            linking={LinkingConfiguration}
+            theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <BottomTabNavigator />
+          </NavigationContainer>} */}
         </SafeAreaProvider>
       </Provider>
     );
@@ -141,5 +152,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: "-10%",
     left: 0,
+    width: "100%",
+    height: "70%"
   },
 });
