@@ -23,12 +23,23 @@ function Button(props) {
   useEffect(() => {
     setClicked(props.count === props.id);
   }, [props.count]);
-  const onPress = () => props.setCount(props.id);
+  const onPress = () => {
+    props.setCount(props.id);
+    if (props.title == "Negotiate") {
+      props.setModalVisible(!props.modalVisible);
+    }
+    if (props.title == "Send Availablity") {
+      props.setAvailabilityVisible(true);
+      props.setIsBubble(false);
+    }
+  };
 
   return clicked || props.alwaysColor ? (
     <LinearGradient
-      colors={["#6F30F5", "#DD67AE", "#FEB6A2"]}
+      colors={["#DF9856", "#DE6CD3", "#AD68E3"]}
       style={styles.highLight}
+      start={{ x: 0.9, y: 0 }}
+      end={{ x: 0.1, y: 1 }}
     >
       <TouchableOpacity style={styles.appButtonContainer} onPress={onPress}>
         <Text style={styles.appButtonText}>{props.title}</Text>

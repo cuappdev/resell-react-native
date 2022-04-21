@@ -22,6 +22,7 @@ export type RootStackParamList = {
   NotFound: undefined;
   NewPost: undefined;
   ProductHome: undefined;
+  ChatWindow: undefined;
 };
 
 export type HomeStackParamList = {
@@ -32,6 +33,9 @@ export type HomeStackParamList = {
 export type SavedStackParamList = {
   Saved: undefined;
   ProductSaved: undefined;
+};
+export type ChatStackParamList = {
+  Chat: undefined;
 };
 
 export type ProfileStackParamList = {

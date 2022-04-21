@@ -42,7 +42,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       NotFound: '*',
       NewPost:'NewPost',
       ProductHome: 'product/:id', // allow product details to be opened with a link specifying the product id
-
+      ChatWindow: 'ChatWindow'
     },
   },
 };

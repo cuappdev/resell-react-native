@@ -19,6 +19,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Button,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -40,6 +41,7 @@ import {
   HomeStackParamList,
   SavedStackParamList,
   ProfileStackParamList,
+  ChatStackParamList,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
@@ -54,6 +56,7 @@ import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
 
 import { bottomTabsHeight } from "../constants/Layout";
+import ChatWindow from "../screens/ChatWindow";
 
 export default function Navigation({
   colorScheme,
@@ -82,6 +85,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
+const ChatStack = createNativeStackNavigator<ChatStackParamList>();
+
 const SavedStack = createNativeStackNavigator<SavedStackParamList>();
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
@@ -109,8 +114,19 @@ function RootNavigator() {
             headerShown: false,
             headerTitle: "",
             headerTransparent: true,
-            animation: "none",
           }}
+        />
+      </Stack.Group>
+      <Stack.Group screenOptions={{ presentation: "card" }}>
+        <Stack.Screen
+          name="ChatWindow"
+          options={{
+            headerShown: false,
+            headerTitle: "",
+
+            headerTransparent: true,
+          }}
+          component={ChatWindow}
         />
       </Stack.Group>
     </Stack.Navigator>
@@ -133,10 +149,20 @@ function HomeNavigator({ navigation }) {
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
-          animation: "none",
         }}
       />
     </HomeStack.Navigator>
+  );
+}
+function ChatNavigator({ navigation }) {
+  return (
+    <ChatStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ChatStack.Screen name="Chat" component={ChatScreen} />
+    </ChatStack.Navigator>
   );
 }
 
@@ -244,30 +270,13 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ChatTab"
-        component={ChatScreen}
+        component={ChatNavigator}
         options={({ navigation }: RootTabScreenProps<"ChatTab">) => ({
           headerStyle: styles.headerNoShadow,
           tabBarShowLabel: false,
           title: "",
-          headerTitle: () => (
-            <View>
-              <Text style={styles.chatHeader}>Blue Pants</Text>
-              <Text style={styles.chatSubheader}>shop by lia</Text>
-            </View>
-          ),
-          headerLeft: () => (
-            <TouchableOpacity
-              activeOpacity={pressedOpacity}
-              style={{ marginRight: 20 }}
-            >
-              <Feather
-                name="chevron-left"
-                size={28}
-                color="#B2B2B2"
-                style={{ marginStart: 18 }}
-              />
-            </TouchableOpacity>
-          ),
+
+          headerLeft: () => <Text style={styles.savedHeader}>Messages</Text>,
         })}
       />
       <BottomTab.Screen
@@ -298,7 +307,9 @@ const styles = StyleSheet.create({
   },
   headerNoShadow: {
     shadowColor: "transparent",
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
+    elevation: 0, // remove shadow on Android
+    shadowOpacity: 0,
   },
   noHeader: {
     height: 0,

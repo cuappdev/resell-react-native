@@ -58,7 +58,6 @@ export default function HomeScreen({ navigation }) {
         filter={FILTER}
         navigation={navigation}
       />
-
       <FAB
         style={styles.fab}
         icon="plus"
