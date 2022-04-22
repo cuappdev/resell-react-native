@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 import {
-  Alert,
   StyleSheet,
   Text,
   Pressable,
@@ -16,6 +15,7 @@ export function NumberPad({
   originalText,
   setOriginalText,
   screen,
+  itemName,
 }) {
   const [input, setInput] = useState(
     screen === "NewPost" && originalText.length > 0 ? originalText.slice(1) : ""
@@ -37,6 +37,7 @@ export function NumberPad({
   const onContinueClicked = (original: string) => {
     setModalVisible(!modalVisible);
     if (input != "") {
+
       if (screen == "Chat") {
         setOriginalText(
           original.concat(

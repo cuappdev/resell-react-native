@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "react-native-modal";
 
 import { StyleSheet, Text, Pressable, View, Alert } from "react-native";
-import WeekView, { createFixedWeekDate } from "react-native-week-view";
+import WeekView from "react-native-week-view";
 
-export function AvaliabilityModal({
+export function AvailabilityModal({
   availabilityVisible,
   setAvailabilityVisible,
-  setIsSendingAvaliability,
+  setIsSendingAvailability,
   setScheduleCallback,
   isBubble,
   setIsBubble,
@@ -18,9 +18,6 @@ export function AvaliabilityModal({
   const [hasPrev, setHasPrev] = useState(false);
   const [schedule, setSchedule] = useState([]);
 
-  useEffect(() => {
-    console.log(schedule);
-  }, [schedule]);
   const MyEventComponent = ({ event, position }) => {
     switch (event.color) {
       case "#c8b9fa":
@@ -275,7 +272,7 @@ export function AvaliabilityModal({
               setAvailabilityVisible(!availabilityVisible);
               if (!isBubble) {
                 if (schedule.length > 0) {
-                  setIsSendingAvaliability(true);
+                  setIsSendingAvailability(true);
                   setScheduleCallback(schedule);
                   setSchedule([]);
                   setHeight(80);

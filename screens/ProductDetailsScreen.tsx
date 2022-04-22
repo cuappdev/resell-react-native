@@ -8,15 +8,7 @@ import {
   DetailPullUpBody,
 } from "../components/DetailPullup";
 import Gallery from "../components/Gallery";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import { useEffect } from "react";
 import GreyButton from "../components/GreyButton";
