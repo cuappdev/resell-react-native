@@ -1,16 +1,15 @@
 // this is the general layout for the button that allows users to continue
-import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, View } from 'react-native';
+import React from "react";
+import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
-export default function GreyButton({ text }) {
+export default function GreyButton({ text, onPress }) {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={onPress}>
       <View style={styles.button}>
-        <Text style={styles.buttonText}> {"Continue"}</Text>
-
+        <Text style={styles.buttonText}> {text}</Text>
       </View>
     </TouchableOpacity>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -28,10 +27,10 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color: 'black',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    color: "black",
+    fontWeight: "bold",
+    textTransform: "uppercase",
     fontSize: 16,
-    textAlign: 'center'
-  }
-})
+    textAlign: "center",
+  },
+});

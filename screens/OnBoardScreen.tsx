@@ -1,64 +1,53 @@
-import * as React from 'react';
-import { SafeAreaView, StyleSheet, TouchableOpacity, Text, View, Image, Platform, TextInput, ScrollView } from 'react-native';
+import * as React from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+  Image,
+  Platform,
+  TextInput,
+  ScrollView,
+  KeyboardAvoidingView,
+} from "react-native";
 import PurpleButton from "../components/PurpleButton";
-import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
-import { menuBarTop } from '../constants/Layout';
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { menuBarTop } from "../constants/Layout";
 
-import { IconButton, Colors } from 'react-native-paper';
-import { black } from 'react-native-paper/lib/typescript/styles/colors';
+import { IconButton, Colors } from "react-native-paper";
+import { black } from "react-native-paper/lib/typescript/styles/colors";
 
 export default function OnBoardScreen({ navigation }) {
-
   // HOW DO U DEFINE LIKE THE NEW HOME??
-  const toVenmo = () => {
-    navigation.navigate("Venmo");
-  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titleText}>
-        Set Up Your Profile
-      </Text>
+    <KeyboardAvoidingView style={styles.container}>
+      <Text style={styles.titleText}>Set Up Your Profile</Text>
       <Image
         style={styles.profilePic}
-        source={require('../assets/images/empty_profile.png')}
+        source={require("../assets/images/empty_profile.png")}
       />
-      <Text style={styles.username}>
-        Username*
-      </Text>
+      <Text style={styles.username}>Username*</Text>
       <TextInput
         style={styles.username_input}
         placeholderTextColor={"#707070"}
       />
-      <Text style={styles.bio}>
-        Bio
-      </Text>
+      <Text style={styles.bio}>Bio</Text>
 
-      {/* this doesn't work */}
-      {/* <TextInput multiline={true} style={styles.bio_input} placeholderTextColor={"#707070"} /> */}
-      <TextInput
-        style={styles.bio_input}
-        placeholderTextColor={"#707070"}
-      />
-      <View style={styles.purpleButton}>
-        <TouchableOpacity style={{ marginStart: 15 }} onPress={toVenmo}>
-          <PurpleButton text={"Continue"} />
-
-        </TouchableOpacity>
-      </View>
-
-      {/* how do u click the purple button and get the next screen to appear */}
-      {/* onPress={() => {
-        navigation.navigate("LinkVenmoScreen")
-      }; */}
-
-
-
-    </View>
-  )
+      <TextInput style={styles.bio_input} placeholderTextColor={"#707070"} />
+      <KeyboardAvoidingView style={styles.purpleButton}>
+        <PurpleButton
+          text={"Continue"}
+          onPress={() => {
+            navigation.navigate("Venmo");
+          }}
+        />
+      </KeyboardAvoidingView>
+    </KeyboardAvoidingView>
+  );
 }
-
 
 const styles = StyleSheet.create({
   input: {
@@ -68,27 +57,26 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   container: {
-    position: 'absolute',
+    height: "100%",
     top: menuBarTop,
-    left: 20,
-    right: 20,
-    alignItems: 'center',
+    alignItems: "center",
+    flexDirection: "column",
     // possubly remove this if all the text is center
   },
   titleText: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: "Roboto-Medium",
     fontSize: 18,
-    marginTop: 20
+    marginTop: 20,
   },
   profilePic: {
     height: 132,
     width: 132,
-    marginTop: 40
+    marginTop: 40,
   },
   username: {
     marginTop: 30,
     marginRight: 260,
-    fontWeight: 'bold'
+    fontWeight: "bold",
     // position: "absolute"
   },
   username_input: {
@@ -100,7 +88,7 @@ const styles = StyleSheet.create({
   bio: {
     marginTop: 30,
     marginRight: 320,
-    fontWeight: 'bold'
+    fontWeight: "bold",
     // position: "absolute"
   },
   bio_input: {
@@ -110,18 +98,11 @@ const styles = StyleSheet.create({
     height: 40,
   },
   purpleButton: {
-    // position: "absolute",
-    bottom: 100,
     alignItems: "center",
-    width: "100 %",
-    zIndex: 10,
+    width: "100%",
     height: 170,
     backgroundColor: "white",
-    marginTop: 350
+    position: "absolute",
+    bottom: 20,
   },
-
-
 });
-
-
-

@@ -47,7 +47,6 @@ const linking: LinkingOptions<RootStackParamList> = {
       ProfileOnboard: {
         screens: {
           Onboard: 'Onboard',
-          Venmo: 'Venmo',
 
         }
 

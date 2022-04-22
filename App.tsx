@@ -7,18 +7,51 @@ import { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
-import Navigation, { BottomTabNavigator, OnboardNavigator } from "./navigation";
+import Navigation from "./navigation";
 import * as Google from "expo-google-app-auth";
 import GlobalStore from "./state_manage/store";
-import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+} from "@react-navigation/native";
 import LinkingConfiguration from "./navigation/LinkingConfiguration";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-
   const [signedIn, setSignIn] = useState(false);
-  const [onBoard, hasOnBoarded] = useState(false);
+  const [onBoard, setOnBoarded] = useState(false);
+  AsyncStorage.getItem("SignedIn", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setSignIn(true);
+      }
+    }
+  });
+  AsyncStorage.getItem("Onboarded", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setOnBoarded(true);
+      }
+    }
+  });
+
+  const setSignedIn = async () => {
+    try {
+      await AsyncStorage.setItem("SignedIn", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const onboard = async () => {
+    try {
+      await AsyncStorage.setItem("Onboarded", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const handleGoogleSignIn = () => {
     const config = {
@@ -33,11 +66,11 @@ export default function App() {
       if (type == "success") {
         console.log("Google SignIn", "SUCCESS", result);
         setSignIn(true);
+        setSignedIn();
       } else {
         console.log("Google SignIn", "FAILURE", result);
       }
     });
-    setSignIn(true);
   };
 
   Font.loadAsync({
@@ -73,8 +106,7 @@ export default function App() {
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
-          {/* {!signedIn  */}
-          {false && (
+          {onBoard && !signedIn && (
             <View style={styles.containerSignIn}>
               <Image
                 style={styles.gradient0}
@@ -94,16 +126,12 @@ export default function App() {
               </View>
             </View>
           )}
-          {/* {signedIn && !onBoard  */}
-          {true && <Navigation colorScheme={colorScheme} />}
 
-
-          {/* {signedIn && onBoard && <NavigationContainer
-            linking={LinkingConfiguration}
-            theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <BottomTabNavigator />
-          </NavigationContainer>} */}
+          <Navigation
+            colorScheme={colorScheme}
+            onboard={onBoard}
+            signedIn={signedIn}
+          />
         </SafeAreaProvider>
       </Provider>
     );
@@ -153,6 +181,6 @@ const styles = StyleSheet.create({
     bottom: "-10%",
     left: 0,
     width: "100%",
-    height: "70%"
+    height: "70%",
   },
 });

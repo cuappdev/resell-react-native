@@ -40,8 +40,7 @@ import {
   HomeStackParamList,
   SavedStackParamList,
   ProfileStackParamList,
-  OnboardStackParamList
-
+  OnboardStackParamList,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
@@ -61,15 +60,19 @@ import OnBoardScreen from "../screens/OnBoardScreen";
 
 export default function Navigation({
   colorScheme,
+  onboard,
+  signedIn,
 }: {
   colorScheme: ColorSchemeName;
+  onboard: boolean;
+  signedIn: boolean;
 }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
-      <RootNavigator />
+      <RootNavigator onboard={onboard} signedIn={signedIn} />
     </NavigationContainer>
   );
 }
@@ -92,26 +95,25 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
 
-function RootNavigator() {
+function RootNavigator({ onboard, signedIn }) {
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="ProfileOnboard"
-        component={OnboardNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Root"
-        component={BottomTabNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="NotFound"
-        component={NotFoundScreen}
-        options={{ title: "Oops!" }}
-      />
+      {!onboard && (
+        <Stack.Screen
+          name="ProfileOnboard"
+          component={OnboardNavigator}
+          options={{ headerShown: false }}
+        />
+      )}
+      {signedIn && (
+        <Stack.Screen
+          name="Root"
+          component={BottomTabNavigator}
+          options={{ headerShown: false }}
+        />
+      )}
+
       <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen name="NewPost" component={PostScreen} />
         <Stack.Screen
           name="ProductHome"
@@ -123,8 +125,6 @@ function RootNavigator() {
             animation: "none",
           }}
         />
-
-
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -194,15 +194,15 @@ function SavedNavigator() {
   );
 }
 
-export function OnboardNavigator({ navigation }) {
+function OnboardNavigator() {
   return (
     <OnboardStack.Navigator>
       <OnboardStack.Screen
         name="Onboard"
         component={OnBoardScreen}
-        options={(navigation) => ({
+        options={{
           headerShown: false,
-        })}
+        }}
       />
       <OnboardStack.Screen
         name="Venmo"

@@ -12,7 +12,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList { }
+    interface RootParamList extends RootStackParamList {}
   }
 }
 
@@ -22,8 +22,7 @@ export type RootStackParamList = {
   NotFound: undefined;
   NewPost: undefined;
   ProductHome: undefined;
-  ProfileOnboard: undefined;
-
+  ProfileOnboard: NavigatorScreenParams<OnboardStackParamList> | undefined;
 };
 
 export type HomeStackParamList = {
