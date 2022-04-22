@@ -47,11 +47,8 @@ const linking: LinkingOptions<RootStackParamList> = {
       ProfileOnboard: {
         screens: {
           Onboard: 'Onboard',
-
         }
-
       } // allow product details to be opened with a link specifying the product id
-
     },
 
   },

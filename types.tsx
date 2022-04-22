@@ -23,6 +23,8 @@ export type RootStackParamList = {
   NewPost: undefined;
   ProductHome: undefined;
   ProfileOnboard: NavigatorScreenParams<OnboardStackParamList> | undefined;
+  ChatWindow: undefined;
+
 };
 
 export type HomeStackParamList = {
@@ -33,6 +35,9 @@ export type HomeStackParamList = {
 export type SavedStackParamList = {
   Saved: undefined;
   ProductSaved: undefined;
+};
+export type ChatStackParamList = {
+  Chat: undefined;
 };
 
 export type ProfileStackParamList = {

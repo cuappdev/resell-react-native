@@ -1,226 +1,235 @@
 import * as React from "react";
 import {
   StyleSheet,
-  SafeAreaView,
+  Text,
+  FlatList,
+  Image,
+  View,
   TouchableOpacity,
-  Keyboard,
-  TextInput,
 } from "react-native";
 import { LogBox } from "react-native";
-import { View } from "../components/Themed";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { useState, useEffect, useRef } from "react";
-import { RootTabScreenProps } from "../types";
-import { ButtonBanner } from "../components/ButtonBanner";
-import {
-  Bubble,
-  GiftedChat,
-  IMessage,
-  Message,
-} from "react-native-gifted-chat";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+import { Feather } from "@expo/vector-icons";
+import { useState } from "react";
 
-export default function ChatScreen({
-  navigation,
-}: RootTabScreenProps<"ChatTab">) {
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const onKeyboardShow = (event) =>
-    setKeyboardOffset(event.endCoordinates.height);
-  const onKeyboardHide = () => setKeyboardOffset(0);
-  const keyboardDidShowListener = useRef(null);
-  const keyboardDidHideListener = useRef(null);
-  const [text, setText] = useState("");
-  const yourRef = useRef(null);
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
+import ChatTbas from "../components/ChatTabs";
 
-  useEffect(() => {
-    keyboardDidShowListener.current = Keyboard.addListener(
-      "keyboardWillShow",
-      onKeyboardShow
-    );
-    keyboardDidHideListener.current = Keyboard.addListener(
-      "keyboardWillHide",
-      onKeyboardHide
-    );
+export default function ChatScreen({ navigation }) {
+  const [isPurchase, setIsPurchase] = useState(true);
+  var temptPuchrase = 0;
+  var temptOrder = 0;
 
-    return () => {
-      keyboardDidShowListener.current.remove();
-      keyboardDidHideListener.current.remove();
-    };
-  }, []);
+  DATA1.forEach((element) => {
+    if (!element.viewed) {
+      temptPuchrase = temptPuchrase + 1;
+    }
+  });
+  DATA2.forEach((element) => {
+    if (!element.viewed) {
+      temptOrder = temptOrder + 1;
+    }
+  });
+  const [purchaseUnread, setPurchaseUnread] = useState(temptPuchrase);
+  const [offerUnread, setOfferUnread] = useState(temptOrder);
 
-  const [count, setCount] = useState(0);
-  const [messages, setMessages] = React.useState<IMessage[]>([
-    {
-      _id: 1,
-      text: "Hello developer",
-      createdAt: new Date(),
-      user: {
-        _id: 4,
-        name: "GiftedChat",
-        avatar: "https://placeimg.com/140/140/any",
-      },
-    },
-    {
-      _id: 2,
-      text: "Hello developer",
-      createdAt: new Date(),
-      user: {
-        _id: 5,
-        name: "GiftedChat",
-        avatar: "https://placeimg.com/140/140/any",
-      },
-    },
-    {
-      _id: 3,
-      text: "Hello developerewew/nwqqwqmscmlkdcccccccccccccccmxxxxxxxxxxxxxxxcsdcs",
-      createdAt: new Date(),
-      user: {
-        _id: 6,
-        name: "GiftedChat",
-        avatar: "https://placeimg.com/140/140/any",
-      },
-    },
-  ]);
-  const onSend = (newMessages: IMessage[] = []) =>
-    setMessages(GiftedChat.append(messages, newMessages));
-  function renderMessage(props) {
+  const renderItem = ({ item }) => {
+    var products = "";
+    item.items.forEach((element) => {
+      products = products.concat(" · ", element);
+    });
+    var message = item.recentSender == 1 ? "You:" : item.sellerName + ":";
+    message = message + item.recentMessage;
+
     return (
-      <Message
-        {...props}
-        containerStyle={{
-          left: { marginVertical: 10 },
+      <TouchableOpacity
+        onPress={() => {
+          //Changed viewed of data here.
+          navigation.navigate("ChatWindow");
         }}
-      />
-    );
-  }
-  function renderBubble(props) {
-    return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          left: {
-            backgroundColor: "#ECECEC",
-            borderRadius: 12,
-            padding: 6,
-          },
-          right: {
-            backgroundColor: "#ECECEC",
-            marginVertical: 10,
-            borderRadius: 12,
-            borderTopRightRadius: 12,
-            padding: 6,
-          },
-        }}
-        textStyle={{
-          left: {
-            color: "#000000",
-            fontSize: 18,
-          },
-          right: {
-            color: "#000000",
-            fontSize: 18,
-          },
-        }}
-        timeTextStyle={{
-          left: {
-            color: "gray",
-          },
-          right: {
-            color: "gray",
-          },
-        }}
-      />
-    );
-  }
-  function renderInputToolbar(props) {
-    return (
-      <SafeAreaView style={styles.filter}>
-        <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-        <SafeAreaView style={{ flexDirection: "row" }}>
-          <TextInput
-            style={[styles.input, { marginBottom: keyboardOffset - 125 }]}
-            onChangeText={(text) => setText(text)}
-            value={text}
-            //multiline={true}
+      >
+        <View style={styles.outer}>
+          {!item.viewed && <View style={styles.viewedDot} />}
+          <Image
+            style={styles.image}
+            source={item.image}
+            resizeMode={"cover"}
           />
-          <TouchableOpacity
-            style={{ marginRight: 20, marginLeft: "auto", marginTop: 2.5 }}
-            onPress={() => {
-              if (text.length > 0 && text.trim().length > 0) {
-                props.onSend({ text: text }, true);
-                setText("");
-                setTimeout(() => {
-                  yourRef.current.scrollToBottom();
-                }, 100);
-              }
-            }}
-          >
-            <FontAwesome5
-              name="arrow-circle-up"
-              size={30}
-              color={text.trim().length == 0 ? "#878787" : "#2C2C2C"}
-            />
-          </TouchableOpacity>
-        </SafeAreaView>
-      </SafeAreaView>
+          <View style={styles.inner}>
+            <Text numberOfLines={1} style={styles.items}>
+              <Text style={styles.sellerName}>{item.sellerName}</Text>
+              {products}
+            </Text>
+            <Text style={styles.recentMessage}>{message}</Text>
+          </View>
+          <View style={{ marginHorizontal: 8 }}>
+            <Feather name="chevron-right" size={24} color="#B3B3B3" />
+          </View>
+        </View>
+      </TouchableOpacity>
     );
-  }
+  };
 
   return (
-    <View
-      style={{
-        backgroundColor: "#F9F9F9",
-        height: "100%",
-        padding: 0,
-        paddingBottom: 170,
-      }}
-    >
-      <GiftedChat
-        {...{ messages, onSend }}
-        user={{
-          _id: 1,
-        }}
-        listViewProps={{
-          keyboardDismissMode: "on-drag",
-        }}
-        ref={yourRef}
-        renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        bottomOffset={75}
-        renderMessage={renderMessage}
-        scrollToBottom={true}
+    <View style={{ backgroundColor: "#ffffff", height: "100%" }}>
+      <ChatTbas
+        isPurchase={isPurchase}
+        setIsPurchase={setIsPurchase}
+        purchaseUnread={purchaseUnread}
+        offerUnread={offerUnread}
       />
+      {DATA1.length != 0 && isPurchase && (
+        <FlatList
+          data={DATA1}
+          renderItem={renderItem}
+          keyboardShouldPersistTaps="always"
+        />
+      )}
+      {DATA2.length != 0 && !isPurchase && (
+        <FlatList
+          data={DATA2}
+          renderItem={renderItem}
+          keyboardShouldPersistTaps="always"
+        />
+      )}
+      {DATA1.length == 0 && isPurchase && (
+        <View style={styles.noResultView}>
+          <Text style={styles.noResultHeader}>
+            No messages with sellers yet
+          </Text>
+          <Text style={styles.noResultSubHeader}>
+            When you contact a seller, you’ll see your messages here
+          </Text>
+        </View>
+      )}
+      {DATA2.length == 0 && !isPurchase && (
+        <View style={styles.noResultView}>
+          <Text style={styles.noResultHeader}>No messages with buyers yet</Text>
+          <Text style={styles.noResultSubHeader}>
+            When a buyer contacts you, you’ll see their messages here
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  filter: {
-    marginBottom: -30,
-    opacity: 3,
+  outer: {
+    marginStart: 12,
+    marginTop: 12,
+    marginBottom: 15,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  input: {
-    width: "80%",
-    height: 40,
-    margin: 12,
-    padding: 10,
-    backgroundColor: "#F4F4F4",
-    borderRadius: 100,
-    marginTop: 0,
-    fontSize: 18,
+  inner: {
+    width: "70%",
+    marginStart: 12,
+
+    flexDirection: "column",
+    justifyContent: "space-around",
+  },
+  recentMessage: {
+    color: "#707070",
+    fontSize: 14,
+    fontFamily: "Rubik-Regular",
+  },
+  viewedDot: {
+    position: "absolute",
+    left: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#9E70F6",
+  },
+  sellerName: {
+    fontFamily: "Rubik-Bold",
+    fontSize: 16,
     color: "#000000",
   },
+  items: {
+    fontFamily: "Rubik-Bold",
+    fontSize: 16,
+    color: "#707070",
+    marginBottom: 8,
+  },
+  image: { width: 45, height: 45, borderRadius: 75, marginStart: 24 },
+  noResultView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
+  noResultSubHeader: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    textAlign: "center",
+    color: "#707070",
+    width: "80%",
+  },
 });
-const FILTER = [
+const DATA2 = [];
+
+const DATA1 = [
   {
-    id: 0,
-    title: "Negotiate",
+    sellerName: "Lia Sophie",
+    items: [
+      "Nike Air Force - Size 9.5",
+      "Milk and Honey Paperback",
+      "Brown Rotating Chair",
+    ],
+    recentItem: {
+      id: 1,
+      title: "Nike Air Force - Size 9.5",
+      image: require("../assets/images/item2.png"),
+      price: "$90.00",
+      category: "Clothes",
+    },
+
+    image: require("../assets/images/item2.png"),
+    recentMessage: "wqqqqqqqqqqqqq",
+    recentSender: 1,
+    viewed: false,
+  },
+
+  {
+    sellerName: "Lia Sophie",
+    items: [
+      "Nike Air Force - Size 9.5",
+      "Milk and Honey Paperback",
+      "Brown Rotating Chair",
+    ],
+    recentItem: {
+      id: 1,
+      title: "Nike Air Force - Size 9.5",
+      image: require("../assets/images/item2.png"),
+      price: "$90.00",
+      category: "Clothes",
+    },
+
+    image: require("../assets/images/item2.png"),
+    recentMessage: "wqqqqqqqqqqqqq",
+    recentSender: 1,
+    viewed: true,
   },
   {
-    id: 1,
-    title: "Send Avaliablity",
+    sellerName: "Lia Sophie",
+    items: [
+      "Nike Air Force - Size 9.5",
+      "Milk and Honey Paperback",
+      "Brown Rotating Chair",
+    ],
+    recentItem: {
+      id: 1,
+      title: "Nike Air Force - Size 9.5",
+      image: require("../assets/images/item2.png"),
+      price: "$90.00",
+      category: "Clothes",
+    },
+
+    image: require("../assets/images/item2.png"),
+    recentMessage: "wqqqqqqqqqqqqq",
+    recentSender: 1,
+    viewed: false,
   },
-  { id: 2, title: "Pay with Venmo" },
-  { id: 3, title: "Ask For Refund" },
 ];

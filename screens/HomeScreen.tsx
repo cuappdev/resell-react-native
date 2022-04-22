@@ -80,7 +80,6 @@ export default function HomeScreen({ navigation, route }) {
         filter={FILTER}
         navigation={navigation}
       />
-
       <FAB
         style={styles.fab}
         icon="plus"
