@@ -1,52 +1,36 @@
 import React from "react";
 import { FlatList, Image, StyleSheet, ScrollView } from "react-native";
+import ResellLogo from "../assets/svg-components/resell_logo";
 import { Text, View } from "./Themed";
 
-export type Item = {
-  images: number[];
+export type Intro = {
   title: string;
-  price: number;
-  sellerName: string;
-  sellerProfile: string;
   description: string;
-  similarItems: number[]
 }
 
-export function DetailPullUpHeader({ item }: { item: Item }) {
+export function DetailPullUpHeader({ item }: { item: Intro }) {
   return (
     <View
       style={[styles.container_header, styles.roundCorner]}>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.price}>{"$ " + item.price}</Text>
+        <ResellLogo />
+        <Text style={styles.details}>{item.description}</Text>
       </View>
       <View style={styles.paddedRow}>
-        <Image source={{ uri: item.sellerProfile }} style={styles.profileImage} />
-        <Text style={styles.profile}>{item.sellerName}</Text>
       </View>
     </View>
+
   );
 }
 
-export function DetailPullUpBody({ item }: { item: Item }) {
+export function DetailPullUpBody({ item }: { item: Intro }) {
   return (
     <ScrollView style={styles.pullUpScrollView} >
       <Text style={styles.details}>{item.description}</Text>
-      <Text style={styles.itemsHeader}>Similar Items</Text>
-      <FlatList
-        data={item.similarItems}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <Image source={item} style={styles.similarItem}>
-          </Image>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      ></FlatList>
     </ScrollView >
   );
 }
-
 const styles = StyleSheet.create({
 
   pullUpScrollView: {
@@ -57,7 +41,8 @@ const styles = StyleSheet.create({
   },
   container_header: {
     justifyContent: "flex-start",
-    width: "100%"
+    width: "100%",
+
   },
   container_body: {
     flex: 1,
@@ -69,9 +54,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
   },
   expandRow: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: "space-between",
-    marginTop: 50
+    marginTop: 50,
+    alignItems: "center"
   },
   paddedRow: {
     flexDirection: 'row',
@@ -81,7 +67,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    paddingLeft: 20
+    color: "#9E70F6",
+    marginBottom: 20
+    // alignItems: "center",
   },
   price: {
     fontSize: 20,
@@ -97,8 +85,11 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   details: {
-    fontSize: 15,
-    paddingLeft: 20,
+    fontSize: 18,
+    paddingTop: 40,
+    paddingHorizontal: 40,
+    // paddingRight: 10,
+    textAlign: 'center'
   },
   itemsHeader: {
     fontSize: 18,

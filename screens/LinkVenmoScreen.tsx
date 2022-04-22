@@ -1,27 +1,15 @@
 import * as React from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
-  Image,
-  Platform,
   TextInput,
-  ScrollView,
 } from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
-import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
 import { menuBarTop } from "../constants/Layout";
 
-import { IconButton, Colors } from "react-native-paper";
-import { black } from "react-native-paper/lib/typescript/styles/colors";
-
-export default function LinkVenmoScreen({
-  setSignIn,
-}: {
-  setSignIn: React.Dispatch<React.SetStateAction<boolean>>;
+export default function LinkVenmoScreen({ navigation
 }) {
   return (
     <View style={styles.container}>
@@ -36,10 +24,19 @@ export default function LinkVenmoScreen({
         placeholderTextColor={"#707070"}
       />
       <View style={styles.purpleButton}>
-        <PurpleButton text={"Continue"} onPress={undefined} />
+        <PurpleButton
+          text={"Continue"}
+          onPress={() => {
+            navigation.navigate("Home", { showPanel: true });
+          }}
+        />
       </View>
       <View style={styles.skipButton}>
-        <SkipButton text={"Skip"} />
+        <SkipButton text={"Skip"}
+          onPress={() => {
+            navigation.navigate("Home", { showPanel: true });
+          }}
+        />
       </View>
     </View>
   );
@@ -53,12 +50,11 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   container: {
-    position: "absolute",
-    top: menuBarTop,
-    left: 20,
-    right: 20,
+    paddingTop: menuBarTop,
     alignItems: "center",
-    // possubly remove this if all the text is center
+    backgroundColor: "#FFFFFF",
+    height: "100%",
+    paddingHorizontal: 20
   },
   titleText: {
     fontFamily: "Roboto-Medium",
@@ -67,15 +63,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   description: {
-    height: 132,
-    width: 132,
+    width: 320,
     marginTop: 40,
+    color: 'grey',
   },
   handle: {
     marginTop: 30,
-    marginRight: 260,
+    marginRight: 230,
     fontWeight: "bold",
-    // position: "absolute"
   },
   username_input: {
     backgroundColor: "#F4F4F4",
@@ -87,7 +82,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginRight: 320,
     fontWeight: "bold",
-    // position: "absolute"
   },
   bio_input: {
     backgroundColor: "#F4F4F4",
@@ -96,23 +90,16 @@ const styles = StyleSheet.create({
     height: 40,
   },
   purpleButton: {
-    // position: "absolute",
-    bottom: 100,
+    position: "absolute",
     alignItems: "center",
-    width: "100 %",
-    zIndex: 10,
-    height: 170,
-    backgroundColor: "white",
-    marginTop: 350,
+    width: "100%",
+    bottom: "12%",
   },
   skipButton: {
-    // position: "absolute",
-    bottom: 100,
+    position: "absolute",
     alignItems: "center",
-    width: "100 %",
-    zIndex: 10,
-    height: 170,
+    width: "100%",
     backgroundColor: "white",
-    marginTop: 350,
+    bottom: "5%"
   },
 });

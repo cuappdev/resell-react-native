@@ -1,29 +1,18 @@
 import * as React from "react";
 import {
-  SafeAreaView,
   StyleSheet,
-  TouchableOpacity,
   Text,
   View,
   Image,
-  Platform,
   TextInput,
-  ScrollView,
-  KeyboardAvoidingView,
 } from "react-native";
 import PurpleButton from "../components/PurpleButton";
-import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
 import { menuBarTop } from "../constants/Layout";
 
-import { IconButton, Colors } from "react-native-paper";
-import { black } from "react-native-paper/lib/typescript/styles/colors";
-
 export default function OnBoardScreen({ navigation }) {
-  // HOW DO U DEFINE LIKE THE NEW HOME??
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.titleText}>Set Up Your Profile</Text>
       <Image
         style={styles.profilePic}
@@ -35,17 +24,16 @@ export default function OnBoardScreen({ navigation }) {
         placeholderTextColor={"#707070"}
       />
       <Text style={styles.bio}>Bio</Text>
-
       <TextInput style={styles.bio_input} placeholderTextColor={"#707070"} />
-      <KeyboardAvoidingView style={styles.purpleButton}>
+      <View style={styles.purpleButton}>
         <PurpleButton
           text={"Continue"}
           onPress={() => {
             navigation.navigate("Venmo");
           }}
         />
-      </KeyboardAvoidingView>
-    </KeyboardAvoidingView>
+      </View>
+    </View>
   );
 }
 
@@ -58,10 +46,11 @@ const styles = StyleSheet.create({
   },
   container: {
     height: "100%",
-    top: menuBarTop,
+    paddingTop: menuBarTop,
     alignItems: "center",
     flexDirection: "column",
-    // possubly remove this if all the text is center
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20
   },
   titleText: {
     fontFamily: "Roboto-Medium",
@@ -77,7 +66,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginRight: 260,
     fontWeight: "bold",
-    // position: "absolute"
   },
   username_input: {
     backgroundColor: "#F4F4F4",
@@ -89,7 +77,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginRight: 320,
     fontWeight: "bold",
-    // position: "absolute"
   },
   bio_input: {
     backgroundColor: "#F4F4F4",

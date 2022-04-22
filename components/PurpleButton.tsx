@@ -17,20 +17,25 @@ const styles = StyleSheet.create({
     width: 230,
     flexDirection: "column",
     alignItems: "center",
-    // HOW DO U SEE THE EXACT SHADE OF COLOR OF THE BUTTON
     backgroundColor: "#9E70F6",
     padding: "3%",
     borderRadius: 25,
-    // shadowOffset: { width: 3, height: 3 },
-    // shadowColor: "purple",
-    // shadowOpacity: 0.5
   },
 
   buttonText: {
-    color: "black",
+    color: "white",
     fontWeight: "bold",
     textTransform: "uppercase",
     fontSize: 16,
     textAlign: "center",
+  },
+  purpleButton: {
+    bottom: 100,
+    alignItems: "center",
+    width: "100 %",
+    zIndex: 10,
+    height: 170,
+    backgroundColor: "white",
+    marginTop: 350,
   },
 });

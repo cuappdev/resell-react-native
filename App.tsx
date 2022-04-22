@@ -10,12 +10,6 @@ import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 import * as Google from "expo-google-app-auth";
 import GlobalStore from "./state_manage/store";
-import {
-  DarkTheme,
-  DefaultTheme,
-  NavigationContainer,
-} from "@react-navigation/native";
-import LinkingConfiguration from "./navigation/LinkingConfiguration";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
@@ -41,13 +35,6 @@ export default function App() {
   const setSignedIn = async () => {
     try {
       await AsyncStorage.setItem("SignedIn", "true");
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  const onboard = async () => {
-    try {
-      await AsyncStorage.setItem("Onboarded", "true");
     } catch (e) {
       console.log(e);
     }
@@ -106,7 +93,7 @@ export default function App() {
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
-          {onBoard && !signedIn && (
+          {!signedIn && (
             <View style={styles.containerSignIn}>
               <Image
                 style={styles.gradient0}

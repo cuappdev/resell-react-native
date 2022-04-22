@@ -9,6 +9,7 @@ import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
+
 } from "@react-navigation/native";
 import { pressedOpacity } from "../constants/Values";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -98,7 +99,7 @@ const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
 function RootNavigator({ onboard, signedIn }) {
   return (
     <Stack.Navigator>
-      {!onboard && (
+      {!onboard && signedIn && (
         <Stack.Screen
           name="ProfileOnboard"
           component={OnboardNavigator}
@@ -211,7 +212,16 @@ function OnboardNavigator() {
           headerShown: false,
         }}
       />
+      {/* added this screen so it goes to the home screen after the continue button */}
+      <OnboardStack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </OnboardStack.Navigator>
+
   );
 }
 

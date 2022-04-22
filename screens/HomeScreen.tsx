@@ -1,7 +1,12 @@
 import * as React from "react";
 import { StyleSheet, TouchableOpacity, Text, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import {
+  Intro,
+  DetailPullUpHeader,
+  DetailPullUpBody,
+} from "../components/GetStartedPullUp";
+import Modal from "react-native-modal";
 import { View } from "../components/Themed";
 // import { SafeAreaView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,12 +21,29 @@ import Header from "../assets/svg-components/header";
 import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
+import SlidingUpPanel from "rn-sliding-up-panel";
+import PurpleButton from "../components/PurpleButton";
+import ResellLogo from "../assets/svg-components/resell_logo"
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 
-export default function HomeScreen({ navigation }) {
+
+
+export default function HomeScreen({ navigation, route }) {
   const [count, setCount] = useState(0);
+  const showPanel = route.params == undefined ? false : true;
+  const [welcomeState, setWelcomeState] = useState(showPanel);
+
+  const intro: Intro = {
+    // images: [require("../assets/images/bluepants.png")],
+    title: "Welcome to Resell",
+    // price: 25,
+    // sellerName: "ravina patel",
+    // sellerProfile: "../assets/images/profile-pic-test.png",
+    description: "Thrifting and selling has never been this easy",
+    // similarItems: [require("../assets/images/similar-items-test.png")],
+  };
 
   return (
     <SafeAreaView style={styles.outer}>
@@ -66,6 +88,35 @@ export default function HomeScreen({ navigation }) {
         color={"#808080"}
         theme={{ colors: { accent: "white" } }}
       />
+
+      {/* trying to add the slide up panel  */}
+      {showPanel && <Modal
+        isVisible={welcomeState}
+        backdropOpacity={0.2}
+        onBackdropPress={() => setWelcomeState(false)}
+        style={{ justifyContent: "flex-end", margin: 0 }}
+
+      >
+        <View style={styles.slideUp}>
+
+          <DetailPullUpHeader item={intro} />
+          {/* <DetailPullUpBody item={intro} /> */}
+
+          <View style={styles.purpleButton}>
+            <PurpleButton
+              text={"Get Started"}
+              onPress={() => {
+                setWelcomeState(false)
+              }}
+            />
+          </View>
+
+
+          {/* <DetailPullUpHeader item={item} />
+          <DetailPullUpBody item={item} /> */}
+        </View>
+        {/* <Text style={styles.welcome}>Welcome To Resell</Text> */}
+      </Modal>}
     </SafeAreaView>
   );
 }
@@ -81,6 +132,10 @@ const styles = StyleSheet.create({
     right: 10,
     bottom: 90,
   },
+  welcome: {
+    height: 40,
+    color: "#9E70F6",
+  },
   header: {
     height: 40,
   },
@@ -93,5 +148,22 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     top: 4,
+  },
+  slideUp: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 400,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+
+
+  },
+  purpleButton: {
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: "white",
+
   },
 });
