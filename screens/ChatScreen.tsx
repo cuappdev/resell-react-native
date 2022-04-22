@@ -36,7 +36,7 @@ export default function ChatScreen({ navigation }) {
   const renderItem = ({ item }) => {
     var products = "";
     item.items.forEach((element) => {
-      products = products.concat(" · ", element);
+      products = products.concat(" • ", element);
     });
     var message = item.recentSender == 1 ? "You:" : item.sellerName + ":";
     message = message + item.recentMessage;

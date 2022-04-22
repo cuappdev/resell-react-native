@@ -312,6 +312,7 @@ export default function ChatWindow({ navigation }) {
           text={text}
           setText={setText}
           itemName={"Blue Pants"}
+          screen={"Chat"}
         />
         <AvailabilityModal
           scheduleCallback={scheduleCallback}

@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { Feather } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -20,6 +20,7 @@ import {
   Text,
   TouchableOpacity,
   Button,
+  StatusBar,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -61,6 +62,8 @@ import { bottomTabsHeight } from "../constants/Layout";
 import LinkVenmoScreen from "../screens/LinkVenmoScreen";
 import OnBoardScreen from "../screens/OnBoardScreen";
 import ChatWindow from "../screens/ChatWindow";
+import { NewPostImage } from "../screens/NewPostImage";
+import { NewPostDetail } from "../screens/NewPostDetail";
 
 export default function Navigation({
   colorScheme,
@@ -114,9 +117,93 @@ function RootNavigator({ onboard }) {
         component={BottomTabNavigator}
         options={{ headerShown: false }}
       />
-
-      <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="NewPost" component={PostScreen} />
+      <Stack.Screen
+        name="NotFound"
+        component={NotFoundScreen}
+        options={{ title: "Oops!" }}
+      />
+      <Stack.Group>
+        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen
+          name="NewPostImage"
+          options={({ navigation }) => ({
+            headerShadowVisible: false,
+            headerStyle: styles.headerNoShadow,
+            headerBackVisible: false,
+            headerTitleAlign: "center",
+            header: () => {
+              return (
+                <View
+                  style={{
+                    height: 70,
+                    backgroundColor: "#ffffff",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 30,
+                  }}
+                >
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{ position: "absolute", right: 20 }}
+                    onPress={() => navigation.goBack()}
+                  >
+                    <AntDesign
+                      name="close"
+                      size={24}
+                      color="black"
+                      style={{ marginStart: 18 }}
+                    />
+                  </TouchableOpacity>
+                  <Text style={{ fontFamily: "Rubik-Medium", fontSize: 20 }}>
+                    New Listing
+                  </Text>
+                </View>
+              );
+            },
+          })}
+          component={NewPostImage}
+        />
+        <Stack.Screen
+          name="NewPostDetail"
+          options={({ navigation }) => ({
+            headerShadowVisible: false,
+            headerStyle: styles.headerNoShadow,
+            headerBackVisible: false,
+            headerTitleAlign: "center",
+            header: () => {
+              return (
+                <View
+                  style={{
+                    height: 70,
+                    backgroundColor: "#ffffff",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 35,
+                  }}
+                >
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{ position: "absolute", left: 24 }}
+                    onPress={() => navigation.goBack()}
+                  >
+                    <AntDesign name="left" size={24} color="black" />
+                  </TouchableOpacity>
+                  <Text style={{ fontFamily: "Rubik-Medium", fontSize: 20 }}>
+                    New Listing
+                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{ position: "absolute", right: 20 }}
+                    onPress={() => navigation.navigate("Root")}
+                  >
+                    <AntDesign name="close" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          })}
+          component={NewPostDetail}
+        />
         <Stack.Screen
           name="ProductHome"
           component={ProductDetailsScreen}

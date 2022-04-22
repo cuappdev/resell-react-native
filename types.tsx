@@ -20,12 +20,12 @@ export type RootStackParamList = {
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
   NotFound: undefined;
-  NewPost: undefined;
+  NewPostImage: undefined;
+  NewPostDetail: undefined;
   ProductHome: undefined;
   ProfileOnboard: NavigatorScreenParams<OnboardStackParamList> | undefined;
   ChatWindow: undefined;
 };
-
 export type HomeStackParamList = {
   Home: { showPanel: boolean };
   SearchHome: undefined;

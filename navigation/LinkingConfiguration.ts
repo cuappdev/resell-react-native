@@ -39,12 +39,11 @@ const linking: LinkingOptions<RootStackParamList> = {
         },
 
       },
-
       Modal: 'modal',
       NotFound: '*',
-      NewPost: 'NewPost',
       ProductHome: 'product/:id',
       ChatWindow:"ChatWindow",
+      NewPostImage:'NewPost',
       ProfileOnboard: {
         screens: {
           Onboard: 'Onboard',
