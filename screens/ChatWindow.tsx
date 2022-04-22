@@ -26,8 +26,8 @@ import { NegotiationModal } from "../components/NegotiationModal";
 import { AntDesign } from "@expo/vector-icons";
 import { AvaliabilityModal } from "../components/AvaliablitiyMatch";
 import { AvaliabilityBubble } from "../components/AvaliabilityBubble";
-LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-LogBox.ignoreAllLogs();
+// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+// LogBox.ignoreAllLogs();
 import * as ImagePicker from "expo-image-picker";
 import { pressedOpacity } from "../constants/Values";
 //import { IMessage } from "./CustomizedMessage";
@@ -317,6 +317,7 @@ export default function ChatWindow({ navigation }) {
           setModalVisible={setModalVisible}
           text={text}
           setText={setText}
+          screen={"Chat"}
         />
         <AvaliabilityModal
           scheduleCallback={scheduleCallback}

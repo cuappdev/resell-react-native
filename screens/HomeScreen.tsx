@@ -46,11 +46,7 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ButtonBanner
-        count={count}
-        setCount={setCount}
-        data={FILTER}
-      />
+      <ButtonBanner count={count} setCount={setCount} data={FILTER} />
 
       <ProductList
         count={count}
@@ -61,7 +57,7 @@ export default function HomeScreen({ navigation }) {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => navigation.navigate("NewPost")}
+        onPress={() => navigation.navigate("NewPostImage")}
         color={"#808080"}
         theme={{ colors: { accent: "white" } }}
       />
