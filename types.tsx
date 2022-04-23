@@ -22,11 +22,12 @@ export type RootStackParamList = {
   NotFound: undefined;
   NewPost: undefined;
   ProductHome: undefined;
+  ProfileOnboard: NavigatorScreenParams<OnboardStackParamList> | undefined;
   ChatWindow: undefined;
 };
 
 export type HomeStackParamList = {
-  Home: undefined;
+  Home: { showPanel: boolean };
   SearchHome: undefined;
 };
 
@@ -45,11 +46,17 @@ export type ProfileStackParamList = {
   NotificationPreferences: undefined;
 };
 
+export type OnboardStackParamList = {
+  Onboard: undefined;
+  Venmo: undefined;
+  Home: undefined;
+};
+
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
 
 export type RootTabParamList = {
-  HomeTab: undefined;
+  HomeTab: { showPanel: boolean };
   SavedTab: undefined;
   ChatTab: undefined;
   ProfileTab: undefined;

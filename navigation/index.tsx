@@ -41,6 +41,7 @@ import {
   HomeStackParamList,
   SavedStackParamList,
   ProfileStackParamList,
+  OnboardStackParamList,
   ChatStackParamList,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
@@ -56,19 +57,24 @@ import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
 
 import { bottomTabsHeight } from "../constants/Layout";
+
+import LinkVenmoScreen from "../screens/LinkVenmoScreen";
+import OnBoardScreen from "../screens/OnBoardScreen";
 import ChatWindow from "../screens/ChatWindow";
 
 export default function Navigation({
   colorScheme,
+  onboard,
 }: {
   colorScheme: ColorSchemeName;
+  onboard: boolean;
 }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
-      <RootNavigator />
+      <RootNavigator onboard={onboard} />
     </NavigationContainer>
   );
 }
@@ -91,21 +97,25 @@ const SavedStack = createNativeStackNavigator<SavedStackParamList>();
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
-function RootNavigator() {
+const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
+
+function RootNavigator({ onboard }) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="ProfileOnboard">
+      {!onboard && (
+        <Stack.Screen
+          name="ProfileOnboard"
+          component={OnboardNavigator}
+          options={{ headerShown: false }}
+        />
+      )}
       <Stack.Screen
         name="Root"
         component={BottomTabNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="NotFound"
-        component={NotFoundScreen}
-        options={{ title: "Oops!" }}
-      />
+
       <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen name="NewPost" component={PostScreen} />
         <Stack.Screen
           name="ProductHome"
@@ -133,14 +143,23 @@ function RootNavigator() {
   );
 }
 
-function HomeNavigator({ navigation }) {
+function HomeNavigator({ route, navigation }) {
+  var showPanel = false;
+  if (route.params !== undefined) {
+    showPanel = route.params.showPanel;
+  }
+
   return (
     <HomeStack.Navigator
       screenOptions={{
         headerShown: false,
       }}
     >
-      <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+        initialParams={{ showPanel: showPanel }}
+      />
 
       <HomeStack.Screen
         name="SearchHome"
@@ -207,13 +226,42 @@ function SavedNavigator() {
   );
 }
 
+function OnboardNavigator() {
+  return (
+    <OnboardStack.Navigator>
+      <OnboardStack.Screen
+        name="Onboard"
+        component={OnBoardScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <OnboardStack.Screen
+        name="Venmo"
+        component={LinkVenmoScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* added this screen so it goes to the home screen after the continue button */}
+      <OnboardStack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </OnboardStack.Navigator>
+  );
+}
+
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
-function BottomTabNavigator() {
+export function BottomTabNavigator({ route }) {
   const colorScheme = useColorScheme();
 
   return (

@@ -18,8 +18,8 @@ const linking: LinkingOptions<RootStackParamList> = {
           HomeTab: {
             screens: {
               HomeScreen: 'home',
-            },   
-          },       
+            },
+          },
           SavedTab: {
             screens: {
               SavedScreen: 'saved',
@@ -34,16 +34,24 @@ const linking: LinkingOptions<RootStackParamList> = {
             screens: {
               ProfileScreen: 'profile',
             },
+
           },
         },
+
       },
 
       Modal: 'modal',
       NotFound: '*',
-      NewPost:'NewPost',
-      ProductHome: 'product/:id', // allow product details to be opened with a link specifying the product id
-      ChatWindow: 'ChatWindow'
+      NewPost: 'NewPost',
+      ProductHome: 'product/:id',
+      ChatWindow:"ChatWindow",
+      ProfileOnboard: {
+        screens: {
+          Onboard: 'Onboard',
+        }
+      } // allow product details to be opened with a link specifying the product id
     },
+
   },
 };
 

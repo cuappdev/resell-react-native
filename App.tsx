@@ -1,7 +1,6 @@
 import * as Font from "expo-font";
 import React from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { Provider } from "react-redux";
@@ -10,12 +9,35 @@ import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 import * as Google from "expo-google-app-auth";
 import GlobalStore from "./state_manage/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-
   const [signedIn, setSignIn] = useState(false);
+  const [onBoard, setOnBoarded] = useState(false);
+  AsyncStorage.getItem("SignedIn", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setSignIn(true);
+      }
+    }
+  });
+  AsyncStorage.getItem("Onboarded", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setOnBoarded(true);
+      }
+    }
+  });
+
+  const setSignedIn = async () => {
+    try {
+      await AsyncStorage.setItem("SignedIn", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const handleGoogleSignIn = () => {
     const config = {
@@ -29,6 +51,7 @@ export default function App() {
       if (type == "success") {
         console.log("Google SignIn", "SUCCESS", result);
         setSignIn(true);
+        setSignedIn();
       } else {
         console.log("Google SignIn", "FAILURE", result);
       }
@@ -65,6 +88,7 @@ export default function App() {
   if (!isLoadingComplete) {
     return null;
   } else {
+    console.log(signedIn);
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
@@ -72,8 +96,6 @@ export default function App() {
             <View style={styles.containerSignIn}>
               <Image
                 style={styles.gradient0}
-                width={"100%"}
-                height={"70%"}
                 source={require("./assets/images/signinbackgroundhue.png")}
               />
               <View style={styles.innerContainer}>
@@ -90,7 +112,9 @@ export default function App() {
               </View>
             </View>
           )}
-          {signedIn && <Navigation colorScheme={colorScheme} />}
+          {signedIn && (
+            <Navigation colorScheme={colorScheme} onboard={onBoard} />
+          )}
         </SafeAreaProvider>
       </Provider>
     );
@@ -140,5 +164,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: "-10%",
     left: 0,
+    width: "100%",
+    height: "70%",
   },
 });
