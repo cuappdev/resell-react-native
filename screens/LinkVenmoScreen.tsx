@@ -13,13 +13,7 @@ export default function LinkVenmoScreen({ navigation }) {
       console.log(e);
     }
   };
-  const fromOnboard = async () => {
-    try {
-      await AsyncStorage.setItem("FromOnboard", "true");
-    } catch (e) {
-      console.log(e);
-    }
-  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Link Your Venmo</Text>
@@ -41,7 +35,6 @@ export default function LinkVenmoScreen({ navigation }) {
               params: { showPanel: true },
             });
             setOnboarded();
-            fromOnboard();
           }}
         />
       </View>
@@ -54,7 +47,6 @@ export default function LinkVenmoScreen({ navigation }) {
               params: { showPanel: true },
             });
             setOnboarded();
-            fromOnboard();
           }}
         />
       </View>
