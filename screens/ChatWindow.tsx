@@ -311,6 +311,7 @@ export default function ChatWindow({ navigation }) {
           setModalVisible={setModalVisible}
           text={text}
           setText={setText}
+          screen={"Chat"}
           itemName={"Blue Pants"}
         />
         <AvailabilityModal

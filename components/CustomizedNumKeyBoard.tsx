@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   StyleSheet,
@@ -14,9 +14,14 @@ export function NumberPad({
   setModalVisible,
   originalText,
   setOriginalText,
-  itemName,
+  screen,
 }) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(
+    screen === "NewPost" && originalText.length > 0 ? originalText.slice(1) : ""
+  );
+  useEffect(() => {
+    setOriginalText(input);
+  }, [input]);
   const changeInput = (text) => {
     if (text == "<" && input != "") {
       setInput(input.slice(0, -1));
@@ -31,21 +36,31 @@ export function NumberPad({
   const onContinueClicked = (original: string) => {
     setModalVisible(!modalVisible);
     if (input != "") {
-      setOriginalText(
-        original.concat(
-          "Hi! I'm interested in buying your " +
-            itemName +
-            ", but would you be open to selling it for $" +
-            input +
-            "?"
-        )
-      );
+      if (screen == "Chat") {
+        setOriginalText(
+          original.concat(
+            "Hi! I'm interested in buying your Blue Pants, but would you be open to selling it for $" +
+              input +
+              "?"
+          )
+        );
+      } else if (screen == "NewPost") {
+        setOriginalText("$" + input);
+      }
     }
   };
   return (
     <View style={styles.outer}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Text style={{ fontFamily: "Roboto-Medium", fontSize: 40 }}>$</Text>
+        <Text
+          style={{
+            fontFamily: "Rubik-Regular",
+            fontSize: 50,
+            color: "#707070",
+          }}
+        >
+          $
+        </Text>
         <TextInput
           onFocus={() => Keyboard.dismiss()}
           autoFocus={true}
@@ -118,7 +133,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    width: "100%",
+    width: "85%",
 
     backgroundColor: "white",
     flexDirection: "row",
@@ -156,13 +171,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    width: 180,
+    width: 150,
     height: 80,
     marginHorizontal: 12,
     padding: 10,
     backgroundColor: "#F4F4F4",
     borderRadius: 20,
-    fontSize: 24,
+    fontSize: 42,
     color: "#000000",
   },
 });

@@ -63,7 +63,7 @@ export default function HomeScreen({ navigation, route }) {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => navigation.navigate("NewPost")}
+        onPress={() => navigation.navigate("NewPostImage")}
         color={"#808080"}
         theme={{ colors: { accent: "white" } }}
       />
