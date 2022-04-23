@@ -1,16 +1,11 @@
 import * as React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TextInput,
-} from "react-native";
+import { useState } from "react";
+import { StyleSheet, Text, View, Image, TextInput } from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import { menuBarTop } from "../constants/Layout";
 
 export default function OnBoardScreen({ navigation }) {
-
+  const [text, setText] = useState("");
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Set Up Your Profile</Text>
@@ -18,13 +13,20 @@ export default function OnBoardScreen({ navigation }) {
         style={styles.profilePic}
         source={require("../assets/images/empty_profile.png")}
       />
-      <Text style={styles.username}>Username*</Text>
-      <TextInput
-        style={styles.username_input}
-        placeholderTextColor={"#707070"}
-      />
-      <Text style={styles.bio}>Bio</Text>
-      <TextInput style={styles.bio_input} placeholderTextColor={"#707070"} />
+      <View style={{ flexDirection: "column", width: "100%" }}>
+        <Text style={styles.username}>
+          {text.length > 0 ? "Username" : "Username*"}
+        </Text>
+        <TextInput
+          value={text}
+          onChangeText={(text) => setText(text)}
+          style={styles.username_input}
+          placeholderTextColor={"#707070"}
+        />
+        <Text style={styles.bio}>Bio</Text>
+        <TextInput style={styles.bio_input} placeholderTextColor={"#707070"} />
+      </View>
+
       <View style={styles.purpleButton}>
         <PurpleButton
           text={"Continue"}
@@ -50,7 +52,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   titleText: {
     fontFamily: "Roboto-Medium",
@@ -64,25 +66,35 @@ const styles = StyleSheet.create({
   },
   username: {
     marginTop: 30,
-    marginRight: 260,
-    fontWeight: "bold",
+    marginBottom: 10,
+    fontSize: 18,
+    marginStart: 10,
+    fontFamily: "Rubik-Medium",
   },
   username_input: {
     backgroundColor: "#F4F4F4",
     width: "100%",
     borderRadius: 15,
+    paddingVertical: 10,
     height: 40,
+    paddingHorizontal: 10,
+    fontSize: 18,
   },
   bio: {
+    marginBottom: 10,
     marginTop: 30,
-    marginRight: 320,
-    fontWeight: "bold",
+    marginStart: 10,
+    fontSize: 18,
+    fontFamily: "Rubik-Medium",
   },
   bio_input: {
     backgroundColor: "#F4F4F4",
     width: "100%",
     borderRadius: 15,
+    paddingVertical: 10,
     height: 40,
+    paddingHorizontal: 10,
+    fontSize: 18,
   },
   purpleButton: {
     alignItems: "center",

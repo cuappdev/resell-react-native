@@ -9,7 +9,6 @@ import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
-
 } from "@react-navigation/native";
 import { pressedOpacity } from "../constants/Values";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -63,22 +62,19 @@ import LinkVenmoScreen from "../screens/LinkVenmoScreen";
 import OnBoardScreen from "../screens/OnBoardScreen";
 import ChatWindow from "../screens/ChatWindow";
 
-
 export default function Navigation({
   colorScheme,
   onboard,
-  signedIn,
 }: {
   colorScheme: ColorSchemeName;
   onboard: boolean;
-  signedIn: boolean;
 }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
-      <RootNavigator onboard={onboard} signedIn={signedIn} />
+      <RootNavigator onboard={onboard} />
     </NavigationContainer>
   );
 }
@@ -103,23 +99,21 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
 
-function RootNavigator({ onboard, signedIn }) {
+function RootNavigator({ onboard }) {
   return (
-    <Stack.Navigator>
-      {!onboard && signedIn && (
+    <Stack.Navigator initialRouteName="ProfileOnboard">
+      {!onboard && (
         <Stack.Screen
           name="ProfileOnboard"
           component={OnboardNavigator}
           options={{ headerShown: false }}
         />
       )}
-      {signedIn && (
-        <Stack.Screen
-          name="Root"
-          component={BottomTabNavigator}
-          options={{ headerShown: false }}
-        />
-      )}
+      <Stack.Screen
+        name="Root"
+        component={BottomTabNavigator}
+        options={{ headerShown: false }}
+      />
 
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="NewPost" component={PostScreen} />
@@ -149,14 +143,23 @@ function RootNavigator({ onboard, signedIn }) {
   );
 }
 
-function HomeNavigator({ navigation }) {
+function HomeNavigator({ route, navigation }) {
+  var showPanel = false;
+  if (route.params !== undefined) {
+    showPanel = route.params.showPanel;
+  }
+
   return (
     <HomeStack.Navigator
       screenOptions={{
         headerShown: false,
       }}
     >
-      <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+        initialParams={{ showPanel: showPanel }}
+      />
 
       <HomeStack.Screen
         name="SearchHome"
@@ -249,7 +252,6 @@ function OnboardNavigator() {
         }}
       />
     </OnboardStack.Navigator>
-
   );
 }
 
@@ -259,7 +261,7 @@ function OnboardNavigator() {
  */
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
-export function BottomTabNavigator() {
+export function BottomTabNavigator({ route }) {
   const colorScheme = useColorScheme();
 
   return (

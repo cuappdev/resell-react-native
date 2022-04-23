@@ -1,7 +1,6 @@
 import * as Font from "expo-font";
 import React from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { Provider } from "react-redux";
@@ -89,6 +88,7 @@ export default function App() {
   if (!isLoadingComplete) {
     return null;
   } else {
+    console.log(signedIn);
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
@@ -112,12 +112,9 @@ export default function App() {
               </View>
             </View>
           )}
-
-          <Navigation
-            colorScheme={colorScheme}
-            onboard={onBoard}
-            signedIn={signedIn}
-          />
+          {signedIn && (
+            <Navigation colorScheme={colorScheme} onboard={onBoard} />
+          )}
         </SafeAreaProvider>
       </Provider>
     );

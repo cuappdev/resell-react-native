@@ -44,6 +44,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       NotFound: '*',
       NewPost: 'NewPost',
       ProductHome: 'product/:id',
+      ChatWindow:"ChatWindow",
       ProfileOnboard: {
         screens: {
           Onboard: 'Onboard',

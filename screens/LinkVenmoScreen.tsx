@@ -1,16 +1,25 @@
 import * as React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-} from "react-native";
+import { StyleSheet, Text, View, TextInput } from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
 import { menuBarTop } from "../constants/Layout";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function LinkVenmoScreen({ navigation
-}) {
+export default function LinkVenmoScreen({ navigation }) {
+  const setOnboarded = async () => {
+    try {
+      await AsyncStorage.setItem("Onboarded", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const fromOnboard = async () => {
+    try {
+      await AsyncStorage.setItem("FromOnboard", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Link Your Venmo</Text>
@@ -27,14 +36,25 @@ export default function LinkVenmoScreen({ navigation
         <PurpleButton
           text={"Continue"}
           onPress={() => {
-            navigation.navigate("Home", { showPanel: true });
+            navigation.navigate("Root", {
+              screen: "HomeTab",
+              params: { showPanel: true },
+            });
+            setOnboarded();
+            fromOnboard();
           }}
         />
       </View>
       <View style={styles.skipButton}>
-        <SkipButton text={"Skip"}
+        <SkipButton
+          text={"Skip"}
           onPress={() => {
-            navigation.navigate("Home", { showPanel: true });
+            navigation.navigate("Root", {
+              screen: "HomeTab",
+              params: { showPanel: true },
+            });
+            setOnboarded();
+            fromOnboard();
           }}
         />
       </View>
@@ -54,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     height: "100%",
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   titleText: {
     fontFamily: "Roboto-Medium",
@@ -65,7 +85,7 @@ const styles = StyleSheet.create({
   description: {
     width: 320,
     marginTop: 40,
-    color: 'grey',
+    color: "grey",
   },
   handle: {
     marginTop: 30,
@@ -100,6 +120,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     backgroundColor: "white",
-    bottom: "5%"
+    bottom: "5%",
   },
 });
