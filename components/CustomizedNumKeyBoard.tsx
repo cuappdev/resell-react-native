@@ -14,6 +14,7 @@ export function NumberPad({
   setModalVisible,
   originalText,
   setOriginalText,
+  screen,
   itemName,
   screen,
 }) {
@@ -37,6 +38,10 @@ export function NumberPad({
   const onContinueClicked = (original: string) => {
     setModalVisible(!modalVisible);
     if (input != "") {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 89411736905841ae01dfa99124db18cced46701f
       if (screen == "Chat") {
         setOriginalText(
           original.concat(

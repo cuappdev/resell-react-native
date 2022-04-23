@@ -10,6 +10,7 @@ export function NegotiationModal({
   setModalVisible,
   text,
   setText,
+  screen,
   itemName,
   screen,
 }) {
@@ -76,6 +77,7 @@ export function NegotiationModal({
             setModalVisible={setModalVisible}
             originalText={text}
             setOriginalText={setText}
+            screen={screen}
             itemName={itemName}
             screen={screen}
           />

@@ -65,9 +65,13 @@ export function NewPostDetail({ navigation }) {
       <Text style={styles.smallText}>Price</Text>
       <TouchableOpacity
         style={{ marginStart: 24, width: 120 }}
+<<<<<<< HEAD
         onPress={() => {
           setModalVisible(true);
         }}
+=======
+        onPress={() => setModalVisible(true)}
+>>>>>>> 89411736905841ae01dfa99124db18cced46701f
       >
         <TextInput
           style={[
@@ -98,7 +102,10 @@ export function NewPostDetail({ navigation }) {
         text={text}
         setText={setText}
         screen={"NewPost"}
+<<<<<<< HEAD
         itemName={undefined}
+=======
+>>>>>>> 89411736905841ae01dfa99124db18cced46701f
       />
       <Text style={styles.smallText}>Item Description</Text>
       <TextInput

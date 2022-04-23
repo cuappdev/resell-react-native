@@ -311,8 +311,13 @@ export default function ChatWindow({ navigation }) {
           setModalVisible={setModalVisible}
           text={text}
           setText={setText}
-          itemName={"Blue Pants"}
           screen={"Chat"}
+          itemName={"Blue Pants"}
+<<<<<<< HEAD
+          screen={"Chat"}
+=======
+
+>>>>>>> 89411736905841ae01dfa99124db18cced46701f
         />
         <AvailabilityModal
           scheduleCallback={scheduleCallback}

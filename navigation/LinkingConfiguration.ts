@@ -41,6 +41,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       },
       Modal: 'modal',
       NotFound: '*',
+<<<<<<< HEAD
       ProductHome: 'product/:id',
       ChatWindow:"ChatWindow",
       NewPostImage:'NewPost',
@@ -49,6 +50,11 @@ const linking: LinkingOptions<RootStackParamList> = {
           Onboard: 'Onboard',
         }
       } // allow product details to be opened with a link specifying the product id
+=======
+      NewPostImage:'NewPost',
+      ProductHome: 'product/:id', // allow product details to be opened with a link specifying the product id
+      ChatWindow: 'ChatWindow'
+>>>>>>> 89411736905841ae01dfa99124db18cced46701f
     },
 
   },
