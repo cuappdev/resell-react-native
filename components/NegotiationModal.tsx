@@ -12,7 +12,6 @@ export function NegotiationModal({
   setText,
   screen,
   itemName,
-  screen,
 }) {
   return (
     <Modal
@@ -79,7 +78,6 @@ export function NegotiationModal({
             setOriginalText={setText}
             screen={screen}
             itemName={itemName}
-            screen={screen}
           />
         </View>
       </View>

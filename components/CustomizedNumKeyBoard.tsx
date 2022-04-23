@@ -15,8 +15,6 @@ export function NumberPad({
   originalText,
   setOriginalText,
   screen,
-  itemName,
-  screen,
 }) {
   const [input, setInput] = useState(
     screen === "NewPost" && originalText.length > 0 ? originalText.slice(1) : ""
@@ -38,10 +36,6 @@ export function NumberPad({
   const onContinueClicked = (original: string) => {
     setModalVisible(!modalVisible);
     if (input != "") {
-<<<<<<< HEAD
-=======
-
->>>>>>> 89411736905841ae01dfa99124db18cced46701f
       if (screen == "Chat") {
         setOriginalText(
           original.concat(
