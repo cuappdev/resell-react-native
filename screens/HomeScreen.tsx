@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, Image} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { View } from "../components/Themed";
@@ -15,6 +15,7 @@ import Header from "../assets/svg-components/header";
 import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
+import LoadingScreen from "../screens/LoadingScreen";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
@@ -22,6 +23,7 @@ import { homeBackgroundGray } from "../constants/Colors";
 export default function HomeScreen({ navigation }) {
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
   const [posts, setPosts] = useState([]);
 
   const getPosts = async () => {
@@ -31,6 +33,7 @@ export default function HomeScreen({ navigation }) {
       setPosts(json.posts);
     } catch (error) {
       console.error(error);
+      setFetchFailed(true);
     } finally {
       setLoading(false);
     }
@@ -70,12 +73,17 @@ export default function HomeScreen({ navigation }) {
         data={FILTER}
       />
 
-      <ProductList
-        count={count}
-        data={posts}
-        filter={FILTER}
-        navigation={navigation}
-      />
+      {isLoading ? <LoadingScreen/> : 
+        (fetchFailed ? 
+          <LoadingScreen/> :
+          <ProductList
+            count={count}
+            data={posts}
+            filter={FILTER}
+            navigation={navigation}
+          />
+        )
+      }
 
       <FAB
         style={styles.fab}

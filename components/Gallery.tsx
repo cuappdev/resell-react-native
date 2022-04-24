@@ -17,13 +17,14 @@ function Background({ children }: { children: JSX.Element }) {
   )
 }
 
-export default function Gallery({ imagePaths }: { imagePaths: number[] }) {
+export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
   var images: JSX.Element[] = [];
   for (let i = 0; i < imagePaths.length; i++) {
     images.push(
       <View key={i.toString()} style={styles.page}>
         <Background>
-          <Image style={styles.itemImage} source={imagePaths[i]} />
+          <Image style={styles.itemImage} source={{uri: imagePaths[i]}} />
+          {/* <Image style={styles.itemImageTop} source={{uri: imagePaths[i]}} /> */}
         </Background>
       </View>
     )
@@ -52,8 +53,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   itemImage: {
+    height: "100%",
     width: "100%",
     resizeMode: "cover"
+  },
+  itemImageTop: {
+    height: "100%",
+    width: "100%",
+    resizeMode: "cover",
+    zIndex: 10,
   },
   gradientBackground: {
     width: "100%",

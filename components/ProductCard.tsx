@@ -18,7 +18,7 @@ const ProductCard = (props) => {
       </View>
       <View style={styles.textBox}>
         <Text style={styles.itemName}>{props.title}</Text>
-        <Text style={styles.priceTag}>{props.price}</Text>
+        <Text style={styles.priceTag}>{"$" + props.price}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -48,7 +48,8 @@ const styles = StyleSheet.create({
   image: {
     height: 200,
     width: "100%",
-    borderRadius: 10,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
     resizeMode: "cover",
   },
   itemName: {
