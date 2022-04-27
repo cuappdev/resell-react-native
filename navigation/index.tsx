@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { Feather } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
@@ -19,6 +19,8 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Button,
+  StatusBar,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -41,6 +43,8 @@ import {
   HomeStackParamList,
   SavedStackParamList,
   ProfileStackParamList,
+  OnboardStackParamList,
+  ChatStackParamList,
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import PostScreen from "../screens/PostScreen";
@@ -56,17 +60,25 @@ import Profile from "../assets/svg-components/profile";
 
 import { bottomTabsHeight } from "../constants/Layout";
 
+import LinkVenmoScreen from "../screens/LinkVenmoScreen";
+import OnBoardScreen from "../screens/OnBoardScreen";
+import ChatWindow from "../screens/ChatWindow";
+import { NewPostImage } from "../screens/NewPostImage";
+import { NewPostDetail } from "../screens/NewPostDetail";
+
 export default function Navigation({
   colorScheme,
+  onboard,
 }: {
   colorScheme: ColorSchemeName;
+  onboard: boolean;
 }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
-      <RootNavigator />
+      <RootNavigator onboard={onboard} />
     </NavigationContainer>
   );
 }
@@ -83,13 +95,24 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
+const ChatStack = createNativeStackNavigator<ChatStackParamList>();
+
 const SavedStack = createNativeStackNavigator<SavedStackParamList>();
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
-function RootNavigator() {
+const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
+
+function RootNavigator({ onboard }) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="ProfileOnboard">
+      {!onboard && (
+        <Stack.Screen
+          name="ProfileOnboard"
+          component={OnboardNavigator}
+          options={{ headerShown: false }}
+        />
+      )}
       <Stack.Screen
         name="Root"
         component={BottomTabNavigator}
@@ -100,7 +123,89 @@ function RootNavigator() {
         component={NotFoundScreen}
         options={{ title: "Oops!" }}
       />
-      <Stack.Screen
+      <Stack.Group>
+        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen
+          name="NewPostImage"
+          options={({ navigation }) => ({
+            headerShadowVisible: false,
+            headerStyle: styles.headerNoShadow,
+            headerBackVisible: false,
+            headerTitleAlign: "center",
+            header: () => {
+              return (
+                <View
+                  style={{
+                    height: 70,
+                    backgroundColor: "#ffffff",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 30,
+                  }}
+                >
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{ position: "absolute", right: 20 }}
+                    onPress={() => navigation.goBack()}
+                  >
+                    <AntDesign
+                      name="close"
+                      size={24}
+                      color="black"
+                      style={{ marginStart: 18 }}
+                    />
+                  </TouchableOpacity>
+                  <Text style={{ fontFamily: "Rubik-Medium", fontSize: 20 }}>
+                    New Listing
+                  </Text>
+                </View>
+              );
+            },
+          })}
+          component={NewPostImage}
+        />
+        <Stack.Screen
+          name="NewPostDetail"
+          options={({ navigation }) => ({
+            headerShadowVisible: false,
+            headerStyle: styles.headerNoShadow,
+            headerBackVisible: false,
+            headerTitleAlign: "center",
+            header: () => {
+              return (
+                <View
+                  style={{
+                    height: 70,
+                    backgroundColor: "#ffffff",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 35,
+                  }}
+                >
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{ position: "absolute", left: 24 }}
+                    onPress={() => navigation.goBack()}
+                  >
+                    <AntDesign name="left" size={24} color="black" />
+                  </TouchableOpacity>
+                  <Text style={{ fontFamily: "Rubik-Medium", fontSize: 20 }}>
+                    New Listing
+                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{ position: "absolute", right: 20 }}
+                    onPress={() => navigation.navigate("Root")}
+                  >
+                    <AntDesign name="close" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          })}
+          component={NewPostDetail}
+        />
+        <Stack.Screen
           name="ProductHome"
           component={ProductDetailsScreen}
           options={{
@@ -109,22 +214,39 @@ function RootNavigator() {
             headerTransparent: true,
           }}
       />
-      <Stack.Group screenOptions={{ presentation: "modal" }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-        <Stack.Screen name="NewPost" component={PostScreen} />
+      </Stack.Group>
+      <Stack.Group screenOptions={{ presentation: "card" }}>
+        <Stack.Screen
+          name="ChatWindow"
+          options={{
+            headerShown: false,
+            headerTitle: "",
+            headerTransparent: true,
+          }}
+          component={ChatWindow}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );
 }
 
-function HomeNavigator({ navigation }) {
+function HomeNavigator({ route, navigation }) {
+  var showPanel = false;
+  if (route.params !== undefined) {
+    showPanel = route.params.showPanel;
+  }
+
   return (
     <HomeStack.Navigator
       screenOptions={{
         headerShown: false,
       }}
     >
-      <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen
+        name="Home"
+        component={HomeScreen}
+        initialParams={{ showPanel: showPanel }}
+      />
 
       <HomeStack.Screen
         name="SearchHome"
@@ -133,10 +255,20 @@ function HomeNavigator({ navigation }) {
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
-          animation: "none",
         }}
       />
     </HomeStack.Navigator>
+  );
+}
+function ChatNavigator({ navigation }) {
+  return (
+    <ChatStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ChatStack.Screen name="Chat" component={ChatScreen} />
+    </ChatStack.Navigator>
   );
 }
 
@@ -188,13 +320,42 @@ function SavedNavigator() {
   );
 }
 
+function OnboardNavigator() {
+  return (
+    <OnboardStack.Navigator>
+      <OnboardStack.Screen
+        name="Onboard"
+        component={OnBoardScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <OnboardStack.Screen
+        name="Venmo"
+        component={LinkVenmoScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* added this screen so it goes to the home screen after the continue button */}
+      <OnboardStack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </OnboardStack.Navigator>
+  );
+}
+
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
-function BottomTabNavigator() {
+export function BottomTabNavigator({ route }) {
   const colorScheme = useColorScheme();
 
   return (
@@ -251,30 +412,13 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ChatTab"
-        component={ChatScreen}
+        component={ChatNavigator}
         options={({ navigation }: RootTabScreenProps<"ChatTab">) => ({
           headerStyle: styles.headerNoShadow,
           tabBarShowLabel: false,
           title: "",
-          headerTitle: () => (
-            <View>
-              <Text style={styles.chatHeader}>Blue Pants</Text>
-              <Text style={styles.chatSubheader}>shop by lia</Text>
-            </View>
-          ),
-          headerLeft: () => (
-            <TouchableOpacity
-              activeOpacity={pressedOpacity}
-              style={{ marginRight: 20 }}
-            >
-              <Feather
-                name="chevron-left"
-                size={28}
-                color="#B2B2B2"
-                style={{ marginStart: 18 }}
-              />
-            </TouchableOpacity>
-          ),
+
+          headerLeft: () => <Text style={styles.savedHeader}>Messages</Text>,
         })}
       />
       <BottomTab.Screen
@@ -305,7 +449,9 @@ const styles = StyleSheet.create({
   },
   headerNoShadow: {
     shadowColor: "transparent",
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
+    elevation: 0, // remove shadow on Android
+    shadowOpacity: 0,
   },
   noHeader: {
     height: 0,

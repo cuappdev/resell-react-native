@@ -1,16 +1,5 @@
 import React from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  ScrollView,
-  StatusBar,
-} from "react-native";
-import Button from "./Button";
+import { SafeAreaView, StyleSheet, FlatList, ScrollView } from "react-native";
 import ProductCard from "./ProductCard";
 
 /**

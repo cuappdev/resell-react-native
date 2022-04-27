@@ -47,7 +47,7 @@ const DATA = [
 ];
 const styles = StyleSheet.create({
   outer: {
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#FFFFFF",
     height: "100%",
     padding: 0,
     marginTop: 10,

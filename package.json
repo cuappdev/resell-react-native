@@ -6,7 +6,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "preinstall": "npx npm-force-resolutions"
   },
   "jest": {
     "preset": "jest-expo"
@@ -14,9 +15,11 @@
   "dependencies": {
     "@expo/vector-icons": "^12.0.0",
     "@react-native-async-storage/async-storage": "^1.15.17",
-    "@react-navigation/bottom-tabs": "^6.0.5",
+    "@react-navigation/bottom-tabs": "^6.3.1",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.1.0",
+    "@types/react-native-snap-carousel": "^3.8.5",
+    "core-js": "^3.21.1",
     "expo": "~42.0.1",
     "expo-asset": "~8.3.2",
     "expo-constants": "~11.0.1",
@@ -28,32 +31,39 @@
     "expo-splash-screen": "~0.11.2",
     "expo-status-bar": "~1.0.4",
     "expo-web-browser": "~9.2.0",
-    "react": "16.13.1",
-    "react-dom": "^16.13.1",
+    "i": "^0.3.7",
+    "npm": "^8.7.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
+    "react-native-animated-dots-carousel": "^1.0.1",
+    "react-native-dialog-component": "^0.2.17",
     "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-gifted-chat": "^0.16.3",
+    "react-native-image-picker": "^4.7.3",
     "react-native-linear-gradient": "^2.5.6",
+    "react-native-modal": "^13.0.1",
     "react-native-pager-view": "5.0.12",
     "react-native-paper": "^4.10.1",
     "react-native-reanimated": "~2.2.0",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
     "react-native-slack-bottom-sheet": "^0.5.0",
-    "react-native-slide-down-panel": "^1.0.8",
-    "react-native-sliding-up-down-panels": "^1.0.0",
-    "react-native-sliding-up-panel": "^1.1.12",
+    "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "^12.1.1",
     "react-native-swipe-modal-up-down": "^1.1.0",
     "react-native-swipe-up-down": "^1.0.7",
     "react-native-web": "~0.13.12",
     "react-native-webview": "11.6.2",
+    "react-native-week-view": "^0.9.0",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.0.2",
+    "react-schedule-selector": "^3.0.0",
     "redux": "^4.1.2",
     "request": "^2.79.0",
-    "rn-sliding-up-panel": "^2.4.5"
+    "rn-sliding-up-panel": "^2.4.5",
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -63,6 +73,12 @@
     "jest-expo": "~41.0.0-beta.0",
     "react-native-svg-transformer": "^0.14.3",
     "typescript": "~4.0.0"
+  },
+  "resolutions": {
+    "d2/left-pad": "1.1.1",
+    "c/**/left-pad": "^1.1.2",
+    "@types/react": "17.0.2",
+    "@types/react-dom": "17.0.2"
   },
   "private": true
 }

@@ -1,23 +1,15 @@
 import * as React from "react";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  FlatList,
-  TextInput,
-  LogBox,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, Text, TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { View } from "../components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { FILTER } from "../data/filter";
 import { DATA } from "../data/product";
 import { ProductList } from "../components/ProductList";
 
-import { homeBackgroundGray } from "../constants/Colors";
 import HistoryList from "../components/HistoryList";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -102,29 +94,9 @@ export default function SearchScreen({ navigation, route }) {
       </View>
 
       {isSearchSubmitted && noResult && (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "Rubik-Medium",
-              fontSize: 18,
-              marginBottom: 8,
-            }}
-          >
-            No results
-          </Text>
-          <Text
-            style={{
-              fontFamily: "Rubik-Regular",
-              fontSize: 16,
-              color: "#707070",
-            }}
-          >
+        <View style={styles.noResultView}>
+          <Text style={styles.noResultHeader}>No results</Text>
+          <Text style={styles.noResultSubHeader}>
             Please try another search
           </Text>
         </View>
@@ -190,5 +162,17 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Regular",
     fontSize: 18,
     width: "90%",
+  },
+  noResultView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
+  noResultSubHeader: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    color: "#707070",
   },
 });

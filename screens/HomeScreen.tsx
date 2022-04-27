@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, Text, Image} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { DetailPullUpHeader } from "../components/GetStartedPullUp";
+import Modal from "react-native-modal";
 import { View } from "../components/Themed";
 // import { SafeAreaView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,11 +17,14 @@ import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
 import LoadingScreen from "../screens/LoadingScreen";
+import SlidingUpPanel from "rn-sliding-up-panel";
+import PurpleButton from "../components/PurpleButton";
+import ResellLogo from "../assets/svg-components/resell_logo";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation, route }) {
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
@@ -43,6 +47,8 @@ export default function HomeScreen({ navigation }) {
     getPosts();
   }, []);
 
+  const { showPanel } = route.params;
+  const [welcomeState, setWelcomeState] = useState(showPanel);
 
   return (
     <SafeAreaView style={styles.outer}>
@@ -67,11 +73,7 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ButtonBanner
-        count={count}
-        setCount={setCount}
-        data={FILTER}
-      />
+      <ButtonBanner count={count} setCount={setCount} data={FILTER} />
 
       {isLoading ? <LoadingScreen/> : 
         (fetchFailed ? 
@@ -88,10 +90,37 @@ export default function HomeScreen({ navigation }) {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => navigation.navigate("NewPost")}
+        onPress={() => navigation.navigate("NewPostImage")}
         color={"#808080"}
         theme={{ colors: { accent: "white" } }}
       />
+      {showPanel && (
+        <Modal
+          isVisible={welcomeState}
+          backdropOpacity={0.2}
+          onBackdropPress={() => {
+            setWelcomeState(false);
+            navigation.navigate("Root");
+          }}
+          style={{ justifyContent: "flex-end", margin: 0 }}
+        >
+          <View style={styles.slideUp}>
+            <DetailPullUpHeader
+              title={"Welcome to Resell"}
+              description={"Thrifting and selling has never been this easy"}
+            />
+            <View style={styles.purpleButton}>
+              <PurpleButton
+                text={"Get Started"}
+                onPress={() => {
+                  setWelcomeState(false);
+                  navigation.navigate("Root");
+                }}
+              />
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -107,6 +136,10 @@ const styles = StyleSheet.create({
     right: 10,
     bottom: 90,
   },
+  welcome: {
+    height: 40,
+    color: "#9E70F6",
+  },
   header: {
     height: 40,
   },
@@ -119,5 +152,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     top: 4,
+  },
+  slideUp: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 400,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+  },
+  purpleButton: {
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: "white",
   },
 });

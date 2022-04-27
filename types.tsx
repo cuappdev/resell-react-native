@@ -20,12 +20,14 @@ export type RootStackParamList = {
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
   NotFound: undefined;
-  NewPost: undefined;
+  NewPostImage: undefined;
+  NewPostDetail: undefined;
   ProductHome: undefined;
+  ProfileOnboard: NavigatorScreenParams<OnboardStackParamList> | undefined;
+  ChatWindow: undefined;
 };
-
 export type HomeStackParamList = {
-  Home: undefined;
+  Home: { showPanel: boolean };
   SearchHome: undefined;
 };
 
@@ -33,24 +35,29 @@ export type SavedStackParamList = {
   Saved: undefined;
   ProductSaved: undefined;
 };
+export type ChatStackParamList = {
+  Chat: undefined;
+};
 
 export type ProfileStackParamList = {
   Profile: undefined;
   ProductProfile: undefined;
   Settings: undefined;
   NotificationPreferences: undefined;
-<<<<<<< HEAD
   SendFeedback: undefined;
-}
-=======
 };
->>>>>>> ce408512b41f98c113927c1fa103523356cecd32
+
+export type OnboardStackParamList = {
+  Onboard: undefined;
+  Venmo: undefined;
+  Home: undefined;
+};
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
 
 export type RootTabParamList = {
-  HomeTab: undefined;
+  HomeTab: { showPanel: boolean };
   SavedTab: undefined;
   ChatTab: undefined;
   ProfileTab: undefined;

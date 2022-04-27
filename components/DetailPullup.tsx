@@ -29,7 +29,6 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
         <Text style={styles.profile}>{item.sellerName}</Text>
       </View>
     </View>
-
   );
 }
 
