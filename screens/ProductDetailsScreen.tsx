@@ -28,17 +28,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  // topBar: {
-  //   height: menuBarTop + 40,
-  //   width: '100%',
-  //   position: 'absolute',
-  //   top: 0,
-  // },
+  topBar: {
+    height: menuBarTop + 60,
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    zIndex: 10,
+  },
   backButton: {
     position: "absolute",
     top: menuBarTop,
     left: 20,
-    zIndex: 1,
+    zIndex: 15,
     width: 20,
     height: 30,
   },
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: menuBarTop,
     right: 65,
-    zIndex: 1,
+    zIndex: 15,
     width: 20,
     height: 30,
   },
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: menuBarTop,
     right: 20,
-    zIndex: 1,
+    zIndex: 15,
     width: 20,
     height: 30,
   },
@@ -126,23 +127,22 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* <LinearGradient
+      <LinearGradient
         colors={['rgba(0,0,0,0.8)', 'transparent']}
         style={styles.topBar}
-      > */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <BackButton />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
-          <BookMarkButton />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
-          <ExportButton />
-        </TouchableOpacity>
-      {/* </LinearGradient> */}
+      />
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <BackButton />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
+        <BookMarkButton />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
+        <ExportButton />
+      </TouchableOpacity>
       <View style={{height: Dimensions.get('window').width * maxImgRatio, width: Dimensions.get('window').width}}>
         <Gallery imagePaths={item.images} />
       </View>

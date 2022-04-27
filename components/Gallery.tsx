@@ -23,8 +23,10 @@ export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
     images.push(
       <View key={i.toString()} style={styles.page}>
         <Background>
-          <Image style={styles.itemImage} source={{uri: imagePaths[i]}} />
-          {/* <Image style={styles.itemImageTop} source={{uri: imagePaths[i]}} /> */}
+          <View>
+            <Image style={styles.itemImage} source={{uri: imagePaths[i]}} blurRadius={5}/>
+            <Image style={styles.itemImageTop} source={{uri: imagePaths[i]}} />
+          </View>
         </Background>
       </View>
     )
@@ -55,13 +57,14 @@ const styles = StyleSheet.create({
   itemImage: {
     height: "100%",
     width: "100%",
-    resizeMode: "cover"
+    resizeMode: "cover",
   },
   itemImageTop: {
     height: "100%",
     width: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
     zIndex: 10,
+    position: 'absolute',
   },
   gradientBackground: {
     width: "100%",
