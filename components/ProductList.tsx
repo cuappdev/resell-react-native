@@ -9,7 +9,7 @@ import ProductCard from "./ProductCard";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({ count, filter, data, navigation }) {
+export function ProductList({ count, filter, data, navigation, fromProfile = false }) {
   const renderItem = ({ item }) => {
     var show = true;
     if (filter && count) {
@@ -24,7 +24,7 @@ export function ProductList({ count, filter, data, navigation }) {
         title={item.title}
         price={item.price}
         image={item.images ? item.images[0] : null}
-        onPress={() => navigation.navigate("ProductHome", {post: item})}
+        onPress={() => navigation.navigate("ProductHome", {post: item, showTrash: fromProfile})}
       />
     ) : null;
   };

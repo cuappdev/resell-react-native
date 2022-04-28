@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from 'react';
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import { StyleSheet, TouchableOpacity } from "react-native";
@@ -35,6 +35,28 @@ export default function ProfileScreen({ navigation }) {
     return state.profile.bio;
   });
 
+  const [isLoading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [posts, setPosts] = useState([]);
+
+  const getPosts = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch("https://resell-dev.cornellappdev.com/api/post"); // TODO: replace this endpoint with profile endpoint
+      const json = await response.json();
+      setPosts(json.posts);
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  useEffect(() => {
+    getPosts();
+  }, []);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -68,8 +90,9 @@ export default function ProfileScreen({ navigation }) {
           </TouchableOpacity>
           <ProductList
             count={null}
-            data={DATA}
+            data={posts}
             filter={null}
+            fromProfile={true}
             navigation={navigation}
           />
         </SafeAreaView>

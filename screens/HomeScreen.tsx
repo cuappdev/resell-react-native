@@ -32,6 +32,7 @@ export default function HomeScreen({ navigation, route }) {
 
   const getPosts = async () => {
     try {
+      setLoading(true)
       const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
       const json = await response.json();
       setPosts(json.posts);

@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Image, StyleSheet, ScrollView } from "react-native";
+import { FlatList, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { Text, View } from "./Themed";
 import ModalBar from "../assets/svg-components/modal_bar";
 
@@ -32,18 +32,21 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
   );
 }
 
-export function DetailPullUpBody({ item }: { item: Item }) {
+export function DetailPullUpBody({ item, similarItems, navigation }: { item: Item, similarItems: any, navigation: any }) {
+  console.log(similarItems);
   return (
     <ScrollView style={styles.pullUpScrollView} >
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
-        data={item.similarItems}
+        data={similarItems}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Image source={item} style={styles.similarItem}>
-          </Image>
+          <TouchableOpacity onPress={() => navigation.navigate("ProductHome", {post: item, showTrash: false})}>
+            <Image source={{uri: item.images[0]}} style={styles.similarItem}>
+            </Image>
+          </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
       ></FlatList>
@@ -86,6 +89,7 @@ const styles = StyleSheet.create({
   paddedRow: {
     flexDirection: 'row',
     alignItems: "center",
+    marginTop: 10,
     marginBottom: 25
   },
   title: {
@@ -106,7 +110,8 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 30,
     height: 30,
-    borderRadius: 15
+    borderRadius: 15,
+    left: 20,
   },
   details: {
     fontSize: 15,
