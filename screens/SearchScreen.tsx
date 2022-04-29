@@ -30,7 +30,32 @@ export default function SearchScreen({ navigation, route }) {
     navigation.navigate("Home");
   };
 
-  const searchSubmit = (text) => {
+  const [isLoading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [posts, setPosts] = useState([]);
+
+  const getPosts = async (keyword) => {
+    try {
+      console.log('keyword', keyword)
+      setLoading(true)
+      const response = await fetch("https://resell-dev.cornellappdev.com/api/post/search/", { 
+        method: "GET",
+        body: JSON.stringify({ 
+          keyword: keyword
+        })
+      });
+      const json = await response.json();
+      console.log('data', data)
+      setData(json.posts);
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const searchSubmit = async (text) => {
     setIsSearchSubmitted(true);
     setSearchKeyword(text);
 
@@ -41,16 +66,13 @@ export default function SearchScreen({ navigation, route }) {
     tempt.unshift(text.toLowerCase());
     setSearchHistory(tempt);
     setHistory(JSON.stringify(tempt));
-    const newData = data.filter((item) =>
-      item.title.toLowerCase().includes(text.toLowerCase())
-    );
+    getPosts(text);
 
-    if (newData.length == 0) {
+    if (data || data.length == 0) {
       setNoResult(true);
     } else {
       setNoResult(false);
     }
-    setData(newData);
   };
   const setHistory = async (history) => {
     try {

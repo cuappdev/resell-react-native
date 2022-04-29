@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BackButton from "../assets/svg-components/back_button";
 import BookMarkButton from "../assets/svg-components/bookmark_button";
+import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved"
 import ExportButton from "../assets/svg-components/export_button";
 import {
   Item,
@@ -29,6 +30,7 @@ import { pressedOpacity } from "../constants/Values"
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
   topBar: {
     height: menuBarTop + 60,
@@ -83,6 +85,13 @@ const styles = StyleSheet.create({
     height: 100,
     backgroundColor: "white",
   },
+  bottomGradient: {
+    height: 60,
+    width: '100%',
+    position: 'absolute',
+    bottom: 100,
+    zIndex: 10,
+  }
 });
 
 export default function ProductDetailsScreen({ route, navigation }) {
@@ -155,7 +164,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
           <Feather name="trash" size={23} color="white" />
         </TouchableOpacity>}
       <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
-        <BookMarkButton />
+        {/* <BookMarkButton /> */}
+        {/* if saved, show the following */}
+        <BookMarkButtonSaved/>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
         <ExportButton />
@@ -175,6 +186,10 @@ export default function ProductDetailsScreen({ route, navigation }) {
       <View style={styles.greyButton}>
         <GreyButton text={"Contact Seller"} />
       </View>
+      <LinearGradient
+        colors={['rgba(255, 255, 255, 0)', '#FFFFFF']}
+        style={styles.bottomGradient}
+      />
     </View>
   );
 }
