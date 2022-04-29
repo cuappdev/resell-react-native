@@ -1,10 +1,16 @@
 import React from "react";
 import Modal from "react-native-modal";
 
-import { StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { NumberPad } from "./CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
+import { StatusBar } from "expo-status-bar";
+import { TouchableOpacity } from "react-native-gesture-handler";
+const windowHeight = Dimensions.get("window").height;
+import { Platform, NativeModules } from "react-native";
+const { StatusBarManager } = NativeModules;
 
+const modalHeight = windowHeight - 212;
 export function NegotiationModal({
   modalVisible,
   setModalVisible,
@@ -31,9 +37,9 @@ export function NegotiationModal({
           <View
             style={{
               width: "100%",
-              marginBottom: 20,
               elevation: 5,
               alignItems: "center",
+              marginTop: 60,
             }}
           >
             <NegotiationProductBubble
@@ -53,7 +59,6 @@ export function NegotiationModal({
               backgroundColor: "#F4F4F4",
               borderRadius: 10,
               marginHorizontal: 24,
-              marginBottom: 24,
             }}
           >
             <Text
@@ -77,7 +82,6 @@ export function NegotiationModal({
             originalText={text}
             setOriginalText={setText}
             screen={screen}
-            itemName={itemName}
           />
         </View>
       </View>
@@ -87,12 +91,12 @@ export function NegotiationModal({
 
 const styles = StyleSheet.create({
   centeredView: {
-    justifyContent: "flex-end",
-    height: "67.5%",
+    flexDirection: "column",
     width: "100%",
+    height: modalHeight,
   },
   modalView: {
-    height: "100%",
+    flex: 1,
     width: "100%",
     backgroundColor: "white",
     borderTopLeftRadius: 50,
@@ -107,6 +111,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 2,
     elevation: 5,
+    marginTop: 20,
   },
 
   textStyle: {

@@ -31,10 +31,51 @@ import ButtonBanner from "../components/ButtonBanner";
 import { FILTER1 } from "../data/filter";
 import { NegotiationModal } from "../components/NegotiationModal";
 
-export function NewPostDetail({ navigation }) {
+export function NewPostDetail({ navigation, route }) {
+  const { image } = route.params;
   const [count, setCount] = useState(0);
-  const [text, setText] = useState("");
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const postRequest = () => {
+    //console.log(image);
+    const Json = JSON.stringify({
+      title: title,
+      description: description,
+      categories: FILTER1[count].title,
+      price: parseInt(price.substring(1)),
+      images_base64: image,
+      userId: "061918bb-25aa-4b1f-8acb-aa9298e065aa",
+    });
+    //alert(Json);
+    fetch("https://resell-dev.cornellappdev.com/api/post/", {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: Json,
+    })
+      .then(function (response) {
+        // Here I added the alert
+        console.log(JSON.stringify(response));
+
+        if (!response.ok) {
+          let error = new Error(response.statusText);
+          throw error;
+        } else {
+          return response.json();
+        }
+      })
+      .then(async function (data) {
+        // Here I added the alert
+        // alert(JSON.stringify(data));
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
 
   return (
     <View
@@ -53,48 +94,53 @@ export function NewPostDetail({ navigation }) {
             fontSize: 18,
             backgroundColor: "#F4F4F4",
             borderRadius: 10,
+            height: 42,
             marginHorizontal: 24,
             marginBottom: 32,
           },
         ]}
-        onChangeText={(text) => {}}
+        value={title}
+        onChangeText={(text) => {
+          setTitle(text);
+        }}
         onKeyPress={({ nativeEvent }) => {}}
         onContentSizeChange={(event) => {}}
       />
 
       <Text style={styles.smallText}>Price</Text>
       <TouchableOpacity
-        style={{ marginStart: 24, width: 120 }}
+        style={{ width: 120 }}
         onPress={() => setModalVisible(true)}
       >
-        <TextInput
-          style={[
-            {
-              paddingVertical: 10,
-              paddingHorizontal: 10,
-              width: 120,
-              fontSize: 18,
-              backgroundColor: "#F4F4F4",
-              borderRadius: 10,
-              marginBottom: 32,
+        <View
+          style={{
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            width: 120,
+            height: 40,
+            backgroundColor: "#F4F4F4",
+            borderRadius: 10,
+            marginHorizontal: 24,
+            marginBottom: 24,
+            elevation: 5,
+          }}
+        >
+          <Text
+            style={{
               fontFamily: "Rubik-Regular",
-            },
-          ]}
-          pointerEvents="none"
-          showSoftInputOnFocus={false}
-          placeholderTextColor={"#707070"}
-          placeholder={"$"}
-          value={text}
-          onChangeText={(text) => {}}
-          onKeyPress={({ nativeEvent }) => {}}
-          onContentSizeChange={(event) => {}}
-        />
+              fontSize: 18,
+              color: "#707070",
+            }}
+          >
+            {price == "" ? "$" : price}
+          </Text>
+        </View>
       </TouchableOpacity>
       <NegotiationModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        text={text}
-        setText={setText}
+        text={price}
+        setText={setPrice}
         screen={"NewPost"}
         itemName={undefined}
       />
@@ -116,8 +162,11 @@ export function NewPostDetail({ navigation }) {
         placeholder={
           "enter item details..." + "\n" + "• Condition" + "\n" + "• Dimensions"
         }
+        value={description}
         placeholderTextColor={"#707070"}
-        onChangeText={(text) => {}}
+        onChangeText={(text) => {
+          setDescription(text);
+        }}
         onKeyPress={({ nativeEvent }) => {}}
         onContentSizeChange={(event) => {}}
         multiline={true}
@@ -136,6 +185,7 @@ export function NewPostDetail({ navigation }) {
           style={[styles.buttonContinue]}
           onPress={() => {
             navigation.navigate("Root");
+            postRequest();
           }}
         >
           <Text style={styles.textStyle}>Continue</Text>
@@ -183,6 +233,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginStart: 32,
     marginBottom: 8,
+    height: 26,
   },
   buttonContinue: {
     backgroundColor: "#9E70F6",
