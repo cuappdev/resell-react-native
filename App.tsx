@@ -3,33 +3,40 @@ import React from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 import * as Google from "expo-google-app-auth";
 import GlobalStore from "./state_manage/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { login, logout } from "./state_manage/actions/signInActions";
 
 export default function App() {
+  // const log_in = () => dispatch(login());
+  // const log_out = () => dispatch(logout());
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  const [signedIn, setSignIn] = useState(false);
-  const [onBoard, setOnBoarded] = useState(false);
-  AsyncStorage.getItem("SignedIn", (errs, result) => {
-    if (!errs) {
-      if (result !== null) {
-        setSignIn(true);
-      }
-    }
-  });
-  AsyncStorage.getItem("Onboarded", (errs, result) => {
-    if (!errs) {
-      if (result !== null) {
-        setOnBoarded(true);
-      }
-    }
-  });
+  const [signedIn, setSignIn] = useState(true);
+  const [onBoard, setOnBoarded] = useState(true);
+  //this need to be replaced by redux
+  // AsyncStorage.getItem("SignedIn", (errs, result) => {
+  //   if (!errs) {
+  //     if (result !== null && result == "true") {
+  //       setSignIn(true);
+  //     } else if (result !== null && result == "false") {
+  //       //!=null is ok because if result ==null, signIn is going to be default false anyway
+  //       setSignIn(false);
+  //     }
+  //   }
+  // });
+  // AsyncStorage.getItem("Onboarded", (errs, result) => {
+  //   if (!errs) {
+  //     if (result !== null) {
+  //       setOnBoarded(true);
+  //     }
+  //   }
+  // });
 
   const setSignedIn = async () => {
     try {
@@ -38,6 +45,29 @@ export default function App() {
       console.log(e);
     }
   };
+
+  const postRequest = (result) => {
+    fetch("https://resell-dev.cornellappdev.com/api/auth/login/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(result),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  // const name = useSelector((state: any) => {
+  //   return state.profile.name;
+  // });
+  //const store = useSelector((state) => state.signIn.signedIn);
 
   const handleGoogleSignIn = () => {
     const config = {
@@ -52,6 +82,7 @@ export default function App() {
         console.log("Google SignIn", "SUCCESS", result);
         setSignIn(true);
         setSignedIn();
+        postRequest(result);
       } else {
         console.log("Google SignIn", "FAILURE", result);
       }
@@ -89,6 +120,7 @@ export default function App() {
     return null;
   } else {
     console.log(signedIn);
+
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
@@ -168,3 +200,6 @@ const styles = StyleSheet.create({
     height: "70%",
   },
 });
+function dispatch(arg0: any) {
+  throw new Error("Function not implemented.");
+}

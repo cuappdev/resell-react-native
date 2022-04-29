@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import BackButton from "../assets/svg-components/back_button";
 import BookMarkButton from "../assets/svg-components/bookmark_button";
-import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved"
+import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved";
 import ExportButton from "../assets/svg-components/export_button";
 import {
   Item,
@@ -23,19 +23,19 @@ import {
 import SlidingUpPanel from "rn-sliding-up-panel";
 import GreyButton from "../components/GreyButton";
 import { menuBarTop } from "../constants/Layout";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
-import { pressedOpacity } from "../constants/Values"
+import { pressedOpacity } from "../constants/Values";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   topBar: {
     height: menuBarTop + 60,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     top: 0,
     zIndex: 10,
   },
@@ -87,11 +87,11 @@ const styles = StyleSheet.create({
   },
   bottomGradient: {
     height: 60,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     bottom: 100,
     zIndex: 10,
-  }
+  },
 });
 
 export default function ProductDetailsScreen({ route, navigation }) {
@@ -104,16 +104,18 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const getPost = async () => {
     try {
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post/");
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/"
+      );
       const json = await response.json();
-      setSimilarItems(json.posts.slice(0,4));
+      setSimilarItems(json.posts.slice(0, 4));
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }
-  
+  };
+
   useEffect(() => {
     getPost();
   }, []);
@@ -122,14 +124,18 @@ export default function ProductDetailsScreen({ route, navigation }) {
     images: post.images,
     title: post.title,
     price: post.price,
-    sellerName: post.user.givenName + ' ' + post.user.familyName,
+    sellerName: post.user.givenName + " " + post.user.familyName,
     sellerProfile: post.user.photoUrl,
     description: post.description,
     similarItems: [],
   };
-
+  const sPanel = useRef(null);
   useEffect(() => {
-    this._panel.show(Dimensions.get('window').height - Math.min(400, Dimensions.get('window').width * maxImgRatio - 40)); // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
+    sPanel.current.show(
+      Dimensions.get("window").height -
+        Math.min(400, Dimensions.get("window").width * maxImgRatio - 40)
+    );
+    // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
   });
 
   useEffect(() => {
@@ -140,14 +146,12 @@ export default function ProductDetailsScreen({ route, navigation }) {
         }
       });
     }
-  })
-
-  
+  });
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['rgba(0,0,0,0.8)', 'transparent']}
+        colors={["rgba(0,0,0,0.8)", "transparent"]}
         style={styles.topBar}
       />
       <TouchableOpacity
@@ -156,13 +160,15 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <BackButton />
       </TouchableOpacity>
-      {showTrash && <TouchableOpacity
+      {showTrash && (
+        <TouchableOpacity
           activeOpacity={pressedOpacity}
           style={styles.trashButton}
           onPress={() => {}}
         >
           <Feather name="trash" size={23} color="white" />
-        </TouchableOpacity>}
+        </TouchableOpacity>
+      )}
       <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
         <BookMarkButton />
         {/* if saved, show the following */}
@@ -171,23 +177,39 @@ export default function ProductDetailsScreen({ route, navigation }) {
       <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
         <ExportButton />
       </TouchableOpacity>
-      <View style={{height: Dimensions.get('window').width * maxImgRatio, width: Dimensions.get('window').width}}>
+      <View
+        style={{
+          height: Dimensions.get("window").width * maxImgRatio,
+          width: Dimensions.get("window").width,
+        }}
+      >
         <Gallery imagePaths={item.images} />
       </View>
       <SlidingUpPanel
-        ref={(c) => (this._panel = c)}
-        draggableRange={{ top: Dimensions.get('window').height - 100, bottom: Dimensions.get('window').height - Math.max(100, Dimensions.get('window').width * maxImgRatio) }} // 100 is used to avoid overlapping with top bar
+        ref={(c) => {
+          sPanel.current = c;
+        }}
+        draggableRange={{
+          top: Dimensions.get("window").height - 100,
+          bottom:
+            Dimensions.get("window").height -
+            Math.max(100, Dimensions.get("window").width * maxImgRatio),
+        }} // 100 is used to avoid overlapping with top bar
       >
         <View style={styles.slideUp}>
           <DetailPullUpHeader item={item} />
-          <DetailPullUpBody item={item} similarItems={similarItems} navigation={navigation}/>
+          <DetailPullUpBody
+            item={item}
+            similarItems={similarItems}
+            navigation={navigation}
+          />
         </View>
       </SlidingUpPanel>
       <View style={styles.greyButton}>
         <GreyButton text={"Contact Seller"} />
       </View>
       <LinearGradient
-        colors={['rgba(255, 255, 255, 0)', '#FFFFFF']}
+        colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
         style={styles.bottomGradient}
       />
     </View>

@@ -4,7 +4,7 @@ export const DATA = [
     title: "Nike Air Force - Size 9.5",
     image: require("../assets/images/item2.png"),
     price: "$90.00",
-    category: "Clothes",
+    category: "Clothing",
   },
   {
     id: "2",
@@ -18,21 +18,21 @@ export const DATA = [
     title: "Brown Rotating Chair",
     image: require("../assets/images/item3.png"),
     price: "$52.00",
-    category: "Funiture",
+    category: "Household",
   },
   {
     id: "4",
     title: "Nice Pair of Jeans",
     image: require("../assets/images/item5.png"),
     price: "$18.00",
-    category: "Clothes",
+    category: "Clothing",
   },
   {
     id: "5",
     title: "Pants",
     image: require("../assets/images/Pants.png"),
     price: "$52.00",
-    category: "Clothes",
+    category: "Clothing",
   },
 
   {
@@ -54,7 +54,7 @@ export const DATA = [
     title: "Piano",
     image: require("../assets/images/piano.png"),
     price: "$200.00",
-    category: "Musical Instruments",
+    category: "Other",
   },
 
   {
@@ -62,14 +62,14 @@ export const DATA = [
     title: "Guitar",
     image: require("../assets/images/Guitar.png"),
     price: "$90.00",
-    category: "Musical Instruments",
+    category: "Other",
   },
   {
     id: "10",
     title: "White Shirt",
     image: require("../assets/images/WhiteT.png"),
     price: "$14.00",
-    category: "Clothes",
+    category: "Clothing",
   },
   {
     id: "11",

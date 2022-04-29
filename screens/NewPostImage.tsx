@@ -24,8 +24,9 @@ import Carousel, {
   Pagination,
   ParallaxImage,
 } from "react-native-snap-carousel";
-import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
+import * as ImageManipulator from "expo-image-manipulator";
 
+import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 export function NewPostImage({ navigation }) {
   const [image, setImage] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -34,14 +35,18 @@ export function NewPostImage({ navigation }) {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      base64: true,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-
     if (!result.cancelled) {
-      setImage([...image.slice(0, -1), result.uri, ""]);
+      setImage([
+        ...image.slice(0, -1),
+        "data:image/jpeg;base64," + result["base64"],
+        "",
+      ]);
     }
   };
   function _renderItem({ item, index }, parallaxProps) {
@@ -184,7 +189,11 @@ export function NewPostImage({ navigation }) {
           <Pressable
             style={[styles.buttonContinue]}
             onPress={() => {
-              navigation.navigate("NewPostDetail");
+              navigation.navigate("NewPostDetail", {
+                image: image.filter((item) => {
+                  return item != "";
+                }),
+              });
             }}
           >
             <Text style={styles.textStyle}>Continue</Text>

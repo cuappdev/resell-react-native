@@ -16,16 +16,18 @@ export default function LinkVenmoScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titleText}>Link Your Venmo</Text>
       <Text style={styles.description}>
         Your Venmo handle will only be visible to people interested in buying
         your listing.
       </Text>
-      <Text style={styles.handle}>Venmo Handle</Text>
-      <TextInput
-        style={styles.username_input}
-        placeholderTextColor={"#707070"}
-      />
+      <View style={{ flexDirection: "column", width: "100%" }}>
+        <Text style={styles.handle}>Venmo Handle</Text>
+        <TextInput
+          style={styles.username_input}
+          placeholderTextColor={"#707070"}
+        />
+      </View>
+
       <View style={styles.purpleButton}>
         <PurpleButton
           text={"Continue"}
@@ -36,6 +38,7 @@ export default function LinkVenmoScreen({ navigation }) {
             });
             setOnboarded();
           }}
+          enabled={true}
         />
       </View>
       <View style={styles.skipButton}>
@@ -62,7 +65,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   container: {
-    paddingTop: menuBarTop,
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     height: "100%",
@@ -76,18 +78,22 @@ const styles = StyleSheet.create({
   },
   description: {
     width: 320,
-    marginTop: 40,
+    marginTop: 30,
     color: "grey",
+    fontSize: 16,
   },
   handle: {
-    marginTop: 30,
-    marginRight: 230,
-    fontWeight: "bold",
+    marginTop: 40,
+    marginBottom: 10,
+    marginStart: 10,
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: "Rubik-Regular",
   },
   username_input: {
     backgroundColor: "#F4F4F4",
     width: "100%",
-    borderRadius: 15,
+    borderRadius: 10,
     height: 40,
   },
   bio: {
@@ -98,20 +104,20 @@ const styles = StyleSheet.create({
   bio_input: {
     backgroundColor: "#F4F4F4",
     width: "100%",
-    borderRadius: 15,
+    borderRadius: 10,
     height: 40,
   },
   purpleButton: {
     position: "absolute",
     alignItems: "center",
     width: "100%",
-    bottom: "12%",
+    bottom: "10%",
   },
   skipButton: {
     position: "absolute",
     alignItems: "center",
     width: "100%",
     backgroundColor: "white",
-    bottom: "5%",
+    bottom: "2%",
   },
 });

@@ -115,8 +115,8 @@ export default function HomeScreen({ navigation, route }) {
                 text={"Get Started"}
                 onPress={() => {
                   setWelcomeState(false);
-                  navigation.navigate("Root");
                 }}
+                enabled={true}
               />
             </View>
           </View>

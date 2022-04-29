@@ -21,6 +21,8 @@ import {
   TouchableOpacity,
   Button,
   StatusBar,
+  Platform,
+  NativeModules,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -57,6 +59,7 @@ import ClickedChat from "../assets/svg-components/clicked_chat";
 import Chat from "../assets/svg-components/chat";
 import ClickedProfile from "../assets/svg-components/clicked_profile";
 import Profile from "../assets/svg-components/profile";
+const { StatusBarManager } = NativeModules;
 
 import { bottomTabsHeight } from "../constants/Layout";
 
@@ -76,7 +79,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
       <RootNavigator onboard={onboard} />
     </NavigationContainer>
@@ -102,6 +105,7 @@ const SavedStack = createNativeStackNavigator<SavedStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
+const STATUSBAR_HEIGHT = Platform.OS === "ios" ? 20 : StatusBarManager.HEIGHT;
 
 function RootNavigator({ onboard }) {
   return (
@@ -140,9 +144,11 @@ function RootNavigator({ onboard }) {
                     backgroundColor: "#ffffff",
                     justifyContent: "center",
                     alignItems: "center",
-                    marginTop: 30,
+                    marginTop: Platform.OS === "ios" ? 35 : 0,
                   }}
                 >
+                  <StatusBar translucent={false} />
+
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
                     style={{ position: "absolute", right: 20 }}
@@ -179,9 +185,11 @@ function RootNavigator({ onboard }) {
                     backgroundColor: "#ffffff",
                     justifyContent: "center",
                     alignItems: "center",
-                    marginTop: 35,
+                    marginTop: Platform.OS === "ios" ? 35 : 0,
                   }}
                 >
+                  <StatusBar translucent={false} />
+
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
                     style={{ position: "absolute", left: 24 }}
@@ -320,29 +328,80 @@ function SavedNavigator() {
   );
 }
 
-function OnboardNavigator() {
+function OnboardNavigator({ navigation }) {
   return (
     <OnboardStack.Navigator>
       <OnboardStack.Screen
         name="Onboard"
         component={OnBoardScreen}
         options={{
-          headerShown: false,
+          headerShadowVisible: false,
+          headerStyle: styles.headerNoShadow,
+          headerBackVisible: false,
+          headerTitleAlign: "center",
+          header: () => {
+            return (
+              <View
+                style={{
+                  height: 70,
+                  backgroundColor: "#ffffff",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 35,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "Roboto-Medium",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                  }}
+                >
+                  Set up your profile
+                </Text>
+              </View>
+            );
+          },
         }}
       />
       <OnboardStack.Screen
         name="Venmo"
         component={LinkVenmoScreen}
         options={{
-          headerShown: false,
-        }}
-      />
-      {/* added this screen so it goes to the home screen after the continue button */}
-      <OnboardStack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          headerShown: false,
+          headerShadowVisible: false,
+          headerStyle: styles.headerNoShadow,
+          headerBackVisible: false,
+          headerTitleAlign: "center",
+          header: () => {
+            return (
+              <View
+                style={{
+                  height: 70,
+                  backgroundColor: "#ffffff",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 35,
+                }}
+              >
+                <TouchableOpacity
+                  activeOpacity={pressedOpacity}
+                  style={{ position: "absolute", left: 24 }}
+                  onPress={() => navigation.goBack()}
+                >
+                  <AntDesign name="left" size={24} color="black" />
+                </TouchableOpacity>
+                <Text
+                  style={{
+                    fontFamily: "Roboto-Medium",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                  }}
+                >
+                  Link your Venmo
+                </Text>
+              </View>
+            );
+          },
         }}
       />
     </OnboardStack.Navigator>

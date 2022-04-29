@@ -50,14 +50,13 @@ export type ProfileStackParamList = {
 export type OnboardStackParamList = {
   Onboard: undefined;
   Venmo: undefined;
-  Home: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
 
 export type RootTabParamList = {
-  HomeTab: { showPanel: boolean };
+  HomeTab: undefined;
   SavedTab: undefined;
   ChatTab: undefined;
   ProfileTab: undefined;
