@@ -213,7 +213,7 @@ function RootNavigator({ onboard }) {
             headerTitle: "",
             headerTransparent: true,
           }}
-        />
+      />
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: "card" }}>
         <Stack.Screen

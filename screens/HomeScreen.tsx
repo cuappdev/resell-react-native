@@ -1,12 +1,11 @@
-import * as React from "react";
-import { StyleSheet, TouchableOpacity, Text, FlatList } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity, Text, Image} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import Modal from "react-native-modal";
 import { View } from "../components/Themed";
 // import { SafeAreaView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
 import { FAB } from "react-native-paper";
 import { LogBox } from "react-native";
 import { FILTER } from "../data/filter";
@@ -17,6 +16,7 @@ import Header from "../assets/svg-components/header";
 import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
 import { homeBackgroundGray } from "../constants/Colors";
+import LoadingScreen from "../screens/LoadingScreen";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import PurpleButton from "../components/PurpleButton";
 import ResellLogo from "../assets/svg-components/resell_logo";
@@ -26,6 +26,28 @@ import ResellLogo from "../assets/svg-components/resell_logo";
 
 export default function HomeScreen({ navigation, route }) {
   const [count, setCount] = useState(0);
+  const [isLoading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [posts, setPosts] = useState([]);
+
+  const getPosts = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
+      const json = await response.json();
+      setPosts(json.posts);
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  useEffect(() => {
+    getPosts();
+  }, []);
+
   const { showPanel } = route.params;
   const [welcomeState, setWelcomeState] = useState(showPanel);
 
@@ -54,12 +76,18 @@ export default function HomeScreen({ navigation, route }) {
 
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
 
-      <ProductList
-        count={count}
-        data={DATA}
-        filter={FILTER}
-        navigation={navigation}
-      />
+      {isLoading ? <LoadingScreen/> : 
+        (fetchFailed ? 
+          <LoadingScreen/> :
+          <ProductList
+            count={count}
+            data={posts}
+            filter={FILTER}
+            navigation={navigation}
+          />
+        )
+      }
+
       <FAB
         style={styles.fab}
         icon="plus"

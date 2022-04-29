@@ -1,4 +1,5 @@
 // this is the general layout for the button that allows users to contact seller
+// this is actually purple in color ;)
 import React from 'react';
 import { StyleSheet, TouchableOpacity, Text, View } from 'react-native';
 
@@ -15,21 +16,19 @@ export default function GreyButton({ text }) {
 
 const styles = StyleSheet.create({
   button: {
-    width: 230,
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#9E70F6",
     padding: "3%",
-    borderRadius: 25,
+    paddingRight: 40,
+    paddingLeft: 40,
+    borderRadius: 30,
     shadowOffset: { width: 3, height: 3 },
-    shadowColor: "grey",
-    shadowOpacity: 0.5
   },
 
   buttonText: {
-    color: 'black',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    color: 'white',
+    fontFamily: 'Rubik-Medium',
     fontSize: 16,
     textAlign: 'center'
   }

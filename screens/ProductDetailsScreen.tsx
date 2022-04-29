@@ -1,6 +1,7 @@
-import * as React from "react";
+import React, { useEffect, useState } from 'react';
 import BackButton from "../assets/svg-components/back_button";
 import BookMarkButton from "../assets/svg-components/bookmark_button";
+import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved"
 import ExportButton from "../assets/svg-components/export_button";
 import {
   Item,
@@ -8,29 +9,57 @@ import {
   DetailPullUpBody,
 } from "../components/DetailPullup";
 import Gallery from "../components/Gallery";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Platform,
+  Image,
+  Dimensions,
+} from "react-native";
 import SlidingUpPanel from "rn-sliding-up-panel";
-import { useEffect } from "react";
 import GreyButton from "../components/GreyButton";
 import { menuBarTop } from "../constants/Layout";
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from "@expo/vector-icons";
+import { pressedOpacity } from "../constants/Values"
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
+  },
+  topBar: {
+    height: menuBarTop + 60,
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    zIndex: 10,
   },
   backButton: {
     position: "absolute",
     top: menuBarTop,
     left: 20,
-    zIndex: 1,
+    zIndex: 15,
     width: 20,
     height: 30,
+  },
+  trashButton: {
+    position: "absolute",
+    top: menuBarTop - 2,
+    right: 110,
+    zIndex: 15,
+    // width: 20,
+    // height: 30,
   },
   bookmarkButton: {
     position: "absolute",
     top: menuBarTop,
     right: 65,
-    zIndex: 1,
+    zIndex: 15,
     width: 20,
     height: 30,
   },
@@ -38,7 +67,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: menuBarTop,
     right: 20,
-    zIndex: 1,
+    zIndex: 15,
     width: 20,
     height: 30,
   },
@@ -49,56 +78,118 @@ const styles = StyleSheet.create({
   },
   greyButton: {
     position: "absolute",
-    bottom: 100,
+    bottom: 0,
     alignItems: "center",
     width: "100 %",
     zIndex: 10,
-    height: 170,
+    height: 100,
     backgroundColor: "white",
   },
+  bottomGradient: {
+    height: 60,
+    width: '100%',
+    position: 'absolute',
+    bottom: 100,
+    zIndex: 10,
+  }
 });
 
-export default function ProductDetailsScreen({ navigation }) {
+export default function ProductDetailsScreen({ route, navigation }) {
+  const { post, showTrash } = route.params;
+
+  const [maxImgRatio, setMaxImgRatio] = useState(0); // height / width
+
+  const [isLoading, setLoading] = useState(true);
+  const [similarItems, setSimilarItems] = useState([]);
+
+  const getPost = async () => {
+    try {
+      const response = await fetch("https://resell-dev.cornellappdev.com/api/post/");
+      const json = await response.json();
+      setSimilarItems(json.posts.slice(0,4));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  useEffect(() => {
+    getPost();
+  }, []);
+
   const item: Item = {
-    images: [require("../assets/images/bluepants.png")],
-    title: "Blue Pants",
-    price: 25,
-    sellerName: "ravina patel",
-    sellerProfile: "../assets/images/profile-pic-test.png",
-    description: "Vintage blue pants that are super comfy and cool!",
-    similarItems: [require("../assets/images/similar-items-test.png")],
+    images: post.images,
+    title: post.title,
+    price: post.price,
+    sellerName: post.user.givenName + ' ' + post.user.familyName,
+    sellerProfile: post.user.photoUrl,
+    description: post.description,
+    similarItems: [],
   };
 
   useEffect(() => {
-    this._panel.show(400);
+    this._panel.show(Dimensions.get('window').height - Math.min(400, Dimensions.get('window').width * maxImgRatio - 40)); // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
   });
+
+  useEffect(() => {
+    for (let i = 0; i < post.images.length; i++) {
+      Image.getSize(post.images[i], (width, height) => {
+        if (height / width > maxImgRatio) {
+          setMaxImgRatio(height / width);
+        }
+      });
+    }
+  })
+
+  
+
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['rgba(0,0,0,0.8)', 'transparent']}
+        style={styles.topBar}
+      />
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
       >
         <BackButton />
       </TouchableOpacity>
+      {showTrash && <TouchableOpacity
+          activeOpacity={pressedOpacity}
+          style={styles.trashButton}
+          onPress={() => {}}
+        >
+          <Feather name="trash" size={23} color="white" />
+        </TouchableOpacity>}
       <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
         <BookMarkButton />
+        {/* if saved, show the following */}
+        {/* <BookMarkButtonSaved/> */}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
         <ExportButton />
       </TouchableOpacity>
-      <Gallery imagePaths={item.images} />
+      <View style={{height: Dimensions.get('window').width * maxImgRatio, width: Dimensions.get('window').width}}>
+        <Gallery imagePaths={item.images} />
+      </View>
       <SlidingUpPanel
         ref={(c) => (this._panel = c)}
-        draggableRange={{ top: 720, bottom: 300 }}
+        draggableRange={{ top: Dimensions.get('window').height - 100, bottom: Dimensions.get('window').height - Math.max(100, Dimensions.get('window').width * maxImgRatio) }} // 100 is used to avoid overlapping with top bar
       >
         <View style={styles.slideUp}>
           <DetailPullUpHeader item={item} />
-          <DetailPullUpBody item={item} />
-          <View style={styles.greyButton}>
-            <GreyButton text={"Contact Seller"} />
-          </View>
+          <DetailPullUpBody item={item} similarItems={similarItems} navigation={navigation}/>
         </View>
       </SlidingUpPanel>
+      <View style={styles.greyButton}>
+        <GreyButton text={"Contact Seller"} />
+      </View>
+      <LinearGradient
+        colors={['rgba(255, 255, 255, 0)', '#FFFFFF']}
+        style={styles.bottomGradient}
+      />
     </View>
   );
 }
