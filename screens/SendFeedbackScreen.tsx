@@ -5,6 +5,7 @@ import BackButton from '../assets/svg-components/back_button';
 import { menuBarTop } from '../constants/Layout';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
+import { FAB } from "react-native-paper";
 
 const styles = StyleSheet.create({
   container: {
@@ -63,12 +64,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginHorizontal: 20,
   },
-  addImageButton:{
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    elevation: 2,
+  // addImageButton:{
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.5,
+  //   shadowRadius: 2,
+  //   elevation: 2,
+  // },
+  fab: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
   },
   chosenImage:{
     width: 300,
@@ -81,14 +86,10 @@ const styles = StyleSheet.create({
   }
 });
 
-export default function NotificationPreferencesScreen({navigation}) {
+export default function SendFeedbackScreen({navigation}) {
   const [image, setImage] = useState(null);
-
-  const [valueTitle, onTitleChange] = React.useState('');
-  const [valuePrice, onPriceChange] = React.useState('');
-  const [valueDesc, onDescChange] = React.useState('');
   const [selectImage, setSelectImage] = React.useState(false);
-  const [valueTag, onTagChange] = React.useState('');
+  const [feedbackText, setFeedbackText] = useState('');
 
   useEffect(() => {
       (async () => {
@@ -106,6 +107,7 @@ export default function NotificationPreferencesScreen({navigation}) {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
     //   allowsEditing: true,
     //   aspect: [5, 2],
+      base64: true,
       quality: 1,
     });
 
@@ -116,6 +118,27 @@ export default function NotificationPreferencesScreen({navigation}) {
       setSelectImage(true);
     }
   };
+
+  const submitFeedback = async () => {
+    try {
+      console.log(feedbackText)
+      const response = await fetch('https://resell-dev.cornellappdev.com/api/feedback/', {
+        method: 'POST',
+        body: JSON.stringify({
+          description: "I love the app",
+          images: [image],
+          userId: "381527oejf-42b4-4fdd-b074-dfwbejko229" //TODO: replace this with actual userID
+        })
+      });
+      const json = await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleChange = (event) => {
+    setFeedbackText(event);
+  }
 
   return (
       <View style={styles.container}>
@@ -129,7 +152,10 @@ export default function NotificationPreferencesScreen({navigation}) {
               <Text style={styles.titleText}>Send Feedback</Text>
           </View>
           <TouchableOpacity
-              onPress={() => navigation.goBack()}
+              onPress={() => {
+                submitFeedback();
+                navigation.goBack()
+              }}
               style={styles.headerButton}
           >
               <Text style={styles.buttonText}>Submit</Text>
@@ -138,18 +164,19 @@ export default function NotificationPreferencesScreen({navigation}) {
               Thanks for using Resell! We appreciate any feedback to improve
               your experience.
           </Text>
-          <TextInput multiline={true} style={styles.feedbackText} />
+          <TextInput multiline={true} style={styles.feedbackText} onChangeText={handleChange}/>
           <Text style={styles.sectionTitle}>Image Upload</Text>
           <View style={styles.imageUploadWrapper}>
             {!selectImage && (
-              <IconButton
-                  style={styles.addImageButton}
+              <TouchableOpacity style={[styles.chosenImage, {backgroundColor: "#F4F4F4", alignItems: "center"}]} onPress={pickImage}>
+                <FAB
+                  style={styles.fab}
                   icon="plus"
-                  color={Colors.black}
-                  animated={true}
-                  size={30}
-                  onPress={pickImage}
-              />)}
+                  color={"#808080"}
+                  theme={{ colors: { accent: "white" } }}
+                />
+              </TouchableOpacity>
+              )}
               {selectImage && (
                   <TouchableOpacity
                     onPress={pickImage}>
