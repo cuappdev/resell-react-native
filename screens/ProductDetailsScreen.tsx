@@ -160,7 +160,36 @@ export default function ProductDetailsScreen({ route, navigation }) {
       }
     }
   });
-
+  const getPost = async () => {
+    try {
+      let response;
+      if (post.categories) {
+        response = await fetch(
+          "https://resell-dev.cornellappdev.com/api/post/filter/",
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              category: post.categories[0],
+            }),
+          }
+        );
+      } else {
+        response = await fetch(
+          "https://resell-dev.cornellappdev.com/api/post/"
+        );
+      }
+      const json = await response.json();
+      setSimilarItems(json.posts.slice(0, 4));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchIsSaved = async () => {
     try {
       const response = await fetch(
@@ -216,6 +245,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     sellerName: post.user.givenName + " " + post.user.familyName,
     sellerProfile: post.user.photoUrl,
     description: post.description,
+    categories: post.categories,
     similarItems: [],
   };
 

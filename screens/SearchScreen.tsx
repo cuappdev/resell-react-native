@@ -135,6 +135,7 @@ export default function SearchScreen({ navigation, route }) {
             filter={null}
             navigation={navigation}
             fromProfile={false}
+            onRefresh={null}
           />
         )}
         {!isSearchSubmitted && (

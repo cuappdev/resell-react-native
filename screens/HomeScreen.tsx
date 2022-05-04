@@ -20,7 +20,7 @@ import LoadingScreen from "../screens/LoadingScreen";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import PurpleButton from "../components/PurpleButton";
 import ResellLogo from "../assets/svg-components/resell_logo";
-import { METHODS } from "http";
+import { useIsFocused } from "@react-navigation/native";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
@@ -30,6 +30,8 @@ export default function HomeScreen({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const isFocused = useIsFocused();
   useEffect(() => {
     if (count == 0) {
       getPosts();
@@ -75,7 +77,9 @@ export default function HomeScreen({ navigation, route }) {
         "https://resell-dev.cornellappdev.com/api/post"
       );
       const json = await response.json();
-      setPosts(json.posts);
+      if (JSON.stringify(json.posts) != JSON.stringify(posts)) {
+        setPosts(json.posts);
+      }
     } catch (error) {
       console.error(error);
       setFetchFailed(true);
@@ -84,9 +88,48 @@ export default function HomeScreen({ navigation, route }) {
     }
   };
 
+  const getPostsRefresh = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post"
+      );
+      setLoading(true);
+      const json = await response.json();
+      setPosts(json.posts);
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 500); //display loading animation
+    }
+  };
+  const getPostsIngress = async () => {
+    // does not set isLoading to hide data fetch
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post"
+      );
+      const json = await response.json();
+      if (JSON.stringify(json.posts) != JSON.stringify(posts)) {
+        setPosts(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+    }
+  };
+
   useEffect(() => {
     getPosts();
   }, []);
+
+  useEffect(() => {
+    // update posts when home screen is entered again
+    getPostsIngress();
+  }, [isFocused]);
 
   const { showPanel } = route.params;
   const [welcomeState, setWelcomeState] = useState(showPanel);
@@ -124,9 +167,10 @@ export default function HomeScreen({ navigation, route }) {
         <LoadingScreen />
       ) : (
         <ProductList
-          count={null}
+          count={count}
           data={posts}
-          filter={null}
+          filter={FILTER}
+          onRefresh={getPostsRefresh}
           navigation={navigation}
           fromProfile={false}
         />

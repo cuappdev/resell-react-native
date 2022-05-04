@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, FlatList, ScrollView } from "react-native";
+import {
+  SafeAreaView,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  RefreshControl,
+  View,
+} from "react-native";
 import ProductCard from "./ProductCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -10,8 +17,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({ count, filter, data, navigation, fromProfile }) {
+export function ProductList({
+  count,
+  filter,
+  data,
+  navigation,
+  onRefresh,
+  fromProfile,
+}) {
   const [userId, setUserId] = useState("");
+  const [refreshing, setRefreshing] = React.useState(false);
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
@@ -65,38 +80,47 @@ export function ProductList({ count, filter, data, navigation, fromProfile }) {
     j,
     data1 = [],
     data2 = [];
-  for (i = 0, j = data.length; i < j; i += 1) {
-    if (i % 2 == 0) {
-      data1.push(data[i]);
-    } else {
-      data2.push(data[i]);
+  if (data) {
+    for (i = 0, j = data.length; i < j; i += 1) {
+      if (i % 2 == 0) {
+        data1.push(data[i]);
+      } else {
+        data2.push(data[i]);
+      }
     }
   }
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      showsVerticalScrollIndicator={false}
-    >
-      <SafeAreaView style={styles.inner}>
-        <FlatList
-          data={data1}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          scrollEnabled={false}
-          style={{ width: "50%" }}
-        />
-        <FlatList
-          data={data2}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          scrollEnabled={false}
-          style={{ width: "50%" }}
-        />
-      </SafeAreaView>
-    </ScrollView>
+    <SafeAreaView style={styles.inner}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          onRefresh && (
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          )
+        }
+      >
+        <View style={{ display: "flex", flexDirection: "row" }}>
+          <FlatList
+            data={data1}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={false}
+            style={{ width: "50%" }}
+          />
+          <FlatList
+            data={data2}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={false}
+            style={{ width: "50%" }}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
