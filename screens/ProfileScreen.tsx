@@ -94,6 +94,7 @@ export default function ProfileScreen({ navigation }) {
             filter={null}
             fromProfile={true}
             navigation={navigation}
+            onRefresh={null}
           />
         </SafeAreaView>
       </ScrollView>
