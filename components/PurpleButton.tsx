@@ -2,11 +2,18 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
-export default function GreyButton({ text, onPress }) {
+export default function PurpleButton(props) {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={styles.button}>
-        <Text style={styles.buttonText}> {text}</Text>
+    <TouchableOpacity onPress={props.enabled ? props.onPress : undefined}>
+      <View
+        style={[
+          styles.button,
+          props.enabled
+            ? { backgroundColor: "#9E70F6" }
+            : { backgroundColor: "#c8b9fa" },
+        ]}
+      >
+        <Text style={styles.buttonText}> {props.text}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -17,7 +24,6 @@ const styles = StyleSheet.create({
     width: 230,
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#9E70F6",
     padding: "3%",
     borderRadius: 25,
   },
@@ -25,7 +31,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    textTransform: "uppercase",
     fontSize: 16,
     textAlign: "center",
   },

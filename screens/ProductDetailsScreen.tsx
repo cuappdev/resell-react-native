@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import BackButton from "../assets/svg-components/back_button";
 import BookMarkButton from "../assets/svg-components/bookmark_button";
-import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved"
+import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved";
 import ExportButton from "../assets/svg-components/export_button";
 import {
   Item,
@@ -19,23 +19,27 @@ import {
   Platform,
   Image,
   Dimensions,
+  Share,
 } from "react-native";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import GreyButton from "../components/GreyButton";
 import { menuBarTop } from "../constants/Layout";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
-import { pressedOpacity } from "../constants/Values"
+import { pressedOpacity } from "../constants/Values";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Modal from "react-native-modal";
+import PurpleButton from "../components/PurpleButton";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   topBar: {
     height: menuBarTop + 60,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     top: 0,
     zIndex: 10,
   },
@@ -71,6 +75,17 @@ const styles = StyleSheet.create({
     width: 20,
     height: 30,
   },
+  modal: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 200,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+  },
   slideUp: {
     flex: 1,
     borderTopLeftRadius: 40,
@@ -87,64 +102,223 @@ const styles = StyleSheet.create({
   },
   bottomGradient: {
     height: 60,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     bottom: 100,
     zIndex: 10,
-  }
+  },
+  button: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 25,
+    backgroundColor: "#d52300",
+  },
+
+  buttonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "500",
+    textAlign: "center",
+    fontFamily: "Rubik-Regular",
+  },
+  button1: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: "3%",
+    borderRadius: 25,
+  },
+
+  buttonText2: {
+    color: "black",
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "500",
+    fontFamily: "Rubik-Medium",
+  },
 });
 
 export default function ProductDetailsScreen({ route, navigation }) {
-  const { post, showTrash } = route.params;
+  const { post, showTrash, savedInitial } = route.params;
 
   const [maxImgRatio, setMaxImgRatio] = useState(0); // height / width
 
   const [isLoading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(savedInitial);
+  useEffect(() => {
+    getPost();
+  }, []);
+  useEffect(() => {
+    fetchPost();
+  }, [post]);
   const [similarItems, setSimilarItems] = useState([]);
+  const [userId, setUserId] = useState("");
+  const [sellerName, setSellerName] = useState("");
 
+  const [profileImage, setProfileImage] = useState("");
+
+  const [modalVisibility, setModalVisibility] = useState(false);
+
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
   const getPost = async () => {
     try {
       let response;
       if (post.categories) {
-        response = await fetch("https://resell-dev.cornellappdev.com/api/post/filter/", { 
-          method: "POST",
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            category: post.categories[0]
-          })
-        });
+        response = await fetch(
+          "https://resell-dev.cornellappdev.com/api/post/filter/",
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              category: post.categories[0],
+            }),
+          }
+        );
       } else {
-        response = await fetch("https://resell-dev.cornellappdev.com/api/post/");
+        response = await fetch(
+          "https://resell-dev.cornellappdev.com/api/post/"
+        );
       }
       const json = await response.json();
-      setSimilarItems(json.posts.slice(0,4));
+      setSimilarItems(json.posts.slice(0, 4));
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }
-  
-  useEffect(() => {
-    getPost();
-  }, []);
+  };
+
+  const fetchPost = async () => {
+    try {
+      let response;
+      console.log(post.id);
+      response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/id/" + post.id,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const userResult = await response.json();
+      setSellerName(
+        userResult.post.user.givenName + " " + userResult.post.user.familyName
+      );
+      setProfileImage(userResult.post.user.photoUrl);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const item: Item = {
     images: post.images,
     title: post.title,
     price: post.price,
-    sellerName: post.user.givenName + ' ' + post.user.familyName,
-    sellerProfile: post.user.photoUrl,
     description: post.description,
     categories: post.categories,
     similarItems: [],
   };
+  const fetchIsSaved = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
+          userId +
+          "/postId/" +
+          post.id
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setIsSaved(json.isSaved);
+      }
+    } catch (error) {
+      //console.error(error);
+    }
+  };
+  fetchIsSaved();
 
+  const save = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/save/userId/" +
+          userId +
+          "/postId/" +
+          post.id
+      );
+      const json = await response.json();
+      setIsSaved(json.isSaved);
+    } catch (error) {
+      //console.error(error);
+    }
+  };
+
+  const unsave = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/unsave/userId/" +
+          userId +
+          "/postId/" +
+          post.id
+      );
+      const json = await response.json();
+      setIsSaved(json.isSaved);
+    } catch (error) {
+      //console.error(error);
+    }
+  };
+
+  const onShare = async () => {
+    try {
+      //product, differ by device
+      const result = await Share.share({
+        message: "Checkout this ",
+        url: "https://www.cornellappdev.com/courses/android",
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  const [accessToken, setAccessToken] = useState("");
+
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setAccessToken(result);
+      }
+    }
+  });
+  const sPanel = useRef(null);
   useEffect(() => {
-    this._panel.show(Dimensions.get('window').height - Math.min(400, Dimensions.get('window').width * maxImgRatio - 40)); // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
+    sPanel.current.show(
+      Dimensions.get("window").height -
+        Math.min(400, Dimensions.get("window").width * maxImgRatio - 40)
+    );
+    // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
   });
 
   useEffect(() => {
@@ -155,14 +329,36 @@ export default function ProductDetailsScreen({ route, navigation }) {
         }
       });
     }
-  })
+  });
 
-  
+  const deletePost = () => {
+    fetch("https://resell-dev.cornellappdev.com/api/post/id/" + post.id, {
+      method: "DELETE",
+      headers: {
+        Authorization: accessToken,
+
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }).then(function (response) {
+      alert(JSON.stringify(response));
+
+      if (!response.ok) {
+        let error = new Error(response.statusText);
+        throw error;
+      } else {
+        console.log("deleted");
+        setModalVisibility(false);
+        navigation.goBack();
+        return response.json();
+      }
+    });
+  };
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['rgba(0,0,0,0.8)', 'transparent']}
+        colors={["rgba(0,0,0,0.8)", "transparent"]}
         style={styles.topBar}
       />
       <TouchableOpacity
@@ -171,40 +367,110 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <BackButton />
       </TouchableOpacity>
-      {showTrash && <TouchableOpacity
+      {showTrash && (
+        <TouchableOpacity
           activeOpacity={pressedOpacity}
           style={styles.trashButton}
-          onPress={() => {}}
+          onPress={() => {
+            setModalVisibility(true);
+          }}
         >
           <Feather name="trash" size={23} color="white" />
-        </TouchableOpacity>}
-      <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
-        <BookMarkButton />
-        {/* if saved, show the following */}
-        {/* <BookMarkButtonSaved/> */}
+        </TouchableOpacity>
+      )}
+      <TouchableOpacity
+        onPress={() => {
+          isSaved ? unsave() : save();
+        }}
+        style={styles.bookmarkButton}
+      >
+        {isSaved ? <BookMarkButtonSaved /> : <BookMarkButton />}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
+      <TouchableOpacity onPress={() => onShare()} style={styles.exportButton}>
         <ExportButton />
       </TouchableOpacity>
-      <View style={{height: Dimensions.get('window').width * maxImgRatio, width: Dimensions.get('window').width}}>
+      <View
+        style={{
+          height: Dimensions.get("window").width * maxImgRatio,
+          width: Dimensions.get("window").width,
+        }}
+      >
         <Gallery imagePaths={item.images} />
       </View>
       <SlidingUpPanel
-        ref={(c) => (this._panel = c)}
-        draggableRange={{ top: Dimensions.get('window').height - 100, bottom: Dimensions.get('window').height - Math.max(100, Dimensions.get('window').width * maxImgRatio) }} // 100 is used to avoid overlapping with top bar
+        ref={(c) => {
+          sPanel.current = c;
+        }}
+        draggableRange={{
+          top: Dimensions.get("window").height - 100,
+          bottom:
+            Dimensions.get("window").height -
+            Math.max(100, Dimensions.get("window").width * maxImgRatio),
+        }} // 100 is used to avoid overlapping with top bar
       >
         <View style={styles.slideUp}>
-          <DetailPullUpHeader item={item} />
-          <DetailPullUpBody item={item} similarItems={similarItems} navigation={navigation}/>
+          <DetailPullUpHeader
+            item={item}
+            sellerName={sellerName}
+            sellerProfile={profileImage}
+          />
+          <DetailPullUpBody
+            item={item}
+            similarItems={similarItems}
+            navigation={navigation}
+          />
         </View>
       </SlidingUpPanel>
       <View style={styles.greyButton}>
-        <GreyButton text={"Contact Seller"} />
+        <PurpleButton
+          onPress={() => {
+            console.log("here");
+
+            navigation.navigate("ChatWindow", {
+              item: item.title,
+              seller: sellerName,
+            });
+          }}
+          text={"Contact Seller"}
+          enabled={true}
+        />
       </View>
       <LinearGradient
-        colors={['rgba(255, 255, 255, 0)', '#FFFFFF']}
+        colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
         style={styles.bottomGradient}
       />
+      <Modal
+        isVisible={modalVisibility}
+        backdropOpacity={0.2}
+        onBackdropPress={() => {
+          setModalVisibility(false);
+        }}
+        style={{ justifyContent: "flex-end", margin: 0 }}
+      >
+        <View style={styles.modal}>
+          <Text style={[styles.buttonText2, { padding: "3%" }]}>
+            Delete Listing?
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              deletePost();
+            }}
+          >
+            <View style={styles.button}>
+              <Text style={styles.buttonText}> Delete</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisibility(false);
+            }}
+          >
+            <View style={styles.button1}>
+              <Text style={styles.buttonText2}> Cancel</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }

@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
@@ -31,6 +32,9 @@ function Button(props) {
     if (props.title == "Send Availablity") {
       props.setAvailabilityVisible(true);
       props.setIsBubble(false);
+    }
+    if (props.title == "Pay with Venmo") {
+      Linking.openURL("https://venmo.com/signup/");
     }
   };
 

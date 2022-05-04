@@ -8,7 +8,7 @@ export function DetailPullUpHeader({ title, description }) {
     <View style={[styles.container_header, styles.roundCorner]}>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{title}</Text>
-        <ResellLogo />
+        <ResellLogo width={58} height={78} props={undefined} />
         <Text style={styles.details}>{description}</Text>
       </View>
       <View style={styles.paddedRow}></View>
