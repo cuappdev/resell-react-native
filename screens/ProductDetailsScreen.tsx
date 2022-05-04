@@ -341,7 +341,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
         "Content-Type": "application/json",
       },
     }).then(function (response) {
-      alert(JSON.stringify(response));
+      // alert(JSON.stringify(response));
 
       if (!response.ok) {
         let error = new Error(response.statusText);
