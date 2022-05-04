@@ -25,7 +25,7 @@ export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
   const [signedIn, setSignIn] = useState(false);
-  const [onBoard, setOnBoarded] = useState(true);
+  const [onBoard, setOnBoarded] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
 
   //this need to be replaced by redux
@@ -112,15 +112,15 @@ export default function App() {
         setSignIn(true);
         setSignedIn();
         postRequest(result);
-        const { idToken, accessToken } = result;
+        // const { idToken, accessToken } = result;
 
         // provider.addScope(idToken);
         // provider.addScope(accessToken);
-        const user = auth.currentUser;
+        // const user = auth.currentUser;
 
-        if (!user) {
-        }
-        return auth.signInWithCustomToken(idToken);
+        // if (!user) {
+        // }
+        // return auth.signInWithCustomToken(idToken);
       } else {
         console.log("Google SignIn", "FAILURE", result);
       }
