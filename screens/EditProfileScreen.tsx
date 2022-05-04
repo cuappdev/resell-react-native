@@ -86,7 +86,7 @@ export default function EditProfileScreen({ navigation, route }) {
         }
       )
         .then(function (response) {
-          alert(JSON.stringify(response));
+          // alert(JSON.stringify(response));
 
           if (!response.ok) {
             setInvalidName(true);

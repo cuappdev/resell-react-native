@@ -70,7 +70,7 @@ export function NewPostDetail({ navigation, route }) {
       body: Json,
     })
       .then(function (response) {
-        alert(JSON.stringify(response));
+        // alert(JSON.stringify(response));
 
         if (!response.ok) {
           let error = new Error(response.statusText);
