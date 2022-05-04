@@ -10,6 +10,7 @@ export type Item = {
   sellerName: string;
   sellerProfile: string;
   description: string;
+  categories: string[],
   similarItems: number[]
 }
 
@@ -33,7 +34,6 @@ export function DetailPullUpHeader({ item }: { item: Item }) {
 }
 
 export function DetailPullUpBody({ item, similarItems, navigation }: { item: Item, similarItems: any, navigation: any }) {
-  console.log(similarItems);
   return (
     <ScrollView style={styles.pullUpScrollView} >
       <Text style={styles.details}>{item.description}</Text>

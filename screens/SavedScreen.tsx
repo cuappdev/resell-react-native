@@ -63,6 +63,7 @@ export default function SavedScreen({
           filter={null}
           navigation={navigation}
           fromProfile={false}
+          onRefresh={undefined}
         />
       )}
     </View>

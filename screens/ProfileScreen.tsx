@@ -136,20 +136,14 @@ export default function ProfileScreen({ navigation }) {
 
             <Text style={styles.profileBioText}>{bio}</Text>
           </View>
-
-          {isLoading ? (
-            <LoadingScreen />
-          ) : fetchFailed ? (
-            <LoadingScreen />
-          ) : (
-            <ProductList
-              count={null}
-              data={posts}
-              filter={null}
-              navigation={navigation}
-              fromProfile={true}
-            />
-          )}
+          <ProductList
+            count={null}
+            data={posts}
+            filter={null}
+            fromProfile={true}
+            navigation={navigation}
+            onRefresh={null}
+          />
         </SafeAreaView>
       </ScrollView>
       <TouchableOpacity
