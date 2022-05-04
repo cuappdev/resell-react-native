@@ -12,6 +12,7 @@ import { RootTabScreenProps } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function SavedScreen({
   navigation,
@@ -20,6 +21,8 @@ export default function SavedScreen({
   const [posts, setPosts] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
+  const isFocused = useIsFocused();
+
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
       if (result !== null) {
@@ -32,6 +35,29 @@ export default function SavedScreen({
   }, [userId]);
 
   const getPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        console.log(json);
+        setPosts(json.user.saved);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // update posts when home screen is entered again
+    getPostsIngress();
+  }, [isFocused]);
+  const getPostsIngress = async () => {
     try {
       setLoading(true);
       const response = await fetch(
