@@ -20,6 +20,7 @@ export default function SavedScreen({
         data={DATA}
         filter={null}
         navigation={navigation}
+        onRefresh={null} //TODO: might want to implement this
       />
     </View>
   );

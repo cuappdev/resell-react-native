@@ -36,7 +36,6 @@ export default function SearchScreen({ navigation, route }) {
 
   const getPosts = async (keyword) => {
     try {
-      console.log('keyword', keyword)
       setLoading(true)
       const response = await fetch("https://resell-dev.cornellappdev.com/api/post/search/", { 
         method: "GET",
@@ -45,7 +44,6 @@ export default function SearchScreen({ navigation, route }) {
         })
       });
       const json = await response.json();
-      console.log('data', data)
       setData(json.posts);
     } catch (error) {
       console.error(error);
@@ -130,6 +128,7 @@ export default function SearchScreen({ navigation, route }) {
             data={data}
             filter={FILTER}
             navigation={navigation}
+            onRefresh={null}
           />
         )}
         {!isSearchSubmitted && (
