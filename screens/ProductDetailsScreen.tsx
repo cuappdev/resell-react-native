@@ -148,9 +148,18 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const [isLoading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(savedInitial);
-
+  useEffect(() => {
+    getPost();
+  }, []);
+  useEffect(() => {
+    fetchPost();
+  }, [post]);
   const [similarItems, setSimilarItems] = useState([]);
   const [userId, setUserId] = useState("");
+  const [sellerName, setSellerName] = useState("");
+
+  const [profileImage, setProfileImage] = useState("");
+
   const [modalVisibility, setModalVisibility] = useState(false);
 
   AsyncStorage.getItem("userId", (errs, result) => {
@@ -189,6 +198,42 @@ export default function ProductDetailsScreen({ route, navigation }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPost = async () => {
+    try {
+      let response;
+      console.log(post.id);
+      response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/id/" + post.id,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const userResult = await response.json();
+      setSellerName(
+        userResult.post.user.givenName + " " + userResult.post.user.familyName
+      );
+      setProfileImage(userResult.post.user.photoUrl);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const item: Item = {
+    images: post.images,
+    title: post.title,
+    price: post.price,
+    description: post.description,
+    categories: post.categories,
+    similarItems: [],
   };
   const fetchIsSaved = async () => {
     try {
@@ -236,17 +281,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
     } catch (error) {
       //console.error(error);
     }
-  };
-
-  const item: Item = {
-    images: post.images,
-    title: post.title,
-    price: post.price,
-    sellerName: post.user.givenName + " " + post.user.familyName,
-    sellerProfile: post.user.photoUrl,
-    description: post.description,
-    categories: post.categories,
-    similarItems: [],
   };
 
   const onShare = async () => {
@@ -375,7 +409,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
         }} // 100 is used to avoid overlapping with top bar
       >
         <View style={styles.slideUp}>
-          <DetailPullUpHeader item={item} />
+          <DetailPullUpHeader
+            item={item}
+            sellerName={sellerName}
+            sellerProfile={profileImage}
+          />
           <DetailPullUpBody
             item={item}
             similarItems={similarItems}
@@ -390,7 +428,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
             navigation.navigate("ChatWindow", {
               item: item.title,
-              seller: item.sellerName,
+              seller: sellerName,
             });
           }}
           text={"Contact Seller"}
