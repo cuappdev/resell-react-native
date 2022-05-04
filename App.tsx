@@ -29,16 +29,16 @@ export default function App() {
   const [showPagination, setShowPagination] = useState(true);
 
   //this need to be replaced by redux
-  AsyncStorage.getItem("SignedIn", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result == "true") {
-        setSignIn(true);
-      } else if (result !== null && result == "false") {
-        //!=null is ok because if result ==null, signIn is going to be default false anyway
-        setSignIn(false);
-      }
-    }
-  });
+  // AsyncStorage.getItem("SignedIn", (errs, result) => {
+  //   if (!errs) {
+  //     if (result !== null && result == "true") {
+  //       setSignIn(true);
+  //     } else if (result !== null && result == "false") {
+  //       //!=null is ok because if result ==null, signIn is going to be default false anyway
+  //       setSignIn(false);
+  //     }
+  //   }
+  // });
   AsyncStorage.getItem("Onboarded", (errs, result) => {
     if (!errs) {
       if (result !== null) {
