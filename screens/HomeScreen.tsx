@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Text, Image} from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, Text, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import Modal from "react-native-modal";
@@ -31,12 +31,51 @@ export default function HomeScreen({ navigation, route }) {
   const [fetchFailed, setFetchFailed] = useState(false);
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = React.useState(false);
-  const isFocused = useIsFocused(); // used for fetching when returning to home from a different screen
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (count == 0) {
+      getPosts();
+    } else {
+      filterPost(FILTER[count].title);
+    }
+  }, [count]);
+  const filterPost = async (keyword) => {
+    const Json = JSON.stringify({
+      category: keyword,
+    });
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/filter/",
+
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: Json,
+        }
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setPosts(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getPosts = async () => {
     try {
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
-      setLoading(true)
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post"
+      );
       const json = await response.json();
       if (JSON.stringify(json.posts) != JSON.stringify(posts)) {
         setPosts(json.posts);
@@ -47,12 +86,14 @@ export default function HomeScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const getPostsRefresh = async () => {
     try {
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
-      setLoading(true)
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post"
+      );
+      setLoading(true);
       const json = await response.json();
       setPosts(json.posts);
     } catch (error) {
@@ -61,13 +102,15 @@ export default function HomeScreen({ navigation, route }) {
     } finally {
       setTimeout(() => {
         setLoading(false);
-      }, 500) //display loading animation
+      }, 500); //display loading animation
     }
-  }
+  };
   const getPostsIngress = async () => {
     // does not set isLoading to hide data fetch
     try {
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post"
+      );
       const json = await response.json();
       if (JSON.stringify(json.posts) != JSON.stringify(posts)) {
         setPosts(json.posts);
@@ -77,12 +120,12 @@ export default function HomeScreen({ navigation, route }) {
       setFetchFailed(true);
     } finally {
     }
-  }
-  
+  };
+
   useEffect(() => {
     getPosts();
   }, []);
-  
+
   useEffect(() => {
     // update posts when home screen is entered again
     getPostsIngress();
@@ -94,7 +137,9 @@ export default function HomeScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
-        <Header style={styles.resellLogo} />
+        <View style={styles.resellLogo}>
+          <Header />
+        </View>
 
         <TouchableOpacity
           activeOpacity={pressedOpacity}
@@ -116,26 +161,21 @@ export default function HomeScreen({ navigation, route }) {
 
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
 
-      {isLoading ? <LoadingScreen/> : 
-        (fetchFailed ? 
-          <LoadingScreen/> :
-          <ProductList
-            count={count}
-            data={posts}
-            filter={FILTER}
-            onRefresh={getPostsRefresh}
-            navigation={navigation}
-          />
-        )
-      }
+      {isLoading ? (
+        <LoadingScreen />
+      ) : fetchFailed ? (
+        <LoadingScreen />
+      ) : (
+        <ProductList
+          count={count}
+          data={posts}
+          filter={FILTER}
+          onRefresh={getPostsRefresh}
+          navigation={navigation}
+          fromProfile={false}
+        />
+      )}
 
-      <FAB
-        style={styles.fab}
-        icon="plus"
-        onPress={() => navigation.navigate("NewPostImage")}
-        color={"#808080"}
-        theme={{ colors: { accent: "white" } }}
-      />
       {showPanel && (
         <Modal
           isVisible={welcomeState}
@@ -156,8 +196,8 @@ export default function HomeScreen({ navigation, route }) {
                 text={"Get Started"}
                 onPress={() => {
                   setWelcomeState(false);
-                  navigation.navigate("Root");
                 }}
+                enabled={true}
               />
             </View>
           </View>
@@ -171,6 +211,7 @@ const styles = StyleSheet.create({
   outer: {
     backgroundColor: "#FFFFFF",
     flex: 1,
+    paddingBottom: 80,
   },
   fab: {
     position: "absolute",

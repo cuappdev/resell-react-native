@@ -1,47 +1,60 @@
-import React, { useEffect, useRef, useState } from "react";
-import Modal from "react-native-modal";
+import React, { useRef, useState } from "react";
 
 import {
   StyleSheet,
   Text,
   Pressable,
   View,
-  Image,
-  Alert,
   TouchableOpacity,
-  ImageBackground,
   Dimensions,
-  Platform,
-  ListRenderItem,
-  StatusBar,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 import * as ImagePicker from "expo-image-picker";
 
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
-import Carousel, {
-  Pagination,
-  ParallaxImage,
-} from "react-native-snap-carousel";
-import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
+import Carousel, { ParallaxImage } from "react-native-snap-carousel";
+import { ImageEditor } from "expo-image-editor";
 
+import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 export function NewPostImage({ navigation }) {
   const [image, setImage] = useState([]);
+  const [uri, setUri] = useState("");
+  const [modalVisibility, setModalVisibility] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
   const _carousel = useRef(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-
     if (!result.cancelled) {
-      setImage([...image.slice(0, -1), result.uri, ""]);
+      console.log(result);
+      setUri(result["uri"]);
+      setModalVisibility(true);
+    }
+  };
+  const saveandcompress = async (uri) => {
+    const manipResult = await manipulateAsync(uri, [], {
+      compress: 0.5,
+      format: SaveFormat.JPEG,
+      base64: true,
+    });
+    setUri("");
+    if (image.length < 7) {
+      setImage([
+        ...image.slice(0, -1),
+        "data:image/jpeg;base64," + manipResult["base64"],
+        "",
+      ]);
+    } else {
+      setImage([
+        ...image.slice(0, -1),
+        "data:image/jpeg;base64," + manipResult["base64"],
+      ]);
     }
   };
   function _renderItem({ item, index }, parallaxProps) {
@@ -119,6 +132,24 @@ export function NewPostImage({ navigation }) {
           </Text>
         </View>
       )}
+      {uri != "" && (
+        <ImageEditor
+          visible={modalVisibility}
+          onCloseEditor={() => {
+            setModalVisibility(false);
+            setUri("");
+          }}
+          imageUri={uri}
+          minimumCropDimensions={{
+            width: 100,
+            height: 100,
+          }}
+          onEditingComplete={(result) => {
+            saveandcompress(result.uri);
+          }}
+          mode="full"
+        />
+      )}
       <View style={{ height: screenWidth - 60 }}>
         <Carousel
           ref={(c) => {
@@ -134,6 +165,7 @@ export function NewPostImage({ navigation }) {
           onSnapToItem={(index) => setActiveSlide(index)}
         />
       </View>
+
       <View
         style={{
           width: "100%",
@@ -172,6 +204,7 @@ export function NewPostImage({ navigation }) {
           ]}
         />
       </View>
+
       <View
         style={{
           alignItems: "center",
@@ -184,7 +217,11 @@ export function NewPostImage({ navigation }) {
           <Pressable
             style={[styles.buttonContinue]}
             onPress={() => {
-              navigation.navigate("NewPostDetail");
+              navigation.navigate("NewPostDetail", {
+                image: image.filter((item) => {
+                  return item != "";
+                }),
+              });
             }}
           >
             <Text style={styles.textStyle}>Continue</Text>

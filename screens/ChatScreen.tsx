@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   StyleSheet,
   Text,
@@ -9,7 +8,25 @@ import {
 } from "react-native";
 import { LogBox } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useState } from "react";
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+} from "react";
+import { GiftedChat } from "react-native-gifted-chat";
+// import {
+//   collection,
+//   addDoc,
+//   orderBy,
+//   query,
+//   onSnapshot,
+// } from "firebase/firestore";
+
+// import { auth, database } from "../config/firebase";
+// import { firestore } from "../config/firebase";
+
+// const userCollection = firestore.collection("users");
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
@@ -19,13 +36,15 @@ export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
   var temptPuchrase = 0;
   var temptOrder = 0;
+  const [data, setData] = useState([]);
+  const [data2, setData2] = useState([]);
 
-  DATA1.forEach((element) => {
+  data.forEach((element) => {
     if (!element.viewed) {
       temptPuchrase = temptPuchrase + 1;
     }
   });
-  DATA2.forEach((element) => {
+  data2.forEach((element) => {
     if (!element.viewed) {
       temptOrder = temptOrder + 1;
     }
@@ -45,7 +64,10 @@ export default function ChatScreen({ navigation }) {
       <TouchableOpacity
         onPress={() => {
           //Changed viewed of data here.
-          navigation.navigate("ChatWindow");
+          navigation.navigate("ChatWindow", {
+            item: item.title,
+            seller: item.sellerName,
+          });
         }}
       >
         <View style={styles.outer}>
@@ -78,21 +100,21 @@ export default function ChatScreen({ navigation }) {
         purchaseUnread={purchaseUnread}
         offerUnread={offerUnread}
       />
-      {DATA1.length != 0 && isPurchase && (
+      {data.length != 0 && isPurchase && (
         <FlatList
-          data={DATA1}
+          data={data}
           renderItem={renderItem}
           keyboardShouldPersistTaps="always"
         />
       )}
-      {DATA2.length != 0 && !isPurchase && (
+      {data2.length != 0 && !isPurchase && (
         <FlatList
-          data={DATA2}
+          data={data2}
           renderItem={renderItem}
           keyboardShouldPersistTaps="always"
         />
       )}
-      {DATA1.length == 0 && isPurchase && (
+      {data.length == 0 && isPurchase && (
         <View style={styles.noResultView}>
           <Text style={styles.noResultHeader}>
             No messages with sellers yet
@@ -102,7 +124,7 @@ export default function ChatScreen({ navigation }) {
           </Text>
         </View>
       )}
-      {DATA2.length == 0 && !isPurchase && (
+      {data2.length == 0 && !isPurchase && (
         <View style={styles.noResultView}>
           <Text style={styles.noResultHeader}>No messages with buyers yet</Text>
           <Text style={styles.noResultSubHeader}>
@@ -168,68 +190,3 @@ const styles = StyleSheet.create({
     width: "80%",
   },
 });
-const DATA2 = [];
-
-const DATA1 = [
-  {
-    sellerName: "Lia Sophie",
-    items: [
-      "Nike Air Force - Size 9.5",
-      "Milk and Honey Paperback",
-      "Brown Rotating Chair",
-    ],
-    recentItem: {
-      id: 1,
-      title: "Nike Air Force - Size 9.5",
-      image: require("../assets/images/item2.png"),
-      price: "$90.00",
-      category: "Clothes",
-    },
-
-    image: require("../assets/images/item2.png"),
-    recentMessage: "wqqqqqqqqqqqqq",
-    recentSender: 1,
-    viewed: false,
-  },
-
-  {
-    sellerName: "Lia Sophie",
-    items: [
-      "Nike Air Force - Size 9.5",
-      "Milk and Honey Paperback",
-      "Brown Rotating Chair",
-    ],
-    recentItem: {
-      id: 1,
-      title: "Nike Air Force - Size 9.5",
-      image: require("../assets/images/item2.png"),
-      price: "$90.00",
-      category: "Clothes",
-    },
-
-    image: require("../assets/images/item2.png"),
-    recentMessage: "wqqqqqqqqqqqqq",
-    recentSender: 1,
-    viewed: true,
-  },
-  {
-    sellerName: "Lia Sophie",
-    items: [
-      "Nike Air Force - Size 9.5",
-      "Milk and Honey Paperback",
-      "Brown Rotating Chair",
-    ],
-    recentItem: {
-      id: 1,
-      title: "Nike Air Force - Size 9.5",
-      image: require("../assets/images/item2.png"),
-      price: "$90.00",
-      category: "Clothes",
-    },
-
-    image: require("../assets/images/item2.png"),
-    recentMessage: "wqqqqqqqqqqqqq",
-    recentSender: 1,
-    viewed: false,
-  },
-];

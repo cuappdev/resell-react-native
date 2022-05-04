@@ -1,10 +1,10 @@
-import * as React from "react"
-import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg"
-function ResellLogo(props) {
+import * as React from "react";
+import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
+function ResellLogo({ props, height, width }) {
   return (
     <Svg
-      width={58}
-      height={78}
+      width={height}
+      height={width}
       viewBox="0 0 58 78"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -48,10 +48,6 @@ function ResellLogo(props) {
         </LinearGradient>
       </Defs>
     </Svg>
-  )
+  );
 }
-export default ResellLogo
-
-
-
-
+export default ResellLogo;
