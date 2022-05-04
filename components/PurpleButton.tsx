@@ -2,7 +2,7 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
-export default function GreyButton(props) {
+export default function PurpleButton(props) {
   return (
     <TouchableOpacity onPress={props.enabled ? props.onPress : undefined}>
       <View
@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    textTransform: "uppercase",
     fontSize: 16,
     textAlign: "center",
   },

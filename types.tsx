@@ -45,6 +45,7 @@ export type ProfileStackParamList = {
   Settings: undefined;
   NotificationPreferences: undefined;
   SendFeedback: undefined;
+  EditProfile: undefined;
 };
 
 export type OnboardStackParamList = {

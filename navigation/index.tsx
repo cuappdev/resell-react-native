@@ -68,6 +68,8 @@ import OnBoardScreen from "../screens/OnBoardScreen";
 import ChatWindow from "../screens/ChatWindow";
 import { NewPostImage } from "../screens/NewPostImage";
 import { NewPostDetail } from "../screens/NewPostDetail";
+import Edit from "../assets/svg-components/edit";
+import EditProfileScreen from "../screens/EditProfileScreen";
 
 export default function Navigation({
   colorScheme,
@@ -129,6 +131,7 @@ function RootNavigator({ onboard }) {
       />
       <Stack.Group>
         <Stack.Screen name="Modal" component={ModalScreen} />
+
         <Stack.Screen
           name="NewPostImage"
           options={({ navigation }) => ({
@@ -221,7 +224,7 @@ function RootNavigator({ onboard }) {
             headerTitle: "",
             headerTransparent: true,
           }}
-      />
+        />
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: "card" }}>
         <Stack.Screen
@@ -305,6 +308,13 @@ function ProfileNavigator({ navigation }) {
       <ProfileStack.Screen
         name="SendFeedback"
         component={SendFeedbackScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileStack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
         options={{
           headerShown: false,
         }}
@@ -459,14 +469,14 @@ export function BottomTabNavigator({ route }) {
           tabBarShowLabel: false,
           headerStyle: styles.headerNoShadow,
           headerLeft: () => <Text style={styles.savedHeader}>Saved</Text>,
-          headerRight: () => (
-            <TouchableOpacity
-              activeOpacity={pressedOpacity}
-              style={{ marginRight: 20 }}
-            >
-              <HeaderIcon name="search" color="black" size={24} />
-            </TouchableOpacity>
-          ),
+          // headerRight: () => (
+          //   <TouchableOpacity
+          //     activeOpacity={pressedOpacity}
+          //     style={{ marginRight: 20 }}
+          //   >
+          //     <HeaderIcon name="search" color="black" size={24} />
+          //   </TouchableOpacity>
+          // ),
         })}
       />
       <BottomTab.Screen

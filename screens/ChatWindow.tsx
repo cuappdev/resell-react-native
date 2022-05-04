@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
+  KeyboardAvoidingView,
 } from "react-native";
 import { View } from "../components/Themed";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
@@ -23,18 +24,29 @@ import { AvailabilityModal } from "../components/AvailabilityMatch";
 import { AvailabilityBubble } from "../components/AvailabilityBubble";
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
+import { ImageEditor } from "expo-image-editor";
+
 import * as ImagePicker from "expo-image-picker";
 import { pressedOpacity } from "../constants/Values";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+// import {
+//   collection,
+//   addDoc,
+//   orderBy,
+//   query,
+//   onSnapshot,
+// } from "firebase/firestore";
 
-export default function ChatWindow({ navigation }) {
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const onKeyboardShow = (event) =>
-    setKeyboardOffset(event.endCoordinates.height);
-  const onKeyboardHide = () => setKeyboardOffset(0);
-  const keyboardDidShowListener = useRef(null);
-  const keyboardDidHideListener = useRef(null);
+// import { auth, database } from "../config/firebase";
+// import { firestore } from "../config/firebase";
+
+// const userCollection = firestore.collection("users");
+
+export default function ChatWindow({ navigation, route }) {
+  const { item, seller } = route.params;
   const [text, setText] = useState("");
   const [height, setHeight] = useState(0);
+  const [modalVisibility, setModalVisibility] = useState(false);
 
   const yourRef = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,60 +55,44 @@ export default function ChatWindow({ navigation }) {
   const [scheduleCallback, setScheduleCallback] = useState([]);
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    keyboardDidShowListener.current = Keyboard.addListener(
-      "keyboardWillShow",
-      onKeyboardShow
-    );
-    keyboardDidHideListener.current = Keyboard.addListener(
-      "keyboardWillHide",
-      onKeyboardHide
-    );
-
-    return () => {
-      keyboardDidShowListener.current.remove();
-      keyboardDidHideListener.current.remove();
-    };
-  }, []);
+  const [uri, setUri] = useState("");
 
   const [messages, setMessages] = React.useState([]);
   useEffect(() => {
     setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "Hello developer",
-
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "",
-        avaliability_id: 4,
-        image: "",
-        productName: "",
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
+      // {
+      //   _id: 1,
+      //   text: "Hello developer",
+      //   createdAt: new Date(),
+      //   user: {
+      //     _id: 2,
+      //     name: "React Native",
+      //     avatar: "https://placeimg.com/140/140/any",
+      //   },
+      // },
+      // {
+      //   _id: 2,
+      //   text: "Hello developer",
+      //   createdAt: new Date(),
+      //   user: {
+      //     _id: 1,
+      //     name: "React Native",
+      //     avatar: "https://placeimg.com/140/140/any",
+      //   },
+      // },
+      // {
+      //   _id: 2,
+      //   text: "",
+      //   avaliability_id: 4,
+      //   image: "",
+      //   productName: "",
+      //   createdAt: new Date(),
+      //   user: {
+      //     _id: 1,
+      //     name: "React Native",
+      //     avatar: "https://placeimg.com/140/140/any",
+      //   },
+      // },
     ]);
   }, []);
   const onSend = (newMessages = []) =>
@@ -176,19 +172,68 @@ export default function ChatWindow({ navigation }) {
 
   const [image, setImage] = useState(null);
 
-  const pickImage = async (props) => {
+  const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-
     if (!result.cancelled) {
-      setImage(result.uri);
-      props.onSend({ image: result.uri }, true);
+      console.log(result);
+      setUri(result["uri"]);
+      setModalVisibility(true);
     }
   };
+  const saveandcompress = async (uri) => {
+    const manipResult = await manipulateAsync(uri, [], {
+      compress: 0.5,
+      format: SaveFormat.JPEG,
+      base64: true,
+    });
+    setUri("");
+    if (image.length < 7) {
+      setImage([
+        ...image.slice(0, -1),
+        "data:image/jpeg;base64," + manipResult["base64"],
+        "",
+      ]);
+    } else {
+      setImage([
+        ...image.slice(0, -1),
+        "data:image/jpeg;base64," + manipResult["base64"],
+      ]);
+    }
+  };
+
+  // useEffect(() => {
+  //   const collectionRef = collection(database, "chats");
+  //   const q = query(collectionRef, orderBy("createdAt", "desc"));
+
+  //   const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  //     setMessages(
+  //       querySnapshot.docs.map((doc) => ({
+  //         _id: doc.data()._id,
+  //         createdAt: doc.data().createdAt.toDate(),
+  //         text: doc.data().text,
+  //         user: doc.data().user,
+  //       }))
+  //     );
+  //   });
+
+  //   return () => unsubscribe();
+  // }, []);
+
+  // const onSend = useCallback((messages = []) => {
+  //   setMessages((previousMessages) =>
+  //     GiftedChat.append(previousMessages, messages)
+  //   );
+  //   const { _id, createdAt, text, user } = messages[0];
+  //   addDoc(collection(database, "chats"), {
+  //     _id,
+  //     createdAt,
+  //     text,
+  //     user,
+  //   });
+  // }, []);
   function renderInputToolbar(props) {
     return (
       <SafeAreaView style={styles.filter}>
@@ -211,7 +256,7 @@ export default function ChatWindow({ navigation }) {
               marginTop: "auto",
               marginBottom: 20,
             }}
-            onPress={() => pickImage(props)}
+            onPress={() => pickImage()}
           >
             <AntDesign name="picture" size={25} color="#707070" />
           </TouchableOpacity>
@@ -235,9 +280,7 @@ export default function ChatWindow({ navigation }) {
                 style={[
                   {
                     width: "85%",
-                    paddingTop: 10,
-                    paddingLeft: 10,
-                    paddingBottom: 10,
+                    paddingHorizontal: 10,
                     fontSize: 18,
                     color: "#000000",
                   },
@@ -283,8 +326,11 @@ export default function ChatWindow({ navigation }) {
                   marginLeft: "auto",
                   marginTop: "auto",
                   marginBottom: 10,
+                  zIndex: 10,
                 }}
                 onPress={() => {
+                  setHeight(38);
+
                   if (text.length > 0 && text.trim().length > 0) {
                     props.onSend({ text: text }, true);
                     setText("");
@@ -343,7 +389,6 @@ export default function ChatWindow({ navigation }) {
         backgroundColor: "#FFFFFF",
         height: "100%",
         padding: 0,
-        paddingBottom: 60 + Math.min(Math.max(50, height + 25), 140),
       }}
     >
       <View
@@ -376,10 +421,29 @@ export default function ChatWindow({ navigation }) {
             justifyContent: "center",
           }}
         >
-          <Text style={styles.chatHeader}>Blue Pants</Text>
-          <Text style={styles.chatSubheader}>shop by lia</Text>
+          <Text style={styles.chatHeader}>{item}</Text>
+          <Text style={styles.chatSubheader}>{seller}</Text>
         </View>
       </View>
+      {uri != "" && (
+        <ImageEditor
+          visible={modalVisibility}
+          onCloseEditor={() => {
+            setModalVisibility(false);
+            setUri("");
+          }}
+          imageUri={uri}
+          minimumCropDimensions={{
+            width: 100,
+            height: 100,
+          }}
+          onEditingComplete={(result) => {
+            saveandcompress(result.uri);
+          }}
+          mode="full"
+        />
+      )}
+      <View />
 
       <GiftedChat
         {...{ messages, onSend }}
@@ -393,7 +457,7 @@ export default function ChatWindow({ navigation }) {
         ref={yourRef}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        bottomOffset={10}
+        minInputToolbarHeight={100 + Math.min(Math.max(50, height + 25), 140)}
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
@@ -404,6 +468,7 @@ export default function ChatWindow({ navigation }) {
 const styles = StyleSheet.create({
   filter: {
     opacity: 3,
+    justifyContent: "flex-start",
   },
   input: {
     width: "85%",

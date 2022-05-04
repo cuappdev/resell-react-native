@@ -4,10 +4,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { View } from "../components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FILTER } from "../data/filter";
-import { DATA } from "../data/product";
 import { ProductList } from "../components/ProductList";
 
 import HistoryList from "../components/HistoryList";
@@ -23,7 +22,7 @@ export default function SearchScreen({ navigation, route }) {
   const [searchHistory, setSearchHistory] = useState(history);
 
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
-  const [data, setData] = useState(DATA);
+  const [data, setData] = useState([]);
   const [noResult, setNoResult] = useState(false);
 
   const backtoHome = () => {
@@ -32,28 +31,33 @@ export default function SearchScreen({ navigation, route }) {
 
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
-  const [posts, setPosts] = useState([]);
 
   const getPosts = async (keyword) => {
     try {
-      console.log('keyword', keyword)
-      setLoading(true)
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post/search/", { 
-        method: "GET",
-        body: JSON.stringify({ 
-          keyword: keyword
-        })
-      });
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/search/",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            keywords: keyword,
+          }),
+        }
+      );
       const json = await response.json();
-      console.log('data', data)
+      // console.log("json", json);
       setData(json.posts);
     } catch (error) {
-      console.error(error);
+      //console.error(error);
       setFetchFailed(true);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const searchSubmit = async (text) => {
     setIsSearchSubmitted(true);
@@ -67,13 +71,14 @@ export default function SearchScreen({ navigation, route }) {
     setSearchHistory(tempt);
     setHistory(JSON.stringify(tempt));
     getPosts(text);
-
-    if (data || data.length == 0) {
+  };
+  useEffect(() => {
+    if (!data || data.length == 0) {
       setNoResult(true);
     } else {
       setNoResult(false);
     }
-  };
+  }, [data]);
   const setHistory = async (history) => {
     try {
       await AsyncStorage.setItem("history", history);
@@ -81,7 +86,7 @@ export default function SearchScreen({ navigation, route }) {
       console.log(e);
     }
   };
-
+  console.log("data", data);
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
@@ -98,7 +103,6 @@ export default function SearchScreen({ navigation, route }) {
                 onChangeText={(text) => {
                   setIsSearchSubmitted(false);
                   setSearchKeyword(text);
-                  setData(DATA);
                 }}
                 onSubmitEditing={(event) => {
                   var tempt = event.nativeEvent.text;
@@ -128,8 +132,9 @@ export default function SearchScreen({ navigation, route }) {
           <ProductList
             count={null}
             data={data}
-            filter={FILTER}
+            filter={null}
             navigation={navigation}
+            fromProfile={false}
           />
         )}
         {!isSearchSubmitted && (
@@ -147,6 +152,7 @@ const styles = StyleSheet.create({
   outer: {
     backgroundColor: "#FFFFFF",
     flex: 1,
+    paddingBottom: 120,
   },
 
   header: {

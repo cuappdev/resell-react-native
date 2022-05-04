@@ -30,6 +30,9 @@ import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import ButtonBanner from "../components/ButtonBanner";
 import { FILTER1 } from "../data/filter";
 import { NegotiationModal } from "../components/NegotiationModal";
+import { json } from "stream/consumers";
+import PurpleButton from "../components/PurpleButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function NewPostDetail({ navigation, route }) {
   const { image } = route.params;
@@ -38,28 +41,36 @@ export function NewPostDetail({ navigation, route }) {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [userId, setUserId] = useState("");
+
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
   const postRequest = () => {
-    //console.log(image);
+    console.log(image.length);
     const Json = JSON.stringify({
       title: title,
       description: description,
-      categories: FILTER1[count].title,
+      categories: [FILTER1[count].title],
       price: parseInt(price.substring(1)),
-      images_base64: image,
-      userId: "061918bb-25aa-4b1f-8acb-aa9298e065aa",
+      imagesBase64: image,
+      userId: userId,
     });
-    //alert(Json);
+    console.log(Json);
     fetch("https://resell-dev.cornellappdev.com/api/post/", {
+      method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      method: "POST",
       body: Json,
     })
       .then(function (response) {
-        // Here I added the alert
-        console.log(JSON.stringify(response));
+        alert(JSON.stringify(response));
 
         if (!response.ok) {
           let error = new Error(response.statusText);
@@ -69,11 +80,10 @@ export function NewPostDetail({ navigation, route }) {
         }
       })
       .then(async function (data) {
-        // Here I added the alert
-        // alert(JSON.stringify(data));
+        // console.log(data);
       })
       .catch((error) => {
-        alert(error.message);
+        //alert(error.message);
       });
   };
 
@@ -181,15 +191,16 @@ export function NewPostDetail({ navigation, route }) {
           bottom: "5%",
         }}
       >
-        <Pressable
-          style={[styles.buttonContinue]}
+        <PurpleButton
+          text={"Continue"}
           onPress={() => {
             navigation.navigate("Root");
             postRequest();
           }}
-        >
-          <Text style={styles.textStyle}>Continue</Text>
-        </Pressable>
+          enabled={
+            description.length > 0 && title.length > 0 && price.length > 1
+          }
+        />
       </KeyboardAvoidingView>
     </View>
   );

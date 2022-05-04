@@ -4,11 +4,59 @@ import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
 import { menuBarTop } from "../constants/Layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
 
-export default function LinkVenmoScreen({ navigation }) {
+export default function LinkVenmoScreen({ navigation, route }) {
+  const { image, username, bio } = route.params;
+  const [venmo, setVenmo] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setAccessToken(result);
+      }
+    }
+  });
   const setOnboarded = async () => {
+    console.log(image);
     try {
       await AsyncStorage.setItem("Onboarded", "true");
+      const Json = JSON.stringify({
+        photoUrlBase64: image,
+        username: username,
+        venmoHandle: venmo,
+        bio: bio,
+      });
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: accessToken,
+
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: Json,
+        }
+      )
+        .then(function (response) {
+          alert(JSON.stringify(response));
+
+          if (!response.ok) {
+            let error = new Error(response.statusText);
+            throw error;
+          } else {
+            return response.json();
+          }
+        })
+        .then(async function (data) {
+          // console.log(data);
+        })
+        .catch((error) => {
+          //alert(error.message);
+        });
     } catch (e) {
       console.log(e);
     }
@@ -25,6 +73,8 @@ export default function LinkVenmoScreen({ navigation }) {
         <TextInput
           style={styles.username_input}
           placeholderTextColor={"#707070"}
+          value={venmo}
+          onChangeText={(text) => setVenmo(text)}
         />
       </View>
 
@@ -49,6 +99,7 @@ export default function LinkVenmoScreen({ navigation }) {
               screen: "HomeTab",
               params: { showPanel: true },
             });
+            setVenmo("");
             setOnboarded();
           }}
         />
@@ -95,6 +146,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 10,
     height: 40,
+    paddingHorizontal: 10,
   },
   bio: {
     marginTop: 30,

@@ -9,8 +9,8 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 const windowHeight = Dimensions.get("window").height;
 import { Platform, NativeModules } from "react-native";
 const { StatusBarManager } = NativeModules;
-
-const modalHeight = windowHeight - 212;
+const modalHeight =
+  Platform.OS === "ios" ? windowHeight - 212 - 35 : windowHeight - 212;
 export function NegotiationModal({
   modalVisible,
   setModalVisible,
@@ -32,7 +32,12 @@ export function NegotiationModal({
       }}
       style={{ margin: 0, justifyContent: "flex-end" }}
     >
-      <View style={styles.centeredView}>
+      <View
+        style={[
+          styles.centeredView,
+          screen === "NewPost" ? { height: modalHeight } : { height: "100%" },
+        ]}
+      >
         {screen === "Chat" && (
           <View
             style={{
@@ -93,7 +98,6 @@ const styles = StyleSheet.create({
   centeredView: {
     flexDirection: "column",
     width: "100%",
-    height: modalHeight,
   },
   modalView: {
     flex: 1,
