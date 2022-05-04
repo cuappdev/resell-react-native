@@ -22,9 +22,11 @@ import { setBio, setName } from "../state_manage/actions/profileScreenActions";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "./LoadingScreen";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function ProfileScreen({ navigation }) {
   const dispatch = useDispatch();
+  const isFocused = useIsFocused();
 
   const changeName = (name: string) => dispatch(setName(name));
   const changeBio = (bio: string) => dispatch(setBio(bio));
@@ -74,7 +76,51 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    // update posts when home screen is entered again
+    getUserIngress();
+  }, [isFocused]);
+  useEffect(() => {
+    // update posts when home screen is entered again
+    getPostsIngress();
+  }, [isFocused]);
+  const getUserIngress = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        const user = json.user;
+        setRealname(user.givenName + " " + user.familyName);
+        setUsername(user.username);
+        setBio(user.bio);
+        setImage(user.photoUrl);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        console.log(json);
+        setPosts(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getPostsIngress = async () => {
     try {
       setLoading(true);
       const response = await fetch(
