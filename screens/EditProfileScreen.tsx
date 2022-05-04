@@ -20,6 +20,7 @@ import { pressedOpacity } from "../constants/Values";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { json } from "stream/consumers";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -65,13 +66,13 @@ export default function EditProfileScreen({ navigation, route }) {
 
   const submit = async () => {
     try {
-      await AsyncStorage.setItem("Onboarded", "true");
       const Json = JSON.stringify({
-        photoUrlBase64: image,
+        photoUrlBase64: "",
         username: username,
         venmoHandle: venmo,
         bio: bio,
       });
+      // console.log(Json);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/user/",
         {
@@ -86,14 +87,10 @@ export default function EditProfileScreen({ navigation, route }) {
         }
       )
         .then(function (response) {
-          // alert(JSON.stringify(response));
-
-          if (!response.ok) {
-            setInvalidName(true);
-          } else {
-            navigation.goBack();
-            return response.json();
-          }
+          alert(JSON.stringify(response));
+          console.log(response);
+          navigation.goBack();
+          return response.json();
         })
         .then(async function (data) {
           // console.log(data);
