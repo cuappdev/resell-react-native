@@ -66,12 +66,23 @@ export default function EditProfileScreen({ navigation, route }) {
 
   const submit = async () => {
     try {
-      const Json = JSON.stringify({
-        photoUrlBase64: "",
-        username: username,
-        venmoHandle: venmo,
-        bio: bio,
-      });
+      var Json;
+      if (image.startsWith("https")) {
+        Json = JSON.stringify({
+          photoUrlBase64: "",
+          username: username,
+          venmoHandle: venmo,
+          bio: bio,
+        });
+      } else {
+        Json = JSON.stringify({
+          photoUrlBase64: image,
+          username: username,
+          venmoHandle: venmo,
+          bio: bio,
+        });
+      }
+
       // console.log(Json);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/user/",
@@ -87,7 +98,7 @@ export default function EditProfileScreen({ navigation, route }) {
         }
       )
         .then(function (response) {
-          alert(JSON.stringify(response));
+          // alert(JSON.stringify(response));
           console.log(response);
           navigation.goBack();
           return response.json();
