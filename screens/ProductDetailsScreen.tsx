@@ -19,6 +19,7 @@ import {
   Platform,
   Image,
   Dimensions,
+  Share,
 } from "react-native";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import GreyButton from "../components/GreyButton";
@@ -26,6 +27,9 @@ import { menuBarTop } from "../constants/Layout";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Modal from "react-native-modal";
+import PurpleButton from "../components/PurpleButton";
 
 const styles = StyleSheet.create({
   container: {
@@ -71,6 +75,17 @@ const styles = StyleSheet.create({
     width: 20,
     height: 30,
   },
+  modal: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 200,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+  },
   slideUp: {
     flex: 1,
     borderTopLeftRadius: 40,
@@ -92,33 +107,107 @@ const styles = StyleSheet.create({
     bottom: 100,
     zIndex: 10,
   },
+  button: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 25,
+    backgroundColor: "#d52300",
+  },
+
+  buttonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "500",
+    textAlign: "center",
+    fontFamily: "Rubik-Regular",
+  },
+  button1: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: "3%",
+    borderRadius: 25,
+  },
+
+  buttonText2: {
+    color: "black",
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "500",
+    fontFamily: "Rubik-Medium",
+  },
 });
 
 export default function ProductDetailsScreen({ route, navigation }) {
-  const { post, showTrash } = route.params;
+  const { post, showTrash, savedInitial } = route.params;
 
   const [maxImgRatio, setMaxImgRatio] = useState(0); // height / width
 
   const [isLoading, setLoading] = useState(true);
-  const [similarItems, setSimilarItems] = useState([]);
+  const [isSaved, setIsSaved] = useState(savedInitial);
 
-  const getPost = async () => {
+  const [similarItems, setSimilarItems] = useState([]);
+  const [userId, setUserId] = useState("");
+  const [modalVisibility, setModalVisibility] = useState(false);
+
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
+
+  const fetchIsSaved = async () => {
     try {
       const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/"
+        "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
+          userId +
+          "/postId/" +
+          post.id
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setIsSaved(json.isSaved);
+      }
+    } catch (error) {
+      //console.error(error);
+    }
+  };
+  fetchIsSaved();
+
+  const save = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/save/userId/" +
+          userId +
+          "/postId/" +
+          post.id
       );
       const json = await response.json();
-      setSimilarItems(json.posts.slice(0, 4));
+      setIsSaved(json.isSaved);
     } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+      //console.error(error);
     }
   };
 
-  useEffect(() => {
-    getPost();
-  }, []);
+  const unsave = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/unsave/userId/" +
+          userId +
+          "/postId/" +
+          post.id
+      );
+      const json = await response.json();
+      setIsSaved(json.isSaved);
+    } catch (error) {
+      //console.error(error);
+    }
+  };
 
   const item: Item = {
     images: post.images,
@@ -129,6 +218,36 @@ export default function ProductDetailsScreen({ route, navigation }) {
     description: post.description,
     similarItems: [],
   };
+
+  const onShare = async () => {
+    try {
+      //product, differ by device
+      const result = await Share.share({
+        message: "Checkout this ",
+        url: "https://www.cornellappdev.com/courses/android",
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  const [accessToken, setAccessToken] = useState("");
+
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setAccessToken(result);
+      }
+    }
+  });
   const sPanel = useRef(null);
   useEffect(() => {
     sPanel.current.show(
@@ -148,6 +267,30 @@ export default function ProductDetailsScreen({ route, navigation }) {
     }
   });
 
+  const deletePost = () => {
+    fetch("https://resell-dev.cornellappdev.com/api/post/id/" + post.id, {
+      method: "DELETE",
+      headers: {
+        Authorization: accessToken,
+
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }).then(function (response) {
+      alert(JSON.stringify(response));
+
+      if (!response.ok) {
+        let error = new Error(response.statusText);
+        throw error;
+      } else {
+        console.log("deleted");
+        setModalVisibility(false);
+        navigation.goBack();
+        return response.json();
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -164,17 +307,22 @@ export default function ProductDetailsScreen({ route, navigation }) {
         <TouchableOpacity
           activeOpacity={pressedOpacity}
           style={styles.trashButton}
-          onPress={() => {}}
+          onPress={() => {
+            setModalVisibility(true);
+          }}
         >
           <Feather name="trash" size={23} color="white" />
         </TouchableOpacity>
       )}
-      <TouchableOpacity onPress={() => {}} style={styles.bookmarkButton}>
-        <BookMarkButton />
-        {/* if saved, show the following */}
-        {/* <BookMarkButtonSaved/> */}
+      <TouchableOpacity
+        onPress={() => {
+          isSaved ? unsave() : save();
+        }}
+        style={styles.bookmarkButton}
+      >
+        {isSaved ? <BookMarkButtonSaved /> : <BookMarkButton />}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => {}} style={styles.exportButton}>
+      <TouchableOpacity onPress={() => onShare()} style={styles.exportButton}>
         <ExportButton />
       </TouchableOpacity>
       <View
@@ -206,12 +354,55 @@ export default function ProductDetailsScreen({ route, navigation }) {
         </View>
       </SlidingUpPanel>
       <View style={styles.greyButton}>
-        <GreyButton text={"Contact Seller"} />
+        <PurpleButton
+          onPress={() => {
+            console.log("here");
+
+            navigation.navigate("ChatWindow", {
+              item: item.title,
+              seller: item.sellerName,
+            });
+          }}
+          text={"Contact Seller"}
+          enabled={true}
+        />
       </View>
       <LinearGradient
         colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
         style={styles.bottomGradient}
       />
+      <Modal
+        isVisible={modalVisibility}
+        backdropOpacity={0.2}
+        onBackdropPress={() => {
+          setModalVisibility(false);
+        }}
+        style={{ justifyContent: "flex-end", margin: 0 }}
+      >
+        <View style={styles.modal}>
+          <Text style={[styles.buttonText2, { padding: "3%" }]}>
+            Delete Listing?
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              deletePost();
+            }}
+          >
+            <View style={styles.button}>
+              <Text style={styles.buttonText}> Delete</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisibility(false);
+            }}
+          >
+            <View style={styles.button1}>
+              <Text style={styles.buttonText2}> Cancel</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }

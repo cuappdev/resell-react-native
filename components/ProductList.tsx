@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, FlatList, ScrollView } from "react-native";
 import ProductCard from "./ProductCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * Constructs a Button react component
@@ -9,22 +10,53 @@ import ProductCard from "./ProductCard";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({ count, filter, data, navigation, fromProfile = false }) {
+export function ProductList({ count, filter, data, navigation, fromProfile }) {
+  const [userId, setUserId] = useState("");
+
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
   const renderItem = ({ item }) => {
     var show = true;
     if (filter && count) {
-      show = filter[count].title === item.category;
+      show = filter[count].title === item.categories[0];
       if (filter[count].title === "All") show = true;
     } else {
       show = true;
     }
 
+    //console.log(data);
     return show ? (
       <ProductCard
         title={item.title}
         price={item.price}
         image={item.images ? item.images[0] : null}
-        onPress={() => navigation.navigate("ProductHome", {post: item, showTrash: fromProfile})}
+        onPress={() => {
+          const response = fetch(
+            "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
+              userId +
+              "/postId/" +
+              item.id
+          )
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else return null;
+            })
+            .then((response) => {
+              if (response != null) {
+                navigation.navigate("ProductHome", {
+                  post: item,
+                  showTrash: fromProfile,
+                  savedInitial: response.isSaved,
+                });
+              }
+            });
+        }}
       />
     ) : null;
   };

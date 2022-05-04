@@ -16,20 +16,22 @@ import { pressedOpacity } from "../constants/Values";
 
 export default function OnBoardScreen({ navigation }) {
   const [image, setImage] = useState("");
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 4],
-      quality: 1,
+      base64: true,
+      aspect: [1, 1],
+      quality: 0.5,
     });
-
     if (!result.cancelled) {
-      setImage(result.uri);
+      console.log(result);
+      setImage("data:image/jpeg;base64," + result["base64"]);
     }
   };
-  const [text, setText] = useState("");
   return (
     <View style={styles.container}>
       <View>
@@ -53,25 +55,58 @@ export default function OnBoardScreen({ navigation }) {
       </View>
       <View style={{ flexDirection: "column", width: "100%" }}>
         <Text style={styles.username}>
-          {text.length > 0 ? "Username" : "Username*"}
+          {username.length > 0 ? "Username" : "Username*"}
         </Text>
         <TextInput
-          value={text}
-          onChangeText={(text) => setText(text)}
+          value={username}
+          onChangeText={(text) => setUsername(text)}
           style={styles.username_input}
           placeholderTextColor={"#707070"}
         />
         <Text style={styles.bio}>Bio</Text>
-        <TextInput style={styles.bio_input} placeholderTextColor={"#707070"} />
+        <TextInput
+          value={bio}
+          onChangeText={(text) => setBio(text)}
+          style={styles.bio_input}
+          placeholderTextColor={"#707070"}
+          numberOfLines={4}
+          multiline={true}
+          maxLength={200}
+        />
+        {bio.length > 0 && (
+          <View
+            style={{
+              width: "100%",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: "Rubik-Regular",
+                color: "#707070",
+                marginTop: 4,
+                marginRight: 10,
+              }}
+            >
+              {bio.length}/200
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.purpleButton}>
         <PurpleButton
           text={"Continue"}
           onPress={() => {
-            navigation.navigate("Venmo");
+            navigation.navigate("Venmo", {
+              image: image,
+              username: username,
+              bio: bio,
+            });
           }}
-          enabled={text.length > 0 && image !== ""}
+          enabled={username.length > 0 && image !== ""}
         />
       </View>
     </View>
@@ -158,6 +193,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 18,
     minHeight: 100,
+    textAlignVertical: "top",
   },
   purpleButton: {
     alignItems: "center",

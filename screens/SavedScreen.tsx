@@ -9,18 +9,62 @@ import { ProductList } from "../components/ProductList";
 import { RootTabScreenProps } from "../types";
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import LoadingScreen from "./LoadingScreen";
 
 export default function SavedScreen({
   navigation,
 }: RootTabScreenProps<"SavedTab">) {
+  const [userId, setUserId] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
+  useEffect(() => {
+    getPosts();
+  }, [userId]);
+
+  const getPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        console.log(json);
+        setPosts(json.user.saved);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.outer}>
-      <ProductList
-        count={null}
-        data={DATA}
-        filter={null}
-        navigation={navigation}
-      />
+      {isLoading ? (
+        <LoadingScreen />
+      ) : fetchFailed ? (
+        <LoadingScreen />
+      ) : (
+        <ProductList
+          count={null}
+          data={posts}
+          filter={null}
+          navigation={navigation}
+          fromProfile={false}
+        />
+      )}
     </View>
   );
 }
@@ -50,6 +94,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     height: "100%",
     padding: 0,
-    marginTop: 10,
+    paddingTop: 10,
   },
 });

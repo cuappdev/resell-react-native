@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import { StyleSheet, TouchableOpacity } from "react-native";
@@ -20,6 +20,8 @@ import { ProductList } from "../components/ProductList";
 // State imports
 import { setBio, setName } from "../state_manage/actions/profileScreenActions";
 import { useDispatch, useSelector } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingScreen from "./LoadingScreen";
 
 export default function ProfileScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -27,35 +29,75 @@ export default function ProfileScreen({ navigation }) {
   const changeName = (name: string) => dispatch(setName(name));
   const changeBio = (bio: string) => dispatch(setBio(bio));
 
-  const name = useSelector((state: any) => {
-    return state.profile.name;
-  });
+  // const name = useSelector((state: any) => {
+  //   return state.profile.name;
+  // });
 
-  const bio = useSelector((state: any) => {
-    return state.profile.bio;
-  });
+  // const bio = useSelector((state: any) => {
+  //   return state.profile.bio;
+  // });
 
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
+  const [username, setUsername] = useState("");
+  const [realname, setRealname] = useState("");
+
+  const [bio, setBio] = useState("");
+  const [image, setImage] = useState("");
+
   const [posts, setPosts] = useState([]);
+  const [userId, setUserId] = useState("");
+
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
+
+  const getUser = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        const user = json.user;
+        setRealname(user.givenName + " " + user.familyName);
+        setUsername(user.username);
+        setBio(user.bio);
+        setImage(user.photoUrl);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getPosts = async () => {
     try {
-      setLoading(true)
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post"); // TODO: replace this endpoint with profile endpoint
-      const json = await response.json();
-      setPosts(json.posts);
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        console.log(json);
+        setPosts(json.posts);
+      }
     } catch (error) {
       console.error(error);
       setFetchFailed(true);
     } finally {
       setLoading(false);
     }
-  }
-  
+  };
   useEffect(() => {
     getPosts();
-  }, []);
+  }, [userId]);
+  useEffect(() => {
+    getUser();
+  }, [userId]);
 
   return (
     <View style={styles.container}>
@@ -65,13 +107,23 @@ export default function ProfileScreen({ navigation }) {
       >
         <SafeAreaView>
           <View style={styles.upperContainer}>
-            <TouchableOpacity activeOpacity={pressedOpacity}>
+            {/* <TouchableOpacity activeOpacity={pressedOpacity}>
               <ProfileScreenIcon name="search" color="black" size={24} />
-            </TouchableOpacity>
-            <View style={styles.profileTextContainer}>
-              <View style={styles.profileBubble} />
+            </TouchableOpacity> */}
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 10,
+              }}
+            >
+              <Image style={styles.profileBubble} source={{ uri: image }} />
             </View>
             <TouchableOpacity
+              style={{ position: "absolute", top: 10, end: 10 }}
               activeOpacity={pressedOpacity}
               onPress={() => navigation.navigate("Settings")}
             >
@@ -79,24 +131,33 @@ export default function ProfileScreen({ navigation }) {
             </TouchableOpacity>
           </View>
           <View style={styles.profileTextContainer}>
-            <Text style={styles.profileNameText}>{name}</Text>
+            <Text style={styles.profileNameText}>{username}</Text>
+            <Text style={styles.profileRealNameText}>{realname}</Text>
+
             <Text style={styles.profileBioText}>{bio}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.plusButton}
-            onPress={() => navigation.navigate("NewPost")}
-          >
-            <ProfileScreenIcon name="plus" color="black" size={36} />
-          </TouchableOpacity>
-          <ProductList
-            count={null}
-            data={posts}
-            filter={null}
-            fromProfile={true}
-            navigation={navigation}
-          />
+
+          {isLoading ? (
+            <LoadingScreen />
+          ) : fetchFailed ? (
+            <LoadingScreen />
+          ) : (
+            <ProductList
+              count={null}
+              data={posts}
+              filter={null}
+              navigation={navigation}
+              fromProfile={true}
+            />
+          )}
         </SafeAreaView>
       </ScrollView>
+      <TouchableOpacity
+        style={styles.plusButton}
+        onPress={() => navigation.navigate("NewPostImage")}
+      >
+        <Image source={require("../assets/images/new_post.png")} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -108,69 +169,6 @@ function ProfileScreenIcon(props: {
 }) {
   return <Feather size={props.size} {...props} />;
 }
-const DATA = [
-  {
-    id: "1",
-    title: "Nike Air Force - Size 9.5",
-    image: require("../assets/images/item2.png"),
-    price: "$90.00",
-  },
-  {
-    id: "2",
-    title: "Milk and Honey Paperback",
-    image: require("../assets/images/item1.png"),
-    price: "$16.00",
-  },
-  {
-    id: "3",
-    title: "Brown Rotating Chair",
-    image: require("../assets/images/item3.png"),
-    price: "$52.00",
-  },
-  {
-    id: "4",
-    title: "Lamp",
-    image: require("../assets/images/item4.png"),
-    price: "$14.00",
-  },
-  {
-    id: "5",
-    title: "Pants",
-    image: require("../assets/images/Pants.png"),
-    price: "$52.00",
-  },
-  {
-    id: "6",
-    title: "Nice Pair of Jeans",
-    image: require("../assets/images/item5.png"),
-    price: "$18.00",
-  },
-  {
-    id: "7",
-    title: "Nike Air Force - Size 9.5",
-    image: require("../assets/images/item1.png"),
-    price: "$90.00",
-  },
-
-  {
-    id: "8",
-    title: "Clock",
-    image: require("../assets/images/Clock.png"),
-    price: "$14.00",
-  },
-  {
-    id: "9",
-    title: "Guitar",
-    image: require("../assets/images/Guitar.png"),
-    price: "$90.00",
-  },
-  {
-    id: "10",
-    title: "White Shirt",
-    image: require("../assets/images/WhiteT.png"),
-    price: "$14.00",
-  },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -182,9 +180,6 @@ const styles = StyleSheet.create({
   upperContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "stretch",
-    paddingHorizontal: 18,
   },
   profileBubbleContainer: {
     flexGrow: 1,
@@ -203,10 +198,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   profileNameText: {
-    fontFamily: "Roboto-Bold",
+    fontFamily: "Rubik-Bold",
     fontSize: 20,
     paddingTop: 12,
+  },
+  profileRealNameText: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
     paddingBottom: 9,
+    color: "#707070",
   },
   profileBioText: {
     fontFamily: "Roboto-Regular",
@@ -216,18 +216,14 @@ const styles = StyleSheet.create({
   },
   plusButton: {
     position: "absolute",
-    right: 24,
-    bottom: 30,
+    right: 50,
+    bottom: 110,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFF",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    shadowOpacity: 0.4,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
   },
 });

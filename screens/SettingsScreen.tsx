@@ -17,6 +17,7 @@ import { Feather } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import PurpleButton from "../components/PurpleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetworkLogger from "react-native-network-logger";
 
 const styles = StyleSheet.create({
   container: {
@@ -117,6 +118,38 @@ export default function SettingsScreen({ navigation }) {
     }
   };
   const [modalVisibility, setModalVisibility] = useState(false);
+  const [userId, setUserId] = useState("");
+
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
+
+  const getUser = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        const user = json.user;
+        console.log(user);
+        navigation.navigate("EditProfile", {
+          initialRealname: user.givenName + " " + user.familyName,
+          initialUsername: user.username,
+          initialBio: user.bio,
+          initialNetId: user.netid,
+          initialVenmo: user.venmoHandle,
+          initialImage: user.photoUrl,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -132,7 +165,11 @@ export default function SettingsScreen({ navigation }) {
         scrollEnabled={false}
         style={styles.list}
         data={[
-          { icon: Edit, text: "Edit Profile" },
+          {
+            icon: Edit,
+            text: "Edit Profile",
+            onPress: () => getUser(),
+          },
           {
             icon: Notifications,
             text: "Notificaton Preferences",
@@ -200,7 +237,4 @@ export default function SettingsScreen({ navigation }) {
       </Modal>
     </View>
   );
-}
-function dispatch(arg0: any) {
-  throw new Error("Function not implemented.");
 }

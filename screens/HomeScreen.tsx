@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Text, Image} from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, Text, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import Modal from "react-native-modal";
@@ -20,6 +20,7 @@ import LoadingScreen from "../screens/LoadingScreen";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import PurpleButton from "../components/PurpleButton";
 import ResellLogo from "../assets/svg-components/resell_logo";
+import { METHODS } from "http";
 
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
@@ -29,11 +30,50 @@ export default function HomeScreen({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    if (count == 0) {
+      getPosts();
+    } else {
+      filterPost(FILTER[count].title);
+    }
+  }, [count]);
+  const filterPost = async (keyword) => {
+    const Json = JSON.stringify({
+      category: keyword,
+    });
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/filter/",
+
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: Json,
+        }
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setPosts(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getPosts = async () => {
     try {
-      setLoading(true)
-      const response = await fetch("https://resell-dev.cornellappdev.com/api/post");
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post"
+      );
       const json = await response.json();
       setPosts(json.posts);
     } catch (error) {
@@ -42,8 +82,8 @@ export default function HomeScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
-  }
-  
+  };
+
   useEffect(() => {
     getPosts();
   }, []);
@@ -54,7 +94,9 @@ export default function HomeScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.outer}>
       <View style={styles.header}>
-        <Header style={styles.resellLogo} />
+        <View style={styles.resellLogo}>
+          <Header />
+        </View>
 
         <TouchableOpacity
           activeOpacity={pressedOpacity}
@@ -76,25 +118,20 @@ export default function HomeScreen({ navigation, route }) {
 
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
 
-      {isLoading ? <LoadingScreen/> : 
-        (fetchFailed ? 
-          <LoadingScreen/> :
-          <ProductList
-            count={count}
-            data={posts}
-            filter={FILTER}
-            navigation={navigation}
-          />
-        )
-      }
+      {isLoading ? (
+        <LoadingScreen />
+      ) : fetchFailed ? (
+        <LoadingScreen />
+      ) : (
+        <ProductList
+          count={null}
+          data={posts}
+          filter={null}
+          navigation={navigation}
+          fromProfile={false}
+        />
+      )}
 
-      <FAB
-        style={styles.fab}
-        icon="plus"
-        onPress={() => navigation.navigate("NewPostImage")}
-        color={"#808080"}
-        theme={{ colors: { accent: "white" } }}
-      />
       {showPanel && (
         <Modal
           isVisible={welcomeState}
@@ -130,6 +167,7 @@ const styles = StyleSheet.create({
   outer: {
     backgroundColor: "#FFFFFF",
     flex: 1,
+    paddingBottom: 80,
   },
   fab: {
     position: "absolute",

@@ -11,32 +11,41 @@ import * as Google from "expo-google-app-auth";
 import GlobalStore from "./state_manage/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { login, logout } from "./state_manage/actions/signInActions";
+import ResellLogo from "./assets/svg-components/resell_logo";
+import Header from "./assets/svg-components/header";
+import PurpleButton from "./components/PurpleButton";
+import CornellAppdev from "./assets/images/cornelappdev";
+import firebase from "./config/firebase";
+import { auth, provider } from "./config/firebase";
 
 export default function App() {
   // const log_in = () => dispatch(login());
   // const log_out = () => dispatch(logout());
+
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  const [signedIn, setSignIn] = useState(true);
+  const [signedIn, setSignIn] = useState(false);
   const [onBoard, setOnBoarded] = useState(true);
+  const [showPagination, setShowPagination] = useState(true);
+
   //this need to be replaced by redux
-  // AsyncStorage.getItem("SignedIn", (errs, result) => {
-  //   if (!errs) {
-  //     if (result !== null && result == "true") {
-  //       setSignIn(true);
-  //     } else if (result !== null && result == "false") {
-  //       //!=null is ok because if result ==null, signIn is going to be default false anyway
-  //       setSignIn(false);
-  //     }
-  //   }
-  // });
-  // AsyncStorage.getItem("Onboarded", (errs, result) => {
-  //   if (!errs) {
-  //     if (result !== null) {
-  //       setOnBoarded(true);
-  //     }
-  //   }
-  // });
+  AsyncStorage.getItem("SignedIn", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result == "true") {
+        setSignIn(true);
+      } else if (result !== null && result == "false") {
+        //!=null is ok because if result ==null, signIn is going to be default false anyway
+        setSignIn(false);
+      }
+    }
+  });
+  AsyncStorage.getItem("Onboarded", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setOnBoarded(true);
+      }
+    }
+  });
 
   const setSignedIn = async () => {
     try {
@@ -46,6 +55,20 @@ export default function App() {
     }
   };
 
+  const storeAccessToken = async (accessToken) => {
+    try {
+      await AsyncStorage.setItem("accessToken", accessToken);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const storeUserId = async (userid) => {
+    try {
+      await AsyncStorage.setItem("userId", userid);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const postRequest = (result) => {
     fetch("https://resell-dev.cornellappdev.com/api/auth/login/", {
       method: "POST",
@@ -58,6 +81,8 @@ export default function App() {
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
+        storeAccessToken(json.accessToken);
+        storeUserId(json.userId);
       })
       .catch((error) => {
         console.error(error);
@@ -68,7 +93,11 @@ export default function App() {
   //   return state.profile.name;
   // });
   //const store = useSelector((state) => state.signIn.signedIn);
-
+  useEffect(() => {
+    if (showPagination) {
+      setTimeout(() => setShowPagination(false), 3000);
+    }
+  }, [showPagination]);
   const handleGoogleSignIn = () => {
     const config = {
       iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
@@ -83,6 +112,15 @@ export default function App() {
         setSignIn(true);
         setSignedIn();
         postRequest(result);
+        const { idToken, accessToken } = result;
+
+        // provider.addScope(idToken);
+        // provider.addScope(accessToken);
+        const user = auth.currentUser;
+
+        if (!user) {
+        }
+        return auth.signInWithCustomToken(idToken);
       } else {
         console.log("Google SignIn", "FAILURE", result);
       }
@@ -119,8 +157,6 @@ export default function App() {
   if (!isLoadingComplete) {
     return null;
   } else {
-    console.log(signedIn);
-
     return (
       <Provider store={GlobalStore}>
         <SafeAreaProvider>
@@ -131,16 +167,28 @@ export default function App() {
                 source={require("./assets/images/signinbackgroundhue.png")}
               />
               <View style={styles.innerContainer}>
-                <Image
+                <ResellLogo height={130} width={96} props={undefined} />
+                <View style={{ marginTop: 16 }}>
+                  <Header />
+                </View>
+
+                {/* <Image
                   width={100}
                   height={100}
                   source={require("./assets/images/signinlogoblurry.png")}
-                />
-                <View style={styles.signInButton}>
-                  <Text onPress={handleGoogleSignIn} style={styles.signInText}>
-                    Sign in with Google
-                  </Text>
-                </View>
+                /> */}
+              </View>
+              <View style={styles.signInButton}>
+                {!showPagination && (
+                  <PurpleButton
+                    text={"Log in with NetID"}
+                    onPress={() => {
+                      handleGoogleSignIn();
+                    }}
+                    enabled={true}
+                  />
+                )}
+                {showPagination && <CornellAppdev />}
               </View>
             </View>
           )}
@@ -174,17 +222,12 @@ const styles = StyleSheet.create({
   },
 
   signInButton: {
-    width: 230,
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
     padding: "3%",
-    borderRadius: 25,
-    marginTop: 0,
-    marginBottom: "20%",
-    shadowOffset: { width: 3, height: 3 },
-    shadowColor: "grey",
-    shadowOpacity: 0.5,
+    width: "100%",
+    position: "absolute",
+    bottom: "5%",
   },
 
   signInText: {
@@ -200,6 +243,3 @@ const styles = StyleSheet.create({
     height: "70%",
   },
 });
-function dispatch(arg0: any) {
-  throw new Error("Function not implemented.");
-}
