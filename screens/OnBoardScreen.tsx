@@ -117,7 +117,7 @@ export default function OnBoardScreen({ navigation }) {
                 bio: bio,
               });
             }}
-            enabled={username.length > 0 && image !== ""}
+            enabled={username.length > 0}
           />
         </View>
       </KeyboardAvoidingView>

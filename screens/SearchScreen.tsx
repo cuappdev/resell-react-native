@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   Keyboard,
+  LogBox,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -17,8 +18,8 @@ import { ProductList } from "../components/ProductList";
 import HistoryList from "../components/HistoryList";
 import { AntDesign } from "@expo/vector-icons";
 
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 
 export default function SearchScreen({ navigation, route }) {
   const { history } = route.params;
