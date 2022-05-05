@@ -1,12 +1,17 @@
 import * as React from "react";
-import { StyleSheet, TouchableOpacity, Text, TextInput } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  Keyboard,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { View } from "../components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 
-import { FILTER } from "../data/filter";
 import { ProductList } from "../components/ProductList";
 
 import HistoryList from "../components/HistoryList";
@@ -62,6 +67,7 @@ export default function SearchScreen({ navigation, route }) {
   const searchSubmit = async (text) => {
     setIsSearchSubmitted(true);
     setSearchKeyword(text);
+    Keyboard.dismiss();
 
     var tempt = searchHistory.filter((i) => i != text.toLowerCase());
     if (tempt.length > 9) {
@@ -86,9 +92,10 @@ export default function SearchScreen({ navigation, route }) {
       console.log(e);
     }
   };
-  console.log("data", data);
+  // console.log("data", data);
+
   return (
-    <SafeAreaView style={styles.outer}>
+    <SafeAreaView style={[styles.outer]}>
       <View style={styles.header}>
         <View style={styles.searchBar}>
           <View style={styles.container}>
@@ -119,20 +126,10 @@ export default function SearchScreen({ navigation, route }) {
         </View>
       </View>
 
-      {isSearchSubmitted && noResult && (
-        <View style={styles.noResultView}>
-          <Text style={styles.noResultHeader}>No results</Text>
-          <Text style={styles.noResultSubHeader}>
-            Please try another search
-          </Text>
-        </View>
-      )}
-      <View style={{ marginTop: 15 }}>
+      <View style={{ marginTop: 15, height: "100%", flex: 1 }}>
         {isSearchSubmitted && !noResult && (
           <ProductList
-            count={null}
             data={data}
-            filter={null}
             navigation={navigation}
             fromProfile={false}
             onRefresh={null}
@@ -144,6 +141,14 @@ export default function SearchScreen({ navigation, route }) {
             searchHistory={searchHistory}
           />
         )}
+        {isSearchSubmitted && noResult && (
+          <View style={styles.noResultView}>
+            <Text style={styles.noResultHeader}>No results</Text>
+            <Text style={styles.noResultSubHeader}>
+              Please try another search
+            </Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -153,11 +158,11 @@ const styles = StyleSheet.create({
   outer: {
     backgroundColor: "#FFFFFF",
     flex: 1,
-    paddingBottom: 120,
   },
 
   header: {
     height: 40,
+    marginTop: 10,
   },
 
   container: {

@@ -39,13 +39,13 @@ export default function App() {
   //     }
   //   }
   // });
-  AsyncStorage.getItem("Onboarded", (errs, result) => {
-    if (!errs) {
-      if (result !== null) {
-        setOnBoarded(true);
-      }
-    }
-  });
+  // AsyncStorage.getItem("Onboarded", (errs, result) => {
+  //   if (!errs) {
+  //     if (result !== null) {
+  //       setOnBoarded(true);
+  //     }
+  //   }
+  // });
 
   const setSignedIn = async () => {
     try {
@@ -80,9 +80,15 @@ export default function App() {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
-        storeAccessToken(json.accessToken);
-        storeUserId(json.userId);
+        if (json.error) {
+          alert("Please Use Your Cornell Email :)");
+        } else {
+          console.log(json);
+          storeAccessToken(json.accessToken);
+          storeUserId(json.userId);
+          setSignIn(true);
+          setSignedIn();
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -102,6 +108,8 @@ export default function App() {
     const config = {
       iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
       androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
+      iosStandaloneAppClientId:
+        "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
       scopes: ["profile", "email"],
     };
 
@@ -109,8 +117,7 @@ export default function App() {
       const { type } = result;
       if (type == "success") {
         console.log("Google SignIn", "SUCCESS", result);
-        setSignIn(true);
-        setSignedIn();
+
         postRequest(result);
         // const { idToken, accessToken } = result;
 

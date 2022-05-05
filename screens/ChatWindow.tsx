@@ -43,7 +43,8 @@ import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 // const userCollection = firestore.collection("users");
 
 export default function ChatWindow({ navigation, route }) {
-  const { item, seller } = route.params;
+  const { item, seller, post } = route.params;
+  console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(0);
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -358,7 +359,7 @@ export default function ChatWindow({ navigation, route }) {
           text={text}
           setText={setText}
           screen={"Chat"}
-          itemName={"Blue Pants"}
+          post={post}
         />
         <AvailabilityModal
           scheduleCallback={scheduleCallback}

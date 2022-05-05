@@ -6,7 +6,7 @@ export function NegotiationProductBubble({ product, price, image }) {
   return (
     <View style={styles.outer}>
       <View>
-        <Image source={image} style={styles.image} />
+        <Image source={{ uri: image }} style={styles.image} />
       </View>
       <View style={styles.inner}>
         <Text style={styles.productText}>{product}</Text>
@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Bold",
     fontSize: 20,
     marginVertical: 4,
+    maxWidth: "85%",
   },
   priceText: {
     fontFamily: "Rubik-Regular",

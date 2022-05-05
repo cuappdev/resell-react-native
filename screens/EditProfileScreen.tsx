@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
+  StatusBar,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
@@ -21,6 +22,8 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { json } from "stream/consumers";
+import { ScrollView } from "react-native-gesture-handler";
+import { platform } from "os";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -56,6 +59,19 @@ export default function EditProfileScreen({ navigation, route }) {
   const [accessToken, setAccessToken] = useState("");
   const [invalidName, setInvalidName] = useState(false);
 
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setOnEdit(false);
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   AsyncStorage.getItem("accessToken", (errs, result) => {
     if (!errs) {
       if (result !== null) {
@@ -65,6 +81,7 @@ export default function EditProfileScreen({ navigation, route }) {
   });
 
   const submit = async () => {
+    console.log("ok");
     try {
       var Json;
       if (image.startsWith("https")) {
@@ -115,185 +132,197 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   return (
-    //ios android different
-    //<HideKeyboard>
-    <View
-      style={[
-        styles.container,
-        // onEdit && Platform.OS === "ios"
-        //   ? { justifyContent: "flex-end" }
-        //   : { justifyContent: "flex-start" },
-      ]}
-      // behavior={Platform.OS === "ios" ? "padding" : null}
+    <TouchableWithoutFeedback
+      onPress={() => {
+        setOnEdit(false);
+        Keyboard.dismiss();
+      }}
     >
-      {/* <ScrollView showsVerticalScrollIndicator={false}> */}
-      <View style={{ width: "100%" }}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <BackButton color="black" />
-        </TouchableOpacity>
-        <View style={styles.title}>
-          <Text style={styles.titleText}>Edit Profile</Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            submit();
-          }}
-          style={styles.headerButton}
-        >
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView
+        style={[
+          styles.container,
+          Platform.OS === "ios" ? { paddingTop: 40 } : undefined,
+        ]}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        {!onEdit && (
+          <View
+            style={{
+              width: "100%",
+              backgroundColor: "#FFFFFF",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+            >
+              <BackButton color="black" />
+            </TouchableOpacity>
+            <View style={styles.title}>
+              <Text style={styles.titleText}>Edit Profile</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => submit()}
+              style={styles.headerButton}
+            >
+              <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-      <View style={{ marginTop: 70 }}>
-        <Image style={styles.profilePic} source={{ uri: image }} />
-        <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={styles.roundButton1}
-          onPress={() => {
-            pickImage();
-          }}
-        >
-          <Feather name="edit-2" size={18} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={{ width: "100%", marginTop: 30 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 30,
-            minHeight: 30,
-          }}
-        >
-          <Text style={styles.text}>Name</Text>
-          <Text style={styles.content}>{initialRealname}</Text>
+        <View>
+          <Image style={styles.profilePic} source={{ uri: image }} />
+          <TouchableOpacity
+            activeOpacity={pressedOpacity}
+            style={styles.roundButton1}
+            onPress={() => {
+              pickImage();
+            }}
+          >
+            <Feather name="edit-2" size={18} color="black" />
+          </TouchableOpacity>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 30,
-            minHeight: 30,
-          }}
-        >
-          <Text style={styles.text}>Netid</Text>
-          <Text style={styles.content}>{initialNetId}</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 30,
-          }}
-        >
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.text}>Username</Text>
-            {invalidName && (
-              <View
-                style={{
-                  width: 16,
-                  height: 16,
-                  backgroundColor: "#FF0000",
-                  borderRadius: 8,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 3,
-                  marginLeft: 4,
-                }}
-              >
-                <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>!</Text>
-              </View>
-            )}
+
+        <View style={{ width: "100%", marginTop: 30 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 30,
+              minHeight: 30,
+            }}
+          >
+            <Text style={styles.text}>Name</Text>
+            <Text style={styles.content}>{initialRealname}</Text>
           </View>
           <View
             style={{
-              flexDirection: "column",
-              alignItems: "flex-end",
-              width: "40%",
-              marginEnd: 20,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 30,
+              minHeight: 30,
             }}
           >
-            <TextInput
-              style={styles.text_input}
-              onFocus={() => setOnEdit(false)}
-              value={username}
-              onChangeText={(text) => {
-                setUsername(text);
-                setInvalidName(false);
-              }}
-            />
-            {invalidName && (
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: "Rubik-Regular",
-                  color: "#FF0000",
-                  marginTop: 4,
-                }}
-              >
-                Name Unavailable
-              </Text>
-            )}
+            <Text style={styles.text}>Netid</Text>
+            <Text style={styles.content}>{initialNetId}</Text>
           </View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 30,
-          }}
-        >
-          <Text style={styles.text}>Venmo Link</Text>
-          <View
-            style={{ flexDirection: "column", width: "40%", marginEnd: 20 }}
-          >
-            <TextInput
-              onFocus={() => setOnEdit(false)}
-              style={styles.text_input}
-              value={venmo}
-              onChangeText={(text) => setVenmo(text)}
-            />
-          </View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text style={styles.text}>Bio</Text>
           <View
             style={{
-              flexDirection: "column",
-              alignItems: "flex-end",
-              width: "70%",
-              marginEnd: 20,
-              marginBottom: 50,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 30,
             }}
           >
-            <TextInput
-              style={[
-                styles.text_input,
-                {
-                  textAlign: "left",
-                  textAlignVertical: "top",
-                  maxHeight: 100,
-                  marginBottom: 100,
-                },
-              ]}
-              onFocus={() => setOnEdit(true)}
-              numberOfLines={4}
-              multiline={true}
-              maxLength={200}
-              value={bio}
-              onChangeText={(text) => {
-                setBio(text);
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.text}>Username</Text>
+              {invalidName && (
+                <View
+                  style={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#FF0000",
+                    borderRadius: 8,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: 3,
+                    marginLeft: 4,
+                  }}
+                >
+                  <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>!</Text>
+                </View>
+              )}
+            </View>
+            <View
+              style={{
+                flexDirection: "column",
+                alignItems: "flex-end",
+                width: "40%",
+                marginEnd: 20,
               }}
-            />
-            {/* {false && (
+            >
+              <TextInput
+                style={styles.text_input}
+                onFocus={() => {
+                  setOnEdit(false);
+                }}
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
+                  setInvalidName(false);
+                }}
+              />
+              {invalidName && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontFamily: "Rubik-Regular",
+                    color: "#FF0000",
+                    marginTop: 4,
+                  }}
+                >
+                  Name Unavailable
+                </Text>
+              )}
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 30,
+            }}
+          >
+            <Text style={styles.text}>Venmo Link</Text>
+            <View
+              style={{ flexDirection: "column", width: "40%", marginEnd: 20 }}
+            >
+              <TextInput
+                onFocus={() => setOnEdit(false)}
+                style={styles.text_input}
+                value={venmo}
+                onChangeText={(text) => setVenmo(text)}
+              />
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={styles.text}>Bio</Text>
+            <View
+              style={{
+                flexDirection: "column",
+                alignItems: "flex-end",
+                width: "70%",
+                marginEnd: 20,
+                marginBottom: 50,
+              }}
+            >
+              <TextInput
+                style={[
+                  styles.text_input,
+                  {
+                    textAlign: "left",
+                    textAlignVertical: "top",
+                    maxHeight: 100,
+                  },
+                ]}
+                onFocus={() => {
+                  setOnEdit(true);
+                }}
+                numberOfLines={4}
+                multiline={true}
+                maxLength={200}
+                value={bio}
+                onChangeText={(text) => {
+                  setBio(text);
+                }}
+              />
+              {/* {false && (
               <Text
                 style={{
                   fontSize: 12,
@@ -305,24 +334,23 @@ export default function EditProfileScreen({ navigation, route }) {
                 Cannot be empty
               </Text>
             )} */}
-            {bio.length > 0 && (
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: "Rubik-Regular",
-                  color: "#707070",
-                  marginTop: 4,
-                }}
-              >
-                {bio.length}/200
-              </Text>
-            )}
+              {bio.length > 0 && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontFamily: "Rubik-Regular",
+                    color: "#707070",
+                    marginTop: 4,
+                  }}
+                >
+                  {bio.length}/200
+                </Text>
+              )}
+            </View>
           </View>
         </View>
-      </View>
-      {/* </ScrollView> */}
-    </View>
-    // </HideKeyboard>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -336,18 +364,13 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   backButton: {
-    position: "absolute",
-    top: menuBarTop,
-    left: 20,
+    margin: 20,
     zIndex: 1,
     width: 20,
     height: 30,
   },
   title: {
-    position: "absolute",
-    top: menuBarTop,
-    left: 0,
-    right: 0,
+    marginTop: 20,
     alignItems: "center",
   },
   titleText: {
@@ -355,9 +378,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   headerButton: {
-    position: "absolute",
-    top: menuBarTop,
-    right: 20,
+    margin: 20,
   },
   buttonText: {
     color: "#9E70F6",
@@ -419,7 +440,6 @@ const styles = StyleSheet.create({
   profilePic: {
     height: 132,
     width: 132,
-    marginTop: 30,
     borderRadius: 66,
   },
   text: {

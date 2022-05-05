@@ -424,11 +424,10 @@ export default function ProductDetailsScreen({ route, navigation }) {
       <View style={styles.greyButton}>
         <PurpleButton
           onPress={() => {
-            console.log("here");
-
             navigation.navigate("ChatWindow", {
               item: item.title,
               seller: sellerName,
+              post: post,
             });
           }}
           text={"Contact Seller"}
