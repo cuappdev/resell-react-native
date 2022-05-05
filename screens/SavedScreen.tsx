@@ -7,8 +7,8 @@ import ProductCard from "../components/ProductCard";
 import { ProductList } from "../components/ProductList";
 
 import { RootTabScreenProps } from "../types";
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
@@ -42,7 +42,7 @@ export default function SavedScreen({
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json);
+        //  console.log(json);
         setPosts(json.user.saved);
       }
     } catch (error) {
@@ -65,7 +65,7 @@ export default function SavedScreen({
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json);
+        //console.log(json);
         setPosts(json.user.saved);
       }
     } catch (error) {

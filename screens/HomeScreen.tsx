@@ -22,8 +22,8 @@ import PurpleButton from "../components/PurpleButton";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import { useIsFocused } from "@react-navigation/native";
 
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 
 export default function HomeScreen({ navigation, route }) {
   const [count, setCount] = useState(0);
@@ -263,6 +263,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     top: 4,
+    alignItems: "flex-end",
+    width: 50,
+    height: 50,
   },
   slideUp: {
     borderTopLeftRadius: 40,
