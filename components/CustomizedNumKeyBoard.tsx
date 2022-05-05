@@ -15,6 +15,7 @@ export function NumberPad({
   originalText,
   setOriginalText,
   screen,
+  productName,
 }) {
   const [input, setInput] = useState(
     screen === "NewPost" && originalText.length > 0 ? originalText.slice(1) : ""
@@ -39,7 +40,9 @@ export function NumberPad({
       if (screen == "Chat") {
         setOriginalText(
           original.concat(
-            "Hi! I'm interested in buying your Blue Pants, but would you be open to selling it for $" +
+            "Hi! I'm interested in buying your " +
+              productName +
+              ", but would you be open to selling it for $" +
               input +
               "?"
           )

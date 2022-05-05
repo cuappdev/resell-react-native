@@ -53,7 +53,7 @@ export function NewPostDetail({ navigation, route }) {
     }
   });
   const postRequest = () => {
-    console.log(image.length);
+    //console.log(image.length);
     const Json = JSON.stringify({
       title: title,
       description: description,
@@ -62,7 +62,7 @@ export function NewPostDetail({ navigation, route }) {
       imagesBase64: image,
       userId: userId,
     });
-    console.log(Json);
+    //console.log(Json);
     fetch("https://resell-dev.cornellappdev.com/api/post/", {
       method: "POST",
       headers: {

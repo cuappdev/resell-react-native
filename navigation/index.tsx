@@ -162,7 +162,14 @@ function RootNavigator({ onboard }) {
 
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
-                    style={{ position: "absolute", right: 20 }}
+                    style={{
+                      position: "absolute",
+                      right: 20,
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      height: 50,
+                      width: 50,
+                    }}
                     onPress={() => navigation.goBack()}
                   >
                     <AntDesign
@@ -203,7 +210,14 @@ function RootNavigator({ onboard }) {
 
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
-                    style={{ position: "absolute", left: 24 }}
+                    style={{
+                      position: "absolute",
+                      left: 24,
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      width: 50,
+                      height: 50,
+                    }}
                     onPress={() => navigation.goBack()}
                   >
                     <AntDesign name="left" size={24} color="black" />
@@ -213,7 +227,14 @@ function RootNavigator({ onboard }) {
                   </Text>
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
-                    style={{ position: "absolute", right: 20 }}
+                    style={{
+                      position: "absolute",
+                      right: 20,
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      width: 50,
+                      height: 50,
+                    }}
                     onPress={() => navigation.navigate("Root")}
                   >
                     <AntDesign name="close" size={24} color="black" />
@@ -413,7 +434,14 @@ function OnboardNavigator({ navigation }) {
               >
                 <TouchableOpacity
                   activeOpacity={pressedOpacity}
-                  style={{ position: "absolute", left: 24 }}
+                  style={{
+                    position: "absolute",
+                    left: 24,
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    width: 50,
+                    height: 50,
+                  }}
                   onPress={() => navigation.goBack()}
                 >
                   <AntDesign name="left" size={24} color="black" />
@@ -542,6 +570,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -10 },
     shadowColor: "gray",
     shadowRadius: 10,
+    backgroundColor: "#ffffff",
     shadowOpacity: 0.3,
     elevation: 5, // android
   },

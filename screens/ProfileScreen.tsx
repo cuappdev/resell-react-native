@@ -3,19 +3,14 @@ import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "../components/Themed";
-import {
-  FlatList,
-  SafeAreaView,
-  StatusBar,
-  Image,
-  Platform,
-} from "react-native";
+import { SafeAreaView, Image } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import ProductCard from "../components/ProductCard";
 import { LogBox } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
 import { ProductList } from "../components/ProductList";
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs();
 
 // State imports
 import { setBio, setName } from "../state_manage/actions/profileScreenActions";
@@ -23,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "./LoadingScreen";
 import { useIsFocused } from "@react-navigation/native";
+import ColoredPlus from "../assets/svg-components/colored_plus";
 
 export default function ProfileScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -110,7 +106,7 @@ export default function ProfileScreen({ navigation }) {
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json);
+        //console.log(json);
         setPosts(json.posts);
       }
     } catch (error) {
@@ -128,7 +124,7 @@ export default function ProfileScreen({ navigation }) {
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json);
+        // console.log(json);
         setPosts(json.posts);
       }
     } catch (error) {
@@ -164,12 +160,20 @@ export default function ProfileScreen({ navigation }) {
                 alignItems: "center",
                 justifyContent: "center",
                 marginBottom: 10,
+                marginTop: 10,
               }}
             >
               <Image style={styles.profileBubble} source={{ uri: image }} />
             </View>
             <TouchableOpacity
-              style={{ position: "absolute", top: 10, end: 10 }}
+              style={{
+                position: "absolute",
+                end: 10,
+                top: 10,
+                width: 50,
+                height: 50,
+                alignItems: "center",
+              }}
               activeOpacity={pressedOpacity}
               onPress={() => navigation.navigate("Settings")}
             >
@@ -192,12 +196,19 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </SafeAreaView>
       </ScrollView>
-      <TouchableOpacity
-        style={styles.plusButton}
-        onPress={() => navigation.navigate("NewPostImage")}
+      <LinearGradient
+        colors={["#DF9856", "#DE6CD3", "#AD68E3"]}
+        style={styles.highLight}
+        start={{ x: 0.9, y: 0 }}
+        end={{ x: 0.1, y: 1 }}
       >
-        <Image source={require("../assets/images/new_post.png")} />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.plusButton}
+          onPress={() => navigation.navigate("NewPostImage")}
+        >
+          <ColoredPlus />
+        </TouchableOpacity>
+      </LinearGradient>
     </View>
   );
 }
@@ -220,6 +231,18 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
   },
+  highLight: {
+    marginVertical: 5,
+    marginHorizontal: 5,
+    borderRadius: 30,
+    position: "absolute",
+    right: 40,
+    bottom: 110,
+    paddingVertical: 2,
+    zIndex: 2,
+    paddingHorizontal: 2,
+  },
+
   profileBubbleContainer: {
     flexGrow: 1,
   },
@@ -254,15 +277,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   plusButton: {
-    position: "absolute",
-    right: 50,
-    bottom: 110,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFF",
-    borderRadius: 10,
-    width: 20,
-    height: 20,
+    borderRadius: 28,
+    width: 56,
+    height: 56,
   },
 });

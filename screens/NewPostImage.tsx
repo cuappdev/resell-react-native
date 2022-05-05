@@ -32,7 +32,7 @@ export function NewPostImage({ navigation }) {
       quality: 1,
     });
     if (!result.cancelled) {
-      console.log(result);
+      // console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
     }
