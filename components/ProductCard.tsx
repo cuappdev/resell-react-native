@@ -14,7 +14,7 @@ const ProductCard = (props) => {
   return (
     <TouchableOpacity style={styles.container} onPress={props.onPress}>
       <View>
-        <Image source={{uri: props.image}} style={styles.image} />
+        <Image source={{ uri: props.image }} style={styles.image} />
       </View>
       <View style={styles.textBox}>
         <Text style={styles.itemName}>{props.title}</Text>
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontFamily: "Rubik-Medium",
-
     fontStyle: "normal",
     fontWeight: "500",
     fontSize: 14,
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "normal",
     fontSize: 13,
-    lineHeight: 15,
+    maxWidth: "30%",
     margin: 1,
     marginTop: 2,
   },

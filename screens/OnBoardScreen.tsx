@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,11 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -33,83 +38,90 @@ export default function OnBoardScreen({ navigation }) {
     }
   };
   return (
-    <View style={styles.container}>
-      <View>
-        <Image
-          style={styles.profilePic}
-          source={
-            image === ""
-              ? require("../assets/images/empty_profile.png")
-              : { uri: image }
-          }
-        />
-        <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={styles.roundButton1}
-          onPress={() => {
-            pickImage();
-          }}
-        >
-          <Feather name="edit-2" size={18} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={{ flexDirection: "column", width: "100%" }}>
-        <Text style={styles.username}>
-          {username.length > 0 ? "Username" : "Username*"}
-        </Text>
-        <TextInput
-          value={username}
-          onChangeText={(text) => setUsername(text)}
-          style={styles.username_input}
-          placeholderTextColor={"#707070"}
-        />
-        <Text style={styles.bio}>Bio</Text>
-        <TextInput
-          value={bio}
-          onChangeText={(text) => setBio(text)}
-          style={styles.bio_input}
-          placeholderTextColor={"#707070"}
-          numberOfLines={4}
-          multiline={true}
-          maxLength={200}
-        />
-        {bio.length > 0 && (
-          <View
-            style={{
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "flex-end",
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View>
+          <Image
+            style={styles.profilePic}
+            source={
+              image === ""
+                ? require("../assets/images/empty_profile.png")
+                : { uri: image }
+            }
+          />
+          <TouchableOpacity
+            activeOpacity={pressedOpacity}
+            style={styles.roundButton1}
+            onPress={() => {
+              pickImage();
             }}
           >
-            <Text
+            <Feather name="edit-2" size={18} color="black" />
+          </TouchableOpacity>
+        </View>
+        <View style={{ flexDirection: "column", width: "100%" }}>
+          <Text style={styles.username}>
+            {username.length > 0 ? "Username" : "Username*"}
+          </Text>
+          <TextInput
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+            style={styles.username_input}
+            placeholderTextColor={"#707070"}
+          />
+          <Text style={styles.bio}>Bio</Text>
+          <TextInput
+            value={bio}
+            onChangeText={(text) => setBio(text)}
+            style={styles.bio_input}
+            placeholderTextColor={"#707070"}
+            numberOfLines={4}
+            multiline={true}
+            maxLength={200}
+            // onFocus={() =>
+            // } // <- your coordinates here
+          />
+          {bio.length > 0 && (
+            <View
               style={{
-                fontSize: 12,
-                fontFamily: "Rubik-Regular",
-                color: "#707070",
-                marginTop: 4,
-                marginRight: 10,
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "flex-end",
               }}
             >
-              {bio.length}/200
-            </Text>
-          </View>
-        )}
-      </View>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: "Rubik-Regular",
+                  color: "#707070",
+                  marginTop: 4,
+                  marginRight: 10,
+                }}
+              >
+                {bio.length}/200
+              </Text>
+            </View>
+          )}
+        </View>
 
-      <View style={styles.purpleButton}>
-        <PurpleButton
-          text={"Continue"}
-          onPress={() => {
-            navigation.navigate("Venmo", {
-              image: image,
-              username: username,
-              bio: bio,
-            });
-          }}
-          enabled={username.length > 0 && image !== ""}
-        />
-      </View>
-    </View>
+        <View style={styles.purpleButton}>
+          <PurpleButton
+            text={"Continue"}
+            onPress={() => {
+              navigation.navigate("Venmo", {
+                image: image,
+                username: username,
+                bio: bio,
+              });
+            }}
+            enabled={username.length > 0 && image !== ""}
+          />
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -196,6 +208,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   purpleButton: {
+    marginTop: 30,
     alignItems: "center",
     width: "100%",
     backgroundColor: "white",
