@@ -86,6 +86,7 @@ export function NegotiationModal({
             originalText={text}
             setOriginalText={setText}
             screen={screen}
+            productName={post.title}
           />
         </View>
       </View>

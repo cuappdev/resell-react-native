@@ -44,7 +44,7 @@ import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
 export default function ChatWindow({ navigation, route }) {
   const { item, seller, post } = route.params;
-  console.log(post);
+  //console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(0);
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -179,7 +179,7 @@ export default function ChatWindow({ navigation, route }) {
       quality: 1,
     });
     if (!result.cancelled) {
-      console.log(result);
+      // console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
     }
