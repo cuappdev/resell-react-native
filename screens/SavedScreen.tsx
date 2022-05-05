@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, FlatList, SafeAreaView } from "react-native";
+import { StyleSheet, FlatList, SafeAreaView, Text } from "react-native";
 import { LogBox } from "react-native";
 import { View } from "../components/Themed";
 import { ScrollView } from "react-native-gesture-handler";
@@ -77,16 +77,21 @@ export default function SavedScreen({
   };
 
   return (
-    <View style={styles.outer}>
+    <View style={[styles.outer]}>
       {isLoading ? (
         <LoadingScreen />
       ) : fetchFailed ? (
         <LoadingScreen />
+      ) : posts.length == 0 ? (
+        <View style={styles.noResultView}>
+          <Text style={styles.noResultHeader}>No results</Text>
+          <Text style={styles.noResultSubHeader}>
+            Go and explore some posts
+          </Text>
+        </View>
       ) : (
         <ProductList
-          count={null}
           data={posts}
-          filter={null}
           navigation={navigation}
           fromProfile={false}
           onRefresh={undefined}
@@ -96,31 +101,24 @@ export default function SavedScreen({
   );
 }
 
-const DATA = [
-  {
-    id: "1",
-    title: "Bedside Table - Beige ",
-    image: require("../assets/images/beige.png"),
-    price: "$15.00",
-  },
-  {
-    id: "2",
-    title: "Pan",
-    image: require("../assets/images/pan.png"),
-    price: "$9.00",
-  },
-  {
-    id: "3",
-    title: "Stainless Steel Teapot",
-    image: require("../assets/images/teapot.png"),
-    price: "$16.00",
-  },
-];
 const styles = StyleSheet.create({
   outer: {
     backgroundColor: "#FFFFFF",
     height: "100%",
     padding: 0,
     paddingTop: 10,
+    flex: 1,
+  },
+  noResultView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
+  noResultSubHeader: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    color: "#707070",
   },
 });

@@ -16,6 +16,7 @@ import {
   ListRenderItem,
   StatusBar,
   KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 import * as ImagePicker from "expo-image-picker";
@@ -33,6 +34,7 @@ import { NegotiationModal } from "../components/NegotiationModal";
 import { json } from "stream/consumers";
 import PurpleButton from "../components/PurpleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 export function NewPostDetail({ navigation, route }) {
   const { image } = route.params;
@@ -88,121 +90,127 @@ export function NewPostDetail({ navigation, route }) {
   };
 
   return (
-    <View
-      style={{
-        backgroundColor: "#ffffff",
-        height: "100%",
-        flexDirection: "column",
-      }}
-    >
-      <Text style={styles.smallText}>Title</Text>
-      <TextInput
-        style={[
-          {
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            fontSize: 18,
-            backgroundColor: "#F4F4F4",
-            borderRadius: 10,
-            height: 42,
-            marginHorizontal: 24,
-            marginBottom: 32,
-          },
-        ]}
-        value={title}
-        onChangeText={(text) => {
-          setTitle(text);
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View
+        style={{
+          backgroundColor: "#ffffff",
+          height: "100%",
+          flexDirection: "column",
         }}
-        onKeyPress={({ nativeEvent }) => {}}
-        onContentSizeChange={(event) => {}}
-      />
-
-      <Text style={styles.smallText}>Price</Text>
-      <TouchableOpacity
-        style={{ width: 120 }}
-        onPress={() => setModalVisible(true)}
       >
-        <View
-          style={{
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            width: 120,
-            height: 40,
-            backgroundColor: "#F4F4F4",
-            borderRadius: 10,
-            marginHorizontal: 24,
-            marginBottom: 24,
-            elevation: 5,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "Rubik-Regular",
+        <Text style={styles.smallText}>Title</Text>
+        <TextInput
+          style={[
+            {
+              paddingVertical: 10,
+              paddingHorizontal: 10,
               fontSize: 18,
-              color: "#707070",
+              backgroundColor: "#F4F4F4",
+              borderRadius: 10,
+              height: 42,
+              marginHorizontal: 24,
+              marginBottom: 32,
+            },
+          ]}
+          value={title}
+          onChangeText={(text) => {
+            setTitle(text);
+          }}
+          onKeyPress={({ nativeEvent }) => {}}
+          onContentSizeChange={(event) => {}}
+        />
+
+        <Text style={styles.smallText}>Price</Text>
+        <TouchableOpacity
+          style={{ width: 120 }}
+          onPress={() => setModalVisible(true)}
+        >
+          <View
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+              width: 120,
+              height: 40,
+              backgroundColor: "#F4F4F4",
+              borderRadius: 10,
+              marginHorizontal: 24,
+              marginBottom: 24,
+              elevation: 5,
             }}
           >
-            {price == "" ? "$" : price}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <NegotiationModal
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        text={price}
-        setText={setPrice}
-        screen={"NewPost"}
-        itemName={undefined}
-      />
-      <Text style={styles.smallText}>Item Description</Text>
-      <TextInput
-        style={[
-          {
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            fontSize: 18,
-            backgroundColor: "#F4F4F4",
-            borderRadius: 10,
-            marginHorizontal: 24,
-            marginBottom: 32,
-            minHeight: 100,
-            textAlignVertical: "top",
-          },
-        ]}
-        placeholder={
-          "enter item details..." + "\n" + "• Condition" + "\n" + "• Dimensions"
-        }
-        value={description}
-        placeholderTextColor={"#707070"}
-        onChangeText={(text) => {
-          setDescription(text);
-        }}
-        onKeyPress={({ nativeEvent }) => {}}
-        onContentSizeChange={(event) => {}}
-        multiline={true}
-      />
-      <Text style={styles.smallText}>Select Categories</Text>
-      <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
-      <KeyboardAvoidingView
-        style={{
-          width: "100%",
-          alignItems: "center",
-          position: "absolute",
-          bottom: "5%",
-        }}
-      >
-        <PurpleButton
-          text={"Continue"}
-          onPress={() => {
-            navigation.navigate("Root");
-            postRequest();
-          }}
-          enabled={
-            description.length > 0 && title.length > 0 && price.length > 1
-          }
+            <Text
+              style={{
+                fontFamily: "Rubik-Regular",
+                fontSize: 18,
+                color: "#707070",
+              }}
+            >
+              {price == "" ? "$" : price}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <NegotiationModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          text={price}
+          setText={setPrice}
+          screen={"NewPost"}
+          post={null}
         />
-      </KeyboardAvoidingView>
-    </View>
+        <Text style={styles.smallText}>Item Description</Text>
+        <TextInput
+          style={[
+            {
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+              fontSize: 18,
+              backgroundColor: "#F4F4F4",
+              borderRadius: 10,
+              marginHorizontal: 24,
+              marginBottom: 32,
+              minHeight: 100,
+              textAlignVertical: "top",
+            },
+          ]}
+          placeholder={
+            "enter item details..." +
+            "\n" +
+            "• Condition" +
+            "\n" +
+            "• Dimensions"
+          }
+          value={description}
+          placeholderTextColor={"#707070"}
+          onChangeText={(text) => {
+            setDescription(text);
+          }}
+          onKeyPress={({ nativeEvent }) => {}}
+          onContentSizeChange={(event) => {}}
+          multiline={true}
+        />
+        <Text style={styles.smallText}>Select Categories</Text>
+        <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
+        <KeyboardAvoidingView
+          style={{
+            width: "100%",
+            alignItems: "center",
+            position: "absolute",
+            bottom: "5%",
+          }}
+        >
+          <PurpleButton
+            text={"Continue"}
+            onPress={() => {
+              navigation.navigate("Root");
+              postRequest();
+            }}
+            enabled={
+              description.length > 0 && title.length > 0 && price.length > 1
+            }
+          />
+        </KeyboardAvoidingView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -182,14 +182,14 @@ export default function ProfileScreen({ navigation }) {
 
             <Text style={styles.profileBioText}>{bio}</Text>
           </View>
-          <ProductList
-            count={null}
-            data={posts}
-            filter={null}
-            fromProfile={true}
-            navigation={navigation}
-            onRefresh={null}
-          />
+          <View style={{ height: "100%", flex: 1 }}>
+            <ProductList
+              data={posts}
+              fromProfile={true}
+              navigation={navigation}
+              onRefresh={null}
+            />
+          </View>
         </SafeAreaView>
       </ScrollView>
       <TouchableOpacity
@@ -214,8 +214,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-start",
-    paddingBottom: 75,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    paddingTop: 10,
   },
   upperContainer: {
     display: "flex",

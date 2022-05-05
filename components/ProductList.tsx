@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   RefreshControl,
   View,
+  Platform,
 } from "react-native";
 import ProductCard from "./ProductCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,17 +18,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({
-  count,
-  filter,
-  data,
-  navigation,
-  onRefresh,
-  fromProfile,
-}) {
+export function ProductList({ data, navigation, onRefresh, fromProfile }) {
   const [userId, setUserId] = useState("");
   const [refreshing, setRefreshing] = React.useState(false);
-
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
       if (result !== null) {
@@ -36,16 +29,7 @@ export function ProductList({
     }
   });
   const renderItem = ({ item }) => {
-    var show = true;
-    if (filter && count) {
-      show = filter[count].title === item.categories[0];
-      if (filter[count].title === "All") show = true;
-    } else {
-      show = true;
-    }
-
-    //console.log(data);
-    return show ? (
+    return (
       <ProductCard
         title={item.title}
         price={item.price}
@@ -73,13 +57,14 @@ export function ProductList({
             });
         }}
       />
-    ) : null;
+    );
   };
 
   var i,
     j,
     data1 = [],
     data2 = [];
+
   if (data) {
     for (i = 0, j = data.length; i < j; i += 1) {
       if (i % 2 == 0) {
@@ -93,7 +78,6 @@ export function ProductList({
   return (
     <SafeAreaView style={styles.inner}>
       <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
         refreshControl={
           onRefresh && (
@@ -101,7 +85,12 @@ export function ProductList({
           )
         }
       >
-        <View style={{ display: "flex", flexDirection: "row" }}>
+        <View
+          style={[
+            { display: "flex", flexDirection: "row" },
+            Platform.OS === "ios" ? { marginBottom: 60 } : { marginBottom: 90 },
+          ]}
+        >
           <FlatList
             data={data1}
             renderItem={renderItem}
