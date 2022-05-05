@@ -28,7 +28,7 @@ export default function App() {
   const [onBoard, setOnBoarded] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
 
-  // this need to be replaced by redux
+  //this need to be replaced by redux
   AsyncStorage.getItem("SignedIn", (errs, result) => {
     if (!errs) {
       if (result !== null && result == "true") {
@@ -108,8 +108,7 @@ export default function App() {
     const config = {
       iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
       androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
-      iosStandaloneAppClientId:
-        "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
+      iosStandaloneAppClientId:"947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
       scopes: ["profile", "email"],
     };
 

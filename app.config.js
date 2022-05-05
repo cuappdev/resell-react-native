@@ -1,9 +1,10 @@
 import "dotenv/config";
+import { combineReducers } from "redux";
 export default {
   expo: {
-    name: "resell-typescript",
-    slug: "resell-typescript",
-    version: "1.0.0",
+    name: "Resell",
+    slug: "Resell",
+    version: "1.0.2",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
@@ -29,6 +30,7 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.cornellappdev.resell"
     },
 
     android: {
