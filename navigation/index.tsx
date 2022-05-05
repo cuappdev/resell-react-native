@@ -70,6 +70,7 @@ import { NewPostImage } from "../screens/NewPostImage";
 import { NewPostDetail } from "../screens/NewPostDetail";
 import Edit from "../assets/svg-components/edit";
 import EditProfileScreen from "../screens/EditProfileScreen";
+import Venmo from "../assets/svg-components/venmo";
 
 export default function Navigation({
   colorScheme,
@@ -111,7 +112,14 @@ const STATUSBAR_HEIGHT = Platform.OS === "ios" ? 20 : StatusBarManager.HEIGHT;
 
 function RootNavigator({ onboard }) {
   return (
-    <Stack.Navigator initialRouteName="ProfileOnboard">
+    <Stack.Navigator
+      screenOptions={{
+        contentStyle: {
+          backgroundColor: "#FFFFFF",
+        },
+      }}
+      initialRouteName="ProfileOnboard"
+    >
       {!onboard && (
         <Stack.Screen
           name="ProfileOnboard"
@@ -290,7 +298,15 @@ function ProfileNavigator({ navigation }) {
         headerShown: false,
       }}
     >
-      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+      <ProfileStack.Screen
+        name="Profile"
+        options={{
+          header: () => {
+            return <StatusBar translucent={false} />;
+          },
+        }}
+        component={ProfileScreen}
+      />
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
@@ -316,7 +332,9 @@ function ProfileNavigator({ navigation }) {
         name="EditProfile"
         component={EditProfileScreen}
         options={{
-          headerShown: false,
+          header: () => {
+            return <StatusBar translucent={false} />;
+          },
         }}
       />
     </ProfileStack.Navigator>
@@ -400,15 +418,26 @@ function OnboardNavigator({ navigation }) {
                 >
                   <AntDesign name="left" size={24} color="black" />
                 </TouchableOpacity>
-                <Text
+                <View
                   style={{
-                    fontFamily: "Roboto-Medium",
-                    fontSize: 18,
-                    fontWeight: "bold",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  Link your Venmo
-                </Text>
+                  <Text
+                    style={{
+                      fontFamily: "Roboto-Medium",
+                      fontSize: 18,
+                      fontWeight: "bold",
+                      marginEnd: 6,
+                    }}
+                  >
+                    Link your
+                  </Text>
+
+                  <Venmo style={{ marginTop: 3 }} />
+                </View>
               </View>
             );
           },

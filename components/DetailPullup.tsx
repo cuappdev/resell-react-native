@@ -124,11 +124,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     paddingLeft: 20,
     fontFamily: "Rubik-Medium",
+    maxWidth: "70%",
   },
   price: {
     fontSize: 22,
     fontFamily: "Rubik-Medium",
     paddingRight: 20,
+    maxWidth: "25%",
   },
   profile: {
     fontSize: 16,

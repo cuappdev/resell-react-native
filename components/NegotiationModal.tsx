@@ -17,7 +17,7 @@ export function NegotiationModal({
   text,
   setText,
   screen,
-  itemName,
+  post,
 }) {
   return (
     <Modal
@@ -35,7 +35,7 @@ export function NegotiationModal({
       <View
         style={[
           styles.centeredView,
-          screen === "NewPost" ? { height: modalHeight } : { height: "100%" },
+          screen === "NewPost" ? { height: modalHeight } : { height: "85%" },
         ]}
       >
         {screen === "Chat" && (
@@ -44,13 +44,12 @@ export function NegotiationModal({
               width: "100%",
               elevation: 5,
               alignItems: "center",
-              marginTop: 60,
             }}
           >
             <NegotiationProductBubble
-              product={"Blue Pants"}
-              price={"14.00"}
-              image={require("../assets/images/Pants.png")}
+              product={post.title}
+              price={post.price}
+              image={post.images[0]}
             />
           </View>
         )}
