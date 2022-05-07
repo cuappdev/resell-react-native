@@ -24,28 +24,28 @@ export default function App() {
 
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  const [signedIn, setSignIn] = useState(false);
+  const [signedIn, setSignIn] = useState(true);
   const [onBoard, setOnBoarded] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
 
   // this need to be replaced by redux
-  AsyncStorage.getItem("SignedIn", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result == "true") {
-        setSignIn(true);
-      } else if (result !== null && result == "false") {
-        //!=null is ok because if result ==null, signIn is going to be default false anyway
-        setSignIn(false);
-      }
-    }
-  });
-  AsyncStorage.getItem("Onboarded", (errs, result) => {
-    if (!errs) {
-      if (result !== null) {
-        setOnBoarded(true);
-      }
-    }
-  });
+  // AsyncStorage.getItem("SignedIn", (errs, result) => {
+  //   if (!errs) {
+  //     if (result !== null && result == "true") {
+  //       setSignIn(true);
+  //     } else if (result !== null && result == "false") {
+  //       //!=null is ok because if result ==null, signIn is going to be default false anyway
+  //       setSignIn(false);
+  //     }
+  //   }
+  // });
+  // AsyncStorage.getItem("Onboarded", (errs, result) => {
+  //   if (!errs) {
+  //     if (result !== null) {
+  //       setOnBoarded(true);
+  //     }
+  //   }
+  // });
 
   const setSignedIn = async () => {
     try {

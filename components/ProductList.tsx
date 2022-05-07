@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
  * @param {list} data - a list of product with basic information like, title, id, price, and images directory
  * @returns two horizontal list of product cards
  */
-export function ProductList({ data, navigation, onRefresh, fromProfile }) {
+export function ProductList({ data, navigation, onRefresh, screen }) {
   const [userId, setUserId] = useState("");
   const [refreshing, setRefreshing] = React.useState(false);
   AsyncStorage.getItem("userId", (errs, result) => {
@@ -35,7 +35,7 @@ export function ProductList({ data, navigation, onRefresh, fromProfile }) {
         price={item.price}
         image={item.images ? item.images[0] : null}
         onPress={() => {
-          const response = fetch(
+          fetch(
             "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
               userId +
               "/postId/" +
@@ -50,7 +50,7 @@ export function ProductList({ data, navigation, onRefresh, fromProfile }) {
               if (response != null) {
                 navigation.navigate("ProductHome", {
                   post: item,
-                  showTrash: fromProfile,
+                  screen: screen,
                   savedInitial: response.isSaved,
                 });
               }

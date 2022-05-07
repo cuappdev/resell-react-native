@@ -21,7 +21,7 @@ export default function PurpleButton(props) {
 
 const styles = StyleSheet.create({
   button: {
-    width: 230,
+    width: 200,
     flexDirection: "column",
     alignItems: "center",
     padding: "3%",
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
     textAlign: "center",
   },
   purpleButton: {

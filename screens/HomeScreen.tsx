@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   slideUp: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 400,
+    height: 370,
     backgroundColor: "#ffffff",
     width: "100%",
     marginHorizontal: 0,
