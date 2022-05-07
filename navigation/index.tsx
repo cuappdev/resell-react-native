@@ -20,9 +20,10 @@ import {
   Text,
   TouchableOpacity,
   Button,
-  StatusBar,
   Platform,
   NativeModules,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 
 import Colors from "../constants/Colors";
@@ -109,7 +110,12 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 const OnboardStack = createNativeStackNavigator<OnboardStackParamList>();
 const STATUSBAR_HEIGHT = Platform.OS === "ios" ? 20 : StatusBarManager.HEIGHT;
-
+StatusBar.setHidden(false);
+StatusBar.setBarStyle("dark-content");
+if (Platform.OS === "android") {
+  StatusBar.setTranslucent(false);
+  StatusBar.setBackgroundColor("#ffffff");
+}
 function RootNavigator({ onboard }) {
   return (
     <Stack.Navigator
@@ -158,8 +164,6 @@ function RootNavigator({ onboard }) {
                     marginTop: Platform.OS === "ios" ? 35 : 0,
                   }}
                 >
-                  <StatusBar translucent={false} />
-
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
                     style={{
@@ -206,8 +210,6 @@ function RootNavigator({ onboard }) {
                     marginTop: Platform.OS === "ios" ? 35 : 0,
                   }}
                 >
-                  <StatusBar translucent={false} />
-
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
                     style={{
@@ -319,15 +321,7 @@ function ProfileNavigator({ navigation }) {
         headerShown: false,
       }}
     >
-      <ProfileStack.Screen
-        name="Profile"
-        options={{
-          header: () => {
-            return <StatusBar translucent={false} />;
-          },
-        }}
-        component={ProfileScreen}
-      />
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
@@ -349,15 +343,7 @@ function ProfileNavigator({ navigation }) {
           headerShown: false,
         }}
       />
-      <ProfileStack.Screen
-        name="EditProfile"
-        component={EditProfileScreen}
-        options={{
-          header: () => {
-            return <StatusBar translucent={false} />;
-          },
-        }}
-      />
+      <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
     </ProfileStack.Navigator>
   );
 }
@@ -396,7 +382,7 @@ function OnboardNavigator({ navigation }) {
                   backgroundColor: "#ffffff",
                   justifyContent: "center",
                   alignItems: "center",
-                  marginTop: 35,
+                  marginTop: Platform.OS === "ios" ? 35 : 0,
                 }}
               >
                 <Text
@@ -429,7 +415,7 @@ function OnboardNavigator({ navigation }) {
                   backgroundColor: "#ffffff",
                   justifyContent: "center",
                   alignItems: "center",
-                  marginTop: 35,
+                  marginTop: Platform.OS === "ios" ? 35 : 0,
                 }}
               >
                 <TouchableOpacity

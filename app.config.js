@@ -13,6 +13,10 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
+    androidStatusBar: {
+      backgroundColor: "#ffffff",
+      translucent: false,
+    },
     plugins: [
       [
         "expo-image-picker",
