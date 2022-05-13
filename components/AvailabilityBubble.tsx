@@ -7,14 +7,30 @@ export function AvailabilityBubble({
   userName,
   setIsBubble,
   setAvailabilityVisible,
+  setInputSchedule,
+  schedule,
+  setAvailabilityUserName,
 }) {
   return (
     <TouchableOpacity
       style={styles.outer}
       activeOpacity={0.7}
       onPress={() => {
-        setIsBubble(true);
-        setAvailabilityVisible(true);
+        if (schedule != null) {
+          if (!(schedule[0].endDate instanceof Date)) {
+            schedule.forEach((element, index) => {
+              const endDate = element.endDate.toDate();
+              const startDate = element.startDate.toDate();
+              schedule[index].endDate = endDate;
+              schedule[index].startDate = startDate;
+            });
+          }
+          setInputSchedule(schedule);
+          setAvailabilityUserName(userName);
+          console.log(schedule);
+          setAvailabilityVisible(true);
+          setIsBubble(true);
+        }
       }}
     >
       <Text style={styles.textStyle}>{userName}'s Avaliability</Text>
@@ -32,9 +48,7 @@ export function AvailabilityBubble({
 
 const styles = StyleSheet.create({
   outer: {
-    flex: 1,
     flexDirection: "row",
-    width: "80%",
     backgroundColor: "rgba(158, 112, 246, 0.1)",
     borderRadius: 15,
     alignItems: "center",
@@ -50,7 +64,8 @@ const styles = StyleSheet.create({
     color: "#9E70F6",
     lineHeight: 20,
     fontWeight: "700",
-    textAlign: "center",
+    textAlign: "left",
+    width: "85%",
   },
   modalText: {
     marginBottom: 15,

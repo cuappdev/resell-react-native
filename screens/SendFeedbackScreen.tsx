@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 20,
     zIndex: 1,
     width: 20,
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   title: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 0,
     right: 0,
     alignItems: "center",
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     right: 20,
   },
   buttonText: {
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   feedbackInstructions: {
     fontFamily: "Rubik-Regular",
     fontSize: 16,
-    marginTop: menuBarTop + 50,
+    marginTop: Platform.OS === "ios" ? menuBarTop + 50 : 70,
     marginHorizontal: 20,
     textAlign: "center",
   },
@@ -104,21 +104,15 @@ export default function SendFeedbackScreen({ navigation }) {
       }
     })();
   }, []);
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      //   allowsEditing: true,
-      //   aspect: [5, 2],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
-      quality: 1,
+      quality: 0.5,
     });
-
-    console.log(result);
-
     if (!result.cancelled) {
-      setImage(result.uri);
       setSelectImage(true);
+      setImage("data:image/jpeg;base64," + result["base64"]);
     }
   };
 

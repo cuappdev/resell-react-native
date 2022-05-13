@@ -31,16 +31,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "center",
-  },
-  purpleButton: {
-    bottom: 100,
-    alignItems: "center",
-    width: "100 %",
-    zIndex: 10,
-    height: 170,
-    backgroundColor: "white",
-    marginTop: 350,
   },
 });

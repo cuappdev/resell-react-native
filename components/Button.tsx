@@ -34,7 +34,7 @@ function Button(props) {
       props.setIsBubble(false);
     }
     if (props.title == "Pay with Venmo") {
-      Linking.openURL("https://venmo.com/signup/");
+      Linking.openURL("https://account.venmo.com/u/");
     }
   };
 

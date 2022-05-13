@@ -8,6 +8,8 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 import * as Google from "expo-google-app-auth";
+// import * as GoogleSignIn from "expo-google-sign-in";
+
 import GlobalStore from "./state_manage/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { login, logout } from "./state_manage/actions/signInActions";
@@ -15,41 +17,65 @@ import ResellLogo from "./assets/svg-components/resell_logo";
 import Header from "./assets/svg-components/header";
 import PurpleButton from "./components/PurpleButton";
 import CornellAppdev from "./assets/images/cornelappdev";
-import firebase from "./config/firebase";
-import { auth, provider } from "./config/firebase";
+import { auth } from "./config/firebase";
+import * as firebase from "firebase";
+import * as AppAuth from "expo-app-auth";
+import { sign } from "crypto";
 
+// When configured correctly, URLSchemes should contain your REVERSED_CLIENT_ID
+const { URLSchemes } = AppAuth;
 export default function App() {
   // const log_in = () => dispatch(login());
   // const log_out = () => dispatch(logout());
-
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const uid = user.uid;
+        // ...
+      } else {
+        // User is signed out
+        // ...
+      }
+    });
+  }, []);
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  const [signedIn, setSignIn] = useState(true);
+  const [signedIn, setSignIn] = useState(false);
   const [onBoard, setOnBoarded] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
+  const [email, setEmail] = useState("");
 
   // this need to be replaced by redux
-  // AsyncStorage.getItem("SignedIn", (errs, result) => {
-  //   if (!errs) {
-  //     if (result !== null && result == "true") {
-  //       setSignIn(true);
-  //     } else if (result !== null && result == "false") {
-  //       //!=null is ok because if result ==null, signIn is going to be default false anyway
-  //       setSignIn(false);
-  //     }
-  //   }
-  // });
-  // AsyncStorage.getItem("Onboarded", (errs, result) => {
-  //   if (!errs) {
-  //     if (result !== null) {
-  //       setOnBoarded(true);
-  //     }
-  //   }
-  // });
+  AsyncStorage.getItem("SignedIn", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setSignIn(true);
+        setEmail(result);
+      }
+    }
+  });
+  AsyncStorage.getItem("Onboarded", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setOnBoarded(true);
+      }
+    }
+  });
+  useEffect(() => {
+    if (signedIn) {
+      AsyncStorage.getItem("userId", (errs, result) => {
+        if (!errs) {
+          if (result !== null) {
+            register(email, result);
+          }
+        }
+      });
+    }
+  }, [email]);
 
-  const setSignedIn = async () => {
+  const setSignedIn = async (email) => {
     try {
-      await AsyncStorage.setItem("SignedIn", "true");
+      await AsyncStorage.setItem("SignedIn", email);
     } catch (e) {
       console.log(e);
     }
@@ -69,6 +95,34 @@ export default function App() {
       console.log(e);
     }
   };
+
+  const storeAuthUser = async (user, userId) => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        console.log("user", json);
+        user
+          .updateProfile({
+            displayName: json.user.givenName + " " + json.user.familyName,
+            photoURL: json.user.photoUrl,
+          })
+          .then(() => {
+            // Profile updated!
+            // ...
+          })
+          .catch((error) => {
+            // An error occurred
+            // ...
+            alert(error);
+          });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const postRequest = (result) => {
     fetch("https://resell-dev.cornellappdev.com/api/auth/login/", {
       method: "POST",
@@ -81,17 +135,32 @@ export default function App() {
       .then((response) => response.json())
       .then((json) => {
         if (json.error) {
+          console.log(json);
           alert("Please Use Your Cornell Email :)");
         } else {
           console.log(json);
           storeAccessToken(json.accessToken);
           storeUserId(json.userId);
           setSignIn(true);
-          setSignedIn();
+          setSignedIn(result.user.email);
+          console.log(json);
+          register(result.user.email, json.userId);
         }
       })
       .catch((error) => {
         console.error(error);
+      });
+  };
+  const firebaseSignIn = (email, password) => {
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        storeAuthUser(user, password);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
       });
   };
 
@@ -112,26 +181,42 @@ export default function App() {
         "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
       scopes: ["profile", "email"],
     };
-
+    console.log("here");
     Google.logInAsync(config).then((result) => {
       const { type } = result;
       if (type == "success") {
-        console.log("Google SignIn", "SUCCESS", result);
-
+        // console.log("Google SignIn", "SUCCESS", result);
         postRequest(result);
-        // const { idToken, accessToken } = result;
-
-        // provider.addScope(idToken);
-        // provider.addScope(accessToken);
-        // const user = auth.currentUser;
-
-        // if (!user) {
-        // }
-        // return auth.signInWithCustomToken(idToken);
       } else {
         console.log("Google SignIn", "FAILURE", result);
       }
     });
+  };
+
+  const register = (email, password) => {
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        storeAuthUser(user, password);
+
+        console.log("success");
+
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        if (
+          errorMessage ===
+          "The email address is already in use by another account."
+        ) {
+          firebaseSignIn(email, password);
+        }
+
+        // ..
+      });
   };
 
   Font.loadAsync({

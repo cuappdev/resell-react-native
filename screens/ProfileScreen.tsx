@@ -78,6 +78,7 @@ export default function ProfileScreen({ navigation }) {
   }, [isFocused]);
   useEffect(() => {
     // update posts when home screen is entered again
+    console.log("back");
     getPostsIngress();
   }, [isFocused]);
   const getUserIngress = async () => {
@@ -106,7 +107,7 @@ export default function ProfileScreen({ navigation }) {
       );
       if (response.ok) {
         const json = await response.json();
-        //console.log(json);
+        // console.log(json);
         setPosts(json.posts);
       }
     } catch (error) {
@@ -118,25 +119,23 @@ export default function ProfileScreen({ navigation }) {
   };
   const getPostsIngress = async () => {
     try {
-      setLoading(true);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
       );
       if (response.ok) {
         const json = await response.json();
-        // console.log(json);
+        console.log(json.posts.length);
         setPosts(json.posts);
       }
     } catch (error) {
       console.error(error);
       setFetchFailed(true);
-    } finally {
-      setLoading(false);
     }
   };
   useEffect(() => {
     getPosts();
   }, [userId]);
+
   useEffect(() => {
     getUser();
   }, [userId]);
@@ -187,12 +186,18 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.profileBioText}>{bio}</Text>
           </View>
           <View style={{ height: "100%", flex: 1 }}>
-            <ProductList
-              data={posts}
-              fromProfile={true}
-              navigation={navigation}
-              onRefresh={null}
-            />
+            {isLoading ? (
+              <LoadingScreen screen={"Profile"} />
+            ) : fetchFailed ? (
+              <LoadingScreen screen={"Profile"} />
+            ) : (
+              <ProductList
+                data={posts}
+                screen={"Profile"}
+                navigation={navigation}
+                onRefresh={null}
+              />
+            )}
           </View>
         </SafeAreaView>
       </ScrollView>

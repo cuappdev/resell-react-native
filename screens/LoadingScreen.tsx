@@ -4,7 +4,7 @@ import { Animated, Image, StyleSheet, View, Dimensions } from "react-native";
 const scaledWidth = Dimensions.get("window").width - 32;
 const scaledHeight = (scaledWidth * 961) / 512;
 
-export default function LoadingScreen() {
+export default function LoadingScreen({ screen }) {
   const loadAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -34,11 +34,27 @@ export default function LoadingScreen() {
         },
       ]}
     >
-      <Image
-        style={styles.emptyFeed}
-        source={require("../assets/images/empty_feed.png")}
-        resizeMethod="resize"
-      />
+      {(screen == "Saved" || screen == "Search") && (
+        <Image
+          style={styles.emptyFeed}
+          source={require("../assets/images/smallLoading.png")}
+          resizeMethod="resize"
+        />
+      )}
+      {screen == "Profile" && (
+        <Image
+          style={styles.emptyFeed}
+          source={require("../assets/images/mediumLoading.jpg")}
+          resizeMethod="resize"
+        />
+      )}
+      {screen == "Home" && (
+        <Image
+          style={styles.emptyFeed}
+          source={require("../assets/images/empty_feed.png")}
+          resizeMethod="resize"
+        />
+      )}
     </Animated.View>
   );
 }

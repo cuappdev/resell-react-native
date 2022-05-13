@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  Platform,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 20,
     zIndex: 1,
     width: 20,
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
   },
   title: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 0,
     right: 0,
     alignItems: "center",
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   list: {
-    marginTop: menuBarTop + 30,
+    top: Platform.OS === "ios" ? menuBarTop + 30 : 50,
   },
   slideUp: {
     borderTopLeftRadius: 40,

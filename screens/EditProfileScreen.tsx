@@ -24,6 +24,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { json } from "stream/consumers";
 import { ScrollView } from "react-native-gesture-handler";
 import { platform } from "os";
+import { auth } from "../config/firebase";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -121,7 +122,20 @@ export default function EditProfileScreen({ navigation, route }) {
           return response.json();
         })
         .then(async function (data) {
-          // console.log(data);
+          auth.currentUser
+            .updateProfile({
+              displayName: data.user.givenName + " " + data.user.familyName,
+              photoURL: data.user.photoUrl,
+            })
+            .then(() => {
+              // Profile updated!
+              // ...
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+              alert(error);
+            });
         })
         .catch((error) => {
           //alert(error.message);

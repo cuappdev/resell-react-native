@@ -82,7 +82,7 @@ export function NewPostDetail({ navigation, route }) {
         }
       })
       .then(async function (data) {
-        // console.log(data);
+        navigation.navigate("Root");
       })
       .catch((error) => {
         //alert(error.message);
@@ -201,7 +201,6 @@ export function NewPostDetail({ navigation, route }) {
           <PurpleButton
             text={"Continue"}
             onPress={() => {
-              navigation.navigate("Root");
               postRequest();
             }}
             enabled={

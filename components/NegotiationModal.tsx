@@ -76,19 +76,37 @@ export function NegotiationModal({
             </Text>
           </View>
         )}
-        <View style={styles.modalView}>
-          <Text style={[styles.textStyle, { marginBottom: 24 }]}>
-            What price do you want to propose?
-          </Text>
-          <NumberPad
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            originalText={text}
-            setOriginalText={setText}
-            screen={screen}
-            productName={post.title}
-          />
-        </View>
+        {screen === "NewPost" && (
+          <View style={styles.modalView}>
+            <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+              What price do you want to sell your product?
+            </Text>
+            <NumberPad
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              originalText={text}
+              setOriginalText={setText}
+              screen={screen}
+              productName={undefined}
+            />
+          </View>
+        )}
+
+        {screen === "Chat" && (
+          <View style={styles.modalView}>
+            <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+              What price do you want to sell your product?
+            </Text>
+            <NumberPad
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              originalText={text}
+              setOriginalText={setText}
+              screen={screen}
+              productName={post.title}
+            />
+          </View>
+        )}
       </View>
     </Modal>
   );
