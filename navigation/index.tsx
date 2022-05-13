@@ -551,14 +551,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
-    height: bottomTabsHeight,
+    height: Platform.OS === "ios" ? bottomTabsHeight : bottomTabsHeight - 20,
     borderTopWidth: 0,
-    shadowOffset: { width: 0, height: -10 },
     shadowColor: "gray",
     shadowRadius: 10,
     backgroundColor: "#ffffff",
     shadowOpacity: 0.3,
-    elevation: 5, // android
+    elevation: 10, // android
   },
   headerNoShadow: {
     shadowColor: "transparent",

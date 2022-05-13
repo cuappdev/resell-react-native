@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   Image,
@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { Text, View } from "./Themed";
 import ModalBar from "../assets/svg-components/modal_bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth } from "../config/firebase";
 
 export type Item = {
   images: string[];
@@ -16,17 +18,11 @@ export type Item = {
   description: string;
   categories: string[];
   similarItems: number[];
+  sellerName: String;
+  sellerImage: String;
 };
 
-export function DetailPullUpHeader({
-  item,
-  sellerName,
-  sellerProfile,
-}: {
-  item: Item;
-  sellerName: String;
-  sellerProfile;
-}) {
+export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
   return (
     <View style={[styles.container_header, styles.roundCorner]}>
       <View style={styles.modalBar}>
@@ -37,8 +33,19 @@ export function DetailPullUpHeader({
         <Text style={styles.price}>{"$" + item.price}</Text>
       </View>
       <View style={styles.paddedRow}>
-        <Image source={{ uri: sellerProfile }} style={styles.profileImage} />
-        <Text style={styles.profile}>{sellerName}</Text>
+        <Image
+          source={
+            item.sellerImage == ""
+              ? { uri: sellerProfile }
+              : { uri: item.sellerImage }
+          }
+          style={styles.profileImage}
+        />
+        {item.sellerName == "" ? (
+          <Text style={styles.profile}>{sellerName}</Text>
+        ) : (
+          <Text style={styles.profile}>{item.sellerName}</Text>
+        )}
       </View>
     </View>
   );
@@ -46,36 +53,68 @@ export function DetailPullUpHeader({
 
 export function DetailPullUpBody({
   item,
+  sellerName,
   similarItems,
   navigation,
-}: {
-  item: Item;
-  similarItems: any;
-  navigation: any;
+  screen,
 }) {
+  const [userId, setUserId] = useState("");
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
   return (
-    <ScrollView style={styles.pullUpScrollView}>
+    <ScrollView
+      style={[
+        styles.pullUpScrollView,
+        screen == "Profile" || sellerName == auth?.currentUser?.displayName
+          ? { marginBottom: 0 }
+          : { marginBottom: 130 },
+      ]}
+    >
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
         data={similarItems}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("ProductHome", {
-                post: item,
-                showTrash: false,
-              })
-            }
-          >
-            <Image
-              source={{ uri: item.images[0] }}
-              style={styles.similarItem}
-            ></Image>
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) => {
+          return (
+            <TouchableOpacity
+              onPress={() => {
+                fetch(
+                  "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
+                    userId +
+                    "/postId/" +
+                    item.id
+                )
+                  .then((response) => {
+                    if (response.ok) {
+                      return response.json();
+                    } else return null;
+                  })
+                  .then((response) => {
+                    console.log(item);
+                    if (response != null) {
+                      navigation.navigate("ProductHome", {
+                        post: item,
+                        screen: "Home",
+                        savedInitial: response.isSaved,
+                      });
+                    }
+                  });
+              }}
+            >
+              <Image
+                source={{ uri: item.images[0] }}
+                style={styles.similarItem}
+              ></Image>
+            </TouchableOpacity>
+          );
+        }}
         keyExtractor={(item, index) => index.toString()}
       ></FlatList>
     </ScrollView>
@@ -94,7 +133,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     backgroundColor: "white",
-    marginBottom: 130,
   },
   container_header: {
     justifyContent: "flex-start",

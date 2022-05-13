@@ -6,11 +6,14 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
+  Image,
   KeyboardAvoidingView,
+  Dimensions,
+  Platform,
 } from "react-native";
 import { View } from "../components/Themed";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ButtonBanner } from "../components/ButtonBanner";
 import {
   Bubble,
@@ -29,21 +32,12 @@ import { ImageEditor } from "expo-image-editor";
 import * as ImagePicker from "expo-image-picker";
 import { pressedOpacity } from "../constants/Values";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
-// import {
-//   collection,
-//   addDoc,
-//   orderBy,
-//   query,
-//   onSnapshot,
-// } from "firebase/firestore";
-
-// import { auth, database } from "../config/firebase";
-// import { firestore } from "../config/firebase";
-
-// const userCollection = firestore.collection("users");
+import { auth, chatRef, db, historyRef } from "../config/firebase";
+import ProductCard from "../components/ProductCard";
+import { json } from "stream/consumers";
 
 export default function ChatWindow({ navigation, route }) {
-  const { item, seller, post } = route.params;
+  const { email, name, receiverImage, post, isBuyer } = route.params;
   //console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(0);
@@ -53,52 +47,75 @@ export default function ChatWindow({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
   const [isSendingAvailability, setIsSendingAvailability] = useState(false);
+  const [inputSchedule, setInputSchedule] = useState([]);
   const [scheduleCallback, setScheduleCallback] = useState([]);
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
   const [uri, setUri] = useState("");
 
-  const [messages, setMessages] = React.useState([]);
-  useEffect(() => {
-    setMessages([
-      // {
-      //   _id: 1,
-      //   text: "Hello developer",
-      //   createdAt: new Date(),
-      //   user: {
-      //     _id: 2,
-      //     name: "React Native",
-      //     avatar: "https://placeimg.com/140/140/any",
-      //   },
-      // },
-      // {
-      //   _id: 2,
-      //   text: "Hello developer",
-      //   createdAt: new Date(),
-      //   user: {
-      //     _id: 1,
-      //     name: "React Native",
-      //     avatar: "https://placeimg.com/140/140/any",
-      //   },
-      // },
-      // {
-      //   _id: 2,
-      //   text: "",
-      //   avaliability_id: 4,
-      //   image: "",
-      //   productName: "",
-      //   createdAt: new Date(),
-      //   user: {
-      //     _id: 1,
-      //     name: "React Native",
-      //     avatar: "https://placeimg.com/140/140/any",
-      //   },
-      // },
-    ]);
-  }, []);
-  const onSend = (newMessages = []) =>
-    setMessages(GiftedChat.append(messages, newMessages));
+  const [mCount, setmCount] = useState(0);
 
+  const [messages, setMessages] = React.useState([]);
+
+  useEffect(() => {
+    if (isSendingAvailability) setText("");
+  }, [isSendingAvailability]);
+
+  const onSend = useCallback((messages = []) => {
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, messages)
+    );
+    const { _id, text, availability, image, product, createdAt, user } =
+      messages[0];
+    var recentMessage = "";
+    if (text.length > 0) {
+      recentMessage = text;
+    } else if (availability[0] != undefined) {
+      recentMessage = "[Availability]";
+    } else if (product.title != undefined) {
+      recentMessage = "[Product: " + product.title + "]";
+    } else if (image != "") {
+      recentMessage = "[Image]";
+    }
+
+    historyRef
+      .doc(isBuyer ? auth?.currentUser?.email : email)
+      .collection("sellers")
+      .doc(isBuyer ? email : auth?.currentUser?.email)
+      .set({
+        item: post,
+        recentMessage: recentMessage,
+        recentSender: auth?.currentUser?.email,
+        name: isBuyer ? name : auth?.currentUser?.displayName,
+        image: isBuyer ? receiverImage : auth?.currentUser?.photoURL,
+        viewed: isBuyer,
+      });
+    historyRef
+      .doc(isBuyer ? email : auth?.currentUser?.email)
+      .collection("buyers")
+      .doc(isBuyer ? auth?.currentUser?.email : email)
+      .set({
+        item: post,
+        recentMessage: recentMessage,
+        recentSender: auth?.currentUser?.email,
+        name: isBuyer ? auth?.currentUser?.displayName : name,
+        image: isBuyer ? auth?.currentUser?.photoURL : receiverImage,
+        viewed: !isBuyer,
+      });
+    const messageRef = chatRef
+      .doc(isBuyer ? auth?.currentUser?.email : email)
+      .collection(isBuyer ? email : auth?.currentUser?.email);
+
+    messageRef.add({
+      _id,
+      text,
+      availability,
+      image,
+      product,
+      createdAt,
+      user,
+    });
+  }, []);
   function renderMessage(props) {
     const {
       currentMessage: { text: currText },
@@ -112,14 +129,19 @@ export default function ChatWindow({ navigation, route }) {
       />
     );
   }
+  const [availabilityUsername, setAvailabilityUserName] = useState("");
 
   function renderBubble(props) {
     const { currentMessage } = props;
     const { text: currText } = currentMessage;
+    const { availability: currAvailability } = currentMessage;
+    const { user: currUser } = currentMessage;
+    const { image: currImage } = currentMessage;
 
-    if (currText == undefined || currText.length > 0) {
+    const { product: currPost } = currentMessage;
+    if (currText.length > 0) {
       return (
-        <View style={{ marginVertical: 10 }}>
+        <View style={{ marginVertical: 5 }}>
           <Bubble
             {...props}
             wrapperStyle={{
@@ -156,15 +178,52 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else {
+    } else if (currAvailability[0] != undefined) {
       return (
-        <View
-          style={{ width: "80%", alignItems: "flex-end", marginVertical: 10 }}
-        >
+        <View style={{ width: "70%", marginVertical: 5 }}>
           <AvailabilityBubble
-            userName={"Jessie"}
+            userName={
+              currUser._id == auth?.currentUser?.email
+                ? auth?.currentUser?.displayName
+                : name
+            }
+            setAvailabilityUserName={setAvailabilityUserName}
             setIsBubble={setIsBubble}
             setAvailabilityVisible={setAvailabilityVisible}
+            setInputSchedule={setInputSchedule}
+            schedule={currAvailability}
+          />
+        </View>
+      );
+    } else if (currPost.title != undefined) {
+      return (
+        <View style={{ width: "50%", marginVertical: 5 }}>
+          <ProductCard
+            title={currPost.title}
+            price={currPost.price}
+            image={currPost.images ? post.images[0] : null}
+          />
+        </View>
+      );
+    } else if (currImage != "") {
+      return (
+        <View
+          style={[
+            { width: "50%", marginHorizontal: 10, marginVertical: 5 },
+            currUser._id != auth?.currentUser?.email
+              ? { alignItems: "flex-end" }
+              : { alignItems: "flex-start" },
+          ]}
+        >
+          <Image
+            source={{ uri: currImage }}
+            style={{
+              width: "100%",
+              minHeight: 200,
+              resizeMode: "cover",
+              marginHorizontal: 10,
+              borderRadius: 5,
+            }}
           />
         </View>
       );
@@ -176,7 +235,9 @@ export default function ChatWindow({ navigation, route }) {
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
+      // quality: 0.5,
+      // allowsEditing: true,
+      // aspect: [3, 4],
     });
     if (!result.cancelled) {
       // console.log(result);
@@ -184,60 +245,121 @@ export default function ChatWindow({ navigation, route }) {
       setModalVisibility(true);
     }
   };
-  const saveandcompress = async (uri) => {
+  const saveandcompress = async (uri, props) => {
     const manipResult = await manipulateAsync(uri, [], {
       compress: 0.5,
       format: SaveFormat.JPEG,
       base64: true,
     });
     setUri("");
-    if (image.length < 7) {
-      setImage([
-        ...image.slice(0, -1),
-        "data:image/jpeg;base64," + manipResult["base64"],
-        "",
-      ]);
-    } else {
-      setImage([
-        ...image.slice(0, -1),
-        "data:image/jpeg;base64," + manipResult["base64"],
-      ]);
-    }
+    postImage("data:image/jpeg;base64," + manipResult["base64"], props);
+  };
+  const postProduct = (props) => {
+    props.onSend({
+      _id: new Date().valueOf(),
+      text: "",
+      availability: {},
+      image: "",
+      product: post,
+      createdAt: new Date(),
+      user: {
+        _id: email,
+        name: name,
+        avatar: receiverImage,
+      },
+    });
   };
 
-  // useEffect(() => {
-  //   const collectionRef = collection(database, "chats");
-  //   const q = query(collectionRef, orderBy("createdAt", "desc"));
+  const postImage = (image, props) => {
+    const Json = JSON.stringify({
+      imageBase64: image,
+    });
+    //console.log(Jzzzson);
+    fetch("https://resell-dev.cornellappdev.com/api/image/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: Json,
+    })
+      .then(function (response) {
+        // alert(JSON.stringify(response));
+        if (!response.ok) {
+          let error = new Error(response.statusText);
+          throw error;
+        } else {
+          return response.json();
+        }
+      })
+      .then(async function (data) {
+        if (mCount == 0) {
+          setmCount(1);
+          postProduct(props);
+        }
 
-  //   const unsubscribe = onSnapshot(q, (querySnapshot) => {
-  //     setMessages(
-  //       querySnapshot.docs.map((doc) => ({
-  //         _id: doc.data()._id,
-  //         createdAt: doc.data().createdAt.toDate(),
-  //         text: doc.data().text,
-  //         user: doc.data().user,
-  //       }))
-  //     );
-  //   });
+        props.onSend({
+          _id: new Date().valueOf(),
+          text: "",
+          availability: {},
+          image: data.image,
+          product: {},
+          createdAt: new Date(),
+          user: {
+            _id: email,
+            name: name,
+            avatar: receiverImage,
+          },
+        });
+      })
+      .catch((error) => {
+        //alert(error.message);
+      });
+  };
+  const [placeholder, setPlaceholder] = useState("");
 
-  //   return () => unsubscribe();
-  // }, []);
+  useEffect(() => {
+    const unsubscribe = chatRef
+      .doc(isBuyer ? auth?.currentUser?.email : email)
+      .collection(isBuyer ? email : auth?.currentUser.email)
+      .orderBy("createdAt", "desc")
+      .onSnapshot((snapshot) => {
+        setMessages(
+          snapshot.docs.map((doc) => ({
+            _id: doc.data()._id,
+            text: doc.data().text,
+            availability: doc.data().availability,
+            product: doc.data().product,
+            image: doc.data().image,
+            createdAt: doc.data().createdAt.toDate(),
+            user: doc.data().user,
+          }))
+        );
+      });
+    return () => unsubscribe();
+  }, []);
 
-  // const onSend = useCallback((messages = []) => {
-  //   setMessages((previousMessages) =>
-  //     GiftedChat.append(previousMessages, messages)
-  //   );
-  //   const { _id, createdAt, text, user } = messages[0];
-  //   addDoc(collection(database, "chats"), {
-  //     _id,
-  //     createdAt,
-  //     text,
-  //     user,
-  //   });
-  // }, []);
   function renderInputToolbar(props) {
     return (
       <SafeAreaView style={styles.filter}>
+        {uri != "" && (
+          <ImageEditor
+            visible={modalVisibility}
+            onCloseEditor={() => {
+              setModalVisibility(false);
+              setUri("");
+            }}
+            imageUri={uri}
+            minimumCropDimensions={{
+              width: 100,
+              height: 100,
+            }}
+            onEditingComplete={(result) => {
+              saveandcompress(result.uri, props);
+            }}
+            mode="full"
+          />
+        )}
         <ButtonBanner
           count={count}
           setCount={setCount}
@@ -294,9 +416,11 @@ export default function ChatWindow({ navigation, route }) {
                 onKeyPress={({ nativeEvent }) => {
                   if (nativeEvent.key === "Backspace") {
                     setIsSendingAvailability(false);
+                    setScheduleCallback([]);
                   }
                 }}
                 value={text}
+                clearTextOnFocus={true}
                 onContentSizeChange={(event) => {
                   setHeight(event.nativeEvent.contentSize.height);
                 }}
@@ -306,20 +430,43 @@ export default function ChatWindow({ navigation, route }) {
             {isSendingAvailability && (
               <View
                 style={{
-                  height: 50,
+                  height: "100%",
                   marginStart: 12,
                   marginVertical: 10,
                   alignItems: "flex-start",
                   backgroundColor: "transparent",
+                  flexDirection: "column",
                 }}
               >
                 <AvailabilityBubble
-                  userName={"jessie"}
+                  userName={auth?.currentUser?.displayName}
                   setIsBubble={null}
                   setAvailabilityVisible={null}
+                  setInputSchedule={null}
+                  schedule={null}
+                  setAvailabilityUserName={null}
+                />
+                <TextInput
+                  style={{
+                    width: "85%",
+                    paddingHorizontal: 10,
+                    fontSize: 18,
+                    color: "#000000",
+                    height: 50,
+                  }}
+                  value={""}
+                  onKeyPress={({ nativeEvent }) => {
+                    if (nativeEvent.key === "Backspace")
+                      setIsSendingAvailability(false);
+                  }}
+                  onChangeText={(text) => {
+                    setPlaceholder("");
+                  }}
                 />
               </View>
             )}
+
+            <View />
             {(text.trim().length != 0 || isSendingAvailability) && (
               <TouchableOpacity
                 style={{
@@ -331,16 +478,54 @@ export default function ChatWindow({ navigation, route }) {
                 }}
                 onPress={() => {
                   setHeight(38);
+                  if (mCount == 0) {
+                    setmCount(1);
+                    postProduct(props);
+                  }
 
                   if (text.length > 0 && text.trim().length > 0) {
-                    props.onSend({ text: text }, true);
+                    props.onSend(
+                      {
+                        _id: new Date().valueOf(),
+                        text: text,
+                        availability: {},
+                        image: "",
+                        product: {},
+                        createdAt: new Date(),
+                        user: {
+                          _id: email,
+                          name: name,
+                          avatar: receiverImage,
+                        },
+                      },
+
+                      true
+                    );
                     setText("");
                     setTimeout(() => {
                       yourRef.current.scrollToBottom();
                     }, 100);
                   } else if (isSendingAvailability) {
                     setIsSendingAvailability(false);
-                    props.onSend({ text: "" }, true);
+                    if (scheduleCallback) {
+                      props.onSend(
+                        {
+                          _id: new Date().valueOf(),
+                          text: text,
+                          availability: scheduleCallback,
+                          image: "",
+                          product: {},
+                          createdAt: new Date(),
+                          user: {
+                            _id: email,
+                            name: name,
+                            avatar: receiverImage,
+                          },
+                        },
+                        true
+                      );
+                      setScheduleCallback([]);
+                    }
                   }
                 }}
               >
@@ -362,7 +547,7 @@ export default function ChatWindow({ navigation, route }) {
           post={post}
         />
         <AvailabilityModal
-          scheduleCallback={scheduleCallback}
+          bubbleInput={inputSchedule}
           setScheduleCallback={setScheduleCallback}
           availabilityVisible={availabilityVisible}
           setAvailabilityVisible={setAvailabilityVisible}
@@ -370,7 +555,7 @@ export default function ChatWindow({ navigation, route }) {
           isBubble={isBubble}
           setIsBubble={setIsBubble}
           setHeight={setHeight}
-          username={"Jessie"}
+          username={availabilityUsername}
         />
       </SafeAreaView>
     );
@@ -395,8 +580,8 @@ export default function ChatWindow({ navigation, route }) {
       <View
         style={{
           width: "100%",
-          marginTop: 40,
-          marginBottom: 20,
+          marginTop: Platform.OS === "ios" ? 35 : 0,
+          marginBottom: 10,
         }}
       >
         <TouchableOpacity
@@ -422,35 +607,19 @@ export default function ChatWindow({ navigation, route }) {
             justifyContent: "center",
           }}
         >
-          <Text style={styles.chatHeader}>{item}</Text>
-          <Text style={styles.chatSubheader}>{seller}</Text>
+          <Text style={styles.chatHeader}>{post.title}</Text>
+          <Text style={styles.chatSubheader}>{name}</Text>
         </View>
       </View>
-      {uri != "" && (
-        <ImageEditor
-          visible={modalVisibility}
-          onCloseEditor={() => {
-            setModalVisibility(false);
-            setUri("");
-          }}
-          imageUri={uri}
-          minimumCropDimensions={{
-            width: 100,
-            height: 100,
-          }}
-          onEditingComplete={(result) => {
-            saveandcompress(result.uri);
-          }}
-          mode="full"
-        />
-      )}
-      <View />
 
       <GiftedChat
         {...{ messages, onSend }}
         user={{
-          _id: 1,
+          _id: auth?.currentUser?.email,
+          name: auth?.currentUser?.displayName,
+          avatar: auth?.currentUser?.photoURL,
         }}
+        showAvatarForEveryMessage={true}
         listViewProps={{
           keyboardDismissMode: "on-drag",
         }}
@@ -462,6 +631,7 @@ export default function ChatWindow({ navigation, route }) {
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
+      <KeyboardAvoidingView behavior={"padding"} keyboardVerticalOffset={80} />
     </View>
   );
 }
@@ -508,5 +678,5 @@ const FILTER = [
     title: "Send Availablity",
   },
   { id: 2, title: "Pay with Venmo" },
-  { id: 3, title: "Ask For Refund" },
+  // { id: 3, title: "Ask For Refund" },
 ];

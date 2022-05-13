@@ -1,4 +1,5 @@
-import firebase from "firebase/app";
+// import firebase from "firebase/app";
+import * as firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
 const firebaseConfig = {
@@ -8,17 +9,18 @@ const firebaseConfig = {
   projectId: "resell-e99a2",
   storageBucket: "resell-e99a2.appspot.com",
   messagingSenderId: "1534649394",
-  appId: "1:1534649394:web:a95f1aec87d22f9d38082b",
-  measurementId: "G-0FZ6ZEMC8E",
+  appId: "1:1534649394:web:39e74eb15a13233f38082b",
+  measurementId: "G-QL0J1HN712",
 };
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+let app;
+if (firebase.apps.length === 0) {
+  app = firebase.initializeApp(firebaseConfig);
 } else {
-  firebase.app(); // if already initialized, use that one
+  app = firebase.app(); // if already initialized, use that one
 }
-export const provider = new firebase.auth.GoogleAuthProvider();
 
-export const firestore = firebase.firestore();
-// export const firestore = firebase.firestore().ref();
+export const db = app.firestore();
+export const chatRef = db.collection("chats");
+export const historyRef = db.collection("history");
+
 export const auth = firebase.auth();
-export default firebase;
