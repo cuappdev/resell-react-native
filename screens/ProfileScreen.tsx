@@ -78,7 +78,6 @@ export default function ProfileScreen({ navigation }) {
   }, [isFocused]);
   useEffect(() => {
     // update posts when home screen is entered again
-    console.log("back");
     getPostsIngress();
   }, [isFocused]);
   const getUserIngress = async () => {
@@ -124,7 +123,6 @@ export default function ProfileScreen({ navigation }) {
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json.posts.length);
         setPosts(json.posts);
       }
     } catch (error) {
