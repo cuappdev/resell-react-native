@@ -55,6 +55,21 @@ export default function EditProfileScreen({ navigation, route }) {
       setImage("data:image/jpeg;base64," + result["base64"]);
     }
   };
+
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        scroll.current.scrollToEnd({
+          animated: true,
+        });
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
   const [accessToken, setAccessToken] = useState("");
   const [invalidName, setInvalidName] = useState(false);
 
