@@ -324,7 +324,7 @@ export default function EditProfileScreen({ navigation, route }) {
                       {
                         textAlign: "left",
                         textAlignVertical: "top",
-                        maxHeight: 100,
+                        height: 100,
                       },
                     ]}
                     numberOfLines={4}
