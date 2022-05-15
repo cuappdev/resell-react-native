@@ -425,6 +425,7 @@ export default function ChatWindow({ navigation, route }) {
                     color: "#000000",
                     paddingVertical: 10,
                     fontFamily: "Rubik-Regular",
+                    textAlignVertical: "top",
                   },
                 ]}
                 onChangeText={(t) => {
