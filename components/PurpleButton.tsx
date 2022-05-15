@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: "3%",
     borderRadius: 25,
+    minHeight: 45,
   },
 
   buttonText: {
@@ -33,5 +34,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
+    fontFamily: "Rubik-Regular",
   },
 });

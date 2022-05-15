@@ -242,10 +242,21 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     position: "absolute",
     right: 40,
+    width: 60,
+    height: 60,
     bottom: 110,
+    alignContent: "center",
     paddingVertical: 2,
     zIndex: 2,
     paddingHorizontal: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
 
   profileBubbleContainer: {
@@ -276,7 +287,7 @@ const styles = StyleSheet.create({
     color: "#707070",
   },
   profileBioText: {
-    fontFamily: "Roboto-Regular",
+    fontFamily: "Rubik-Regular",
     fontSize: 16,
     maxWidth: "93%",
     textAlign: "center",

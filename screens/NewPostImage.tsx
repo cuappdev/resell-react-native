@@ -18,6 +18,7 @@ import { ImageEditor } from "expo-image-editor";
 
 import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import PurpleButton from "../components/PurpleButton";
 export function NewPostImage({ navigation }) {
   const [image, setImage] = useState([]);
   const [uri, setUri] = useState("");
@@ -214,8 +215,8 @@ export function NewPostImage({ navigation }) {
         }}
       >
         {image.length > 0 ? (
-          <Pressable
-            style={[styles.buttonContinue]}
+          <PurpleButton
+            text={"Continue"}
             onPress={() => {
               navigation.navigate("NewPostDetail", {
                 image: image.filter((item) => {
@@ -223,18 +224,16 @@ export function NewPostImage({ navigation }) {
                 }),
               });
             }}
-          >
-            <Text style={styles.textStyle}>Continue</Text>
-          </Pressable>
+            enabled={true}
+          />
         ) : (
-          <Pressable
-            style={[styles.buttonContinue]}
+          <PurpleButton
+            text={"Add Images"}
             onPress={() => {
               pickImage();
             }}
-          >
-            <Text style={styles.textStyle}>Add Images</Text>
-          </Pressable>
+            enabled={true}
+          />
         )}
       </View>
     </View>

@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     marginVertical: 24,
     marginHorizontal: 10,
+    width: "100%",
   },
   productText: {
     fontFamily: "Rubik-Bold",

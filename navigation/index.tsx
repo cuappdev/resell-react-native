@@ -319,6 +319,9 @@ function ProfileNavigator({ navigation }) {
     <ProfileStack.Navigator
       screenOptions={{
         headerShown: false,
+        contentStyle: {
+          backgroundColor: "#FFFFFF",
+        },
       }}
     >
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />

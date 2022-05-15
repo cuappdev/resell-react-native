@@ -33,7 +33,7 @@ export function AvailabilityBubble({
         }
       }}
     >
-      <Text style={styles.textStyle}>{userName}'s Avaliability</Text>
+      <Text style={styles.textStyle}>{userName}'s Availability</Text>
       <View
         style={{
           marginLeft: 15,

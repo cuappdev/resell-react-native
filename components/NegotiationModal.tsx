@@ -123,7 +123,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
-    padding: 35,
+    paddingHorizontal: 30,
+    paddingTop: 20,
+    paddingBottom: 0,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -137,11 +139,11 @@ const styles = StyleSheet.create({
   },
 
   textStyle: {
-    fontFamily: "Roboto-Medium",
+    fontFamily: "Rubik-Regular",
     fontSize: 20,
+    fontWeight: "700",
     color: "black",
     textAlign: "center",
-    letterSpacing: 0.5,
   },
   modalText: {
     marginBottom: 15,

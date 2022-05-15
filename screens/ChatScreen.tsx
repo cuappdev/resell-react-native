@@ -61,8 +61,6 @@ export default function ChatScreen({ navigation }) {
               doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
             viewed: doc.data().viewed,
           });
-
-          console.log(purchase);
         });
         setPurchase(tempt);
       });
@@ -89,6 +87,7 @@ export default function ChatScreen({ navigation }) {
             recentSender:
               doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
             viewed: doc.data().viewed,
+            venmo: doc.data().item.user.venmoHandle,
           });
         });
         setOffer(tempt);
@@ -151,6 +150,7 @@ export default function ChatScreen({ navigation }) {
             receiverImage: item.image,
             email: item.email,
             post: item.recentItem,
+            venmo: item.venmo,
             isBuyer: isPurchase,
           });
         }}
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
   items: {
-    fontFamily: "Rubik-Bold",
+    fontFamily: "Rubik-Medium",
     fontSize: 16,
     color: "#707070",
     marginBottom: 8,
