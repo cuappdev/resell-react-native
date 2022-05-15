@@ -38,12 +38,13 @@ import { auth, chatRef, db, historyRef } from "../config/firebase";
 import ProductCard from "../components/ProductCard";
 import { json } from "stream/consumers";
 import BackButton from "../assets/svg-components/back_button";
+import { menuBarTop } from "../constants/Layout";
 
 export default function ChatWindow({ navigation, route }) {
   const { email, name, receiverImage, venmo, post, isBuyer } = route.params;
   //console.log(post);
   const [text, setText] = useState("");
-  const [height, setHeight] = useState(60);
+  const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -408,7 +409,7 @@ export default function ChatWindow({ navigation, route }) {
               isSendingAvailability
                 ? { alignItems: "flex-start" }
                 : { alignItems: "flex-end" },
-              { height: Math.min(Math.max(60, height), 140) },
+              { height: Math.min(Math.max(40, height), 140) },
             ]}
           >
             {!isSendingAvailability && (
@@ -422,7 +423,7 @@ export default function ChatWindow({ navigation, route }) {
                     lineHeight: 20,
                     minHeight: 20,
                     color: "#000000",
-                    paddingVertical: 20,
+                    paddingVertical: 10,
                     fontFamily: "Rubik-Regular",
                   },
                 ]}
@@ -501,7 +502,7 @@ export default function ChatWindow({ navigation, route }) {
                   zIndex: 10,
                 }}
                 onPress={() => {
-                  setHeight(60);
+                  setHeight(40);
                   if (mCount == 0) {
                     setmCount(1);
                     postProduct(props);
@@ -645,7 +646,7 @@ export default function ChatWindow({ navigation, route }) {
         ref={(chat) => (ref.current = chat)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        minInputToolbarHeight={80 + Math.min(Math.max(60, height), 140)}
+        minInputToolbarHeight={80 + Math.min(Math.max(40, height), 140)}
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
@@ -680,7 +681,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 0 : 25,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 10,
     zIndex: 1,
     width: 50,
