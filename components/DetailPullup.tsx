@@ -72,7 +72,7 @@ export function DetailPullUpBody({
         styles.pullUpScrollView,
         screen == "Profile" || sellerName == auth?.currentUser?.displayName
           ? { marginBottom: 0 }
-          : { marginBottom: 130 },
+          : { marginBottom: 150 },
       ]}
     >
       <Text style={styles.details}>{item.description}</Text>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   details: {
     fontSize: 15,
-    paddingLeft: 20,
+    paddingHorizontal: 20,
     fontFamily: "Rubik-Regular",
   },
   itemsHeader: {

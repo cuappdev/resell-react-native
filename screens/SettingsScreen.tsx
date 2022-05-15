@@ -28,10 +28,11 @@ const styles = StyleSheet.create({
   backButton: {
     position: "absolute",
     top: Platform.OS === "ios" ? menuBarTop : 20,
-    left: 20,
+    left: 10,
     zIndex: 1,
-    width: 20,
-    height: 30,
+    width: 50,
+    height: 50,
+    alignItems: "center",
   },
   title: {
     position: "absolute",
@@ -41,18 +42,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   titleText: {
-    fontFamily: "Roboto-Medium",
+    fontFamily: "Rubik-Medium",
     fontSize: 18,
   },
   item: {
     marginTop: 40,
-    marginLeft: 48,
-    marginRight: 48,
+    marginLeft: 24,
+    marginRight: 24,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   itemText: {
-    fontFamily: "Roboto-Regular",
+    fontFamily: "Rubik-Regular",
     fontSize: 18,
     marginLeft: 20,
   },

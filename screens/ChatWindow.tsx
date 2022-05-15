@@ -15,6 +15,8 @@ import { View } from "../components/Themed";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ButtonBanner } from "../components/ButtonBanner";
+import Constants from "expo-constants";
+
 import {
   Bubble,
   GiftedChat,
@@ -35,15 +37,16 @@ import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { auth, chatRef, db, historyRef } from "../config/firebase";
 import ProductCard from "../components/ProductCard";
 import { json } from "stream/consumers";
+import BackButton from "../assets/svg-components/back_button";
+import { menuBarTop } from "../constants/Layout";
 
 export default function ChatWindow({ navigation, route }) {
-  const { email, name, receiverImage, post, isBuyer } = route.params;
+  const { email, name, receiverImage, venmo, post, isBuyer } = route.params;
   //console.log(post);
   const [text, setText] = useState("");
-  const [height, setHeight] = useState(0);
+  const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
 
-  const yourRef = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
   const [isSendingAvailability, setIsSendingAvailability] = useState(false);
@@ -58,7 +61,10 @@ export default function ChatWindow({ navigation, route }) {
   const [messages, setMessages] = React.useState([]);
 
   useEffect(() => {
-    if (isSendingAvailability) setText("");
+    if (isSendingAvailability) {
+      setPlaceholder(text);
+      setText("");
+    }
   }, [isSendingAvailability]);
 
   const onSend = useCallback((messages = []) => {
@@ -148,23 +154,30 @@ export default function ChatWindow({ navigation, route }) {
               left: {
                 backgroundColor: "#ECECEC",
                 borderRadius: 12,
-                padding: 6,
+                paddingVertical: 5,
+                maxWidth: "80%",
+                marginLeft: 5,
               },
               right: {
-                backgroundColor: "#ECECEC",
+                backgroundColor: "#9E70F6",
                 borderRadius: 12,
                 borderTopRightRadius: 12,
-                padding: 6,
+                paddingVertical: 5,
+                maxWidth: "80%",
+                marginRight: 5,
               },
             }}
             textStyle={{
               left: {
                 color: "#000000",
-                fontSize: 18,
+                fontSize: 16,
+                fontFamily: "Rubik-Regular",
               },
               right: {
-                color: "#000000",
-                fontSize: 18,
+                color: "#ffffff",
+                fontSize: 16,
+                fontFamily: "Rubik-Regular",
+                margin: 0,
               },
             }}
             timeTextStyle={{
@@ -172,7 +185,7 @@ export default function ChatWindow({ navigation, route }) {
                 color: "gray",
               },
               right: {
-                color: "gray",
+                color: "white",
               },
             }}
           />
@@ -222,7 +235,6 @@ export default function ChatWindow({ navigation, route }) {
               minHeight: 200,
               resizeMode: "cover",
               marginHorizontal: 10,
-              borderRadius: 5,
             }}
           />
         </View>
@@ -254,6 +266,7 @@ export default function ChatWindow({ navigation, route }) {
     setUri("");
     postImage("data:image/jpeg;base64," + manipResult["base64"], props);
   };
+
   const postProduct = (props) => {
     props.onSend({
       _id: new Date().valueOf(),
@@ -316,6 +329,10 @@ export default function ChatWindow({ navigation, route }) {
         //alert(error.message);
       });
   };
+
+  useEffect(() => {
+    ref.current.resetInputToolbar();
+  }, [height]);
   const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
@@ -338,10 +355,9 @@ export default function ChatWindow({ navigation, route }) {
       });
     return () => unsubscribe();
   }, []);
-
   function renderInputToolbar(props) {
     return (
-      <SafeAreaView style={styles.filter}>
+      <SafeAreaView>
         {uri != "" && (
           <ImageEditor
             visible={modalVisibility}
@@ -370,14 +386,14 @@ export default function ChatWindow({ navigation, route }) {
           setAvailabilityVisible={setAvailabilityVisible}
           setIsBubble={setIsBubble}
           alwaysColor={true}
+          venmo={venmo}
         />
 
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
           <TouchableOpacity
             style={{
               marginLeft: 15,
-              marginTop: "auto",
-              marginBottom: 20,
+              marginBottom: 12,
             }}
             onPress={() => pickImage()}
           >
@@ -392,31 +408,28 @@ export default function ChatWindow({ navigation, route }) {
               },
               isSendingAvailability
                 ? { alignItems: "flex-start" }
-                : { alignItems: "center" },
-              {
-                height: Math.min(Math.max(50, height + 25), 140),
-              },
+                : { alignItems: "flex-end" },
+              { height: Math.min(Math.max(40, height), 140) },
             ]}
           >
             {!isSendingAvailability && (
               <TextInput
                 style={[
                   {
-                    width: "85%",
+                    width: "90%",
                     paddingHorizontal: 10,
-                    fontSize: 18,
+                    fontSize: 16,
+                    height: "100%",
+                    lineHeight: 20,
+                    minHeight: 20,
                     color: "#000000",
+                    paddingVertical: 10,
+                    fontFamily: "Rubik-Regular",
                   },
                 ]}
-                onChangeText={(text) => {
+                onChangeText={(t) => {
                   if (!isSendingAvailability) {
-                    setText(text);
-                  }
-                }}
-                onKeyPress={({ nativeEvent }) => {
-                  if (nativeEvent.key === "Backspace") {
-                    setIsSendingAvailability(false);
-                    setScheduleCallback([]);
+                    setText(t);
                   }
                 }}
                 value={text}
@@ -430,7 +443,7 @@ export default function ChatWindow({ navigation, route }) {
             {isSendingAvailability && (
               <View
                 style={{
-                  height: "100%",
+                  width: "90%",
                   marginStart: 12,
                   marginVertical: 10,
                   alignItems: "flex-start",
@@ -448,19 +461,31 @@ export default function ChatWindow({ navigation, route }) {
                 />
                 <TextInput
                   style={{
-                    width: "85%",
                     paddingHorizontal: 10,
-                    fontSize: 18,
+                    fontSize: 16,
                     color: "#000000",
-                    height: 50,
+                    marginTop: 10,
+                    width: "95%",
+                    fontFamily: "Rubik-Regular",
+                    height: Math.min(height - 80, 60),
                   }}
-                  value={""}
+                  autoCorrect={false}
+                  multiline={true}
                   onKeyPress={({ nativeEvent }) => {
-                    if (nativeEvent.key === "Backspace")
+                    if (
+                      nativeEvent.key === "Backspace" &&
+                      placeholder.length == 0
+                    ) {
                       setIsSendingAvailability(false);
+                      setScheduleCallback([]);
+                    }
                   }}
-                  onChangeText={(text) => {
-                    setPlaceholder("");
+                  onContentSizeChange={(event) => {
+                    setHeight(event.nativeEvent.contentSize.height + 80);
+                  }}
+                  value={placeholder}
+                  onChangeText={(t) => {
+                    setPlaceholder(t);
                   }}
                 />
               </View>
@@ -477,7 +502,7 @@ export default function ChatWindow({ navigation, route }) {
                   zIndex: 10,
                 }}
                 onPress={() => {
-                  setHeight(38);
+                  setHeight(40);
                   if (mCount == 0) {
                     setmCount(1);
                     postProduct(props);
@@ -503,9 +528,11 @@ export default function ChatWindow({ navigation, route }) {
                     );
                     setText("");
                     setTimeout(() => {
-                      yourRef.current.scrollToBottom();
+                      ref.current.scrollToBottom();
                     }, 100);
                   } else if (isSendingAvailability) {
+                    setText(placeholder);
+                    setPlaceholder("");
                     setIsSendingAvailability(false);
                     if (scheduleCallback) {
                       props.onSend(
@@ -560,46 +587,39 @@ export default function ChatWindow({ navigation, route }) {
       </SafeAreaView>
     );
   }
-  const renderMessageText = (props) => {
-    const { currentMessage } = props;
-    const { text: currText } = currentMessage;
-
-    if (currText != undefined && currText.length > 0) {
-      return <MessageText {...props} />;
-    }
-  };
+  const ref = useRef(null);
 
   return (
     <View
       style={{
         backgroundColor: "#FFFFFF",
-        height: "100%",
         padding: 0,
+        flex: 1,
+        justifyContent: "flex-start",
       }}
     >
       <View
         style={{
           width: "100%",
           marginTop: Platform.OS === "ios" ? 35 : 0,
-          marginBottom: 10,
+          height: 70,
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.3,
+          shadowRadius: 4.65,
+          elevation: 8,
+
+          justifyContent: "center",
         }}
       >
         <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={{
-            marginRight: 20,
-            position: "absolute",
-            top: 10,
-            zIndex: 1,
-          }}
           onPress={() => navigation.goBack()}
+          style={styles.backButton}
         >
-          <Feather
-            name="chevron-left"
-            size={28}
-            color="#B2B2B2"
-            style={{ marginStart: 18 }}
-          />
+          <BackButton color="black" />
         </TouchableOpacity>
         <View
           style={{
@@ -623,49 +643,50 @@ export default function ChatWindow({ navigation, route }) {
         listViewProps={{
           keyboardDismissMode: "on-drag",
         }}
-        renderMessageText={renderMessageText}
-        ref={yourRef}
+        ref={(chat) => (ref.current = chat)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        minInputToolbarHeight={100 + Math.min(Math.max(50, height + 25), 140)}
+        minInputToolbarHeight={80 + Math.min(Math.max(40, height), 140)}
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
-      <KeyboardAvoidingView behavior={"padding"} keyboardVerticalOffset={80} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  filter: {
-    opacity: 3,
-    justifyContent: "flex-start",
-  },
   input: {
     width: "85%",
-    height: 60,
     margin: 12,
     backgroundColor: "#F4F4F4",
     borderRadius: 15,
     marginTop: 0,
   },
   chatHeader: {
-    fontFamily: "Rubik-Medium",
+    fontFamily: "Rubik-Regular",
     fontStyle: "normal",
-    fontWeight: "500",
-    fontSize: 20,
-    lineHeight: 24,
+    fontWeight: "700",
+    fontSize: 18,
+    marginBottom: 4,
     color: "#000000",
     textAlign: "center",
   },
   chatSubheader: {
-    fontFamily: "Rubik-Medium",
+    fontFamily: "Rubik-Regular",
     fontStyle: "normal",
-    fontWeight: "500",
+    fontWeight: "700",
     fontSize: 14,
-    lineHeight: 17,
     color: "#787878",
     textAlign: "center",
+  },
+  backButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop : 25,
+    left: 10,
+    zIndex: 1,
+    width: 50,
+    height: 50,
+    alignItems: "center",
   },
 });
 const FILTER = [

@@ -282,7 +282,7 @@ export function AvailabilityModal({
                       setIsSendingAvailability(true);
                       setScheduleCallback(schedule);
                       setSchedule([]);
-                      setHeight(80);
+                      setHeight(120);
                     }
                   } else {
                     setIsBubble(false);

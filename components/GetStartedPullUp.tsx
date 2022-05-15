@@ -42,15 +42,17 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 22,
+    fontWeight: "700",
     color: "#9E70F6",
+    fontFamily: "Rubik-Regular",
     marginBottom: 30,
   },
 
   details: {
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 30,
+    fontWeight: "500",
     fontFamily: "Rubik-Regular",
     width: "70%",
     textAlign: "center",

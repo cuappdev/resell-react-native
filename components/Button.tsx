@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
@@ -34,7 +35,14 @@ function Button(props) {
       props.setIsBubble(false);
     }
     if (props.title == "Pay with Venmo") {
-      Linking.openURL("https://account.venmo.com/u/");
+      if (props.venmo) {
+        Linking.openURL("https://account.venmo.com/u/" + props.venmo);
+      } else {
+        Alert.alert(
+          "Warning",
+          "The user has not set up venmo yet, please contact the user directly."
+        );
+      }
     }
   };
 
@@ -62,6 +70,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   appButtonContainer: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
     elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
@@ -74,6 +89,13 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   appUnclickedContainer: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
     elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,

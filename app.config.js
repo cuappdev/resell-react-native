@@ -34,12 +34,6 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.cornellappdev.resell",
-      // config: {
-      //   googleSignIn: {
-      //     reservedClientId:
-      //       "com.googleusercontent.apps.603386649315-1b2o2gole94qc6h4prj6lvoiueq83se4",
-      //   },
-      // },
     },
 
     android: {
@@ -48,10 +42,8 @@ export default {
         backgroundColor: "#ffffff",
       },
 
-      package: "com.cornellappdev.resell",
+      package: "com.cornellappdev.resell.android",
       googleServicesFile: "./config/google-services.json",
-
-      softwareKeyboardLayoutMode: "pan",
     },
     web: {
       favicon: "./assets/images/favicon.png",

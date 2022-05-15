@@ -208,12 +208,14 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setProfileImage(post.user.photoUrl);
       setSellerEmail(post.user.email);
       setSellerName(post.user.givenName + " " + post.user.familyName);
+      setSellerVenmo(post.user.venmoHandle);
     }
   }, [post]);
   const [similarItems, setSimilarItems] = useState([]);
   const [userId, setUserId] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
+  const [sellerVenmo, setSellerVenmo] = useState("");
 
   const [profileImage, setProfileImage] = useState("");
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -276,6 +278,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setSellerName(
         userResult.user.givenName + " " + userResult.user.familyName
       );
+      setSellerVenmo(userResult.user.venmoHandle);
       setProfileImage(userResult.user.photoUrl);
       setSellerEmail(userResult.user.email);
     } catch (error) {
@@ -494,6 +497,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
               navigation.navigate("ChatWindow", {
                 name: sellerName,
                 receiverImage: profileImage,
+                venmo: sellerVenmo,
                 email: sellerEmail,
                 post: post,
                 isBuyer: true,

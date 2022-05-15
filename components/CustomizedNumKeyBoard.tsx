@@ -9,6 +9,7 @@ import {
   TextInput,
   Keyboard,
 } from "react-native";
+import PurpleButton from "./PurpleButton";
 export function NumberPad({
   modalVisible,
   setModalVisible,
@@ -58,7 +59,7 @@ export function NumberPad({
         <Text
           style={{
             fontFamily: "Rubik-Regular",
-            fontSize: 50,
+            fontSize: 45,
             color: "#707070",
           }}
         >
@@ -117,22 +118,32 @@ export function NumberPad({
           <Text style={styles.textStyle}>&#60;</Text>
         </Pressable>
       </View>
-      <Pressable
-        style={[styles.buttonContinue]}
-        onPress={() => onContinueClicked(originalText)}
+      <View
+        style={{
+          alignItems: "center",
+          position: "absolute",
+          bottom: "3%",
+          width: "100%",
+        }}
       >
-        <Text style={styles.textStyleContinue}>Continue</Text>
-      </Pressable>
+        <PurpleButton
+          text={"Continue"}
+          onPress={() => {
+            onContinueClicked(originalText);
+          }}
+          enabled={true}
+        />
+      </View>
     </View>
   );
 }
 const styles = StyleSheet.create({
   outer: {
     width: "100%",
-
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 50,
   },
   inner: {
     flex: 1,
@@ -147,40 +158,26 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     alignSelf: "center",
   },
-
-  buttonContinue: {
-    backgroundColor: "#ECECEC",
-    paddingHorizontal: 60,
-    paddingVertical: 13,
-    borderRadius: 25,
-    elevation: 2,
-  },
   textStyle: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 24,
+    fontFamily: "Rubik-Regular",
+    fontSize: 20,
     color: "black",
     textAlign: "center",
-    letterSpacing: 0.5,
+    fontWeight: "700",
   },
-  textStyleContinue: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 18,
-    color: "black",
-    textAlign: "center",
-    letterSpacing: 0.5,
-  },
+
   modalText: {
     marginBottom: 15,
     textAlign: "center",
   },
   input: {
     width: 150,
-    height: 80,
+    height: 70,
     marginHorizontal: 12,
     padding: 10,
     backgroundColor: "#F4F4F4",
     borderRadius: 20,
-    fontSize: 42,
+    fontSize: 36,
     color: "#000000",
   },
 });

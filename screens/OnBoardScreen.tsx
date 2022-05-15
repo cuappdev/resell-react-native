@@ -81,8 +81,6 @@ export default function OnBoardScreen({ navigation }) {
             numberOfLines={4}
             multiline={true}
             maxLength={200}
-            // onFocus={() =>
-            // } // <- your coordinates here
           />
           {bio.length > 0 && (
             <View
@@ -181,14 +179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 18,
   },
-  fab: {
-    position: "relative",
-    right: 10,
-    bottom: 10,
-    padding: 0,
-    width: 32,
-    height: 32,
-  },
+
   bio: {
     marginBottom: 10,
     marginTop: 30,

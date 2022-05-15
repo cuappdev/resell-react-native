@@ -181,7 +181,6 @@ export default function App() {
         "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
       scopes: ["profile", "email"],
     };
-    console.log("here");
     Google.logInAsync(config).then((result) => {
       const { type } = result;
       if (type == "success") {

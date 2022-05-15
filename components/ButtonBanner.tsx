@@ -12,6 +12,7 @@ import Button from "../components/Button";
 
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
+import Venmo from "../assets/svg-components/venmo";
 
 export function ButtonBanner(props) {
   /**
@@ -21,6 +22,7 @@ export function ButtonBanner(props) {
    * @param {list} data - a list of button names
    * @returns a horizontally scrollable button banner
    */
+  console.log(props.venmo);
   const renderButton = ({ item }) => {
     return (
       <Button
@@ -34,6 +36,7 @@ export function ButtonBanner(props) {
         setAvailabilityVisible={props.setAvailabilityVisible}
         setIsBubble={props.setIsBubble}
         alwaysColor={props.alwaysColor}
+        venmo={props.venmo}
       />
     );
   };
