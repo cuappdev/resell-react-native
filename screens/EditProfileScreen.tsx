@@ -290,8 +290,6 @@ export default function EditProfileScreen({ navigation, route }) {
               <Text style={styles.text}>Bio</Text>
               <View
                 style={{
-                  backgroundColor: "#F4F4F4",
-                  borderRadius: 10,
                   flexDirection: "column",
                   alignItems: "flex-end",
                   width: "70%",
@@ -423,6 +421,8 @@ const styles = StyleSheet.create({
     marginEnd: 20,
   },
   text_input: {
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
     padding: 10,
     minHeight: 40,
     fontSize: 18,
