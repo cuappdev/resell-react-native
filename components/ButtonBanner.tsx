@@ -22,7 +22,6 @@ export function ButtonBanner(props) {
    * @param {list} data - a list of button names
    * @returns a horizontally scrollable button banner
    */
-  console.log(props.venmo);
   const renderButton = ({ item }) => {
     return (
       <Button

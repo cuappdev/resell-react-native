@@ -38,12 +38,20 @@ export function NewPostImage({ navigation }) {
       setModalVisibility(true);
     }
   };
-  const saveandcompress = async (uri) => {
-    const manipResult = await manipulateAsync(uri, [], {
-      compress: 0.5,
-      format: SaveFormat.JPEG,
-      base64: true,
-    });
+  const saveandcompress = async (uri, r, w) => {
+    const manipResult = await manipulateAsync(
+      uri,
+      [
+        r
+          ? { crop: { height: (w * 4) / 3, originX: 0, originY: 0, width: w } }
+          : null,
+      ],
+      {
+        compress: 0.5,
+        format: SaveFormat.JPEG,
+        base64: true,
+      }
+    );
     setUri("");
     if (image.length < 7) {
       setImage([
@@ -146,7 +154,11 @@ export function NewPostImage({ navigation }) {
             height: 100,
           }}
           onEditingComplete={(result) => {
-            saveandcompress(result.uri);
+            if (result.height / result.width > 4 / 3) {
+              saveandcompress(result.uri, true, result.width);
+            } else {
+              saveandcompress(result.uri, false, result.width);
+            }
           }}
           mode="full"
         />

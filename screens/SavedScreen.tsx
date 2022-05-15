@@ -42,7 +42,7 @@ export default function SavedScreen({
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json);
+        // console.log(json);
         setPosts(json.user.saved);
       }
     } catch (error) {
@@ -65,7 +65,7 @@ export default function SavedScreen({
       );
       if (response.ok) {
         const json = await response.json();
-        console.log(json);
+        // console.log(json);
         setPosts(json.user.saved);
       }
     } catch (error) {
