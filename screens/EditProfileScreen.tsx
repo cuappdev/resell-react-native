@@ -137,188 +137,193 @@ export default function EditProfileScreen({ navigation, route }) {
         Keyboard.dismiss();
       }}
     >
-      <ScrollView
-        style={{ height: "100%" }}
-        ref={(ref) => {
-          scroll.current = ref;
-        }}
-      >
-        <View style={[styles.container]}>
-          <View
-            style={{
-              width: "100%",
-              backgroundColor: "#FFFFFF",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.backButton}
+      <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={270}>
+        <ScrollView
+          style={{ height: "100%" }}
+          ref={(ref) => {
+            scroll.current = ref;
+          }}
+        >
+          <View style={[styles.container]}>
+            <View
+              style={{
+                width: "100%",
+                backgroundColor: "#FFFFFF",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
             >
-              <BackButton color="black" />
-            </TouchableOpacity>
-            <View style={styles.title}>
-              <Text style={styles.titleText}>Edit Profile</Text>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
+              >
+                <BackButton color="black" />
+              </TouchableOpacity>
+              <View style={styles.title}>
+                <Text style={styles.titleText}>Edit Profile</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => submit()}
+                style={styles.headerButton}
+              >
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => submit()}
-              style={styles.headerButton}
-            >
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
 
-          <View>
-            <Image style={styles.profilePic} source={{ uri: image }} />
-            <TouchableOpacity
-              activeOpacity={pressedOpacity}
-              style={styles.roundButton1}
-              onPress={() => {
-                pickImage();
-              }}
-            >
-              <Feather name="edit-2" size={18} color="black" />
-            </TouchableOpacity>
-          </View>
+            <View>
+              <Image style={styles.profilePic} source={{ uri: image }} />
+              <TouchableOpacity
+                activeOpacity={pressedOpacity}
+                style={styles.roundButton1}
+                onPress={() => {
+                  pickImage();
+                }}
+              >
+                <Feather name="edit-2" size={18} color="black" />
+              </TouchableOpacity>
+            </View>
 
-          <View style={{ width: "100%", marginTop: 30 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 30,
-                minHeight: 30,
-              }}
-            >
-              <Text style={styles.text}>Name</Text>
-              <Text style={styles.content}>{initialRealname}</Text>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 30,
-                minHeight: 30,
-              }}
-            >
-              <Text style={styles.text}>Netid</Text>
-              <Text style={styles.content}>{initialNetId}</Text>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 30,
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Text style={styles.text}>Username</Text>
-                {invalidName && (
-                  <View
-                    style={{
-                      width: 16,
-                      height: 16,
-                      backgroundColor: "#FF0000",
-                      borderRadius: 8,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginTop: 3,
-                      marginLeft: 4,
+            <View style={{ width: "100%", marginTop: 30 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 30,
+                  minHeight: 30,
+                }}
+              >
+                <Text style={styles.text}>Name</Text>
+                <Text style={styles.content}>{initialRealname}</Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 30,
+                  minHeight: 30,
+                }}
+              >
+                <Text style={styles.text}>Netid</Text>
+                <Text style={styles.content}>{initialNetId}</Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 30,
+                }}
+              >
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.text}>Username</Text>
+                  {invalidName && (
+                    <View
+                      style={{
+                        width: 16,
+                        height: 16,
+                        backgroundColor: "#FF0000",
+                        borderRadius: 8,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: 3,
+                        marginLeft: 4,
+                      }}
+                    >
+                      <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
+                        !
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <View
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    width: "40%",
+                    marginEnd: 20,
+                  }}
+                >
+                  <TextInput
+                    style={styles.text_input}
+                    value={username}
+                    onChangeText={(text) => {
+                      setUsername(text);
+                      setInvalidName(false);
                     }}
-                  >
-                    <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
-                      !
+                  />
+                  {invalidName && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontFamily: "Rubik-Regular",
+                        color: "#FF0000",
+                        marginTop: 4,
+                      }}
+                    >
+                      Name Unavailable
                     </Text>
-                  </View>
-                )}
+                  )}
+                </View>
               </View>
               <View
                 style={{
-                  flexDirection: "column",
-                  alignItems: "flex-end",
-                  width: "40%",
-                  marginEnd: 20,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 30,
                 }}
               >
-                <TextInput
-                  style={styles.text_input}
-                  value={username}
-                  onChangeText={(text) => {
-                    setUsername(text);
-                    setInvalidName(false);
+                <Text style={styles.text}>Venmo Link</Text>
+                <View
+                  style={{
+                    flexDirection: "column",
+                    width: "40%",
+                    marginEnd: 20,
                   }}
-                />
-                {invalidName && (
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontFamily: "Rubik-Regular",
-                      color: "#FF0000",
-                      marginTop: 4,
+                >
+                  <TextInput
+                    style={styles.text_input}
+                    value={venmo}
+                    onChangeText={(text) => setVenmo(text)}
+                  />
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.text}>Bio</Text>
+                <View
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    width: "70%",
+                    height: 100,
+                    marginEnd: 20,
+                    marginBottom: 50,
+                  }}
+                >
+                  <TextInput
+                    style={[
+                      styles.text_input,
+                      {
+                        textAlign: "left",
+                        textAlignVertical: "top",
+                        maxHeight: 100,
+                      },
+                    ]}
+                    numberOfLines={4}
+                    multiline={true}
+                    maxLength={200}
+                    value={bio}
+                    onChangeText={(text) => {
+                      setBio(text);
+                      scroll.current.scrollToEnd({
+                        animated: true,
+                      });
                     }}
-                  >
-                    Name Unavailable
-                  </Text>
-                )}
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 30,
-              }}
-            >
-              <Text style={styles.text}>Venmo Link</Text>
-              <View
-                style={{ flexDirection: "column", width: "40%", marginEnd: 20 }}
-              >
-                <TextInput
-                  style={styles.text_input}
-                  value={venmo}
-                  onChangeText={(text) => setVenmo(text)}
-                />
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
-              <Text style={styles.text}>Bio</Text>
-              <View
-                style={{
-                  flexDirection: "column",
-                  alignItems: "flex-end",
-                  width: "70%",
-                  height: 100,
-                  marginEnd: 20,
-                  marginBottom: 50,
-                }}
-              >
-                <TextInput
-                  style={[
-                    styles.text_input,
-                    {
-                      textAlign: "left",
-                      textAlignVertical: "top",
-                      maxHeight: 100,
-                    },
-                  ]}
-                  numberOfLines={4}
-                  multiline={true}
-                  maxLength={200}
-                  value={bio}
-                  onChangeText={(text) => {
-                    setBio(text);
-                    scroll.current.scrollToEnd({
-                      animated: true,
-                    });
-                  }}
-                />
-                {/* {false && (
+                  />
+                  {/* {false && (
               <Text
                 style={{
                   fontSize: 12,
@@ -330,23 +335,24 @@ export default function EditProfileScreen({ navigation, route }) {
                 Cannot be empty
               </Text>
             )} */}
-                {bio.length > 0 && (
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontFamily: "Rubik-Regular",
-                      color: "#707070",
-                      marginTop: 4,
-                    }}
-                  >
-                    {bio.length}/200
-                  </Text>
-                )}
+                  {bio.length > 0 && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontFamily: "Rubik-Regular",
+                        color: "#707070",
+                        marginTop: 4,
+                      }}
+                    >
+                      {bio.length}/200
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }
