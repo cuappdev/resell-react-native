@@ -342,11 +342,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
       const result = await Share.share({
         message:
-          "Checkout this " +
+          "Check out this " +
           post.title +
-          "posted by " +
+          " posted by " +
           sellerName +
-          "on Cornell Appdev Resell App, it's only for " +
+          " on Cornell Appdev Resell App, it's only for " +
           post.price,
       });
       if (result.action === Share.sharedAction) {
