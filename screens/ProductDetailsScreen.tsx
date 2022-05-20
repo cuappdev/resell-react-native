@@ -101,14 +101,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100 %",
     zIndex: 10,
-    height: 100,
+    height: 80,
     backgroundColor: "white",
   },
   bottomGradient: {
     height: 60,
     width: "100%",
     position: "absolute",
-    bottom: 100,
+    bottom: 80,
     zIndex: 10,
   },
   button: {
