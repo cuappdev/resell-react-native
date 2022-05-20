@@ -70,13 +70,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   appButtonContainer: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
     elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
@@ -89,13 +82,6 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   appUnclickedContainer: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
     elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
