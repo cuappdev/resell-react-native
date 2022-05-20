@@ -602,8 +602,7 @@ export default function ChatWindow({ navigation, route }) {
       <View
         style={{
           width: "100%",
-          marginTop: Platform.OS === "ios" ? 35 : 0,
-          height: 70,
+          height: Platform.OS === "ios" ? 105 : 70,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
