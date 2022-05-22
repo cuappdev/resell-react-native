@@ -579,6 +579,7 @@ const styles = StyleSheet.create({
     lineHeight: 38,
     marginStart: 24,
     marginTop: 8,
+    marginEnd: -24,
   },
   chatHeader: {
     fontFamily: "Rubik-Medium",

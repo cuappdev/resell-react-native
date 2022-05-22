@@ -173,7 +173,7 @@ export default function ChatScreen({ navigation }) {
               <Text style={styles.sellerName}>{item.sellerName}</Text>
               {products}
             </Text>
-            <Text style={styles.recentMessage}>{message}</Text>
+            <Text numberOfLines={1} style={styles.recentMessage}>{message}</Text>
           </View>
           <View style={{ marginHorizontal: 8 }}>
             <Feather name="chevron-right" size={24} color="#B3B3B3" />

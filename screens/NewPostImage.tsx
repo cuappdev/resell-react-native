@@ -33,18 +33,18 @@ export function NewPostImage({ navigation }) {
       quality: 1,
     });
     if (!result.cancelled) {
-      // console.log(result);
+      console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
     }
   };
-  const saveandcompress = async (uri, r, w) => {
+  const saveandcompress = async (uri, r, w, h) => {
     const manipResult = await manipulateAsync(
       uri,
       [
         r
           ? { crop: { height: (w * 4) / 3, originX: 0, originY: 0, width: w } }
-          : null,
+          : { crop: { height: h, originX: 0, originY: 0, width: w } }
       ],
       {
         compress: 0.5,
@@ -155,9 +155,9 @@ export function NewPostImage({ navigation }) {
           }}
           onEditingComplete={(result) => {
             if (result.height / result.width > 4 / 3) {
-              saveandcompress(result.uri, true, result.width);
+              saveandcompress(result.uri, true, result.width, result.height);
             } else {
-              saveandcompress(result.uri, false, result.width);
+              saveandcompress(result.uri, false, result.width, result.height);
             }
           }}
           mode="full"

@@ -602,16 +602,12 @@ export default function ChatWindow({ navigation, route }) {
       <View
         style={{
           width: "100%",
-          height: Platform.OS === "ios" ? 105 : 70,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 4,
-          },
-          shadowOpacity: 0.3,
-          shadowRadius: 4.65,
+          paddingTop: Platform.OS === "ios" ? 35 : 0,
+          paddingBottom: Platform.OS === "ios" ? 10 : 0,
+          height: Platform.OS === "ios" ? 90 : 70,
+          borderBottomWidth: 1,
+          borderColor: "#D6D6D6",
           elevation: 8,
-
           justifyContent: "center",
         }}
       >
@@ -681,7 +677,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 25,
+    top: Platform.OS === "ios" ? 50 : 25,
     left: 10,
     zIndex: 1,
     width: 50,
