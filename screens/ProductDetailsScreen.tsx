@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     alignItems: "center",
-    width: "100 %",
+    width: "100%",
     zIndex: 10,
     height: 80,
     backgroundColor: "white",
@@ -150,66 +150,29 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const [maxImgRatio, setMaxImgRatio] = useState(0); // height / width
   const [isLoading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(savedInitial);
-  const [item, setItem] = useState(
-    screen === "Saved"
-      ? {
-          images: post.images,
-          title: post.title,
-          price: post.price,
-          description: post.description,
-          categories: post.categories,
-          similarItems: [],
-          sellerName: "",
-          sellerImage: "",
-        }
-      : {
-          images: post.images,
-          title: post.title,
-          price: post.price,
-          description: post.description,
-          categories: post.categories,
-          similarItems: [],
-          sellerName: post.user.givenName + " " + post.user.familyName,
-          sellerImage: post.user.photoUrl,
-        }
-  );
+  const [item, setItem] = useState({
+    images: post.images,
+    title: post.title,
+    price: post.price,
+    description: post.description,
+    categories: post.categories,
+    similarItems: [],
+  });
 
   useEffect(() => {
-    setItem(
-      screen === "Saved"
-        ? {
-            images: post.images,
-            title: post.title,
-            price: post.price,
-            description: post.description,
-            categories: post.categories,
-            similarItems: [],
-            sellerName: "",
-            sellerImage: "",
-          }
-        : {
-            images: post.images,
-            title: post.title,
-            price: post.price,
-            description: post.description,
-            categories: post.categories,
-            similarItems: [],
-            sellerName: post.user.givenName + " " + post.user.familyName,
-            sellerImage: post.user.photoUrl,
-          }
-    );
+    setItem({
+      images: post.images,
+      title: post.title,
+      price: post.price,
+      description: post.description,
+      categories: post.categories,
+      similarItems: [],
+    });
   }, [post]);
 
   useEffect(() => {
     getPost();
-    if (screen === "Saved") {
-      fetchPost();
-    } else {
-      setProfileImage(post.user.photoUrl);
-      setSellerEmail(post.user.email);
-      setSellerName(post.user.givenName + " " + post.user.familyName);
-      setSellerVenmo(post.user.venmoHandle);
-    }
+    fetchPost();
   }, [post]);
   const [similarItems, setSimilarItems] = useState([]);
   const [userId, setUserId] = useState("");
@@ -261,7 +224,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const fetchPost = async () => {
     try {
       let response;
-      // console.log(post.id);
       response = await fetch(
         "https://resell-dev.cornellappdev.com/api/user/postId/" + post.id,
         {
@@ -300,9 +262,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch (error) {}
   };
   fetchIsSaved();
 
@@ -316,9 +276,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       );
       const json = await response.json();
       setIsSaved(json.isSaved);
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch (error) {}
   };
 
   const unsave = async () => {
@@ -331,15 +289,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
       );
       const json = await response.json();
       setIsSaved(json.isSaved);
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch (error) {}
   };
 
   const onShare = async () => {
     try {
-      //product, differ by device
-
       const result = await Share.share({
         message:
           "Check out this " +
@@ -486,9 +440,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
         <View style={styles.greyButton}>
           <PurpleButton
             onPress={() => {
-              // console.log(sellerName);
-              // console.log(sellerEmail);
-              // console.log(profileImage);
               historyRef
                 .doc(auth?.currentUser?.email)
                 .collection("sellers")
@@ -501,6 +452,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
                 email: sellerEmail,
                 post: post,
                 isBuyer: true,
+                screen: "product",
               });
             }}
             text={"Contact Seller"}

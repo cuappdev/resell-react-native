@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 import * as ImagePicker from "expo-image-picker";
@@ -15,6 +16,7 @@ import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import { ImageEditor } from "expo-image-editor";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
@@ -26,6 +28,32 @@ export function NewPostImage({ navigation }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
   const _carousel = useRef(null);
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
+        }
+      }
+    });
+  }, []);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -43,8 +71,15 @@ export function NewPostImage({ navigation }) {
       uri,
       [
         r
-          ? { crop: { height: (w * 4) / 3, originX: 0, originY: 0, width: w } }
-          : { crop: { height: h, originX: 0, originY: 0, width: w } }
+          ? {
+              crop: {
+                height: (w * 4) / 3,
+                originX: 0,
+                originY: (h - (w * 4) / 3) / 2,
+                width: w,
+              },
+            }
+          : { crop: { height: h, originX: 0, originY: 0, width: w } },
       ],
       {
         compress: 0.5,
@@ -160,6 +195,7 @@ export function NewPostImage({ navigation }) {
               saveandcompress(result.uri, false, result.width, result.height);
             }
           }}
+          lockAspectRatio={false}
           mode="full"
         />
       )}

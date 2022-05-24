@@ -19,6 +19,9 @@ import Modal from "react-native-modal";
 import PurpleButton from "../components/PurpleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetworkLogger from "react-native-network-logger";
+import { useDispatch } from "react-redux";
+import { logout } from "../state_manage/actions/signInActions";
+import { auth } from "../config/firebase";
 
 const styles = StyleSheet.create({
   container: {
@@ -111,15 +114,9 @@ const styles = StyleSheet.create({
 });
 
 export default function SettingsScreen({ navigation }) {
-  //  const logout = () => dispatch(logout());
+  const dispatch = useDispatch();
+  const log_out = () => dispatch(logout());
 
-  const setSignedIn = async () => {
-    try {
-      await AsyncStorage.setItem("SignedIn", "false");
-    } catch (e) {
-      console.log(e);
-    }
-  };
   const [modalVisibility, setModalVisibility] = useState(false);
   const [userId, setUserId] = useState("");
 
@@ -186,7 +183,9 @@ export default function SettingsScreen({ navigation }) {
           {
             icon: Logout,
             text: "Log Out",
-            onPress: () => setModalVisibility(true),
+            onPress: () => {
+              setModalVisibility(true);
+            },
           },
         ]}
         renderItem={({ item }) => (
@@ -218,9 +217,17 @@ export default function SettingsScreen({ navigation }) {
             Log out of Resell?
           </Text>
           <TouchableOpacity
-            onPress={() => {
-              setSignedIn();
-              //    logout();
+            onPress={async () => {
+              try {
+                await AsyncStorage.setItem("SignedIn", "false");
+              } catch (e) {
+                console.log(e);
+              }
+              log_out();
+              auth
+                .signOut()
+                .then(() => {})
+                .catch((error) => {});
             }}
           >
             <View style={styles.button}>

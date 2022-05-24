@@ -36,12 +36,12 @@ import { pressedOpacity } from "../constants/Values";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { auth, chatRef, db, historyRef } from "../config/firebase";
 import ProductCard from "../components/ProductCard";
-import { json } from "stream/consumers";
 import BackButton from "../assets/svg-components/back_button";
-import { menuBarTop } from "../constants/Layout";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ChatWindow({ navigation, route }) {
-  const { email, name, receiverImage, venmo, post, isBuyer } = route.params;
+  const { email, name, receiverImage, venmo, post, isBuyer, screen } =
+    route.params;
   //console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
@@ -56,16 +56,17 @@ export default function ChatWindow({ navigation, route }) {
   const [count, setCount] = useState(0);
   const [uri, setUri] = useState("");
 
-  const [mCount, setmCount] = useState(0);
+  const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
 
   const [messages, setMessages] = React.useState([]);
 
   useEffect(() => {
-    if (isSendingAvailability) {
+    if (isSendingAvailability && text.length > 0) {
+      console.log(text);
       setPlaceholder(text);
       setText("");
     }
-  }, [isSendingAvailability]);
+  }, [text, isSendingAvailability]);
 
   const onSend = useCallback((messages = []) => {
     setMessages((previousMessages) =>
@@ -282,6 +283,32 @@ export default function ChatWindow({ navigation, route }) {
       },
     });
   };
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
+        }
+      }
+    });
+  }, []);
 
   const postImage = (image, props) => {
     const Json = JSON.stringify({
@@ -571,7 +598,8 @@ export default function ChatWindow({ navigation, route }) {
           setModalVisible={setModalVisible}
           text={text}
           setText={setText}
-          screen={"Chat"}
+          setHeight={setHeight}
+          screen={isBuyer ? "ChatBuyer" : "ChatSeller"}
           post={post}
         />
         <AvailabilityModal

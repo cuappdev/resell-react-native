@@ -29,19 +29,16 @@ export default function LinkVenmoScreen({ navigation, route }) {
         venmoHandle: venmo,
         bio: bio,
       });
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
+      await fetch("https://resell-dev.cornellappdev.com/api/user/", {
+        method: "POST",
+        headers: {
+          Authorization: accessToken,
 
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      )
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: Json,
+      })
         .then(function (response) {
           // alert(JSON.stringify(response));
 

@@ -368,7 +368,13 @@ function SavedNavigator() {
 
 function OnboardNavigator({ navigation }) {
   return (
-    <OnboardStack.Navigator>
+    <OnboardStack.Navigator
+      screenOptions={{
+        contentStyle: {
+          backgroundColor: "#FFFFFF",
+        },
+      }}
+    >
       <OnboardStack.Screen
         name="Onboard"
         component={OnBoardScreen}

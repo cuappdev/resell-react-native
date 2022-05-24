@@ -8,12 +8,12 @@ const signInReducer = (state = initialState, action) => {
         case 'LOG_IN':
             return {
                 ...state,
-                signedIn:action.payload.signedIn
+                signedIn:action.payload
             }
         case 'LOG_OUT':
             return {
                 ...state,
-                signedIn:action.payload.signedIn
+                signedIn:action.payload
             }
         default: 
             return state
