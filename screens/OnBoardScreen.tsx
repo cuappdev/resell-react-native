@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -15,7 +15,7 @@ import {
   Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
 import { pressedOpacity } from "../constants/Values";
 
@@ -37,88 +37,156 @@ export default function OnBoardScreen({ navigation }) {
       setImage("data:image/jpeg;base64," + result["base64"]);
     }
   };
+  const [isEditing, setIsEditing] = useState(false);
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
+        }
+      }
+    });
+  }, []);
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setIsEditing(true); // or some other action
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setIsEditing(false); // or some other action
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+  const scroll = useRef(null);
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <View>
-          <Image
-            style={styles.profilePic}
-            source={
-              image === ""
-                ? require("../assets/images/empty_profile.png")
-                : { uri: image }
-            }
-          />
-          <TouchableOpacity
-            activeOpacity={pressedOpacity}
-            style={styles.roundButton1}
-            onPress={() => {
-              pickImage();
-            }}
+      <View>
+        <ScrollView
+          style={{ height: "100%" }}
+          ref={(ref) => {
+            scroll.current = ref;
+          }}
+        >
+          <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
-            <Feather name="edit-2" size={18} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View style={{ flexDirection: "column", width: "100%" }}>
-          <Text style={styles.username}>
-            {username.length > 0 ? "Username" : "Username*"}
-          </Text>
-          <TextInput
-            value={username}
-            onChangeText={(text) => setUsername(text)}
-            style={styles.username_input}
-            placeholderTextColor={"#707070"}
-          />
-          <Text style={styles.bio}>Bio</Text>
-          <TextInput
-            value={bio}
-            onChangeText={(text) => setBio(text)}
-            style={styles.bio_input}
-            placeholderTextColor={"#707070"}
-            numberOfLines={4}
-            multiline={true}
-            maxLength={200}
-          />
-          {bio.length > 0 && (
-            <View
-              style={{
-                width: "100%",
-                flexDirection: "row",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: "Rubik-Regular",
-                  color: "#707070",
-                  marginTop: 4,
-                  marginRight: 10,
+            <View>
+              <Image
+                style={styles.profilePic}
+                source={
+                  image === ""
+                    ? require("../assets/images/empty_profile.png")
+                    : { uri: image }
+                }
+              />
+              <TouchableOpacity
+                activeOpacity={pressedOpacity}
+                style={styles.roundButton1}
+                onPress={() => {
+                  pickImage();
                 }}
               >
-                {bio.length}/200
-              </Text>
+                <Feather name="edit-2" size={18} color="black" />
+              </TouchableOpacity>
             </View>
-          )}
-        </View>
-
-        <View style={styles.purpleButton}>
-          <PurpleButton
-            text={"Continue"}
-            onPress={() => {
-              navigation.navigate("Venmo", {
-                image: image,
-                username: username,
-                bio: bio,
-              });
-            }}
-            enabled={username.length > 0}
-          />
-        </View>
-      </KeyboardAvoidingView>
+            <View style={{ width: "100%" }}>
+              <Text style={styles.username}>
+                {username.length > 0 ? "Username" : "Username*"}
+              </Text>
+              <TextInput
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
+                  scroll.current.scrollToEnd({
+                    animated: true,
+                  });
+                }}
+                style={styles.username_input}
+                placeholderTextColor={"#707070"}
+              />
+              <Text style={styles.bio}>Bio</Text>
+              <TextInput
+                value={bio}
+                onChangeText={(text) => {
+                  setBio(text);
+                  scroll.current.scrollToEnd({
+                    animated: true,
+                  });
+                }}
+                style={styles.bio_input}
+                placeholderTextColor={"#707070"}
+                numberOfLines={4}
+                multiline={true}
+                maxLength={200}
+              />
+              {bio.length > 0 && (
+                <View
+                  style={{
+                    width: "100%",
+                    flexDirection: "row",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "Rubik-Regular",
+                      color: "#707070",
+                      marginTop: 4,
+                      marginRight: 10,
+                    }}
+                  >
+                    {bio.length}/200
+                  </Text>
+                </View>
+              )}
+            </View>
+          </KeyboardAvoidingView>
+        </ScrollView>
+        {!isEditing && (
+          <View style={styles.purpleButton}>
+            <PurpleButton
+              text={"Continue"}
+              onPress={() => {
+                navigation.navigate("Venmo", {
+                  image: image,
+                  username: username,
+                  bio: bio,
+                });
+              }}
+              enabled={username.length > 0}
+            />
+          </View>
+        )}
+      </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -146,7 +214,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   container: {
-    height: "100%",
+    flex: 1,
+    minHeight: 500,
+    width: "100%",
     alignItems: "center",
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
@@ -204,6 +274,6 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "white",
     position: "absolute",
-    bottom: "10%",
+    bottom: "5%",
   },
 });

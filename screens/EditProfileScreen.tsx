@@ -11,6 +11,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StatusBar,
+  Alert,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
@@ -56,6 +57,33 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
+        }
+      }
+    });
+  }, []);
+
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -82,7 +110,6 @@ export default function EditProfileScreen({ navigation, route }) {
   });
 
   const submit = async () => {
-    console.log("ok");
     try {
       var Json;
       if (image.startsWith("https")) {
@@ -171,7 +198,13 @@ export default function EditProfileScreen({ navigation, route }) {
             <Text style={styles.titleText}>Edit Profile</Text>
           </View>
           <TouchableOpacity
-            onPress={() => submit()}
+            onPress={() => {
+              if (username.length > 0) {
+                submit();
+              } else {
+                Alert.alert("Warning", "Username cannot be empty");
+              }
+            }}
             style={styles.headerButton}
           >
             <Text style={styles.buttonText}>Save</Text>
@@ -265,6 +298,9 @@ export default function EditProfileScreen({ navigation, route }) {
                       onChangeText={(text) => {
                         setUsername(text);
                         setInvalidName(false);
+                        scroll.current.scrollToEnd({
+                          animated: true,
+                        });
                       }}
                     />
                     {invalidName && (
@@ -299,7 +335,12 @@ export default function EditProfileScreen({ navigation, route }) {
                     <TextInput
                       style={styles.text_input}
                       value={venmo}
-                      onChangeText={(text) => setVenmo(text)}
+                      onChangeText={(text) => {
+                        setVenmo(text);
+                        scroll.current.scrollToEnd({
+                          animated: true,
+                        });
+                      }}
                     />
                   </View>
                 </View>

@@ -16,6 +16,7 @@ export function NegotiationModal({
   setModalVisible,
   text,
   setText,
+  setHeight,
   screen,
   post,
 }) {
@@ -26,7 +27,12 @@ export function NegotiationModal({
       isVisible={modalVisible}
       onBackdropPress={() => {
         setModalVisible(false);
-        if (text.length > 0 && text.slice(0, 1) != "$") {
+
+        if (
+          screen === "NewPost" &&
+          text.length > 0 &&
+          text.slice(0, 1) != "$"
+        ) {
           setText("$".concat(text));
         }
       }}
@@ -38,7 +44,7 @@ export function NegotiationModal({
           screen === "NewPost" ? { height: modalHeight } : { height: "85%" },
         ]}
       >
-        {screen === "Chat" && (
+        {(screen === "ChatBuyer" || screen === "ChatSeller") && (
           <View
             style={{
               width: "100%",
@@ -88,14 +94,15 @@ export function NegotiationModal({
               setOriginalText={setText}
               screen={screen}
               productName={undefined}
+              setHeight={setHeight}
             />
           </View>
         )}
 
-        {screen === "Chat" && (
+        {(screen === "ChatBuyer" || screen === "ChatSeller") && (
           <View style={styles.modalView}>
             <Text style={[styles.textStyle, { marginBottom: 24 }]}>
-              What price do you want to sell your product?
+              What price do you want to negotiate for?
             </Text>
             <NumberPad
               modalVisible={modalVisible}
@@ -104,6 +111,7 @@ export function NegotiationModal({
               setOriginalText={setText}
               screen={screen}
               productName={post.title}
+              setHeight={setHeight}
             />
           </View>
         )}

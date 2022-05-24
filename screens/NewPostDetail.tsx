@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   ImageBackground,
   Dimensions,
   TextInput,
@@ -33,7 +34,6 @@ import { FILTER1 } from "../data/filter";
 import { NegotiationModal } from "../components/NegotiationModal";
 import { json } from "stream/consumers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import PurpleButton from "../components/PurpleButton";
 
 export function NewPostDetail({ navigation, route }) {
@@ -124,7 +124,7 @@ export function NewPostDetail({ navigation, route }) {
 
           <Text style={styles.smallText}>Price</Text>
           <TouchableOpacity
-            style={{ width: 120 }}
+            style={{ marginHorizontal: 24, width: 120 }}
             onPress={() => setModalVisible(true)}
           >
             <View
@@ -135,9 +135,7 @@ export function NewPostDetail({ navigation, route }) {
                 height: 40,
                 backgroundColor: "#F4F4F4",
                 borderRadius: 10,
-                marginHorizontal: 24,
                 marginBottom: 24,
-                elevation: 5,
               }}
             >
               <Text
@@ -151,6 +149,7 @@ export function NewPostDetail({ navigation, route }) {
               </Text>
             </View>
           </TouchableOpacity>
+
           <NegotiationModal
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}
@@ -222,7 +221,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "white",
     position: "absolute",
-    bottom: "10%",
+    bottom: "5%",
   },
   noResultHeader: {
     fontFamily: "Rubik-Medium",

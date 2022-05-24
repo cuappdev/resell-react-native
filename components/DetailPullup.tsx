@@ -11,17 +11,6 @@ import ModalBar from "../assets/svg-components/modal_bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "../config/firebase";
 
-export type Item = {
-  images: string[];
-  title: string;
-  price: number;
-  description: string;
-  categories: string[];
-  similarItems: number[];
-  sellerName: String;
-  sellerImage: String;
-};
-
 export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
   return (
     <View style={[styles.container_header, styles.roundCorner]}>
@@ -33,19 +22,8 @@ export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
         <Text style={styles.price}>{"$" + item.price}</Text>
       </View>
       <View style={styles.paddedRow}>
-        <Image
-          source={
-            item.sellerImage == ""
-              ? { uri: sellerProfile }
-              : { uri: item.sellerImage }
-          }
-          style={styles.profileImage}
-        />
-        {item.sellerName == "" ? (
-          <Text style={styles.profile}>{sellerName}</Text>
-        ) : (
-          <Text style={styles.profile}>{item.sellerName}</Text>
-        )}
+        <Image source={{ uri: sellerProfile }} style={styles.profileImage} />
+        <Text style={styles.profile}>{sellerName}</Text>
       </View>
     </View>
   );

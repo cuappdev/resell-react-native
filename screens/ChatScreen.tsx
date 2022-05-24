@@ -14,16 +14,7 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from "react";
-import { GiftedChat } from "react-native-gifted-chat";
 // LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
-
-// import {
-//   collection,
-//   addDoc,
-//   orderBy,
-//   query,
-//   onSnapshot,
-// } from "firebase/firestore";
 
 // import { firestore } from "../config/firebase";
 
@@ -152,6 +143,7 @@ export default function ChatScreen({ navigation }) {
             post: item.recentItem,
             venmo: item.venmo,
             isBuyer: isPurchase,
+            screen: "chat",
           });
         }}
       >
@@ -173,7 +165,9 @@ export default function ChatScreen({ navigation }) {
               <Text style={styles.sellerName}>{item.sellerName}</Text>
               {products}
             </Text>
-            <Text numberOfLines={1} style={styles.recentMessage}>{message}</Text>
+            <Text numberOfLines={1} style={styles.recentMessage}>
+              {message}
+            </Text>
           </View>
           <View style={{ marginHorizontal: 8 }}>
             <Feather name="chevron-right" size={24} color="#B3B3B3" />
