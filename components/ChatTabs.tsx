@@ -161,22 +161,23 @@ const styles = StyleSheet.create({
   appButtonContainer: {
     backgroundColor: "#ffffff",
     borderRadius: 100,
-    paddingVertical: 11,
-    paddingHorizontal: 11,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     marginVertical: 2,
     marginHorizontal: 2,
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: "#D3D3D3",
     minWidth: 60,
   },
   appUnclickedContainer: {
     backgroundColor: "#ffffff",
     borderRadius: 100,
     paddingVertical: 12,
-    paddingHorizontal: 10,
-    marginVertical: 5,
-    marginHorizontal: 5,
+    paddingHorizontal: 12,
+    marginVertical: 6,
+    marginHorizontal: 6,
     borderWidth: 1,
+
     borderColor: "#ffffff",
     minWidth: 60,
   },
@@ -199,6 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: 23,
     marginVertical: 5,
     marginHorizontal: 5,
+    elevation: 8,
   },
 });
 export default ChatTbas;

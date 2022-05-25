@@ -21,11 +21,13 @@ export default function PurpleButton(props) {
 
 const styles = StyleSheet.create({
   button: {
-    width: 230,
+    width: 200,
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
     padding: "3%",
     borderRadius: 25,
+    minHeight: 45,
   },
 
   buttonText: {
@@ -33,14 +35,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
-  },
-  purpleButton: {
-    bottom: 100,
-    alignItems: "center",
-    width: "100 %",
-    zIndex: 10,
-    height: 170,
-    backgroundColor: "white",
-    marginTop: 350,
+    fontFamily: "Rubik-Regular",
   },
 });

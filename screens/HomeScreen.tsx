@@ -191,9 +191,9 @@ export default function HomeScreen({ navigation, route }) {
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
       <View style={{ height: "100%", flex: 1 }}>
         {isLoading ? (
-          <LoadingScreen />
+          <LoadingScreen screen={"Home"} />
         ) : fetchFailed ? (
-          <LoadingScreen />
+          <LoadingScreen screen={"Home"} />
         ) : posts.length == 0 ? (
           <View style={styles.noResultView}>
             <Text style={styles.noResultHeader}>No results</Text>
@@ -206,7 +206,7 @@ export default function HomeScreen({ navigation, route }) {
             data={posts}
             onRefresh={getPostsRefresh}
             navigation={navigation}
-            fromProfile={false}
+            screen={"Home"}
           />
         )}
       </View>
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   slideUp: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 400,
+    height: 370,
     backgroundColor: "#ffffff",
     width: "100%",
     marginHorizontal: 0,

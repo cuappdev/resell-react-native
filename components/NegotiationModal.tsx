@@ -16,6 +16,7 @@ export function NegotiationModal({
   setModalVisible,
   text,
   setText,
+  setHeight,
   screen,
   post,
 }) {
@@ -26,7 +27,12 @@ export function NegotiationModal({
       isVisible={modalVisible}
       onBackdropPress={() => {
         setModalVisible(false);
-        if (text.length > 0 && text.slice(0, 1) != "$") {
+
+        if (
+          screen === "NewPost" &&
+          text.length > 0 &&
+          text.slice(0, 1) != "$"
+        ) {
           setText("$".concat(text));
         }
       }}
@@ -38,7 +44,7 @@ export function NegotiationModal({
           screen === "NewPost" ? { height: modalHeight } : { height: "85%" },
         ]}
       >
-        {screen === "Chat" && (
+        {(screen === "ChatBuyer" || screen === "ChatSeller") && (
           <View
             style={{
               width: "100%",
@@ -76,19 +82,39 @@ export function NegotiationModal({
             </Text>
           </View>
         )}
-        <View style={styles.modalView}>
-          <Text style={[styles.textStyle, { marginBottom: 24 }]}>
-            What price do you want to propose?
-          </Text>
-          <NumberPad
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            originalText={text}
-            setOriginalText={setText}
-            screen={screen}
-            productName={post.title}
-          />
-        </View>
+        {screen === "NewPost" && (
+          <View style={styles.modalView}>
+            <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+              What price do you want to sell your product?
+            </Text>
+            <NumberPad
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              originalText={text}
+              setOriginalText={setText}
+              screen={screen}
+              productName={undefined}
+              setHeight={setHeight}
+            />
+          </View>
+        )}
+
+        {(screen === "ChatBuyer" || screen === "ChatSeller") && (
+          <View style={styles.modalView}>
+            <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+              What price do you want to negotiate for?
+            </Text>
+            <NumberPad
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              originalText={text}
+              setOriginalText={setText}
+              screen={screen}
+              productName={post.title}
+              setHeight={setHeight}
+            />
+          </View>
+        )}
       </View>
     </Modal>
   );
@@ -105,7 +131,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
-    padding: 35,
+    paddingHorizontal: 30,
+    paddingTop: 20,
+    paddingBottom: 0,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -119,11 +147,11 @@ const styles = StyleSheet.create({
   },
 
   textStyle: {
-    fontFamily: "Roboto-Medium",
+    fontFamily: "Rubik-Regular",
     fontSize: 20,
+    fontWeight: "700",
     color: "black",
     textAlign: "center",
-    letterSpacing: 0.5,
   },
   modalText: {
     marginBottom: 15,

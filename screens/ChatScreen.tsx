@@ -14,16 +14,8 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from "react";
-import { GiftedChat } from "react-native-gifted-chat";
-// import {
-//   collection,
-//   addDoc,
-//   orderBy,
-//   query,
-//   onSnapshot,
-// } from "firebase/firestore";
+// LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
 
-// import { auth, database } from "../config/firebase";
 // import { firestore } from "../config/firebase";
 
 // const userCollection = firestore.collection("users");
@@ -31,50 +23,141 @@ import { GiftedChat } from "react-native-gifted-chat";
 // LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 // LogBox.ignoreAllLogs();
 import ChatTbas from "../components/ChatTabs";
+import { auth, chatRef, db, historyRef } from "../config/firebase";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
   var temptPuchrase = 0;
   var temptOrder = 0;
-  const [data, setData] = useState([]);
-  const [data2, setData2] = useState([]);
+  const [purchase, setPurchase] = useState([]);
+  const [offer, setOffer] = useState([]);
+  const getPurchase = async () => {
+    setPurchase([]);
+    const query = historyRef
+      .doc(auth?.currentUser?.email)
+      .collection("sellers");
 
-  data.forEach((element) => {
+    try {
+      query.onSnapshot((querySnapshot) => {
+        var tempt = [];
+        querySnapshot.docs.forEach((doc) => {
+          tempt.push({
+            sellerName: doc.data().name,
+            email: doc.id,
+
+            recentItem: doc.data().item,
+            image: doc.data().image,
+            recentMessage: doc.data().recentMessage,
+            recentSender:
+              doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
+            viewed: doc.data().viewed,
+          });
+        });
+        setPurchase(tempt);
+      });
+    } catch (e) {
+      console.log("Error getting user: ", e);
+    }
+  };
+  const getOffer = async () => {
+    setOffer([]);
+
+    const query = historyRef.doc(auth?.currentUser?.email).collection("buyers");
+
+    try {
+      query.onSnapshot((querySnapshot) => {
+        var tempt = [];
+
+        querySnapshot.docs.forEach((doc) => {
+          tempt.push({
+            sellerName: doc.data().name,
+            recentItem: doc.data().item,
+            email: doc.id,
+            image: doc.data().image,
+            recentMessage: doc.data().recentMessage,
+            recentSender:
+              doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
+            viewed: doc.data().viewed,
+            venmo: doc.data().item.user.venmoHandle,
+          });
+        });
+        setOffer(tempt);
+      });
+    } catch (e) {
+      console.log("Error getting user: ", e);
+    }
+  };
+  useEffect(() => {
+    getPurchase();
+    getOffer();
+  }, []);
+  purchase.forEach((element) => {
     if (!element.viewed) {
       temptPuchrase = temptPuchrase + 1;
     }
   });
-  data2.forEach((element) => {
+
+  offer.forEach((element) => {
     if (!element.viewed) {
       temptOrder = temptOrder + 1;
     }
   });
-  const [purchaseUnread, setPurchaseUnread] = useState(temptPuchrase);
+  const [purchaseUnread, setPurchaseUnread] = useState(0);
+  useEffect(() => {
+    setPurchaseUnread(temptPuchrase);
+  }, [temptPuchrase]);
+
   const [offerUnread, setOfferUnread] = useState(temptOrder);
+  useEffect(() => {
+    setOfferUnread(temptOrder);
+  }, [temptOrder]);
 
   const renderItem = ({ item }) => {
-    var products = "";
-    item.items.forEach((element) => {
-      products = products.concat(" • ", element);
-    });
-    var message = item.recentSender == 1 ? "You:" : item.sellerName + ":";
+    var products = " • " + item.recentItem.title;
+
+    var message = item.recentSender == 1 ? "You: " : item.sellerName + ": ";
+
     message = message + item.recentMessage;
 
     return (
       <TouchableOpacity
         onPress={() => {
           //Changed viewed of data here.
+          if (isPurchase) {
+            historyRef
+              .doc(auth?.currentUser?.email)
+              .collection("sellers")
+              .doc(item.email)
+              .update({ viewed: true });
+          } else {
+            historyRef
+              .doc(auth?.currentUser?.email)
+              .collection("buyers")
+              .doc(item.email)
+              .update({ viewed: true });
+          }
           navigation.navigate("ChatWindow", {
-            item: item.title,
-            seller: item.sellerName,
+            name: item.sellerName,
+            receiverImage: item.image,
+            email: item.email,
+            post: item.recentItem,
+            venmo: item.venmo,
+            isBuyer: isPurchase,
+            screen: "chat",
           });
         }}
       >
         <View style={styles.outer}>
           {!item.viewed && <View style={styles.viewedDot} />}
           <Image
-            style={styles.image}
-            source={item.image}
+            style={[
+              styles.image,
+              (isPurchase && purchaseUnread != 0) ||
+              (!isPurchase && offerUnread != 0)
+                ? { marginStart: 24 }
+                : { marginStart: 12 },
+            ]}
+            source={{ uri: item.image }}
             resizeMode={"cover"}
           />
           <View style={styles.inner}>
@@ -82,7 +165,9 @@ export default function ChatScreen({ navigation }) {
               <Text style={styles.sellerName}>{item.sellerName}</Text>
               {products}
             </Text>
-            <Text style={styles.recentMessage}>{message}</Text>
+            <Text numberOfLines={1} style={styles.recentMessage}>
+              {message}
+            </Text>
           </View>
           <View style={{ marginHorizontal: 8 }}>
             <Feather name="chevron-right" size={24} color="#B3B3B3" />
@@ -100,21 +185,21 @@ export default function ChatScreen({ navigation }) {
         purchaseUnread={purchaseUnread}
         offerUnread={offerUnread}
       />
-      {data.length != 0 && isPurchase && (
+      {purchase.length != 0 && isPurchase && (
         <FlatList
-          data={data}
+          data={purchase}
           renderItem={renderItem}
           keyboardShouldPersistTaps="always"
         />
       )}
-      {data2.length != 0 && !isPurchase && (
+      {offer.length != 0 && !isPurchase && (
         <FlatList
-          data={data2}
+          data={offer}
           renderItem={renderItem}
           keyboardShouldPersistTaps="always"
         />
       )}
-      {data.length == 0 && isPurchase && (
+      {purchase.length == 0 && isPurchase && (
         <View style={styles.noResultView}>
           <Text style={styles.noResultHeader}>
             No messages with sellers yet
@@ -124,7 +209,7 @@ export default function ChatScreen({ navigation }) {
           </Text>
         </View>
       )}
-      {data2.length == 0 && !isPurchase && (
+      {offer.length == 0 && !isPurchase && (
         <View style={styles.noResultView}>
           <Text style={styles.noResultHeader}>No messages with buyers yet</Text>
           <Text style={styles.noResultSubHeader}>
@@ -141,11 +226,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 15,
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   inner: {
-    width: "70%",
+    width: "65%",
     marginStart: 12,
 
     flexDirection: "column",
@@ -170,12 +255,12 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
   items: {
-    fontFamily: "Rubik-Bold",
+    fontFamily: "Rubik-Medium",
     fontSize: 16,
     color: "#707070",
     marginBottom: 8,
   },
-  image: { width: 45, height: 45, borderRadius: 75, marginStart: 24 },
+  image: { width: 45, height: 45, borderRadius: 75 },
   noResultView: {
     flex: 1,
     justifyContent: "center",

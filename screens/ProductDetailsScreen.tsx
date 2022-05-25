@@ -4,7 +4,6 @@ import BookMarkButton from "../assets/svg-components/bookmark_button";
 import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved";
 import ExportButton from "../assets/svg-components/export_button";
 import {
-  Item,
   DetailPullUpHeader,
   DetailPullUpBody,
 } from "../components/DetailPullup";
@@ -30,6 +29,7 @@ import { pressedOpacity } from "../constants/Values";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 import PurpleButton from "../components/PurpleButton";
+import { auth, historyRef } from "../config/firebase";
 
 const styles = StyleSheet.create({
   container: {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   topBar: {
-    height: menuBarTop + 60,
+    height: Platform.OS === "ios" ? menuBarTop + 60 : 80,
     width: "100%",
     position: "absolute",
     top: 0,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 10,
     zIndex: 15,
     width: 50,
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   trashButton: {
     position: "absolute",
-    top: menuBarTop - 2,
+    top: Platform.OS === "ios" ? menuBarTop - 2 : 18,
     right: 110,
     zIndex: 15,
     width: 50,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   bookmarkButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     right: 60,
     zIndex: 15,
     width: 50,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   exportButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     right: 10,
     zIndex: 15,
     width: 50,
@@ -99,16 +99,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     alignItems: "center",
-    width: "100 %",
+    width: "100%",
     zIndex: 10,
-    height: 100,
+    height: 80,
     backgroundColor: "white",
   },
   bottomGradient: {
     height: 60,
     width: "100%",
     position: "absolute",
-    bottom: 100,
+    bottom: 80,
     zIndex: 10,
   },
   button: {
@@ -146,24 +146,41 @@ const styles = StyleSheet.create({
 });
 
 export default function ProductDetailsScreen({ route, navigation }) {
-  const { post, showTrash, savedInitial } = route.params;
-
+  const { post, screen, savedInitial } = route.params;
   const [maxImgRatio, setMaxImgRatio] = useState(0); // height / width
-
   const [isLoading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(savedInitial);
+  const [item, setItem] = useState({
+    images: post.images,
+    title: post.title,
+    price: post.price,
+    description: post.description,
+    categories: post.categories,
+    similarItems: [],
+  });
+
+  useEffect(() => {
+    setItem({
+      images: post.images,
+      title: post.title,
+      price: post.price,
+      description: post.description,
+      categories: post.categories,
+      similarItems: [],
+    });
+  }, [post]);
+
   useEffect(() => {
     getPost();
-  }, []);
-  useEffect(() => {
     fetchPost();
   }, [post]);
   const [similarItems, setSimilarItems] = useState([]);
   const [userId, setUserId] = useState("");
   const [sellerName, setSellerName] = useState("");
+  const [sellerEmail, setSellerEmail] = useState("");
+  const [sellerVenmo, setSellerVenmo] = useState("");
 
   const [profileImage, setProfileImage] = useState("");
-
   const [modalVisibility, setModalVisibility] = useState(false);
 
   AsyncStorage.getItem("userId", (errs, result) => {
@@ -207,9 +224,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const fetchPost = async () => {
     try {
       let response;
-      console.log(post.id);
       response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/id/" + post.id,
+        "https://resell-dev.cornellappdev.com/api/user/postId/" + post.id,
         {
           method: "GET",
           headers: {
@@ -220,10 +236,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
       );
 
       const userResult = await response.json();
+
       setSellerName(
-        userResult.post.user.givenName + " " + userResult.post.user.familyName
+        userResult.user.givenName + " " + userResult.user.familyName
       );
-      setProfileImage(userResult.post.user.photoUrl);
+      setSellerVenmo(userResult.user.venmoHandle);
+      setProfileImage(userResult.user.photoUrl);
+      setSellerEmail(userResult.user.email);
     } catch (error) {
       console.error(error);
     } finally {
@@ -231,14 +250,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
     }
   };
 
-  const item: Item = {
-    images: post.images,
-    title: post.title,
-    price: post.price,
-    description: post.description,
-    categories: post.categories,
-    similarItems: [],
-  };
   const fetchIsSaved = async () => {
     try {
       const response = await fetch(
@@ -251,9 +262,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch (error) {}
   };
   fetchIsSaved();
 
@@ -267,9 +276,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       );
       const json = await response.json();
       setIsSaved(json.isSaved);
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch (error) {}
   };
 
   const unsave = async () => {
@@ -282,17 +289,19 @@ export default function ProductDetailsScreen({ route, navigation }) {
       );
       const json = await response.json();
       setIsSaved(json.isSaved);
-    } catch (error) {
-      //console.error(error);
-    }
+    } catch (error) {}
   };
 
   const onShare = async () => {
     try {
-      //product, differ by device
       const result = await Share.share({
-        message: "Checkout this ",
-        url: "https://www.cornellappdev.com/courses/android",
+        message:
+          "Check out this " +
+          post.title +
+          " posted by " +
+          sellerName +
+          " on Cornell Appdev Resell App, it's only for " +
+          post.price,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -371,7 +380,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <BackButton />
       </TouchableOpacity>
-      {showTrash && (
+      {screen === "Profile" && (
         <TouchableOpacity
           activeOpacity={pressedOpacity}
           style={styles.trashButton}
@@ -419,29 +428,44 @@ export default function ProductDetailsScreen({ route, navigation }) {
             sellerProfile={profileImage}
           />
           <DetailPullUpBody
+            sellerName={sellerName}
             item={item}
             similarItems={similarItems}
             navigation={navigation}
+            screen={screen}
           />
         </View>
       </SlidingUpPanel>
-      <View style={styles.greyButton}>
-        <PurpleButton
-          onPress={() => {
-            navigation.navigate("ChatWindow", {
-              item: item.title,
-              seller: sellerName,
-              post: post,
-            });
-          }}
-          text={"Contact Seller"}
-          enabled={true}
+      {screen != "Profile" && sellerEmail != auth?.currentUser?.email && (
+        <View style={styles.greyButton}>
+          <PurpleButton
+            onPress={() => {
+              historyRef
+                .doc(auth?.currentUser?.email)
+                .collection("sellers")
+                .doc(sellerEmail)
+                .update({ viewed: true });
+              navigation.navigate("ChatWindow", {
+                name: sellerName,
+                receiverImage: profileImage,
+                venmo: sellerVenmo,
+                email: sellerEmail,
+                post: post,
+                isBuyer: true,
+                screen: "product",
+              });
+            }}
+            text={"Contact Seller"}
+            enabled={true}
+          />
+        </View>
+      )}
+      {screen != "Profile" && sellerEmail != auth?.currentUser?.email && (
+        <LinearGradient
+          colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
+          style={styles.bottomGradient}
         />
-      </View>
-      <LinearGradient
-        colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
-        style={styles.bottomGradient}
-      />
+      )}
       <Modal
         isVisible={modalVisibility}
         backdropOpacity={0.2}

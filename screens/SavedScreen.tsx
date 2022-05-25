@@ -42,7 +42,7 @@ export default function SavedScreen({
       );
       if (response.ok) {
         const json = await response.json();
-        //  console.log(json);
+        // console.log(json);
         setPosts(json.user.saved);
       }
     } catch (error) {
@@ -65,7 +65,7 @@ export default function SavedScreen({
       );
       if (response.ok) {
         const json = await response.json();
-        //console.log(json);
+        // console.log(json);
         setPosts(json.user.saved);
       }
     } catch (error) {
@@ -79,9 +79,9 @@ export default function SavedScreen({
   return (
     <View style={[styles.outer]}>
       {isLoading ? (
-        <LoadingScreen />
+        <LoadingScreen screen={"Saved"} />
       ) : fetchFailed ? (
-        <LoadingScreen />
+        <LoadingScreen screen={"Saved"} />
       ) : posts.length == 0 ? (
         <View style={styles.noResultView}>
           <Text style={styles.noResultHeader}>No results</Text>
@@ -93,7 +93,7 @@ export default function SavedScreen({
         <ProductList
           data={posts}
           navigation={navigation}
-          fromProfile={false}
+          screen={"Saved"}
           onRefresh={undefined}
         />
       )}

@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   ImageBackground,
   Dimensions,
   TextInput,
@@ -32,9 +33,8 @@ import ButtonBanner from "../components/ButtonBanner";
 import { FILTER1 } from "../data/filter";
 import { NegotiationModal } from "../components/NegotiationModal";
 import { json } from "stream/consumers";
-import PurpleButton from "../components/PurpleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import PurpleButton from "../components/PurpleButton";
 
 export function NewPostDetail({ navigation, route }) {
   const { image } = route.params;
@@ -82,7 +82,7 @@ export function NewPostDetail({ navigation, route }) {
         }
       })
       .then(async function (data) {
-        // console.log(data);
+        navigation.navigate("Root");
       })
       .catch((error) => {
         //alert(error.message);
@@ -91,125 +91,120 @@ export function NewPostDetail({ navigation, route }) {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View
+      <KeyboardAvoidingView
         style={{
           backgroundColor: "#ffffff",
           height: "100%",
           flexDirection: "column",
         }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Text style={styles.smallText}>Title</Text>
-        <TextInput
-          style={[
-            {
-              paddingVertical: 10,
-              paddingHorizontal: 10,
-              fontSize: 18,
-              backgroundColor: "#F4F4F4",
-              borderRadius: 10,
-              height: 42,
-              marginHorizontal: 24,
-              marginBottom: 32,
-            },
-          ]}
-          value={title}
-          onChangeText={(text) => {
-            setTitle(text);
-          }}
-          onKeyPress={({ nativeEvent }) => {}}
-          onContentSizeChange={(event) => {}}
-        />
-
-        <Text style={styles.smallText}>Price</Text>
-        <TouchableOpacity
-          style={{ width: 120 }}
-          onPress={() => setModalVisible(true)}
-        >
-          <View
-            style={{
-              paddingVertical: 10,
-              paddingHorizontal: 10,
-              width: 120,
-              height: 40,
-              backgroundColor: "#F4F4F4",
-              borderRadius: 10,
-              marginHorizontal: 24,
-              marginBottom: 24,
-              elevation: 5,
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: "Rubik-Regular",
+        <View>
+          <Text style={styles.smallText}>Title</Text>
+          <TextInput
+            style={[
+              {
+                paddingVertical: 10,
+                paddingHorizontal: 10,
                 fontSize: 18,
-                color: "#707070",
+                backgroundColor: "#F4F4F4",
+                borderRadius: 10,
+                height: 42,
+                marginHorizontal: 24,
+                marginBottom: 32,
+              },
+            ]}
+            value={title}
+            onChangeText={(text) => {
+              setTitle(text);
+            }}
+            onKeyPress={({ nativeEvent }) => {}}
+            onContentSizeChange={(event) => {}}
+          />
+
+          <Text style={styles.smallText}>Price</Text>
+          <TouchableOpacity
+            style={{ marginHorizontal: 24, width: 120 }}
+            onPress={() => setModalVisible(true)}
+          >
+            <View
+              style={{
+                paddingVertical: 10,
+                paddingHorizontal: 10,
+                width: 120,
+                height: 40,
+                backgroundColor: "#F4F4F4",
+                borderRadius: 10,
+                marginBottom: 24,
               }}
             >
-              {price == "" ? "$" : price}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <NegotiationModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-          text={price}
-          setText={setPrice}
-          screen={"NewPost"}
-          post={null}
-        />
-        <Text style={styles.smallText}>Item Description</Text>
-        <TextInput
-          style={[
-            {
-              paddingVertical: 10,
-              paddingHorizontal: 10,
-              fontSize: 18,
-              backgroundColor: "#F4F4F4",
-              borderRadius: 10,
-              marginHorizontal: 24,
-              marginBottom: 32,
-              minHeight: 100,
-              textAlignVertical: "top",
-            },
-          ]}
-          placeholder={
-            "enter item details..." +
-            "\n" +
-            "• Condition" +
-            "\n" +
-            "• Dimensions"
-          }
-          value={description}
-          placeholderTextColor={"#707070"}
-          onChangeText={(text) => {
-            setDescription(text);
-          }}
-          onKeyPress={({ nativeEvent }) => {}}
-          onContentSizeChange={(event) => {}}
-          multiline={true}
-        />
-        <Text style={styles.smallText}>Select Categories</Text>
-        <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
-        <KeyboardAvoidingView
-          style={{
-            width: "100%",
-            alignItems: "center",
-            position: "absolute",
-            bottom: "5%",
-          }}
-        >
+              <Text
+                style={{
+                  fontFamily: "Rubik-Regular",
+                  fontSize: 18,
+                  color: "#707070",
+                }}
+              >
+                {price == "" ? "$" : price}
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <NegotiationModal
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            text={price}
+            setText={setPrice}
+            screen={"NewPost"}
+            post={null}
+          />
+          <Text style={styles.smallText}>Item Description</Text>
+          <TextInput
+            style={[
+              {
+                paddingVertical: 10,
+                paddingHorizontal: 10,
+                fontSize: 18,
+                backgroundColor: "#F4F4F4",
+                borderRadius: 10,
+                marginHorizontal: 24,
+                marginBottom: 32,
+                minHeight: 100,
+                textAlignVertical: "top",
+                maxHeight: 160,
+              },
+            ]}
+            placeholder={
+              "enter item details..." +
+              "\n" +
+              "• Condition" +
+              "\n" +
+              "• Dimensions"
+            }
+            value={description}
+            placeholderTextColor={"#707070"}
+            onChangeText={(text) => {
+              setDescription(text);
+            }}
+            onKeyPress={({ nativeEvent }) => {}}
+            onContentSizeChange={(event) => {}}
+            multiline={true}
+          />
+          <Text style={styles.smallText}>Select Categories</Text>
+          <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
+        </View>
+        <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
             onPress={() => {
-              navigation.navigate("Root");
               postRequest();
             }}
             enabled={
               description.length > 0 && title.length > 0 && price.length > 1
             }
           />
-        </KeyboardAvoidingView>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }
@@ -219,6 +214,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  purpleButton: {
+    marginTop: 30,
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: "white",
+    position: "absolute",
+    bottom: "5%",
   },
   noResultHeader: {
     fontFamily: "Rubik-Medium",

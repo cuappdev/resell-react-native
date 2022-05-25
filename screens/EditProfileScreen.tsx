@@ -11,6 +11,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StatusBar,
+  Alert,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
@@ -22,8 +23,9 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { json } from "stream/consumers";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView } from "react-native";
 import { platform } from "os";
+import { auth } from "../config/firebase";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -34,13 +36,11 @@ export default function EditProfileScreen({ navigation, route }) {
     initialVenmo,
     initialImage,
   } = route.params;
-  console.log(initialImage);
+
   const [image, setImage] = useState(initialImage);
-  const [onEdit, setOnEdit] = useState(false);
   const [bio, setBio] = useState(initialBio);
 
   const [username, setUsername] = useState(initialUsername);
-  console.log(image);
   const [venmo, setVenmo] = useState(initialVenmo);
 
   const pickImage = async () => {
@@ -56,14 +56,41 @@ export default function EditProfileScreen({ navigation, route }) {
       setImage("data:image/jpeg;base64," + result["base64"]);
     }
   };
-  const [accessToken, setAccessToken] = useState("");
-  const [invalidName, setInvalidName] = useState(false);
+
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
+      "keyboardDidShow",
       () => {
-        setOnEdit(false);
+        scroll.current.scrollToEnd({
+          animated: true,
+        });
       }
     );
 
@@ -71,6 +98,8 @@ export default function EditProfileScreen({ navigation, route }) {
       keyboardDidHideListener.remove();
     };
   }, []);
+  const [accessToken, setAccessToken] = useState("");
+  const [invalidName, setInvalidName] = useState(false);
 
   AsyncStorage.getItem("accessToken", (errs, result) => {
     if (!errs) {
@@ -81,7 +110,6 @@ export default function EditProfileScreen({ navigation, route }) {
   });
 
   const submit = async () => {
-    console.log("ok");
     try {
       var Json;
       if (image.startsWith("https")) {
@@ -121,7 +149,20 @@ export default function EditProfileScreen({ navigation, route }) {
           return response.json();
         })
         .then(async function (data) {
-          // console.log(data);
+          auth.currentUser
+            .updateProfile({
+              displayName: data.user.givenName + " " + data.user.familyName,
+              photoURL: data.user.photoUrl,
+            })
+            .then(() => {
+              // Profile updated!
+              // ...
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+              alert(error);
+            });
         })
         .catch((error) => {
           //alert(error.message);
@@ -131,198 +172,216 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
+  const scroll = useRef(null);
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        setOnEdit(false);
         Keyboard.dismiss();
       }}
     >
-      <KeyboardAvoidingView
-        style={[
-          styles.container,
-          Platform.OS === "ios" ? { paddingTop: 40 } : undefined,
-        ]}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        {!onEdit && (
-          <View
-            style={{
-              width: "100%",
-              backgroundColor: "#FFFFFF",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.backButton}
-            >
-              <BackButton color="black" />
-            </TouchableOpacity>
-            <View style={styles.title}>
-              <Text style={styles.titleText}>Edit Profile</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => submit()}
-              style={styles.headerButton}
-            >
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <View>
-          <Image style={styles.profilePic} source={{ uri: image }} />
+      <View>
+        <View
+          style={{
+            width: "100%",
+            backgroundColor: "#FFFFFF",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
           <TouchableOpacity
-            activeOpacity={pressedOpacity}
-            style={styles.roundButton1}
-            onPress={() => {
-              pickImage();
-            }}
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
           >
-            <Feather name="edit-2" size={18} color="black" />
+            <BackButton color="black" />
+          </TouchableOpacity>
+          <View style={styles.title}>
+            <Text style={styles.titleText}>Edit Profile</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              if (username.length > 0) {
+                submit();
+              } else {
+                Alert.alert("Warning", "Username cannot be empty");
+              }
+            }}
+            style={styles.headerButton}
+          >
+            <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
         </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            style={{ height: "100%" }}
+            ref={(ref) => {
+              scroll.current = ref;
+            }}
+          >
+            <View style={styles.container}>
+              <View>
+                <Image style={styles.profilePic} source={{ uri: image }} />
+                <TouchableOpacity
+                  activeOpacity={pressedOpacity}
+                  style={styles.roundButton1}
+                  onPress={() => {
+                    pickImage();
+                  }}
+                >
+                  <Feather name="edit-2" size={18} color="black" />
+                </TouchableOpacity>
+              </View>
 
-        <View style={{ width: "100%", marginTop: 30 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 30,
-              minHeight: 30,
-            }}
-          >
-            <Text style={styles.text}>Name</Text>
-            <Text style={styles.content}>{initialRealname}</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 30,
-              minHeight: 30,
-            }}
-          >
-            <Text style={styles.text}>Netid</Text>
-            <Text style={styles.content}>{initialNetId}</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 30,
-            }}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.text}>Username</Text>
-              {invalidName && (
+              <View style={{ width: "100%", marginTop: 30 }}>
                 <View
                   style={{
-                    width: 16,
-                    height: 16,
-                    backgroundColor: "#FF0000",
-                    borderRadius: 8,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: 3,
-                    marginLeft: 4,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginBottom: 30,
+                    minHeight: 30,
                   }}
                 >
-                  <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>!</Text>
+                  <Text style={styles.text}>Name</Text>
+                  <Text style={styles.content}>{initialRealname}</Text>
                 </View>
-              )}
-            </View>
-            <View
-              style={{
-                flexDirection: "column",
-                alignItems: "flex-end",
-                width: "40%",
-                marginEnd: 20,
-              }}
-            >
-              <TextInput
-                style={styles.text_input}
-                onFocus={() => {
-                  setOnEdit(false);
-                }}
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  setInvalidName(false);
-                }}
-              />
-              {invalidName && (
-                <Text
+                <View
                   style={{
-                    fontSize: 12,
-                    fontFamily: "Rubik-Regular",
-                    color: "#FF0000",
-                    marginTop: 4,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginBottom: 30,
+                    minHeight: 30,
                   }}
                 >
-                  Name Unavailable
-                </Text>
-              )}
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 30,
-            }}
-          >
-            <Text style={styles.text}>Venmo Link</Text>
-            <View
-              style={{ flexDirection: "column", width: "40%", marginEnd: 20 }}
-            >
-              <TextInput
-                onFocus={() => setOnEdit(false)}
-                style={styles.text_input}
-                value={venmo}
-                onChangeText={(text) => setVenmo(text)}
-              />
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={styles.text}>Bio</Text>
-            <View
-              style={{
-                flexDirection: "column",
-                alignItems: "flex-end",
-                width: "70%",
-                marginEnd: 20,
-                marginBottom: 50,
-              }}
-            >
-              <TextInput
-                style={[
-                  styles.text_input,
-                  {
-                    textAlign: "left",
-                    textAlignVertical: "top",
-                    maxHeight: 100,
-                  },
-                ]}
-                onFocus={() => {
-                  setOnEdit(true);
-                }}
-                numberOfLines={4}
-                multiline={true}
-                maxLength={200}
-                value={bio}
-                onChangeText={(text) => {
-                  setBio(text);
-                }}
-              />
-              {/* {false && (
+                  <Text style={styles.text}>Netid</Text>
+                  <Text style={styles.content}>{initialNetId}</Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginBottom: 30,
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={styles.text}>Username</Text>
+                    {invalidName && (
+                      <View
+                        style={{
+                          width: 16,
+                          height: 16,
+                          backgroundColor: "#FF0000",
+                          borderRadius: 8,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginTop: 3,
+                          marginLeft: 4,
+                        }}
+                      >
+                        <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
+                          !
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                      width: "40%",
+                      marginEnd: 20,
+                    }}
+                  >
+                    <TextInput
+                      style={styles.text_input}
+                      value={username}
+                      onChangeText={(text) => {
+                        setUsername(text);
+                        setInvalidName(false);
+                        scroll.current.scrollToEnd({
+                          animated: true,
+                        });
+                      }}
+                    />
+                    {invalidName && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontFamily: "Rubik-Regular",
+                          color: "#FF0000",
+                          marginTop: 4,
+                        }}
+                      >
+                        Name Unavailable
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginBottom: 30,
+                  }}
+                >
+                  <Text style={styles.text}>Venmo Link</Text>
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      width: "40%",
+                      marginEnd: 20,
+                    }}
+                  >
+                    <TextInput
+                      style={styles.text_input}
+                      value={venmo}
+                      onChangeText={(text) => {
+                        setVenmo(text);
+                        scroll.current.scrollToEnd({
+                          animated: true,
+                        });
+                      }}
+                    />
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={styles.text}>Bio</Text>
+                  <View
+                    style={{
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                      width: "70%",
+                      height: 100,
+                      marginEnd: 20,
+                      marginBottom: 50,
+                    }}
+                  >
+                    <TextInput
+                      style={[
+                        styles.text_input,
+                        {
+                          textAlign: "left",
+                          textAlignVertical: "top",
+                          height: 100,
+                        },
+                      ]}
+                      numberOfLines={4}
+                      multiline={true}
+                      maxLength={200}
+                      value={bio}
+                      onChangeText={(text) => {
+                        setBio(text);
+                        scroll.current.scrollToEnd({
+                          animated: true,
+                        });
+                      }}
+                    />
+                    {/* {false && (
               <Text
                 style={{
                   fontSize: 12,
@@ -334,22 +393,25 @@ export default function EditProfileScreen({ navigation, route }) {
                 Cannot be empty
               </Text>
             )} */}
-              {bio.length > 0 && (
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: "Rubik-Regular",
-                    color: "#707070",
-                    marginTop: 4,
-                  }}
-                >
-                  {bio.length}/200
-                </Text>
-              )}
+                    {bio.length > 0 && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontFamily: "Rubik-Regular",
+                          color: "#707070",
+                          marginTop: 4,
+                        }}
+                      >
+                        {bio.length}/200
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -361,16 +423,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     width: "100%",
-    marginBottom: 50,
   },
   backButton: {
-    margin: 20,
     zIndex: 1,
-    width: 20,
-    height: 30,
+    marginStart: 10,
+    marginTop: Platform.OS === "ios" ? menuBarTop : 20,
+
+    alignItems: "center",
+    width: 50,
+    height: 40,
   },
   title: {
-    marginTop: 20,
+    marginTop: Platform.OS === "ios" ? menuBarTop : 20,
     alignItems: "center",
   },
   titleText: {
@@ -378,49 +442,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   headerButton: {
-    margin: 20,
+    marginEnd: 10,
+    marginTop: Platform.OS === "ios" ? menuBarTop : 20,
+    height: 40,
+    width: 50,
+
+    alignItems: "center",
   },
   buttonText: {
     color: "#9E70F6",
     fontFamily: "Rubik-Medium",
     fontSize: 16,
-  },
-  feedbackInstructions: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    marginTop: menuBarTop + 50,
-    marginHorizontal: 20,
-    textAlign: "center",
-  },
-  feedbackText: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    backgroundColor: "#F4F4F4",
-    borderRadius: 10,
-    marginHorizontal: 20,
-    marginTop: 20,
-    height: 190,
-    padding: 10,
-    textAlignVertical: "top",
-  },
-  sectionTitle: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 16,
-    marginTop: 20,
-    marginHorizontal: 20,
-  },
-  fab: {
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  chosenImage: {
-    width: 300,
-    height: 200,
-    borderRadius: 20,
-  },
-  imageUploadWrapper: {
-    paddingTop: 10,
-    alignItems: "center",
   },
   roundButton1: {
     width: 32,

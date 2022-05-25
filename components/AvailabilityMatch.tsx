@@ -3,21 +3,22 @@ import Modal from "react-native-modal";
 
 import { StyleSheet, Text, Pressable, View, Alert } from "react-native";
 import WeekView from "react-native-week-view";
+import PurpleButton from "./PurpleButton";
+const moment = require("moment");
 
 export function AvailabilityModal({
   availabilityVisible,
   setAvailabilityVisible,
   setIsSendingAvailability,
   setScheduleCallback,
+  bubbleInput,
   isBubble,
   setIsBubble,
-  scheduleCallback,
   setHeight,
   username,
 }) {
   const [hasPrev, setHasPrev] = useState(false);
   const [schedule, setSchedule] = useState([]);
-
   const MyEventComponent = ({ event, position }) => {
     switch (event.color) {
       case "#c8b9fa":
@@ -179,26 +180,31 @@ export function AvailabilityModal({
           },
         ];
         setSchedule(temptSchedule);
-        Alert.alert("Delete an Avaliability", event.startDate.toString(), [
-          {
-            text: "Cancel",
-            onPress: () => {
-              var temptSchedule = [
-                ...schedule.filter((e) => e.id !== event.id),
-                {
-                  id: event.id,
-                  startDate: event.startDate,
-                  endDate: event.endDate,
-                  color: "#9E70F6",
-                },
-              ];
-              setSchedule(temptSchedule);
-            },
+        Alert.alert(
+          "Delete an Avaliability",
+          "Are you sure you want to delete the availability starts at \n " +
+            moment(event.startDate).format("MMMM Do YYYY, h:mm a"),
+          [
+            {
+              text: "Cancel",
+              onPress: () => {
+                var temptSchedule = [
+                  ...schedule.filter((e) => e.id !== event.id),
+                  {
+                    id: event.id,
+                    startDate: event.startDate,
+                    endDate: event.endDate,
+                    color: "#9E70F6",
+                  },
+                ];
+                setSchedule(temptSchedule);
+              },
 
-            style: "cancel",
-          },
-          { text: "OK", onPress: () => deleteEvent(event) },
-        ]);
+              style: "cancel",
+            },
+            { text: "OK", onPress: () => deleteEvent(event) },
+          ]
+        );
       }
     }
   };
@@ -252,7 +258,7 @@ export function AvailabilityModal({
               color: "#7B7B7B",
               fontSize: 14,
             }}
-            events={isBubble ? scheduleCallback : schedule}
+            events={isBubble ? bubbleInput : schedule}
             fixedHorizontally={false}
             showTitle={false}
             numberOfDays={4}
@@ -266,24 +272,27 @@ export function AvailabilityModal({
             showNowLine={true}
             nowLineColor={"#9E70F6"}
           />
-          <Pressable
-            style={[styles.buttonContinue]}
-            onPress={() => {
-              setAvailabilityVisible(!availabilityVisible);
-              if (!isBubble) {
-                if (schedule.length > 0) {
-                  setIsSendingAvailability(true);
-                  setScheduleCallback(schedule);
-                  setSchedule([]);
-                  setHeight(80);
-                }
-              } else {
-                setIsBubble(false);
-              }
-            }}
-          >
-            <Text style={styles.textStyle}>Continue</Text>
-          </Pressable>
+          {!isBubble && (
+            <View style={styles.greyButton}>
+              <PurpleButton
+                onPress={() => {
+                  setAvailabilityVisible(!availabilityVisible);
+                  if (!isBubble) {
+                    if (schedule.length > 0) {
+                      setIsSendingAvailability(true);
+                      setScheduleCallback(schedule);
+                      setSchedule([]);
+                      setHeight(120);
+                    }
+                  } else {
+                    setIsBubble(false);
+                  }
+                }}
+                text={"Continue"}
+                enabled={true}
+              />
+            </View>
+          )}
         </View>
       </View>
     </Modal>
@@ -332,5 +341,14 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center",
+  },
+  greyButton: {
+    position: "absolute",
+    bottom: 0,
+    alignItems: "center",
+    width: "100%",
+    zIndex: 10,
+    height: 50,
+    backgroundColor: "transparent",
   },
 });

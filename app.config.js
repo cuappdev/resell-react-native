@@ -4,7 +4,7 @@ export default {
   expo: {
     name: "Resell",
     slug: "Resell",
-    version: "1.0.3",
+    version: "1.0.4",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
@@ -13,6 +13,10 @@ export default {
       image: "./assets/images/splash.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
+    },
+    androidStatusBar: {
+      backgroundColor: "#ffffff",
+      translucent: false,
     },
     plugins: [
       [
@@ -30,7 +34,7 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.cornellappdev.resell"
+      bundleIdentifier: "com.cornellappdev.resell",
     },
 
     android: {
@@ -38,7 +42,9 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
-      softwareKeyboardLayoutMode: "pan",
+
+      package: "com.cornellappdev.resell.android",
+      googleServicesFile: "./config/google-services.json",
     },
     web: {
       favicon: "./assets/images/favicon.png",
