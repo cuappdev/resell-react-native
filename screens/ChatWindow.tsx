@@ -461,7 +461,7 @@ export default function ChatWindow({ navigation, route }) {
                   }
                 }}
                 value={text}
-                clearTextOnFocus={true}
+                // clearTextOnFocus={true}
                 onContentSizeChange={(event) => {
                   setHeight(event.nativeEvent.contentSize.height);
                 }}
