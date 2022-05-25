@@ -5,6 +5,7 @@ import SkipButton from "../components/SkipButton";
 import { menuBarTop } from "../constants/Layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
+import { auth } from "../config/firebase";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
@@ -28,19 +29,16 @@ export default function LinkVenmoScreen({ navigation, route }) {
         venmoHandle: venmo,
         bio: bio,
       });
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
+      await fetch("https://resell-dev.cornellappdev.com/api/user/", {
+        method: "POST",
+        headers: {
+          Authorization: accessToken,
 
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      )
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: Json,
+      })
         .then(function (response) {
           // alert(JSON.stringify(response));
 
@@ -52,7 +50,20 @@ export default function LinkVenmoScreen({ navigation, route }) {
           }
         })
         .then(async function (data) {
-          // console.log(data);
+          auth.currentUser
+            .updateProfile({
+              displayName: data.user.givenName + " " + data.user.familyName,
+              photoURL: data.user.photoUrl,
+            })
+            .then(() => {
+              // Profile updated!
+              // ...
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+              alert(error);
+            });
         })
         .catch((error) => {
           //alert(error.message);
@@ -88,7 +99,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
             });
             setOnboarded();
           }}
-          enabled={true}
+          enabled={venmo.length > 0}
         />
       </View>
       <View style={styles.skipButton}>

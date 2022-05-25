@@ -106,7 +106,7 @@ export default function ProfileScreen({ navigation }) {
       );
       if (response.ok) {
         const json = await response.json();
-        //console.log(json);
+        // console.log(json);
         setPosts(json.posts);
       }
     } catch (error) {
@@ -118,25 +118,22 @@ export default function ProfileScreen({ navigation }) {
   };
   const getPostsIngress = async () => {
     try {
-      setLoading(true);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
       );
       if (response.ok) {
         const json = await response.json();
-        // console.log(json);
         setPosts(json.posts);
       }
     } catch (error) {
       console.error(error);
       setFetchFailed(true);
-    } finally {
-      setLoading(false);
     }
   };
   useEffect(() => {
     getPosts();
   }, [userId]);
+
   useEffect(() => {
     getUser();
   }, [userId]);
@@ -187,12 +184,18 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.profileBioText}>{bio}</Text>
           </View>
           <View style={{ height: "100%", flex: 1 }}>
-            <ProductList
-              data={posts}
-              fromProfile={true}
-              navigation={navigation}
-              onRefresh={null}
-            />
+            {isLoading ? (
+              <LoadingScreen screen={"Profile"} />
+            ) : fetchFailed ? (
+              <LoadingScreen screen={"Profile"} />
+            ) : (
+              <ProductList
+                data={posts}
+                screen={"Profile"}
+                navigation={navigation}
+                onRefresh={null}
+              />
+            )}
           </View>
         </SafeAreaView>
       </ScrollView>
@@ -237,10 +240,21 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     position: "absolute",
     right: 40,
+    width: 60,
+    height: 60,
     bottom: 110,
+    alignContent: "center",
     paddingVertical: 2,
     zIndex: 2,
     paddingHorizontal: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
 
   profileBubbleContainer: {
@@ -271,7 +285,7 @@ const styles = StyleSheet.create({
     color: "#707070",
   },
   profileBioText: {
-    fontFamily: "Roboto-Regular",
+    fontFamily: "Rubik-Regular",
     fontSize: 16,
     maxWidth: "93%",
     textAlign: "center",

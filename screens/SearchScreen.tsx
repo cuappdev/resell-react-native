@@ -17,6 +17,7 @@ import { ProductList } from "../components/ProductList";
 
 import HistoryList from "../components/HistoryList";
 import { AntDesign } from "@expo/vector-icons";
+import LoadingScreen from "./LoadingScreen";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -128,28 +129,30 @@ export default function SearchScreen({ navigation, route }) {
       </View>
 
       <View style={{ marginTop: 15, height: "100%", flex: 1 }}>
-        {isSearchSubmitted && !noResult && (
-          <ProductList
-            data={data}
-            navigation={navigation}
-            fromProfile={false}
-            onRefresh={null}
-          />
-        )}
-        {!isSearchSubmitted && (
-          <HistoryList
-            searchSubmit={searchSubmit}
-            searchHistory={searchHistory}
-          />
-        )}
-        {isSearchSubmitted && noResult && (
+        {isLoading && isSearchSubmitted ? (
+          <LoadingScreen screen={"Search"} />
+        ) : fetchFailed && isSearchSubmitted ? (
+          <LoadingScreen screen={"Search"} />
+        ) : isSearchSubmitted && data.length == 0 ? (
           <View style={styles.noResultView}>
             <Text style={styles.noResultHeader}>No results</Text>
             <Text style={styles.noResultSubHeader}>
               Please try another search
             </Text>
           </View>
-        )}
+        ) : isSearchSubmitted && data.length != 0 ? (
+          <ProductList
+            data={data}
+            navigation={navigation}
+            screen={"Home"}
+            onRefresh={null}
+          />
+        ) : !isSearchSubmitted ? (
+          <HistoryList
+            searchSubmit={searchSubmit}
+            searchHistory={searchHistory}
+          />
+        ) : null}
       </View>
     </SafeAreaView>
   );

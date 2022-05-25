@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
@@ -34,7 +35,14 @@ function Button(props) {
       props.setIsBubble(false);
     }
     if (props.title == "Pay with Venmo") {
-      Linking.openURL("https://venmo.com/signup/");
+      if (props.venmo) {
+        Linking.openURL("https://account.venmo.com/u/" + props.venmo);
+      } else {
+        Alert.alert(
+          "Warning",
+          "The user has not set up venmo yet, please contact the user directly."
+        );
+      }
     }
   };
 

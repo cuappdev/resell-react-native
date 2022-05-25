@@ -7,7 +7,9 @@ import {
   TextInput,
   Platform,
   Image,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IconButton, Colors } from "react-native-paper";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
@@ -22,7 +24,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 20,
     zIndex: 1,
     width: 20,
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
   },
   title: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     left: 0,
     right: 0,
     alignItems: "center",
@@ -41,7 +43,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     position: "absolute",
-    top: menuBarTop,
+    top: Platform.OS === "ios" ? menuBarTop : 20,
     right: 20,
   },
   buttonText: {
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
   feedbackInstructions: {
     fontFamily: "Rubik-Regular",
     fontSize: 16,
-    marginTop: menuBarTop + 50,
+    marginTop: Platform.OS === "ios" ? menuBarTop + 50 : 70,
     marginHorizontal: 20,
     textAlign: "center",
   },
@@ -92,47 +94,67 @@ export default function SendFeedbackScreen({ navigation }) {
   const [image, setImage] = useState(null);
   const [selectImage, setSelectImage] = React.useState(false);
   const [feedbackText, setFeedbackText] = useState("");
+  const [userId, setUserId] = useState("");
 
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null) {
+        setUserId(result);
+      }
+    }
+  });
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
   useEffect(() => {
-    (async () => {
-      if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-          alert("Sorry, we need camera roll permissions to make this work!");
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
         }
       }
-    })();
+    });
   }, []);
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      //   allowsEditing: true,
-      //   aspect: [5, 2],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
-      quality: 1,
+      quality: 0.5,
     });
-
-    console.log(result);
-
     if (!result.cancelled) {
-      setImage(result.uri);
       setSelectImage(true);
+      setImage("data:image/jpeg;base64," + result["base64"]);
     }
   };
 
   const submitFeedback = async () => {
     try {
-      console.log(feedbackText);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/feedback/",
         {
           method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
-            description: "I love the app",
+            description: feedbackText,
             images: [image],
-            userId: "381527oejf-42b4-4fdd-b074-dfwbejko229", //TODO: replace this with actual userID
+            userId: userId, //TODO: replace this with actual userID
           }),
         }
       );
@@ -159,8 +181,12 @@ export default function SendFeedbackScreen({ navigation }) {
       </View>
       <TouchableOpacity
         onPress={() => {
-          submitFeedback();
-          navigation.goBack();
+          if (feedbackText.length > 0) {
+            submitFeedback();
+            navigation.goBack();
+          } else {
+            Alert.alert("Warning", "Feedback cannot be empty!");
+          }
         }}
         style={styles.headerButton}
       >

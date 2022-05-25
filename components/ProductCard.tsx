@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontSize: 14,
     lineHeight: 17,
-    width: "75%",
+    width: "70%",
     margin: 1,
-    paddingEnd: 15,
+    paddingEnd: 10,
   },
   priceTag: {
     fontFamily: "Rubik-Regular",
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     maxWidth: "30%",
     margin: 1,
+    paddingEnd: 1,
     marginTop: 2,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 import * as ImagePicker from "expo-image-picker";
@@ -15,9 +16,11 @@ import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import { ImageEditor } from "expo-image-editor";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import PurpleButton from "../components/PurpleButton";
 export function NewPostImage({ navigation }) {
   const [image, setImage] = useState([]);
   const [uri, setUri] = useState("");
@@ -25,6 +28,32 @@ export function NewPostImage({ navigation }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
   const _carousel = useRef(null);
+  const storePermission = async () => {
+    try {
+      await AsyncStorage.setItem("PhotoPermission", "true");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
+      if (!errs) {
+        if (result == null) {
+          (async () => {
+            if (Platform.OS !== "web") {
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                alert("Sorry, we need gallary permissions to make this work!");
+              } else {
+                storePermission();
+              }
+            }
+          })();
+        }
+      }
+    });
+  }, []);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -32,17 +61,32 @@ export function NewPostImage({ navigation }) {
       quality: 1,
     });
     if (!result.cancelled) {
-      // console.log(result);
+      console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
     }
   };
-  const saveandcompress = async (uri) => {
-    const manipResult = await manipulateAsync(uri, [], {
-      compress: 0.5,
-      format: SaveFormat.JPEG,
-      base64: true,
-    });
+  const saveandcompress = async (uri, r, w, h) => {
+    const manipResult = await manipulateAsync(
+      uri,
+      [
+        r
+          ? {
+              crop: {
+                height: (w * 4) / 3,
+                originX: 0,
+                originY: (h - (w * 4) / 3) / 2,
+                width: w,
+              },
+            }
+          : { crop: { height: h, originX: 0, originY: 0, width: w } },
+      ],
+      {
+        compress: 0.5,
+        format: SaveFormat.JPEG,
+        base64: true,
+      }
+    );
     setUri("");
     if (image.length < 7) {
       setImage([
@@ -145,8 +189,13 @@ export function NewPostImage({ navigation }) {
             height: 100,
           }}
           onEditingComplete={(result) => {
-            saveandcompress(result.uri);
+            if (result.height / result.width > 4 / 3) {
+              saveandcompress(result.uri, true, result.width, result.height);
+            } else {
+              saveandcompress(result.uri, false, result.width, result.height);
+            }
           }}
+          lockAspectRatio={false}
           mode="full"
         />
       )}
@@ -214,8 +263,8 @@ export function NewPostImage({ navigation }) {
         }}
       >
         {image.length > 0 ? (
-          <Pressable
-            style={[styles.buttonContinue]}
+          <PurpleButton
+            text={"Continue"}
             onPress={() => {
               navigation.navigate("NewPostDetail", {
                 image: image.filter((item) => {
@@ -223,18 +272,16 @@ export function NewPostImage({ navigation }) {
                 }),
               });
             }}
-          >
-            <Text style={styles.textStyle}>Continue</Text>
-          </Pressable>
+            enabled={true}
+          />
         ) : (
-          <Pressable
-            style={[styles.buttonContinue]}
+          <PurpleButton
+            text={"Add Images"}
             onPress={() => {
               pickImage();
             }}
-          >
-            <Text style={styles.textStyle}>Add Images</Text>
-          </Pressable>
+            enabled={true}
+          />
         )}
       </View>
     </View>
