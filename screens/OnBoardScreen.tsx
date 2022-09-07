@@ -83,7 +83,7 @@ export default function OnBoardScreen({ navigation }) {
       keyboardDidShowListener.remove();
     };
   }, []);
-  const scroll = useRef(null);
+  const scroll = useRef<ScrollView | null>(null);
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -125,9 +125,11 @@ export default function OnBoardScreen({ navigation }) {
                 value={username}
                 onChangeText={(text) => {
                   setUsername(text);
-                  scroll.current.scrollToEnd({
-                    animated: true,
-                  });
+                  if (scroll.current != null) {
+                    scroll.current.scrollToEnd({
+                      animated: true,
+                    });
+                  }
                 }}
                 style={styles.username_input}
                 placeholderTextColor={"#707070"}
@@ -137,9 +139,11 @@ export default function OnBoardScreen({ navigation }) {
                 value={bio}
                 onChangeText={(text) => {
                   setBio(text);
-                  scroll.current.scrollToEnd({
-                    animated: true,
-                  });
+                  if (scroll.current != null) {
+                    scroll.current.scrollToEnd({
+                      animated: true,
+                    });
+                  }
                 }}
                 style={styles.bio_input}
                 placeholderTextColor={"#707070"}

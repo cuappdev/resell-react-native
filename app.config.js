@@ -44,7 +44,8 @@ export default {
       },
 
       package: "com.cornellappdev.resell.android",
-      googleServicesFile: "./config/google-services.json",
+      // googleServicesFile: "./config/google-services.json",
+      versionCode: 1,
     },
     web: {
       favicon: "./assets/images/favicon.png",

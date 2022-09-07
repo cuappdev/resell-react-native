@@ -39,7 +39,7 @@ export function DetailPullUpBody({
   const [userId, setUserId] = useState("");
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }

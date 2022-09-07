@@ -14,7 +14,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
 
   AsyncStorage.getItem("accessToken", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setAccessToken(result);
       }
     }

@@ -185,7 +185,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }
@@ -320,17 +320,19 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   AsyncStorage.getItem("accessToken", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setAccessToken(result);
       }
     }
   });
-  const sPanel = useRef(null);
+  const sPanel = useRef<SlidingUpPanel | null>(null);
   useEffect(() => {
-    sPanel.current.show(
-      Dimensions.get("window").height -
-        Math.min(400, Dimensions.get("window").width * maxImgRatio - 40)
-    );
+    if (sPanel.current !== null) {
+      sPanel.current.show(
+        Dimensions.get("window").height -
+          Math.min(400, Dimensions.get("window").width * maxImgRatio - 40)
+      );
+    }
     // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
   });
 
@@ -412,7 +414,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
       </View>
       <SlidingUpPanel
         ref={(c) => {
-          sPanel.current = c;
+          if (c !== null && sPanel !== null) {
+            sPanel.current = c;
+          }
         }}
         draggableRange={{
           top: Dimensions.get("window").height - 100,
