@@ -20,6 +20,7 @@ import Constants from "expo-constants";
 import {
   Bubble,
   GiftedChat,
+  IMessage,
   Message,
   MessageText,
 } from "react-native-gifted-chat";
@@ -58,7 +59,7 @@ export default function ChatWindow({ navigation, route }) {
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
 
-  const [messages, setMessages] = React.useState([]);
+  const [messages, setMessages] = React.useState<any[]>([]);
 
   useEffect(() => {
     if (isSendingAvailability && text.length > 0) {
@@ -358,7 +359,9 @@ export default function ChatWindow({ navigation, route }) {
   };
 
   useEffect(() => {
-    ref.current.resetInputToolbar();
+    if (ref.current != null) {
+      ref.current.resetInputToolbar();
+    }
   }, [height]);
   const [placeholder, setPlaceholder] = useState("");
 
@@ -461,7 +464,6 @@ export default function ChatWindow({ navigation, route }) {
                   }
                 }}
                 value={text}
-                // clearTextOnFocus={true}
                 onContentSizeChange={(event) => {
                   setHeight(event.nativeEvent.contentSize.height);
                 }}
@@ -556,7 +558,9 @@ export default function ChatWindow({ navigation, route }) {
                     );
                     setText("");
                     setTimeout(() => {
-                      ref.current.scrollToBottom();
+                      if (ref.current != null) {
+                        ref.current.scrollToBottom();
+                      }
                     }, 100);
                   } else if (isSendingAvailability) {
                     setText(placeholder);
@@ -616,7 +620,7 @@ export default function ChatWindow({ navigation, route }) {
       </SafeAreaView>
     );
   }
-  const ref = useRef(null);
+  const ref = useRef<GiftedChat<any> | null>(null);
 
   return (
     <View

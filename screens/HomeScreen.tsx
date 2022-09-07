@@ -176,7 +176,10 @@ export default function HomeScreen({ navigation, route }) {
           onPress={() => {
             AsyncStorage.getItem("history", (errs, result) => {
               if (!errs) {
-                var tempt = result !== null ? JSON.parse(result) : [];
+                var tempt =
+                  result !== null && result !== undefined
+                    ? JSON.parse(result)
+                    : [];
                 navigation.navigate("SearchHome", {
                   history: tempt,
                 });

@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1534649394:android:775ee2c03ce72ad238082b",
         "android_client_info": {
-          "package_name": "com.cornellappdev.resell"
+          "package_name": "com.cornellappdev.resell.android"
         }
       },
       "oauth_client": [

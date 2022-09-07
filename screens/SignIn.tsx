@@ -42,7 +42,7 @@ export default function SignIn() {
   useEffect(() => {
     AsyncStorage.getItem("email", (errs, result) => {
       if (!errs) {
-        if (result !== null) {
+        if (result !== null && result !== undefined) {
           setEmail(result);
         }
       }
@@ -176,6 +176,8 @@ export default function SignIn() {
       androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
       iosStandaloneAppClientId:
         "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
+      androidStandaloneAppClientId:
+        "947198045768-miln50ernorl8s7kqibnpp59hoklor3n.apps.googleusercontent.com",
       scopes: ["profile", "email"],
     };
     Google.logInAsync(config).then((result) => {

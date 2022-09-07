@@ -1,16 +1,15 @@
 // this is the general layout for the button that allows users to continue
-import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, View } from 'react-native';
+import React from "react";
+import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
 export default function SkipButton({ text, onPress }) {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.button}>
         <Text style={styles.buttonText}> {"Skip"}</Text>
-
       </View>
     </TouchableOpacity>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -25,9 +24,9 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: "#9E70F6",
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textTransform: "uppercase",
     fontSize: 16,
-    textAlign: 'center'
-  }
-})
+    textAlign: "center",
+  },
+});
