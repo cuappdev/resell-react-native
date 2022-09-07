@@ -91,14 +91,14 @@ const styles = StyleSheet.create({
 });
 
 export default function SendFeedbackScreen({ navigation }) {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string | undefined>(undefined);
   const [selectImage, setSelectImage] = React.useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [userId, setUserId] = useState("");
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }
@@ -135,7 +135,7 @@ export default function SendFeedbackScreen({ navigation }) {
       base64: true,
       quality: 0.5,
     });
-    if (!result.cancelled) {
+    if (!result.cancelled && result !== null) {
       setSelectImage(true);
       setImage("data:image/jpeg;base64," + result["base64"]);
     }

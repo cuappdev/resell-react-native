@@ -48,7 +48,7 @@ export default function ProfileScreen({ navigation }) {
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }
@@ -221,7 +221,7 @@ function ProfileScreenIcon(props: {
   color: string;
   size: number;
 }) {
-  return <Feather size={props.size} {...props} />;
+  return <Feather size={props.size} name={props.name} color={props.color} />;
 }
 
 const styles = StyleSheet.create({

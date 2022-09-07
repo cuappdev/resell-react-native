@@ -18,7 +18,7 @@ export function AvailabilityModal({
   username,
 }) {
   const [hasPrev, setHasPrev] = useState(false);
-  const [schedule, setSchedule] = useState([]);
+  const [schedule, setSchedule] = useState<any[]>([]);
   const MyEventComponent = ({ event, position }) => {
     switch (event.color) {
       case "#c8b9fa":

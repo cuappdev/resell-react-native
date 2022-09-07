@@ -88,9 +88,11 @@ export default function EditProfileScreen({ navigation, route }) {
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
-        scroll.current.scrollToEnd({
-          animated: true,
-        });
+        if (scroll.current !== null) {
+          scroll.current.scrollToEnd({
+            animated: true,
+          });
+        }
       }
     );
 
@@ -103,7 +105,7 @@ export default function EditProfileScreen({ navigation, route }) {
 
   AsyncStorage.getItem("accessToken", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result != undefined) {
         setAccessToken(result);
       }
     }
@@ -172,7 +174,7 @@ export default function EditProfileScreen({ navigation, route }) {
     }
   };
 
-  const scroll = useRef(null);
+  const scroll = useRef<ScrollView | null>(null);
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -298,9 +300,11 @@ export default function EditProfileScreen({ navigation, route }) {
                       onChangeText={(text) => {
                         setUsername(text);
                         setInvalidName(false);
-                        scroll.current.scrollToEnd({
-                          animated: true,
-                        });
+                        if (scroll.current !== null) {
+                          scroll.current.scrollToEnd({
+                            animated: true,
+                          });
+                        }
                       }}
                     />
                     {invalidName && (
@@ -337,9 +341,11 @@ export default function EditProfileScreen({ navigation, route }) {
                       value={venmo}
                       onChangeText={(text) => {
                         setVenmo(text);
-                        scroll.current.scrollToEnd({
-                          animated: true,
-                        });
+                        if (scroll.current !== null) {
+                          scroll.current.scrollToEnd({
+                            animated: true,
+                          });
+                        }
                       }}
                     />
                   </View>
@@ -376,9 +382,11 @@ export default function EditProfileScreen({ navigation, route }) {
                       value={bio}
                       onChangeText={(text) => {
                         setBio(text);
-                        scroll.current.scrollToEnd({
-                          animated: true,
-                        });
+                        if (scroll.current !== null) {
+                          scroll.current.scrollToEnd({
+                            animated: true,
+                          });
+                        }
                       }}
                     />
                     {/* {false && (

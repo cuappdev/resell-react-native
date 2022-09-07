@@ -47,7 +47,7 @@ export function NewPostDetail({ navigation, route }) {
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }
@@ -157,6 +157,7 @@ export function NewPostDetail({ navigation, route }) {
             setText={setPrice}
             screen={"NewPost"}
             post={null}
+            setHeight={null}
           />
           <Text style={styles.smallText}>Item Description</Text>
           <TextInput
