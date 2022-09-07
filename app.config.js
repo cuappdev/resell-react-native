@@ -4,7 +4,7 @@ export default {
   expo: {
     name: "Resell",
     slug: "Resell",
-    version: "1.0.3",
+    version: "1.0.4",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
