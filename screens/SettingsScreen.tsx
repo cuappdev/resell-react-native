@@ -122,7 +122,7 @@ export default function SettingsScreen({ navigation }) {
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }

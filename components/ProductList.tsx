@@ -23,7 +23,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
   const [refreshing, setRefreshing] = React.useState(false);
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
-      if (result !== null) {
+      if (result !== null && result !== undefined) {
         setUserId(result);
       }
     }
@@ -62,8 +62,8 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
 
   var i,
     j,
-    data1 = [],
-    data2 = [];
+    data1: any[] = [],
+    data2: any[] = [];
 
   if (data) {
     for (i = 0, j = data.length; i < j; i += 1) {

@@ -29,8 +29,9 @@ export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
   var temptPuchrase = 0;
   var temptOrder = 0;
-  const [purchase, setPurchase] = useState([]);
-  const [offer, setOffer] = useState([]);
+  const [purchase, setPurchase] = useState<IMessagePreview[]>([]);
+  const [offer, setOffer] = useState<IMessagePreview[]>([]);
+
   const getPurchase = async () => {
     setPurchase([]);
     const query = historyRef
@@ -39,7 +40,7 @@ export default function ChatScreen({ navigation }) {
 
     try {
       query.onSnapshot((querySnapshot) => {
-        var tempt = [];
+        var tempt: IMessagePreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name,
@@ -66,7 +67,7 @@ export default function ChatScreen({ navigation }) {
 
     try {
       query.onSnapshot((querySnapshot) => {
-        var tempt = [];
+        var tempt: IMessagePreview[] = [];
 
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
@@ -78,7 +79,6 @@ export default function ChatScreen({ navigation }) {
             recentSender:
               doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
             viewed: doc.data().viewed,
-            venmo: doc.data().item.user.venmoHandle,
           });
         });
         setOffer(tempt);

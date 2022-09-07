@@ -22,12 +22,12 @@ import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import PurpleButton from "../components/PurpleButton";
 export function NewPostImage({ navigation }) {
-  const [image, setImage] = useState([]);
+  const [image, setImage] = useState<String[]>([]);
   const [uri, setUri] = useState("");
   const [modalVisibility, setModalVisibility] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
-  const _carousel = useRef(null);
+  const _carousel = useRef<Carousel<String[]> | null>(null);
   const storePermission = async () => {
     try {
       await AsyncStorage.setItem("PhotoPermission", "true");
