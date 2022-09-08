@@ -6,7 +6,6 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import { LogBox } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import React, {
   useState,
@@ -14,6 +13,7 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from "react";
+import { IMessagePreview } from "../data/struct";
 // LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
 
 // import { firestore } from "../config/firebase";

@@ -24,8 +24,8 @@ export default function ProfileScreen({ navigation }) {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
 
-  const changeName = (name: string) => dispatch(setName(name));
-  const changeBio = (bio: string) => dispatch(setBio(bio));
+  // const changeName = (name: string) => dispatch(setName(name));
+  // const changeBio = (bio: string) => dispatch(setBio(bio));
 
   // const name = useSelector((state: any) => {
   //   return state.profile.name;
