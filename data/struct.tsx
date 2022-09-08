@@ -1,4 +1,4 @@
-interface IPostPreview {
+export interface IPostPreview {
   categories: string[];
   description: string;
   id: string;
@@ -8,7 +8,7 @@ interface IPostPreview {
   title: string;
   user: IUser;
 }
-interface IUser {
+export interface IUser {
   bio: string;
   email: string;
   familyName: string;
@@ -20,7 +20,7 @@ interface IUser {
   username: string;
   venmoHandle: string;
 }
-interface IMessagePreview {
+export interface IMessagePreview {
   sellerName: string;
   email: string;
 

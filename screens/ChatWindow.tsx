@@ -69,7 +69,7 @@ export default function ChatWindow({ navigation, route }) {
     }
   }, [text, isSendingAvailability]);
 
-  const onSend = useCallback((messages = []) => {
+  const onSend = useCallback((messages: any[] = []) => {
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages)
     );
