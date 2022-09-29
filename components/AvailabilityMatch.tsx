@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Modal from "react-native-modal";
 
-import { StyleSheet, Text, Pressable, View, Alert } from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import WeekView from "react-native-week-view";
 import PurpleButton from "./PurpleButton";
 const moment = require("moment");
@@ -244,20 +244,10 @@ export function AvailabilityModal({
           </Text>
           <WeekView
             selectedDate={new Date()}
-            headerStyle={{
-              color: "#ffffff",
-              borderColor: "#ffffff",
-            }}
+            headerStyle={styles.headerStyle}
             formatTimeLabel={"h:mm A"}
-            hourTextStyle={{
-              color: "#7B7B7B",
-              fontWeight: "bold",
-              fontSize: 12,
-            }}
-            headerTextStyle={{
-              color: "#7B7B7B",
-              fontSize: 14,
-            }}
+            hourTextStyle={styles.hourTextStyle}
+            headerTextStyle={styles.headerTextStyle}
             events={isBubble ? bubbleInput : schedule}
             fixedHorizontally={false}
             showTitle={false}
@@ -350,5 +340,18 @@ const styles = StyleSheet.create({
     zIndex: 10,
     height: 50,
     backgroundColor: "transparent",
+  },
+  headerStyle: {
+    color: "#ffffff",
+    borderColor: "#ffffff",
+  },
+  headerTextStyle: {
+    color: "#7B7B7B",
+    fontSize: 14,
+  },
+  hourTextStyle: {
+    color: "#7B7B7B",
+    fontWeight: "bold",
+    fontSize: 12,
   },
 });
