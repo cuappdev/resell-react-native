@@ -14,11 +14,11 @@ import * as ImagePicker from "expo-image-picker";
 
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
-import Carousel, { ParallaxImage } from "react-native-snap-carousel";
+// import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import { ImageEditor } from "expo-image-editor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
+// import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import PurpleButton from "../components/PurpleButton";
 export function NewPostImage({ navigation }) {
@@ -27,7 +27,7 @@ export function NewPostImage({ navigation }) {
   const [modalVisibility, setModalVisibility] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
-  const _carousel = useRef<Carousel<String[]> | null>(null);
+  // const _carousel = useRef<Carousel<String[]> | null>(null);
   const storePermission = async () => {
     try {
       await AsyncStorage.setItem("PhotoPermission", "true");
@@ -121,7 +121,7 @@ export function NewPostImage({ navigation }) {
       </View>
     ) : (
       <View style={styles.item}>
-        <ParallaxImage
+        {/* <ParallaxImage
           source={{ uri: item }}
           containerStyle={styles.imageContainer}
           style={styles.image}
@@ -129,7 +129,7 @@ export function NewPostImage({ navigation }) {
           showSpinner={true}
           spinnerColor={"rgba(255, 255, 255, 0.4)"}
           {...parallaxProps}
-        />
+        /> */}
         <TouchableOpacity
           activeOpacity={pressedOpacity}
           style={{ position: "absolute", bottom: 20, left: 20 }}
@@ -200,7 +200,7 @@ export function NewPostImage({ navigation }) {
         />
       )}
       <View style={{ height: screenWidth - 60 }}>
-        <Carousel
+        {/* <Carousel
           ref={(c) => {
             _carousel.current = c;
           }}
@@ -212,7 +212,7 @@ export function NewPostImage({ navigation }) {
           renderItem={_renderItem}
           hasParallaxImages={true}
           onSnapToItem={(index) => setActiveSlide(index)}
-        />
+        /> */}
       </View>
 
       <View
@@ -224,7 +224,7 @@ export function NewPostImage({ navigation }) {
           marginTop: 24,
         }}
       >
-        <AnimatedDotsCarousel
+        {/* <AnimatedDotsCarousel
           length={image.length}
           currentIndex={activeSlide}
           maxIndicators={1}
@@ -251,7 +251,7 @@ export function NewPostImage({ navigation }) {
               quantity: 1,
             },
           ]}
-        />
+        /> */}
       </View>
 
       <View

@@ -56,7 +56,7 @@ export function AvailabilityModal({
               borderWidth: 2,
               borderStyle: "dashed",
               borderColor: "#9E70F6",
-              backgroundColor: "#9e70f61a",
+              backgroundColor: "#f8f4fc",
             }}
           ></View>
         );
@@ -245,8 +245,8 @@ export function AvailabilityModal({
           <WeekView
             selectedDate={new Date()}
             headerStyle={{
-              color: "#fff",
-              borderColor: "#fff",
+              color: "#ffffff",
+              borderColor: "#ffffff",
             }}
             formatTimeLabel={"h:mm A"}
             hourTextStyle={{
