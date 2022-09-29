@@ -97,7 +97,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
               screen: "HomeTab",
               params: { showPanel: true },
             });
-            setOnboarded();
+            // setOnboarded();
           }}
           enabled={venmo.length > 0}
         />
@@ -111,7 +111,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
               params: { showPanel: true },
             });
             setVenmo("");
-            setOnboarded();
+            // setOnboarded();
           }}
         />
       </View>

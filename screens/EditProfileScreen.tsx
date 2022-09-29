@@ -202,7 +202,8 @@ export default function EditProfileScreen({ navigation, route }) {
           <TouchableOpacity
             onPress={() => {
               if (username.length > 0) {
-                submit();
+                // submit();
+                navigation.goBack();
               } else {
                 Alert.alert("Warning", "Username cannot be empty");
               }

@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { combineReducers } from "redux";
 export default {
   expo: {
     name: "Resell",
