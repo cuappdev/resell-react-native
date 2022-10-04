@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import Modal from "react-native-modal";
 
-import { StyleSheet, Text, View, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import WeekView from "react-native-week-view";
 import PurpleButton from "./PurpleButton";
 const moment = require("moment");
@@ -19,7 +26,7 @@ export function AvailabilityModal({
 }) {
   const [hasPrev, setHasPrev] = useState(false);
   const [schedule, setSchedule] = useState<any[]>([]);
-  const MyEventComponent = ({ event, position }) => {
+  function MyEventComponent({ event, position }) {
     switch (event.color) {
       case "#c8b9fa":
         return (
@@ -34,7 +41,7 @@ export function AvailabilityModal({
               backgroundColor: "#c8b9fa",
             }}
           ></View>
-        );
+        ) as any;
       case "#9E70F6":
         return (
           //a complete event style
@@ -45,7 +52,7 @@ export function AvailabilityModal({
               backgroundColor: "#9E70F6",
             }}
           ></View>
-        );
+        ) as any;
       case "":
         return (
           //Start time of an event style, start event always have color of ""
@@ -59,9 +66,9 @@ export function AvailabilityModal({
               backgroundColor: "#f8f4fc",
             }}
           ></View>
-        );
+        ) as any;
     }
-  };
+  }
 
   const onClickGrid = (event, startHour, date) => {
     if (!isBubble) {
@@ -238,20 +245,20 @@ export function AvailabilityModal({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={[styles.textStyle, { marginBottom: 30 }]}>
-            {isBubble
-              ? username + "'s Avaliability"
-              : "When are you free to meet?"}
+            {isBubble ? username + "'s Avaliability" : "Select a time to meet"}
           </Text>
           <WeekView
             selectedDate={new Date()}
             headerStyle={styles.headerStyle}
             formatTimeLabel={"h:mm A"}
             hourTextStyle={styles.hourTextStyle}
-            headerTextStyle={styles.headerTextStyle}
+            headerTextStyle={styles.headerTextStyle as StyleProp<ViewStyle>}
             events={isBubble ? bubbleInput : schedule}
             fixedHorizontally={false}
             showTitle={false}
             numberOfDays={4}
+            beginAgendaAt={9 * 60}
+            endAgendaAt={23 * 60}
             hoursInDisplay={20}
             startHour={8}
             eventContainerStyle={{ marginLeft: 2 }}
@@ -294,17 +301,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: "90%",
     width: "100%",
-  },
-  modalView: {
-    height: "100%",
-    width: "100%",
+    paddingHorizontal: 30,
     backgroundColor: "white",
-    borderTopLeftRadius: 50,
-    borderTopRightRadius: 50,
-
-    paddingVertical: 25,
-    paddingHorizontal: 55,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -313,6 +311,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    borderTopLeftRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  modalView: {
+    height: "100%",
+    width: "100%",
+    paddingVertical: 25,
+    paddingHorizontal: 30,
+    alignItems: "center",
   },
   buttonContinue: {
     backgroundColor: "#ECECEC",
