@@ -113,7 +113,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function SettingsScreen({ navigation }) {
+export default function 
+SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
   const log_out = () => dispatch(logout());
 

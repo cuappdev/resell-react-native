@@ -11,7 +11,7 @@ import {
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 import * as ImagePicker from "expo-image-picker";
-
+import Carousel, { ICarouselInstance } from "react-native-reanimated-carousel";
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
 // import Carousel, { ParallaxImage } from "react-native-snap-carousel";
@@ -27,7 +27,8 @@ export function NewPostImage({ navigation }) {
   const [modalVisibility, setModalVisibility] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
-  // const _carousel = useRef<Carousel<String[]> | null>(null);
+
+  const _carousel = React.useRef<ICarouselInstance>(null);
   const storePermission = async () => {
     try {
       await AsyncStorage.setItem("PhotoPermission", "true");
@@ -101,53 +102,53 @@ export function NewPostImage({ navigation }) {
       ]);
     }
   };
-  function _renderItem({ item, index }, parallaxProps) {
-    return item == "" ? (
-      <View
-        style={[
-          styles.item,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={styles.roundButton1}
-          onPress={() => {
-            pickImage();
-          }}
-        >
-          <Feather name="plus" size={36} color="black" />
-        </TouchableOpacity>
-      </View>
-    ) : (
-      <View style={styles.item}>
-        {/* <ParallaxImage
-          source={{ uri: item }}
-          containerStyle={styles.imageContainer}
-          style={styles.image}
-          parallaxFactor={0.4}
-          showSpinner={true}
-          spinnerColor={"rgba(255, 255, 255, 0.4)"}
-          {...parallaxProps}
-        /> */}
-        <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={{ position: "absolute", bottom: 20, left: 20 }}
-          onPress={() => {
-            if (image.length == 2) {
-              setImage([]);
-            } else {
-              image.splice(index, 1);
-              setImage(image);
-              setFresh(!refresh);
-            }
-          }}
-        >
-          <Feather name="trash" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  // function _renderItem({ item, index }, parallaxProps) {
+  //   return item == "" ? (
+  //     <View
+  //       style={[
+  //         styles.item,
+  //         { justifyContent: "center", alignItems: "center" },
+  //       ]}
+  //     >
+  //       <TouchableOpacity
+  //         activeOpacity={pressedOpacity}
+  //         style={styles.roundButton1}
+  //         onPress={() => {
+  //           pickImage();
+  //         }}
+  //       >
+  //         <Feather name="plus" size={36} color="black" />
+  //       </TouchableOpacity>
+  //     </View>
+  //   ) : (
+  //     <View style={styles.item}>
+  //       <ParallaxImage
+  //         source={{ uri: item }}
+  //         containerStyle={styles.imageContainer}
+  //         style={styles.image}
+  //         parallaxFactor={0.4}
+  //         showSpinner={true}
+  //         spinnerColor={"rgba(255, 255, 255, 0.4)"}
+  //         {...parallaxProps}
+  //       />
+  //       <TouchableOpacity
+  //         activeOpacity={pressedOpacity}
+  //         style={{ position: "absolute", bottom: 20, left: 20 }}
+  //         onPress={() => {
+  //           if (image.length == 2) {
+  //             setImage([]);
+  //           } else {
+  //             image.splice(index, 1);
+  //             setImage(image);
+  //             setFresh(!refresh);
+  //           }
+  //         }}
+  //       >
+  //         <Feather name="trash" size={28} color="white" />
+  //       </TouchableOpacity>
+  //     </View>
+  //   );
+  // }
   return (
     <View
       style={{
@@ -201,6 +202,36 @@ export function NewPostImage({ navigation }) {
       )}
       <View style={{ height: screenWidth - 60 }}>
         {/* <Carousel
+          ref={_carousel}
+          loop
+          width={screenWidth}
+          height={screenWidth}
+          autoPlay={false}
+          data={image}
+          withAnimation={{
+            type: "spring",
+            config: {
+              damping: 13,
+            },
+          }}
+          extraData={refresh}
+          renderItem={_renderItem}
+          hasParallaxImages={true}
+          scrollAnimationDuration={1000}
+          onSnapToItem={(index) => setActiveSlide(index)}
+          renderItem={({ index }) => (
+            <View
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ textAlign: "center", fontSize: 30 }}>{index}</Text>
+            </View>
+          )}
+        />
+         <Carousel
           ref={(c) => {
             _carousel.current = c;
           }}
@@ -212,9 +243,9 @@ export function NewPostImage({ navigation }) {
           renderItem={_renderItem}
           hasParallaxImages={true}
           onSnapToItem={(index) => setActiveSlide(index)}
-        /> */}
-      </View>
-
+        />
+        */}
+</View>
       <View
         style={{
           width: "100%",

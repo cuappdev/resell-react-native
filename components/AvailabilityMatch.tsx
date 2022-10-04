@@ -6,10 +6,13 @@ import {
   Text,
   View,
   Alert,
-  StyleProp,
   ViewStyle,
+  StyleProp,
 } from "react-native";
-import WeekView from "react-native-week-view";
+import WeekView, {
+  EventComponentProps,
+  WeekViewEvent,
+} from "react-native-week-view";
 import PurpleButton from "./PurpleButton";
 const moment = require("moment");
 
