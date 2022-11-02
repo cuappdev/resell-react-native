@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import useCachedResources from "./hooks/useCachedResources";
 
 import GlobalStore from "./state_manage/store";
-
+import { RootSiblingParent } from "react-native-root-siblings";
 import SignIn from "./screens/SignIn";
 
 // When configured correctly, URLSchemes should contain your REVERSED_CLIENT_ID
