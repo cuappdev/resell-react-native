@@ -20,10 +20,10 @@ import * as Notifications from "expo-notifications";
 import Modal from "react-native-modal";
 import PurpleButton from "../components/PurpleButton";
 import { DetailPullUpHeader } from "../components/GetStartedPullUp";
-import SellerMeetingDetailModal from "../components/SellerMeetingDetailModal";
+import SellerMeetingDetailModal from "../components/MeetingDetailModal";
 import SellerSyncModal from "../components/SellerSyncModal";
 import BuyerSyncModal from "../components/BuyerSyncModal";
-
+import CalendarNotification from "../assets/svg-components/calendarNotification";
 import {
   Bubble,
   GiftedChat,
@@ -48,8 +48,17 @@ import BackButton from "../assets/svg-components/back_button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ChatWindow({ navigation, route }) {
-  const { email, name, receiverImage, venmo, post, isBuyer, screen } =
-    route.params;
+  const {
+    email,
+    name,
+    receiverImage,
+    venmo,
+    post,
+    isBuyer,
+    screen,
+    isConfirmed,
+    isProposed,
+  } = route.params;
   //console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
@@ -125,6 +134,8 @@ export default function ChatWindow({ navigation, route }) {
         name: isBuyer ? name : auth?.currentUser?.displayName,
         image: isBuyer ? receiverImage : auth?.currentUser?.photoURL,
         viewed: isBuyer,
+        isConfirmed: isConfirmed == undefined ? false : isConfirmed,
+        isProposed: isProposed == undefined ? false : isProposed,
       });
     historyRef
       .doc(isBuyer ? email : auth?.currentUser?.email)
@@ -137,6 +148,8 @@ export default function ChatWindow({ navigation, route }) {
         name: isBuyer ? auth?.currentUser?.displayName : name,
         image: isBuyer ? auth?.currentUser?.photoURL : receiverImage,
         viewed: !isBuyer,
+        isConfirmed: isConfirmed == undefined ? false : isConfirmed,
+        isProposed: isProposed == undefined ? false : isProposed,
       });
     const messageRef = chatRef
       .doc(isBuyer ? auth?.currentUser?.email : email)
@@ -690,7 +703,11 @@ export default function ChatWindow({ navigation, route }) {
           onPress={() => setMeetingVisible(true)}
           style={styles.scheduleButton}
         >
-          <Feather name="calendar" size={24} color="black" />
+          {/* <Feather name="calendar" size={24} color="black" /> */}
+          {/* <Image
+            source={require("../assets/images/calendarWithNotification.png")}
+          /> */}
+          <CalendarNotification />
         </TouchableOpacity>
       </View>
 
@@ -715,6 +732,7 @@ export default function ChatWindow({ navigation, route }) {
 
       {/*TODO: SEND NAME AND PROPOSED DATE */}
       {/* seller modal */}
+
       <SellerMeetingDetailModal
         meetingVisible={meetingVisible}
         setMeetingVisible={setMeetingVisible}
@@ -722,8 +740,11 @@ export default function ChatWindow({ navigation, route }) {
         dateText={"Friday, October 23 · 1:30-2:00 PM"}
         setSyncMeetingVisible={setSyncMeetingVisible}
         isBuyer={isBuyer}
+        email={email}
+        isProposed={isProposed}
       />
-      {!isBuyer && (
+
+      {!isBuyer && isProposed && (
         <SellerSyncModal
           syncMeetingVisible={syncMeetingVisible}
           setSyncMeetingVisible={setSyncMeetingVisible}
@@ -731,7 +752,7 @@ export default function ChatWindow({ navigation, route }) {
         />
       )}
 
-      {isBuyer && (
+      {isBuyer && isConfirmed && (
         <BuyerSyncModal
           syncMeetingVisible={syncMeetingVisible}
           setSyncMeetingVisible={setSyncMeetingVisible}
