@@ -14,9 +14,7 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import { useIsFocused } from "@react-navigation/native";
 
-export default function SavedScreen({
-  navigation,
-}: RootTabScreenProps<"SavedTab">) {
+export default function SavedScreen({ navigation }) {
   const [userId, setUserId] = useState("");
   const [posts, setPosts] = useState([]);
   const [isLoading, setLoading] = useState(true);

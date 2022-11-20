@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import ProductCard from "./ProductCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { json } from "stream/consumers";
 
 /**
  * Constructs a Button react component
@@ -28,6 +29,14 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       }
     }
   });
+  const [access, SetAccess] = useState("");
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs && result != null) {
+      if (result !== null) {
+        SetAccess(result);
+      }
+    }
+  });
   const renderItem = ({ item }) => {
     return (
       <ProductCard
@@ -35,26 +44,11 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
         price={item.price}
         image={item.images ? item.images[0] : null}
         onPress={() => {
-          fetch(
-            "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-              userId +
-              "/postId/" +
-              item.id
-          )
-            .then((response) => {
-              if (response.ok) {
-                return response.json();
-              } else return null;
-            })
-            .then((response) => {
-              if (response != null) {
-                navigation.navigate("ProductHome", {
-                  post: item,
-                  screen: screen,
-                  savedInitial: response.isSaved,
-                });
-              }
-            });
+          navigation.navigate("ProductHome", {
+            post: item,
+            screen: screen,
+            savedInitial: false,
+          });
         }}
       />
     );

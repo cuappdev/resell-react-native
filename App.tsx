@@ -1,24 +1,11 @@
 import * as Font from "expo-font";
 import React from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import useCachedResources from "./hooks/useCachedResources";
-import useColorScheme from "./hooks/useColorScheme";
-import Navigation from "./navigation";
-import * as Google from "expo-google-app-auth";
 
 import GlobalStore from "./state_manage/store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { login, logout } from "./state_manage/actions/signInActions";
-import ResellLogo from "./assets/svg-components/resell_logo";
-import Header from "./assets/svg-components/header";
-import PurpleButton from "./components/PurpleButton";
-import CornellAppdev from "./assets/images/cornelappdev";
-import { auth } from "./config/firebase";
-
-import { useDispatch } from "react-redux";
+import { RootSiblingParent } from "react-native-root-siblings";
 import SignIn from "./screens/SignIn";
 
 // When configured correctly, URLSchemes should contain your REVERSED_CLIENT_ID

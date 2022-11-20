@@ -611,5 +611,5 @@ export function HeaderIcon(props: {
   color: string;
   size: number;
 }) {
-  return <Feather size={props.size} {...props} />;
+  return <Feather {...props} />;
 }

@@ -1,11 +1,14 @@
 import * as Font from "expo-font";
 import React from "react";
-import { StyleSheet, View, Image } from "react-native";
+import { StyleSheet, View, Image, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import useColorScheme from "../hooks/useColorScheme";
 import Navigation from "../navigation";
-import * as Google from "expo-google-app-auth";
+import { Logs } from "expo";
+
+Logs.enableExpoCliLogging();
+import * as Google from "expo-auth-session/providers/google";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { login } from "../state_manage/actions/signInActions";
@@ -17,6 +20,100 @@ import { auth } from "../config/firebase";
 
 import { useDispatch } from "react-redux";
 export default function SignIn() {
+  const [request, result, promptAsync] = Google.useAuthRequest({
+    // shouldAutoExchangeCode: false,
+    responseType: "id_token",
+    expoClientId:
+      "947198045768-i9tuc7gvs6hipq2uid5pove59pdlh9jm.apps.googleusercontent.com",
+    iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
+    androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
+    // iosStandaloneAppClientId:
+    //   "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
+    // androidStandaloneAppClientId:
+    //   "947198045768-miln50ernorl8s7kqibnpp59hoklor3n.apps.googleusercontent.com",
+    scopes: ["profile", "email"],
+    // shouldAutoExchangeCode: false,
+
+    // extraParams: {
+    //   access_type: "offline",
+
+    //   prompt: "consent",
+    // },
+  });
+
+  async function fetchUserInfo(token) {
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then(async (json) => {
+        if (json.error) {
+          alert("Please Use Your Cornell Email :)");
+        } else {
+          console.log(json);
+          try {
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  // const [request, result, promptAsync] = Google.useAuthRequest({
+  //   expoClientId:
+  //     "947198045768-i9tuc7gvs6hipq2uid5pove59pdlh9jm.apps.googleusercontent.com",
+  //   iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
+  //   androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
+  //   scopes: ["profile", "email"],
+  // });
+
+  // const result = await promptAsync();
+  // if (result.type === 'success') {
+  //   // Token is empty when running on iOS/Android, but filled on Expo
+  //   const token = result.params.id_token;
+  // }
+
+  // if (fullResult?.type === 'success') {
+  //   // Token is always filled, when running on iOS/Android and when running in Expo
+  //   const token = fullResult.params.id_token;
+  // }
+
+  useEffect(() => {
+    // storeAccessToken(json.accessToken);
+    storeUserId("9b8bf3b6-d5d4-4c97-9fff-481aae56eab2");
+    storeEmail("csz9@cornell.edu");
+    register("csz9@cornell.edu", "9b8bf3b6-d5d4-4c97-9fff-481aae56eab2");
+    AsyncStorage.setItem("SignedIn", "true");
+
+    // if (result?.type === "success") {
+    //   console.log("Google SignIn", "SUCCESS", result);
+    //   const token = result.params.access_token;
+    //   console.log(fetchUserInfo(token));
+    //   // Alert.alert("Alert Title", String(result), [
+    //   //   {
+    //   //     text: "Cancel",
+    //   //     onPress: () => console.log("Cancel Pressed"),
+    //   //     style: "cancel",
+    //   //   },
+    //   //   { text: "OK", onPress: () => console.log("OK Pressed") },
+    //   // ]);
+    //   postRequest(result);
+    // } else {
+    //   console.log("Google SignIn", "FAILURE", result);
+    // }
+  }, [result]);
+
   const dispatch = useDispatch();
 
   const signedIn = useSelector((state: any) => state.signIn.signedIn);
@@ -35,7 +132,7 @@ export default function SignIn() {
   useEffect(() => {}, [signedIn]);
 
   const colorScheme = useColorScheme();
-  const [onBoard, setOnBoarded] = useState(false);
+  const [onBoard, setOnBoarded] = useState(true);
   // const [showPagination, setShowPagination] = useState(true);
   const [email, setEmail] = useState("");
 
@@ -136,6 +233,14 @@ export default function SignIn() {
       .then(async (json) => {
         if (json.error) {
           alert("Please Use Your Cornell Email :)");
+          // Alert.alert("Alert Title", json, [
+          //   {
+          //     text: "Cancel",
+          //     onPress: () => console.log("Cancel Pressed"),
+          //     style: "cancel",
+          //   },
+          //   { text: "OK", onPress: () => console.log("OK Pressed") },
+          // ]);
         } else {
           storeAccessToken(json.accessToken);
           storeUserId(json.userId);
@@ -171,26 +276,35 @@ export default function SignIn() {
   //   }
   // }, [showPagination]);
   const handleGoogleSignIn = () => {
-    const config = {
-      iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
-      androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
-      iosStandaloneAppClientId:
-        "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
-      androidStandaloneAppClientId:
-        "947198045768-miln50ernorl8s7kqibnpp59hoklor3n.apps.googleusercontent.com",
-      scopes: ["profile", "email"],
-    };
-    Google.logInAsync(config).then((result) => {
-      const { type } = result;
-      if (type == "success") {
-        console.log("Google SignIn", "SUCCESS", result);
-        postRequest(result);
-      } else {
-        console.log("Google SignIn", "FAILURE", result);
-      }
-    });
+    // const config = {
+    //   expoClientId:
+    //     "947198045768-i9tuc7gvs6hipq2uid5pove59pdlh9jm.apps.googleusercontent.com",
+    //   iosClientId: `947198045768-2kkjna68er930llq0qlikh6dceeoijkm.apps.googleusercontent.com`,
+    //   androidClientId: `947198045768-rv46c5qro1ghplqmjsf7p6e3l3afhj0o.apps.googleusercontent.com`,
+    //   iosStandaloneAppClientId:
+    //     "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
+    //   androidStandaloneAppClientId:
+    //     "947198045768-miln50ernorl8s7kqibnpp59hoklor3n.apps.googleusercontent.com",
+    //   scopes: ["profile", "email"],
+    // };
+    // Google.useAuthRequest(config);
+    // useEffect(() => {
+    //   if (result?.type === "success") {
+    //     console.log("Google SignIn", "SUCCESS", result);
+    //     postRequest(result);
+    //   } else {
+    //     Alert.alert("Alert Title", "My Alert Msg", [
+    //       {
+    //         text: "Cancel",
+    //         onPress: () => console.log("Cancel Pressed"),
+    //         style: "cancel",
+    //       },
+    //       { text: "OK", onPress: () => console.log("OK Pressed") },
+    //     ]);
+    //     console.log("Google SignIn", "FAILURE", result);
+    //   }
+    // }, [result]);
   };
-
   const register = (email, password) => {
     auth
       .createUserWithEmailAndPassword(email, password)
@@ -229,7 +343,7 @@ export default function SignIn() {
         <PurpleButton
           text={"Log in with NetID"}
           onPress={() => {
-            handleGoogleSignIn();
+            promptAsync();
           }}
           enabled={true}
         />
