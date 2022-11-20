@@ -1,14 +1,17 @@
 import React from "react";
 import Modal from "react-native-modal";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import PurpleButton from "../components/PurpleButton";
-export default function SellerMeetingDetailModal({
+import PurpleButton from "./PurpleButton";
+import { auth, historyRef } from "../config/firebase";
+export default function MeetingDetailModal({
   meetingVisible,
   setMeetingVisible,
   text,
   dateText,
   setSyncMeetingVisible,
   isBuyer,
+  email,
+  isProposed,
 }) {
   return (
     <Modal //Confirm Meeting details
@@ -19,7 +22,7 @@ export default function SellerMeetingDetailModal({
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
-      {isBuyer && (
+      {!isBuyer && (
         <View style={styles.slideUp}>
           <Text style={styles.MeetingDetailsBoldText}>Meeting Details</Text>
           <View style={styles.MeetingDetails}>
@@ -34,6 +37,13 @@ export default function SellerMeetingDetailModal({
               onPress={() => {
                 setMeetingVisible(false);
                 setSyncMeetingVisible(true);
+                historyRef
+                  .doc(isBuyer ? auth?.currentUser?.email : email)
+                  .collection("sellers")
+                  .doc(isBuyer ? email : auth?.currentUser?.email)
+                  .update({
+                    isConfirmed: true,
+                  });
               }}
               enabled={true}
             />
@@ -49,35 +59,69 @@ export default function SellerMeetingDetailModal({
         </View>
       )}
 
-      {!isBuyer && (
+      {isBuyer && (
         <View style={styles.slideUp}>
           <Text style={styles.MeetingDetailsBoldText}>Meeting Details</Text>
           <View style={styles.MeetingDetails}>
             <Text style={styles.SubMeetingDetails}>
-              you are proposing the following meeting:
+              You are proposing the following meeting:
             </Text>
 
             <Text style={styles.MeetingDetailsBoldText}>Time</Text>
             <Text style={styles.SubMeetingDetails}>{dateText}</Text>
           </View>
           <View style={styles.purpleButton}>
-            <PurpleButton
-              text={"Propose Meeting"}
+            {!isProposed && (
+              <PurpleButton
+                text={"Propose Meeting"}
+                onPress={() => {
+                  setMeetingVisible(false);
+                  // setSyncMeetingVisible(true);
+
+                  historyRef
+                    .doc(isBuyer ? email : auth?.currentUser?.email)
+                    .collection("buyers")
+                    .doc(isBuyer ? auth?.currentUser?.email : email)
+                    .update({
+                      isProposed: true,
+                    });
+                }}
+                enabled={true}
+              />
+            )}
+            {isProposed && (
+              <Text style={styles.MeetingDetailsBoldText}>
+                Waiting on Seller to Confirm
+              </Text>
+            )}
+          </View>
+          {!isProposed && (
+            <Text
+              style={styles.MeetingDetailsBoldText}
               onPress={() => {
                 setMeetingVisible(false);
-                // setSyncMeetingVisible(true);
+                historyRef
+                  .doc(isBuyer ? email : auth?.currentUser?.email)
+                  .collection("buyers")
+                  .doc(isBuyer ? auth?.currentUser?.email : email)
+                  .update({
+                    isProposed: false,
+                    isConfirmed: false,
+                  });
+
+                historyRef
+                  .doc(isBuyer ? auth?.currentUser?.email : email)
+                  .collection("sellers")
+                  .doc(isBuyer ? email : auth?.currentUser?.email)
+                  .update({
+                    isConfirmed: false,
+                    isProposed: false,
+                  });
               }}
-              enabled={true}
-            />
-          </View>
-          <Text
-            style={styles.MeetingDetailsBoldText}
-            onPress={() => {
-              setMeetingVisible(false);
-            }}
-          >
-            Cancel
-          </Text>
+            >
+              Reject Proposal
+            </Text>
+          )}
         </View>
       )}
     </Modal>

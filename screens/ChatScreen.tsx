@@ -52,6 +52,8 @@ export default function ChatScreen({ navigation }) {
             recentSender:
               doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
             viewed: doc.data().viewed,
+            isProposed: doc.data().isProposed,
+            isConfirmed: doc.data().isConfirmed,
           });
         });
         setPurchase(tempt);
@@ -79,6 +81,8 @@ export default function ChatScreen({ navigation }) {
             recentSender:
               doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
             viewed: doc.data().viewed,
+            isProposed: doc.data().isProposed,
+            isConfirmed: doc.data().isConfirmed,
           });
         });
         setOffer(tempt);
@@ -143,6 +147,8 @@ export default function ChatScreen({ navigation }) {
             post: item.recentItem,
             venmo: item.venmo,
             isBuyer: isPurchase,
+            isProposed: item.isProposed,
+            isConfirmed: item.isConfirmed,
             screen: "chat",
           });
         }}

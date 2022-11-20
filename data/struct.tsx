@@ -30,3 +30,15 @@ export interface IMessagePreview {
   recentSender: number;
   viewed: boolean;
 }
+export interface IMessagePreview {
+  sellerName: string;
+  email: string;
+
+  recentItem: IPostPreview[];
+  image: string;
+  recentMessage: string;
+  recentSender: number;
+  viewed: boolean;
+  isProposed: boolean;
+  isConfirmed: boolean;
+}
