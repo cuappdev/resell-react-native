@@ -16,7 +16,14 @@ import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ButtonBanner } from "../components/ButtonBanner";
 import Constants from "expo-constants";
-
+import * as Notifications from "expo-notifications";
+import Modal from "react-native-modal";
+import PurpleButton from "../components/PurpleButton";
+import { DetailPullUpHeader } from "../components/GetStartedPullUp";
+import SellerMeetingDetailModal from "../components/MeetingDetailModal";
+import SellerSyncModal from "../components/SellerSyncModal";
+import BuyerSyncModal from "../components/BuyerSyncModal";
+import CalendarNotification from "../assets/svg-components/calendarNotification";
 import {
   Bubble,
   GiftedChat,
@@ -41,8 +48,17 @@ import BackButton from "../assets/svg-components/back_button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ChatWindow({ navigation, route }) {
-  const { email, name, receiverImage, venmo, post, isBuyer, screen } =
-    route.params;
+  const {
+    email,
+    name,
+    receiverImage,
+    venmo,
+    post,
+    isBuyer,
+    screen,
+    isConfirmed,
+    isProposed,
+  } = route.params;
   //console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
@@ -56,10 +72,31 @@ export default function ChatWindow({ navigation, route }) {
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
   const [uri, setUri] = useState("");
+  const [meetingVisible, setMeetingVisible] = useState(false);
+  const [syncMeetingVisible, setSyncMeetingVisible] = useState(false);
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
 
   const [messages, setMessages] = React.useState<any[]>([]);
+
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+
+  const triggerNotifications = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "You’ve got mail! :mailbox_with_mail:",
+        body: "Here is the notification body",
+        data: { data: "goes here" },
+      },
+      trigger: { seconds: 2 },
+    });
+  };
 
   useEffect(() => {
     if (isSendingAvailability && text.length > 0) {
@@ -97,6 +134,8 @@ export default function ChatWindow({ navigation, route }) {
         name: isBuyer ? name : auth?.currentUser?.displayName,
         image: isBuyer ? receiverImage : auth?.currentUser?.photoURL,
         viewed: isBuyer,
+        isConfirmed: isConfirmed == undefined ? false : isConfirmed,
+        isProposed: isProposed == undefined ? false : isProposed,
       });
     historyRef
       .doc(isBuyer ? email : auth?.currentUser?.email)
@@ -109,6 +148,8 @@ export default function ChatWindow({ navigation, route }) {
         name: isBuyer ? auth?.currentUser?.displayName : name,
         image: isBuyer ? auth?.currentUser?.photoURL : receiverImage,
         viewed: !isBuyer,
+        isConfirmed: isConfirmed == undefined ? false : isConfirmed,
+        isProposed: isProposed == undefined ? false : isProposed,
       });
     const messageRef = chatRef
       .doc(isBuyer ? auth?.currentUser?.email : email)
@@ -658,6 +699,16 @@ export default function ChatWindow({ navigation, route }) {
           <Text style={styles.chatHeader}>{post.title}</Text>
           <Text style={styles.chatSubheader}>{name}</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => setMeetingVisible(true)}
+          style={styles.scheduleButton}
+        >
+          {/* <Feather name="calendar" size={24} color="black" /> */}
+          {/* <Image
+            source={require("../assets/images/calendarWithNotification.png")}
+          /> */}
+          <CalendarNotification />
+        </TouchableOpacity>
       </View>
 
       <GiftedChat
@@ -678,6 +729,38 @@ export default function ChatWindow({ navigation, route }) {
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
+
+      {/*TODO: SEND NAME AND PROPOSED DATE */}
+      {/* seller modal */}
+
+      <SellerMeetingDetailModal
+        meetingVisible={meetingVisible}
+        setMeetingVisible={setMeetingVisible}
+        text={name + " has proposed the following meeting:"}
+        dateText={"Friday, October 23 · 1:30-2:00 PM"}
+        setSyncMeetingVisible={setSyncMeetingVisible}
+        isBuyer={isBuyer}
+        email={email}
+        isProposed={isProposed}
+      />
+
+      {!isBuyer && isProposed && (
+        <SellerSyncModal
+          syncMeetingVisible={syncMeetingVisible}
+          setSyncMeetingVisible={setSyncMeetingVisible}
+          eventTitle={"Meet " + name + " for Resell"}
+        />
+      )}
+
+      {isBuyer && isConfirmed && (
+        <BuyerSyncModal
+          syncMeetingVisible={syncMeetingVisible}
+          setSyncMeetingVisible={setSyncMeetingVisible}
+          eventTitle={"Meet " + name + " for Resell"}
+          text={name + " has confirmed the following meeting:"}
+          dateText={"Friday, October 23 · 1:30-2:00 PM"}
+        />
+      )}
     </View>
   );
 }
@@ -715,6 +798,27 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     alignItems: "center",
+  },
+  scheduleButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 50 : 25,
+    right: 10,
+    zIndex: 1,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
+  slideUp: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 320,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+    padding: 30,
+    paddingLeft: 50,
+    paddingRight: 50,
   },
 });
 const FILTER = [
