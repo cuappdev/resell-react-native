@@ -7,53 +7,43 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import React, {
-  useState,
-  useEffect,
-  useLayoutEffect,
-  useCallback,
-} from "react";
-import { IMessagePreview } from "../data/struct";
-// LogBox.ignoreLogs(["Setting a timer for a long period of time"]);
+import React, { useState, useEffect } from "react";
 
-// import { firestore } from "../config/firebase";
-
-// const userCollection = firestore.collection("users");
-
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
 import ChatTbas from "../components/ChatTabs";
-import { auth, chatRef, db, historyRef } from "../config/firebase";
+import { auth, historyRef } from "../config/firebase";
+import { fonts } from "../globalStyle/globalFont";
+import { IBuyerPreview, ISellerPreview } from "../data/struct";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
-  var temptPuchrase = 0;
-  var temptOrder = 0;
-  const [purchase, setPurchase] = useState<IMessagePreview[]>([]);
-  const [offer, setOffer] = useState<IMessagePreview[]>([]);
+  var temptPuchrase = 0; //for the number of unread on the top
+  var temptOrder = 0; //for the number of unread on the top
+  const [purchase, setPurchase] = useState<IBuyerPreview[]>([]);
+  const [offer, setOffer] = useState<ISellerPreview[]>([]);
+  const isFocused = useIsFocused();
 
   const getPurchase = async () => {
     setPurchase([]);
     const query = historyRef
-      .doc(auth?.currentUser?.email)
+      .doc(auth?.currentUser?.email) //my email and I have a bunches of chats with sellers in the purchase list
       .collection("sellers");
 
     try {
       query.onSnapshot((querySnapshot) => {
-        var tempt: IMessagePreview[] = [];
+        var tempt: IBuyerPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name,
-            email: doc.id,
-
-            recentItem: doc.data().item,
-            image: doc.data().image,
+            email: doc.id, //seller
+            recentItem: doc.data().item, // you can buy multiple items from a seller
+            image: doc.data().image, // image of the seller
             recentMessage: doc.data().recentMessage,
             recentSender:
-              doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
+              doc.data().recentSender == auth?.currentUser?.email ? 1 : 0, //1 means buyer, means seller
             viewed: doc.data().viewed,
-            isProposed: doc.data().isProposed,
-            isConfirmed: doc.data().isConfirmed,
+            confirmedTime: doc.data().confirmedTime,
+            confirmedViewed: doc.data().confirmedViewed,
           });
         });
         setPurchase(tempt);
@@ -69,20 +59,20 @@ export default function ChatScreen({ navigation }) {
 
     try {
       query.onSnapshot((querySnapshot) => {
-        var tempt: IMessagePreview[] = [];
+        var tempt: ISellerPreview[] = [];
 
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
-            sellerName: doc.data().name,
+            sellerName: doc.data().name, //buyername
             recentItem: doc.data().item,
-            email: doc.id,
-            image: doc.data().image,
+            email: doc.id, // buyeremail
+            image: doc.data().image, // buyer image
             recentMessage: doc.data().recentMessage,
             recentSender:
               doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
             viewed: doc.data().viewed,
-            isProposed: doc.data().isProposed,
-            isConfirmed: doc.data().isConfirmed,
+            proposedTime: doc.data().proposedTime,
+            proposedViewed: doc.data().proposedViewed,
           });
         });
         setOffer(tempt);
@@ -94,7 +84,7 @@ export default function ChatScreen({ navigation }) {
   useEffect(() => {
     getPurchase();
     getOffer();
-  }, []);
+  }, [isFocused]);
   purchase.forEach((element) => {
     if (!element.viewed) {
       temptPuchrase = temptPuchrase + 1;
@@ -116,7 +106,7 @@ export default function ChatScreen({ navigation }) {
     setOfferUnread(temptOrder);
   }, [temptOrder]);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }: { item: IBuyerPreview | ISellerPreview }) => {
     var products = " • " + item.recentItem.title;
 
     var message = item.recentSender == 1 ? "You: " : item.sellerName + ": ";
@@ -127,30 +117,33 @@ export default function ChatScreen({ navigation }) {
       <TouchableOpacity
         onPress={() => {
           //Changed viewed of data here.
-          if (isPurchase) {
-            historyRef
-              .doc(auth?.currentUser?.email)
-              .collection("sellers")
-              .doc(item.email)
-              .update({ viewed: true });
-          } else {
-            historyRef
-              .doc(auth?.currentUser?.email)
-              .collection("buyers")
-              .doc(item.email)
-              .update({ viewed: true });
-          }
-          navigation.navigate("ChatWindow", {
-            name: item.sellerName,
-            receiverImage: item.image,
-            email: item.email,
-            post: item.recentItem,
-            venmo: item.venmo,
-            isBuyer: isPurchase,
-            isProposed: item.isProposed,
-            isConfirmed: item.isConfirmed,
-            screen: "chat",
-          });
+
+          navigation.navigate(
+            "ChatWindow",
+            isPurchase
+              ? {
+                  name: item.sellerName, // the one are you are talking to
+                  receiverImage: item.image, // the one you are talking to
+                  email: item.email, // the one you are talking to
+                  post: item.recentItem,
+                  isBuyer: isPurchase,
+                  confirmedTime: (item as IBuyerPreview).confirmedTime,
+                  confirmedViewed: (item as IBuyerPreview).confirmedViewed,
+
+                  screen: "chat",
+                }
+              : {
+                  name: item.sellerName, // the one are you are talking to
+                  receiverImage: item.image, // the one you are talking to
+                  email: item.email, // the one you are talking to
+                  post: item.recentItem,
+                  isBuyer: isPurchase,
+                  proposedTime: (item as ISellerPreview).proposedTime,
+                  proposedViewed: (item as ISellerPreview).proposedViewed,
+
+                  screen: "chat",
+                }
+          );
         }}
       >
         <View style={styles.outer}>
@@ -171,7 +164,10 @@ export default function ChatScreen({ navigation }) {
               <Text style={styles.sellerName}>{item.sellerName}</Text>
               {products}
             </Text>
-            <Text numberOfLines={1} style={styles.recentMessage}>
+            <Text
+              numberOfLines={1}
+              style={[fonts.Title4, { color: "#707070" }]}
+            >
               {message}
             </Text>
           </View>
@@ -207,18 +203,30 @@ export default function ChatScreen({ navigation }) {
       )}
       {purchase.length == 0 && isPurchase && (
         <View style={styles.noResultView}>
-          <Text style={styles.noResultHeader}>
+          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
             No messages with sellers yet
           </Text>
-          <Text style={styles.noResultSubHeader}>
+          <Text
+            style={[
+              fonts.body1,
+              { color: "#707070", width: "80%", textAlign: "center" },
+            ]}
+          >
             When you contact a seller, you’ll see your messages here
           </Text>
         </View>
       )}
       {offer.length == 0 && !isPurchase && (
         <View style={styles.noResultView}>
-          <Text style={styles.noResultHeader}>No messages with buyers yet</Text>
-          <Text style={styles.noResultSubHeader}>
+          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+            No messages with buyers yet
+          </Text>
+          <Text
+            style={[
+              fonts.body1,
+              { color: "#707070", width: "80%", textAlign: "center" },
+            ]}
+          >
             When a buyer contacts you, you’ll see their messages here
           </Text>
         </View>
@@ -242,11 +250,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "space-around",
   },
-  recentMessage: {
-    color: "#707070",
-    fontSize: 14,
-    fontFamily: "Rubik-Regular",
-  },
+
   viewedDot: {
     position: "absolute",
     left: 0,
@@ -271,13 +275,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
-  noResultSubHeader: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    textAlign: "center",
-    color: "#707070",
-    width: "80%",
   },
 });

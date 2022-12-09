@@ -4,7 +4,6 @@ import Modal from "react-native-modal";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { NumberPad } from "./CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
-import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native-gesture-handler";
 const windowHeight = Dimensions.get("window").height;
 import { Platform, NativeModules } from "react-native";
@@ -29,7 +28,9 @@ export function NegotiationModal({
         setModalVisible(false);
 
         if (
-          screen === "NewPost" &&
+          (screen === "NewPost" ||
+            screen == "NewRequestMax" ||
+            screen == "NewRequestMin") &&
           text.length > 0 &&
           text.slice(0, 1) != "$"
         ) {
@@ -41,7 +42,15 @@ export function NegotiationModal({
       <View
         style={[
           styles.centeredView,
-          screen === "NewPost" ? { height: modalHeight } : { height: "85%" },
+          screen === "NewPost" ||
+          screen == "NewRequestMax" ||
+          screen == "NewRequestMin"
+            ? { height: modalHeight }
+            : { height: "85%" },
+
+          screen == "NewRequestMax" && {
+            alignItems: "flex-end",
+          },
         ]}
       >
         {(screen === "ChatBuyer" || screen === "ChatSeller") && (
@@ -82,11 +91,93 @@ export function NegotiationModal({
             </Text>
           </View>
         )}
-        {screen === "NewPost" && (
-          <View style={styles.modalView}>
-            <Text style={[styles.textStyle, { marginBottom: 24 }]}>
-              What price do you want to sell your product?
+        {screen == "NewRequestMax" && (
+          <View
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+              width: "35%",
+              height: 40,
+              backgroundColor: "#F4F4F4",
+              borderRadius: 10,
+              marginHorizontal: 24,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Rubik-Regular",
+                fontSize: 18,
+                color: "#707070",
+              }}
+            >
+              {"$" + text}
             </Text>
+            <Text
+              style={{
+                fontFamily: "Rubik-Regular",
+                fontSize: 14,
+                position: "absolute",
+                right: 16,
+                bottom: 7,
+              }}
+            >
+              max
+            </Text>
+          </View>
+        )}
+        {screen == "NewRequestMin" && (
+          <View
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+              width: screen === "NewPost" ? 120 : "35%",
+              height: 40,
+              backgroundColor: "#F4F4F4",
+              borderRadius: 10,
+              marginHorizontal: 24,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Rubik-Regular",
+                fontSize: 18,
+                color: "#707070",
+              }}
+            >
+              {"$" + text}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "Rubik-Regular",
+                fontSize: 14,
+                position: "absolute",
+                right: 16,
+                bottom: 7,
+              }}
+            >
+              min
+            </Text>
+          </View>
+        )}
+        {(screen === "NewPost" ||
+          screen == "NewRequestMax" ||
+          screen == "NewRequestMin") && (
+          <View style={styles.modalView}>
+            {screen === "NewPost" && (
+              <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+                What price do you want to sell your product?
+              </Text>
+            )}
+            {screen === "NewRequestMin" && (
+              <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+                What's the minimum of your prefered price range?
+              </Text>
+            )}
+            {screen === "NewRequestMax" && (
+              <Text style={[styles.textStyle, { marginBottom: 24 }]}>
+                What's the maximum of your prefered price range?{" "}
+              </Text>
+            )}
             <NumberPad
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}

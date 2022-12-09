@@ -1,84 +1,87 @@
-import * as React from "react";
+import React from "react";
 import {
   StyleSheet,
   SafeAreaView,
-  Keyboard,
   TextInput,
   TouchableOpacity,
   Text,
   Image,
-  KeyboardAvoidingView,
-  Dimensions,
   Platform,
+  View,
 } from "react-native";
-import { View } from "../components/Themed";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ButtonBanner } from "../components/ButtonBanner";
-import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
-import Modal from "react-native-modal";
-import PurpleButton from "../components/PurpleButton";
-import { DetailPullUpHeader } from "../components/GetStartedPullUp";
-import SellerMeetingDetailModal from "../components/MeetingDetailModal";
-import SellerSyncModal from "../components/SellerSyncModal";
-import BuyerSyncModal from "../components/BuyerSyncModal";
-import CalendarNotification from "../assets/svg-components/calendarNotification";
-import {
-  Bubble,
-  GiftedChat,
-  IMessage,
-  Message,
-  MessageText,
-} from "react-native-gifted-chat";
+// import * as Notifications from "expo-notifications";
+
+import NoticeBanner from "../components/NoticeBanner";
+import { Bubble, GiftedChat, Message } from "react-native-gifted-chat";
 import { NegotiationModal } from "../components/NegotiationModal";
 import { AntDesign } from "@expo/vector-icons";
 import { AvailabilityModal } from "../components/AvailabilityMatch";
 import { AvailabilityBubble } from "../components/AvailabilityBubble";
-// LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
-// LogBox.ignoreAllLogs();
 import { ImageEditor } from "expo-image-editor";
 
 import * as ImagePicker from "expo-image-picker";
-import { pressedOpacity } from "../constants/Values";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
-import { auth, chatRef, db, historyRef } from "../config/firebase";
+import { auth, chatRef, historyRef } from "../config/firebase";
 import ProductCard from "../components/ProductCard";
 import BackButton from "../assets/svg-components/back_button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import * as Notifications from "expo-notifications";
+import { fonts } from "../globalStyle/globalFont";
+import BuyerProposeModal from "../components/BuyerProposeModal";
+import BuyerSyncModal from "../components/BuyerSyncModal";
+import SellerConfirmModal from "../components/SellerConfirmModal";
+import SellerSyncModal from "../components/SellerSyncModal";
+import MeetingDetailModal from "../components/MeetingDetailModal";
 export default function ChatWindow({ navigation, route }) {
   const {
     email,
     name,
     receiverImage,
-    venmo,
     post,
     isBuyer,
     screen,
-    isConfirmed,
-    isProposed,
+    proposedTime,
+    confirmedTime,
+    proposedViewed,
+    confirmedViewed,
   } = route.params;
-  //console.log(post);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
+
   const [isSendingAvailability, setIsSendingAvailability] = useState(false);
   const [inputSchedule, setInputSchedule] = useState([]);
   const [scheduleCallback, setScheduleCallback] = useState([]);
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
   const [uri, setUri] = useState("");
-  const [meetingVisible, setMeetingVisible] = useState(false);
-  const [syncMeetingVisible, setSyncMeetingVisible] = useState(false);
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
-
   const [messages, setMessages] = React.useState<any[]>([]);
 
+  const [selectTime, setSelectedTime] = useState("");
+  const [showConfirmNotice, setShowConfirmNotice] = useState(
+    confirmedTime != undefined && confirmedTime != "" && !confirmedViewed
+  );
+  const [showProposeNotice, setShowProposeNotice] = useState(
+    proposedTime != undefined && proposedTime != "" && !proposedViewed
+  );
+
+  const [activateIcon, setActivateIcon] = useState(
+    (confirmedTime != undefined && confirmedTime != "" && confirmedViewed) ||
+      (proposedTime != undefined && proposedTime != "" && proposedViewed)
+  );
+  const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
+  const [BuyerProposeVisible, setBuyerProposeVisible] = React.useState(false);
+  const [BuyerSyncVisible, setBuyerSyncVisible] = React.useState(false);
+  const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
+  const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -87,20 +90,37 @@ export default function ChatWindow({ navigation, route }) {
     }),
   });
 
+  // useEffect(() => {
+  //   if (selectTime != "") {
+
+  //     console.log("hereSync");
+  //   }
+  // }, [selectTime]);
   const triggerNotifications = async () => {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "You’ve got mail! :mailbox_with_mail:",
-        body: "Here is the notification body",
-        data: { data: "goes here" },
+        title: "Check out these items! ",
+        body: "You got 5 items related to your request.",
       },
       trigger: { seconds: 2 },
     });
   };
+  // const [notification, setNotification] = useState(false);
+  // const notificationListener = useRef();
+  // useEffect(() => {
+  //   notificationListener.current =
+  //     Notifications.addNotificationReceivedListener((notification) => {
+  //       setNotification(notification);
+  //     });
 
+  //   return () => {
+  //     Notifications.removeNotificationSubscription(
+  //       notificationListener.current
+  //     );
+  //   };
+  // }, []);
   useEffect(() => {
     if (isSendingAvailability && text.length > 0) {
-      console.log(text);
       setPlaceholder(text);
       setText("");
     }
@@ -134,8 +154,11 @@ export default function ChatWindow({ navigation, route }) {
         name: isBuyer ? name : auth?.currentUser?.displayName,
         image: isBuyer ? receiverImage : auth?.currentUser?.photoURL,
         viewed: isBuyer,
-        isConfirmed: isConfirmed == undefined ? false : isConfirmed,
-        isProposed: isProposed == undefined ? false : isProposed,
+        confirmedTime:
+          confirmedTime == "" || confirmedTime == undefined
+            ? ""
+            : confirmedTime,
+        confirmedViewed: confirmedViewed || false,
       });
     historyRef
       .doc(isBuyer ? email : auth?.currentUser?.email)
@@ -148,8 +171,9 @@ export default function ChatWindow({ navigation, route }) {
         name: isBuyer ? auth?.currentUser?.displayName : name,
         image: isBuyer ? auth?.currentUser?.photoURL : receiverImage,
         viewed: !isBuyer,
-        isConfirmed: isConfirmed == undefined ? false : isConfirmed,
-        isProposed: isProposed == undefined ? false : isProposed,
+        proposedTime:
+          proposedTime == "" || proposedTime == undefined ? "" : proposedTime,
+        proposedViewed: proposedViewed || false,
       });
     const messageRef = chatRef
       .doc(isBuyer ? auth?.currentUser?.email : email)
@@ -186,8 +210,8 @@ export default function ChatWindow({ navigation, route }) {
     const { availability: currAvailability } = currentMessage;
     const { user: currUser } = currentMessage;
     const { image: currImage } = currentMessage;
-
     const { product: currPost } = currentMessage;
+
     if (currText.length > 0) {
       return (
         <View style={{ marginVertical: 5 }}>
@@ -211,17 +235,19 @@ export default function ChatWindow({ navigation, route }) {
               },
             }}
             textStyle={{
-              left: {
-                color: "#000000",
-                fontSize: 16,
-                fontFamily: "Rubik-Regular",
-              },
-              right: {
-                color: "#ffffff",
-                fontSize: 16,
-                fontFamily: "Rubik-Regular",
-                margin: 0,
-              },
+              left: [
+                {
+                  color: "#000000",
+                },
+                fonts.body2,
+              ],
+              right: [
+                {
+                  color: "#ffffff",
+                  margin: 0,
+                },
+                fonts.body2,
+              ],
             }}
             timeTextStyle={{
               left: {
@@ -356,7 +382,6 @@ export default function ChatWindow({ navigation, route }) {
     const Json = JSON.stringify({
       imageBase64: image,
     });
-    //console.log(Jzzzson);
     fetch("https://resell-dev.cornellappdev.com/api/image/", {
       method: "POST",
       headers: {
@@ -403,7 +428,7 @@ export default function ChatWindow({ navigation, route }) {
     if (ref.current != null) {
       ref.current.resetInputToolbar();
     }
-  }, [height]);
+  }, [height, showConfirmNotice, showProposeNotice]);
   const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
@@ -424,8 +449,22 @@ export default function ChatWindow({ navigation, route }) {
           }))
         );
       });
+    if (isBuyer) {
+      historyRef
+        .doc(auth?.currentUser?.email)
+        .collection("sellers")
+        .doc(email)
+        .update({ viewed: true });
+    } else {
+      historyRef
+        .doc(auth?.currentUser?.email)
+        .collection("buyers")
+        .doc(email)
+        .update({ viewed: true });
+    }
     return () => unsubscribe();
   }, []);
+
   function renderInputToolbar(props) {
     return (
       <SafeAreaView>
@@ -447,19 +486,37 @@ export default function ChatWindow({ navigation, route }) {
             mode="full"
           />
         )}
+        {showConfirmNotice && (
+          <NoticeBanner
+            name={name}
+            onPress={() => {
+              setBuyerSyncVisible(true);
+            }}
+            isProposed={false}
+          />
+        )}
+        {showProposeNotice && (
+          <NoticeBanner
+            name={name}
+            onPress={() => {
+              setSellerConfirmVisible(true);
+            }}
+            isProposed={true}
+          />
+        )}
         <ButtonBanner
           count={count}
           setCount={setCount}
           data={FILTER}
+          isBuyer={isBuyer}
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
           availabilityVisible={availabilityVisible}
           setAvailabilityVisible={setAvailabilityVisible}
           setIsBubble={setIsBubble}
           alwaysColor={true}
-          venmo={venmo}
+          OthersEmail={email}
         />
-
         <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
           <TouchableOpacity
             style={{
@@ -489,15 +546,15 @@ export default function ChatWindow({ navigation, route }) {
                   {
                     width: "90%",
                     paddingHorizontal: 10,
-                    fontSize: 16,
                     height: "100%",
                     lineHeight: 20,
                     minHeight: 20,
                     color: "#000000",
-                    paddingVertical: 10,
-                    fontFamily: "Rubik-Regular",
+                    paddingTop: 10,
+                    paddingBottom: 10,
                     textAlignVertical: "top",
                   },
+                  fonts.body2,
                 ]}
                 onChangeText={(t) => {
                   if (!isSendingAvailability) {
@@ -531,15 +588,16 @@ export default function ChatWindow({ navigation, route }) {
                   setAvailabilityUserName={null}
                 />
                 <TextInput
-                  style={{
-                    paddingHorizontal: 10,
-                    fontSize: 16,
-                    color: "#000000",
-                    marginTop: 10,
-                    width: "95%",
-                    fontFamily: "Rubik-Regular",
-                    height: Math.min(height - 80, 60),
-                  }}
+                  style={[
+                    {
+                      paddingHorizontal: 10,
+                      color: "#000000",
+                      marginTop: 10,
+                      width: "95%",
+                      height: Math.min(height - 80, 60),
+                    },
+                    fonts.body2,
+                  ]}
                   autoCorrect={false}
                   multiline={true}
                   onKeyPress={({ nativeEvent }) => {
@@ -638,6 +696,96 @@ export default function ChatWindow({ navigation, route }) {
             )}
           </SafeAreaView>
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  const ref = useRef<GiftedChat<any> | null>(null);
+  return (
+    <View
+      style={{
+        backgroundColor: "#FFFFFF",
+        padding: 0,
+        flex: 1,
+        justifyContent: "flex-start",
+      }}
+    >
+      <View
+        style={{
+          width: "100%",
+          paddingTop: Platform.OS === "ios" ? 35 : 0,
+          paddingBottom: Platform.OS === "ios" ? 10 : 0,
+          height: Platform.OS === "ios" ? 90 : 70,
+          borderBottomWidth: 1,
+          borderColor: "#D6D6D6",
+          // elevation: 8,
+          justifyContent: "center",
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <BackButton color="black" />
+        </TouchableOpacity>
+        <View
+          style={{
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <Text
+            style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
+          >
+            {post.title}
+          </Text>
+          <Text
+            style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
+          >
+            {name}
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={async () => {
+            setMeetingDetailVisible(true);
+          }}
+          style={styles.scheduleButton}
+          disabled={!activateIcon}
+        >
+          <Feather
+            name="calendar"
+            size={24}
+            color={activateIcon ? "black" : "#BEBEBE"}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <GiftedChat
+        {...{ messages, onSend }}
+        user={{
+          _id: auth?.currentUser?.email,
+          name: auth?.currentUser?.displayName,
+          avatar: auth?.currentUser?.photoURL,
+        }}
+        showAvatarForEveryMessage={true}
+        listViewProps={{
+          keyboardDismissMode: "on-drag",
+        }}
+        ref={(chat) => (ref.current = chat)}
+        renderBubble={renderBubble}
+        renderInputToolbar={renderInputToolbar}
+        minInputToolbarHeight={
+          showProposeNotice || showConfirmNotice
+            ? 137 + Math.min(Math.max(40, height), 140)
+            : 80 + Math.min(Math.max(40, height), 140)
+        }
+        renderMessage={renderMessage}
+        scrollToBottom={true}
+      />
+
+      {/*TODO: SEND NAME AND PROPOSED DATE */}
+      {/* seller modal */}
+      <>
         <NegotiationModal
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
@@ -657,110 +805,60 @@ export default function ChatWindow({ navigation, route }) {
           setIsBubble={setIsBubble}
           setHeight={setHeight}
           username={availabilityUsername}
+          isBuyer={isBuyer}
+          setSelectedTime={setSelectedTime}
+          setBuyerProposeVisible={setBuyerProposeVisible}
+          selectdate={selectTime}
         />
-      </SafeAreaView>
-    );
-  }
-  const ref = useRef<GiftedChat<any> | null>(null);
+        <SellerConfirmModal
+          visible={SellerConfirmVisible}
+          setVisible={setSellerConfirmVisible}
+          text={name + " has proposed the following meeting:"}
+          startDate={proposedTime}
+          setSyncMeetingVisible={setSellerSyncVisible}
+          email={email}
+          setShowNotice={setShowProposeNotice}
+          setActivateIcon={setActivateIcon}
+        />
 
-  return (
-    <View
-      style={{
-        backgroundColor: "#FFFFFF",
-        padding: 0,
-        flex: 1,
-        justifyContent: "flex-start",
-      }}
-    >
-      <View
-        style={{
-          width: "100%",
-          paddingTop: Platform.OS === "ios" ? 35 : 0,
-          paddingBottom: Platform.OS === "ios" ? 10 : 0,
-          height: Platform.OS === "ios" ? 90 : 70,
-          borderBottomWidth: 1,
-          borderColor: "#D6D6D6",
-          elevation: 8,
-          justifyContent: "center",
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <BackButton color="black" />
-        </TouchableOpacity>
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <Text style={styles.chatHeader}>{post.title}</Text>
-          <Text style={styles.chatSubheader}>{name}</Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => setMeetingVisible(true)}
-          style={styles.scheduleButton}
-        >
-          {/* <Feather name="calendar" size={24} color="black" /> */}
-          {/* <Image
-            source={require("../assets/images/calendarWithNotification.png")}
-          /> */}
-          <CalendarNotification />
-        </TouchableOpacity>
-      </View>
-
-      <GiftedChat
-        {...{ messages, onSend }}
-        user={{
-          _id: auth?.currentUser?.email,
-          name: auth?.currentUser?.displayName,
-          avatar: auth?.currentUser?.photoURL,
-        }}
-        showAvatarForEveryMessage={true}
-        listViewProps={{
-          keyboardDismissMode: "on-drag",
-        }}
-        ref={(chat) => (ref.current = chat)}
-        renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        minInputToolbarHeight={80 + Math.min(Math.max(40, height), 140)}
-        renderMessage={renderMessage}
-        scrollToBottom={true}
-      />
-
-      {/*TODO: SEND NAME AND PROPOSED DATE */}
-      {/* seller modal */}
-
-      <SellerMeetingDetailModal
-        meetingVisible={meetingVisible}
-        setMeetingVisible={setMeetingVisible}
-        text={name + " has proposed the following meeting:"}
-        dateText={"Friday, October 23 · 1:30-2:00 PM"}
-        setSyncMeetingVisible={setSyncMeetingVisible}
-        isBuyer={isBuyer}
-        email={email}
-        isProposed={isProposed}
-      />
-
-      {!isBuyer && isProposed && (
         <SellerSyncModal
-          syncMeetingVisible={syncMeetingVisible}
-          setSyncMeetingVisible={setSyncMeetingVisible}
+          visible={SellerSyncVisible}
+          setVisible={setSellerSyncVisible}
           eventTitle={"Meet " + name + " for Resell"}
+          startDate={proposedTime}
         />
-      )}
 
-      {isBuyer && isConfirmed && (
+        <BuyerProposeModal
+          visible={BuyerProposeVisible}
+          setVisible={setBuyerProposeVisible}
+          setAvailabilityVisible={setAvailabilityVisible}
+          startDate={selectTime}
+          sellerEmail={isBuyer ? email : auth?.currentUser?.email}
+          post={post}
+          setStartDate={setSelectedTime}
+        />
+
         <BuyerSyncModal
-          syncMeetingVisible={syncMeetingVisible}
-          setSyncMeetingVisible={setSyncMeetingVisible}
+          visible={BuyerSyncVisible}
+          setVisible={setBuyerSyncVisible}
           eventTitle={"Meet " + name + " for Resell"}
           text={name + " has confirmed the following meeting:"}
-          dateText={"Friday, October 23 · 1:30-2:00 PM"}
+          startDate={confirmedTime}
+          email={email}
+          setShowNotice={setShowConfirmNotice}
+          setActivateIcon={setActivateIcon}
         />
-      )}
+        <MeetingDetailModal
+          visible={meetingDetailVisible}
+          setVisible={setMeetingDetailVisible}
+          startDate={isBuyer ? confirmedTime : proposedTime}
+          sellerEmail={email}
+          name={name}
+          post={post}
+          isBuyer={isBuyer}
+          setActivateIcon={setActivateIcon}
+        />
+      </>
     </View>
   );
 }
@@ -773,40 +871,26 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 0,
   },
-  chatHeader: {
-    fontFamily: "Rubik-Regular",
-    fontStyle: "normal",
-    fontWeight: "700",
-    fontSize: 18,
-    marginBottom: 4,
-    color: "#000000",
-    textAlign: "center",
-  },
-  chatSubheader: {
-    fontFamily: "Rubik-Regular",
-    fontStyle: "normal",
-    fontWeight: "700",
-    fontSize: 14,
-    color: "#787878",
-    textAlign: "center",
-  },
+
   backButton: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 50 : 25,
+    top: Platform.OS === "ios" ? 35 : 0,
     left: 10,
     zIndex: 1,
     width: 50,
     height: 50,
     alignItems: "center",
+    justifyContent: "center",
   },
   scheduleButton: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 50 : 25,
+    top: Platform.OS === "ios" ? 35 : 0,
     right: 10,
     zIndex: 1,
     width: 50,
     height: 50,
     alignItems: "center",
+    justifyContent: "center",
   },
   slideUp: {
     borderTopLeftRadius: 40,

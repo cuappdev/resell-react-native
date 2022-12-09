@@ -1,6 +1,7 @@
 // this is the general layout for the button that allows users to continue
 import React from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
+import { fonts } from "../globalStyle/globalFont";
 
 export default function PurpleButton(props) {
   return (
@@ -13,7 +14,9 @@ export default function PurpleButton(props) {
             : { backgroundColor: "#c8b9fa" },
         ]}
       >
-        <Text style={styles.buttonText}> {props.text}</Text>
+        <Text style={[{ color: "white", textAlign: "center" }, fonts.Title2]}>
+          {props.text}
+        </Text>
       </View>
     </TouchableOpacity>
   );

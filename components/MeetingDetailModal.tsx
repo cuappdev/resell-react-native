@@ -1,129 +1,96 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-native-modal";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import PurpleButton from "./PurpleButton";
+
 import { auth, historyRef } from "../config/firebase";
-export default function MeetingDetailModal({
-  meetingVisible,
-  setMeetingVisible,
-  text,
-  dateText,
-  setSyncMeetingVisible,
+import moment from "moment";
+import { fonts } from "../globalStyle/globalFont";
+export default function meetingDetailModal({
+  visible,
+  setVisible,
+  startDate,
+  sellerEmail,
+  name,
+  post,
   isBuyer,
-  email,
-  isProposed,
+  setActivateIcon,
 }) {
+  const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
+  const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
+  const endDate = moment(momentDate).add(30, "m").format("h:mm a");
+  const dateText = startText + "-" + endDate;
   return (
     <Modal //Confirm Meeting details
-      isVisible={meetingVisible}
+      isVisible={visible}
       backdropOpacity={0.2}
       onBackdropPress={() => {
-        setMeetingVisible(false);
+        setVisible(false);
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
-      {!isBuyer && (
-        <View style={styles.slideUp}>
-          <Text style={styles.MeetingDetailsBoldText}>Meeting Details</Text>
-          <View style={styles.MeetingDetails}>
-            <Text style={styles.SubMeetingDetails}>{text}</Text>
-
-            <Text style={styles.MeetingDetailsBoldText}>Time</Text>
-            <Text style={styles.SubMeetingDetails}>{dateText}</Text>
-          </View>
-          <View style={styles.purpleButton}>
-            <PurpleButton
-              text={"Confirm"}
-              onPress={() => {
-                setMeetingVisible(false);
-                setSyncMeetingVisible(true);
-                historyRef
-                  .doc(isBuyer ? auth?.currentUser?.email : email)
-                  .collection("sellers")
-                  .doc(isBuyer ? email : auth?.currentUser?.email)
-                  .update({
-                    isConfirmed: true,
-                  });
-              }}
-              enabled={true}
-            />
-          </View>
-          <Text
-            style={styles.MeetingDetailsBoldText}
-            onPress={() => {
-              setMeetingVisible(false);
-            }}
-          >
-            Cancel
+      <View style={styles.slideUp}>
+        <Text style={[fonts.pageHeading3, { marginTop: "14%" }]}>
+          Meeting Details
+        </Text>
+        <View style={{ marginTop: 24 }}>
+          <Text style={fonts.body1}>
+            {"Meeting with " +
+              name +
+              " for " +
+              post.title +
+              " is confirmed for"}
           </Text>
+
+          <Text
+            style={[fonts.pageHeading3, { marginTop: 24, marginBottom: 4 }]}
+          >
+            Time
+          </Text>
+          <Text style={fonts.body1}>{dateText}</Text>
         </View>
-      )}
 
-      {isBuyer && (
-        <View style={styles.slideUp}>
-          <Text style={styles.MeetingDetailsBoldText}>Meeting Details</Text>
-          <View style={styles.MeetingDetails}>
-            <Text style={styles.SubMeetingDetails}>
-              You are proposing the following meeting:
-            </Text>
+        <TouchableOpacity
+          style={{ position: "absolute", bottom: "11%" }}
+          onPress={async () => {
+            await historyRef
+              .doc(isBuyer ? sellerEmail : auth?.currentUser?.email)
+              .collection("buyers")
+              .doc(isBuyer ? auth?.currentUser?.email : sellerEmail)
+              .update({
+                proposedTime: "",
+                proposedViewed: false,
+              });
+            await historyRef
+              .doc(isBuyer ? auth?.currentUser?.email : sellerEmail)
+              .collection("sellers")
+              .doc(isBuyer ? sellerEmail : auth?.currentUser?.email)
+              .update({
+                confirmedTime: "",
+                confirmedViewed: false,
+              });
 
-            <Text style={styles.MeetingDetailsBoldText}>Time</Text>
-            <Text style={styles.SubMeetingDetails}>{dateText}</Text>
-          </View>
-          <View style={styles.purpleButton}>
-            {!isProposed && (
-              <PurpleButton
-                text={"Propose Meeting"}
-                onPress={() => {
-                  setMeetingVisible(false);
-                  // setSyncMeetingVisible(true);
-
-                  historyRef
-                    .doc(isBuyer ? email : auth?.currentUser?.email)
-                    .collection("buyers")
-                    .doc(isBuyer ? auth?.currentUser?.email : email)
-                    .update({
-                      isProposed: true,
-                    });
-                }}
-                enabled={true}
-              />
-            )}
-            {isProposed && (
-              <Text style={styles.MeetingDetailsBoldText}>
-                Waiting on Seller to Confirm
-              </Text>
-            )}
-          </View>
-          {!isProposed && (
+            setVisible(false);
+            setActivateIcon(false);
+          }}
+        >
+          <View style={styles.button}>
             <Text
-              style={styles.MeetingDetailsBoldText}
-              onPress={() => {
-                setMeetingVisible(false);
-                historyRef
-                  .doc(isBuyer ? email : auth?.currentUser?.email)
-                  .collection("buyers")
-                  .doc(isBuyer ? auth?.currentUser?.email : email)
-                  .update({
-                    isProposed: false,
-                    isConfirmed: false,
-                  });
-
-                historyRef
-                  .doc(isBuyer ? auth?.currentUser?.email : email)
-                  .collection("sellers")
-                  .doc(isBuyer ? email : auth?.currentUser?.email)
-                  .update({
-                    isConfirmed: false,
-                    isProposed: false,
-                  });
-              }}
+              style={[{ color: "white", textAlign: "center" }, fonts.Title2]}
             >
-              Reject Proposal
+              Cancel Meeting
             </Text>
-          )}
-        </View>
-      )}
+          </View>
+        </TouchableOpacity>
+      </View>
     </Modal>
   );
 }
@@ -132,32 +99,22 @@ const styles = StyleSheet.create({
   slideUp: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 320,
+    height: 400,
     backgroundColor: "#ffffff",
     width: "100%",
     marginHorizontal: 0,
     alignItems: "center",
-    padding: 30,
-    paddingLeft: 50,
-    paddingRight: 50,
+    paddingLeft: "14%",
+    paddingRight: "14%",
   },
-  purpleButton: {
-    marginBottom: 18,
-  },
-  MeetingDetailsBoldText: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 17,
-  },
-
-  SubMeetingDetails: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  MeetingDetails: {
-    flex: 5,
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    marginTop: 20,
+  button: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 25,
+    backgroundColor: "#d52300",
+    minHeight: 45,
+    justifyContent: "center",
   },
 });

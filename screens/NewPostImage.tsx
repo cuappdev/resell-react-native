@@ -1,34 +1,51 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  LegacyRef,
+  MutableRefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   StyleSheet,
   Text,
-  Pressable,
   View,
   TouchableOpacity,
   Dimensions,
   Platform,
+  Animated,
+  FlatList,
+  NativeScrollEvent,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 import * as ImagePicker from "expo-image-picker";
-import Carousel, { ICarouselInstance } from "react-native-reanimated-carousel";
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
-// import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import { ImageEditor } from "expo-image-editor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
+import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import PurpleButton from "../components/PurpleButton";
+import { ScreenWidth } from "react-native-elements/dist/helpers";
+import ColoredPlus from "../assets/svg-components/colored_plus";
+import { LinearGradient } from "expo-linear-gradient";
+import Layout from "../constants/Layout";
+import { fonts } from "../globalStyle/globalFont";
 export function NewPostImage({ navigation }) {
-  const [image, setImage] = useState<String[]>([]);
+  const [image, setImage] = useState<string[]>([]);
   const [uri, setUri] = useState("");
   const [modalVisibility, setModalVisibility] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [refresh, setFresh] = useState(false);
+  const { width, height } = Dimensions.get("screen");
+  const ITEM_WIDTH = ScreenWidth - 60;
 
-  const _carousel = React.useRef<ICarouselInstance>(null);
+  const data = image.map((image, index) => ({
+    key: String(index),
+    photo: image,
+  }));
+
   const storePermission = async () => {
     try {
       await AsyncStorage.setItem("PhotoPermission", "true");
@@ -55,6 +72,10 @@ export function NewPostImage({ navigation }) {
       }
     });
   }, []);
+
+  const scrollX = useRef(new Animated.Value(0)).current;
+
+  const flatListRef: MutableRefObject<FlatList<any> | undefined> = useRef();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -102,53 +123,102 @@ export function NewPostImage({ navigation }) {
       ]);
     }
   };
-  // function _renderItem({ item, index }, parallaxProps) {
-  //   return item == "" ? (
-  //     <View
-  //       style={[
-  //         styles.item,
-  //         { justifyContent: "center", alignItems: "center" },
-  //       ]}
-  //     >
-  //       <TouchableOpacity
-  //         activeOpacity={pressedOpacity}
-  //         style={styles.roundButton1}
-  //         onPress={() => {
-  //           pickImage();
-  //         }}
-  //       >
-  //         <Feather name="plus" size={36} color="black" />
-  //       </TouchableOpacity>
-  //     </View>
-  //   ) : (
-  //     <View style={styles.item}>
-  //       <ParallaxImage
-  //         source={{ uri: item }}
-  //         containerStyle={styles.imageContainer}
-  //         style={styles.image}
-  //         parallaxFactor={0.4}
-  //         showSpinner={true}
-  //         spinnerColor={"rgba(255, 255, 255, 0.4)"}
-  //         {...parallaxProps}
-  //       />
-  //       <TouchableOpacity
-  //         activeOpacity={pressedOpacity}
-  //         style={{ position: "absolute", bottom: 20, left: 20 }}
-  //         onPress={() => {
-  //           if (image.length == 2) {
-  //             setImage([]);
-  //           } else {
-  //             image.splice(index, 1);
-  //             setImage(image);
-  //             setFresh(!refresh);
-  //           }
-  //         }}
-  //       >
-  //         <Feather name="trash" size={28} color="white" />
-  //       </TouchableOpacity>
-  //     </View>
-  //   );
-  // }
+
+  const _renderItem: React.FC<any> = ({ item, index }) => {
+    const inputRange = [
+      (index - 1) * screenWidth,
+      index * screenWidth,
+      (index + 1) * screenWidth,
+    ];
+    const xOffset = scrollX.interpolate({
+      inputRange,
+      outputRange: [-screenWidth * 0.7, 0, screenWidth * 0.7],
+    });
+    return item.photo == "" ? (
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          width,
+          height: (screenWidth * 440) / 366,
+        }}
+      >
+        <View
+          style={{
+            width: ITEM_WIDTH,
+
+            overflow: "hidden",
+            justifyContent: "center",
+            alignItems: "center",
+            borderRadius: 8,
+          }}
+        >
+          <LinearGradient
+            colors={["#DF9856", "#DE6CD3", "#AD68E3"]}
+            style={styles.highLight}
+            start={{ x: 0.9, y: 0 }}
+            end={{ x: 0.1, y: 1 }}
+          >
+            <TouchableOpacity
+              style={[styles.plusButton]}
+              onPress={() => pickImage()}
+            >
+              <ColoredPlus />
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </View>
+    ) : (
+      <View
+        style={{
+          justifyContent: "flex-start",
+          alignItems: "center",
+          width,
+          height: (screenWidth * 440) / 366,
+        }}
+      >
+        <View
+          style={{
+            width: ITEM_WIDTH,
+            overflow: "hidden",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 8,
+          }}
+        >
+          <Animated.Image
+            source={{ uri: item.photo }}
+            style={{
+              width: ITEM_WIDTH * 1.4,
+              height: (screenWidth * 440) / 366,
+              resizeMode: "cover",
+              transform: [{ translateX: xOffset }],
+            }}
+          />
+          <TouchableOpacity
+            activeOpacity={pressedOpacity}
+            style={{ position: "absolute", bottom: 24, left: 24 }}
+            onPress={() => {
+              if (image.length == 2) {
+                setImage([]);
+              } else {
+                image.splice(index, 1);
+                setImage(image);
+                flatListRef.current?.scrollToIndex({
+                  index: image.length - 2,
+                });
+
+                setFresh(!refresh);
+              }
+            }}
+          >
+            <Feather name="trash" size={28} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View
       style={{
@@ -158,21 +228,34 @@ export function NewPostImage({ navigation }) {
     >
       {image.length > 0 && (
         <Text
-          style={{
-            fontFamily: "Rubik-Medium",
-            fontSize: 18,
-            marginStart: 32,
-            marginBottom: 20,
-            marginTop: 36,
-          }}
+          style={[
+            fonts.Title1,
+            {
+              marginStart: 32,
+              marginBottom: 20,
+              marginTop: 36,
+            },
+          ]}
         >
           Image Upload
         </Text>
       )}
       {image.length == 0 && (
         <View style={styles.noResultView}>
-          <Text style={styles.noResultHeader}>Image Upload</Text>
-          <Text style={styles.noResultSubHeader}>
+          <Text style={[fonts.pageHeading2, { marginBottom: 16 }]}>
+            Image Upload
+          </Text>
+          <Text
+            style={[
+              fonts.body1,
+              {
+                color: "#707070",
+                flexShrink: 0,
+                paddingHorizontal: "10%",
+                textAlign: "center",
+              },
+            ]}
+          >
             Add images of your item to get started with a new listing
           </Text>
         </View>
@@ -200,62 +283,37 @@ export function NewPostImage({ navigation }) {
           mode="full"
         />
       )}
-      <View style={{ height: screenWidth - 60 }}>
-        {/* <Carousel
-          ref={_carousel}
-          loop
-          width={screenWidth}
-          height={screenWidth}
-          autoPlay={false}
-          data={image}
-          withAnimation={{
-            type: "spring",
-            config: {
-              damping: 13,
-            },
-          }}
-          extraData={refresh}
-          renderItem={_renderItem}
-          hasParallaxImages={true}
-          scrollAnimationDuration={1000}
-          onSnapToItem={(index) => setActiveSlide(index)}
-          renderItem={({ index }) => (
-            <View
-              style={{
-                flex: 1,
-                borderWidth: 1,
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ textAlign: "center", fontSize: 30 }}>{index}</Text>
-            </View>
-          )}
-        />
-         <Carousel
-          ref={(c) => {
-            _carousel.current = c;
-          }}
-          sliderWidth={screenWidth}
-          sliderHeight={screenWidth}
-          itemWidth={screenWidth - 60}
-          data={image}
-          extraData={refresh}
-          renderItem={_renderItem}
-          hasParallaxImages={true}
-          onSnapToItem={(index) => setActiveSlide(index)}
-        />
-        */}
-</View>
-      <View
-        style={{
-          width: "100%",
-          height: 40,
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 24,
-        }}
-      >
-        {/* <AnimatedDotsCarousel
+
+      {data.length > 0 && (
+        <View style={{ height: (screenWidth * 440) / 366, width: "100%" }}>
+          <Animated.FlatList
+            ref={flatListRef as LegacyRef<FlatList<any>> | undefined}
+            data={data}
+            keyExtractor={(item) => item.key}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled={true}
+            extraData={refresh}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              {
+                useNativeDriver: true,
+                listener: ({
+                  nativeEvent,
+                }: {
+                  nativeEvent: NativeScrollEvent;
+                }) => {
+                  setActiveSlide(nativeEvent.contentOffset.x / screenWidth);
+                  // other actions to be performed on scroll
+                },
+              }
+            )}
+            renderItem={_renderItem}
+          />
+        </View>
+      )}
+      <View style={{ width: "100%", alignItems: "center", height: 20 }}>
+        <AnimatedDotsCarousel
           length={image.length}
           currentIndex={activeSlide}
           maxIndicators={1}
@@ -282,38 +340,47 @@ export function NewPostImage({ navigation }) {
               quantity: 1,
             },
           ]}
-        /> */}
+        />
       </View>
-
       <View
         style={{
-          alignItems: "center",
-          position: "absolute",
-          bottom: "5%",
           width: "100%",
+          height: 80,
+          justifyContent: "center",
+          alignItems: "center",
+          flex: 1,
         }}
       >
-        {image.length > 0 ? (
-          <PurpleButton
-            text={"Continue"}
-            onPress={() => {
-              navigation.navigate("NewPostDetail", {
-                image: image.filter((item) => {
-                  return item != "";
-                }),
-              });
-            }}
-            enabled={true}
-          />
-        ) : (
-          <PurpleButton
-            text={"Add Images"}
-            onPress={() => {
-              pickImage();
-            }}
-            enabled={true}
-          />
-        )}
+        <View
+          style={{
+            alignItems: "center",
+            position: "absolute",
+            bottom: Layout.window.height * 0.05,
+            width: "100%",
+          }}
+        >
+          {image.length > 0 ? (
+            <PurpleButton
+              text={"Continue"}
+              onPress={() => {
+                navigation.navigate("NewPostDetail", {
+                  image: image.filter((item) => {
+                    return item != "";
+                  }),
+                });
+              }}
+              enabled={true}
+            />
+          ) : (
+            <PurpleButton
+              text={"Add Images"}
+              onPress={() => {
+                pickImage();
+              }}
+              enabled={true}
+            />
+          )}
+        </View>
       </View>
     </View>
   );
@@ -321,36 +388,35 @@ export function NewPostImage({ navigation }) {
 
 const styles = StyleSheet.create({
   noResultView: {
-    flex: 1,
+    flex: 2,
     justifyContent: "center",
     alignItems: "center",
   },
-  noResultHeader: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    marginBottom: 16,
+
+  highLight: {
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    alignContent: "center",
+    paddingVertical: 2,
+    paddingHorizontal: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
-  noResultSubHeader: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    textAlign: "center",
-    color: "#707070",
-    flexShrink: 0,
-    width: "70%",
-    fontWeight: "400",
-  },
-  roundButton1: {
-    width: 64,
-    height: 64,
+  plusButton: {
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: 10,
-    borderRadius: 100,
-    elevation: 10,
-    shadowOpacity: 0.2,
-    shadowColor: "#171717",
-    shadowOffset: { width: 1, height: 3 },
-    backgroundColor: "white",
+    backgroundColor: "#FFF",
+    borderRadius: 28,
+    width: 56,
+    height: 56,
   },
   buttonContinue: {
     backgroundColor: "#9E70F6",
@@ -359,27 +425,5 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     elevation: 2,
     width: "60%",
-  },
-  textStyle: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    color: "white",
-    textAlign: "center",
-    letterSpacing: 0.5,
-  },
-  item: {
-    width: screenWidth - 60,
-    height: screenWidth - 60,
-    margin: 0,
-  },
-  imageContainer: {
-    flex: 1,
-    // marginBottom: Platform.select({ ios: 0, android: 1 }), // Prevent a random Android rendering issue
-    backgroundColor: "white",
-    borderRadius: 8,
-  },
-  image: {
-    ...StyleSheet.absoluteFillObject,
-    resizeMode: "cover",
   },
 });

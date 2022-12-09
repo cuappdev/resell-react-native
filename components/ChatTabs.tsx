@@ -66,7 +66,7 @@ function ChatTbas({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
             {purchaseUnread !== 0 && (
               <View
                 style={{
-                  width: 20,
+                  width: purchaseUnread > 9 ? 26 : 20,
                   height: 16,
                   backgroundColor: "#FF0000",
                   borderRadius: 8,
@@ -75,7 +75,9 @@ function ChatTbas({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
                   marginStart: 12,
                 }}
               >
-                <Text style={{ color: "#FFFFFF" }}>{purchaseUnread}</Text>
+                <Text style={{ color: "#FFFFFF" }}>
+                  {purchaseUnread > 9 ? "9+" : purchaseUnread}
+                </Text>
               </View>
             )}
           </View>
@@ -103,7 +105,7 @@ function ChatTbas({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
               {offerUnread !== 0 && (
                 <View
                   style={{
-                    width: 20,
+                    width: offerUnread > 9 ? 26 : 20,
                     height: 16,
                     backgroundColor: "#FF0000",
                     borderRadius: 8,
@@ -112,7 +114,9 @@ function ChatTbas({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
                     marginStart: 12,
                   }}
                 >
-                  <Text style={{ color: "#FFFFFF" }}>{offerUnread}</Text>
+                  <Text style={{ color: "#FFFFFF" }}>
+                    {offerUnread > 9 ? "9+" : offerUnread}
+                  </Text>
                 </View>
               )}
             </View>
