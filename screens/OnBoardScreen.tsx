@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
 import { pressedOpacity } from "../constants/Values";
+import { fonts } from "../globalStyle/globalFont";
 
 export default function OnBoardScreen({ navigation }) {
   const [image, setImage] = useState("");
@@ -118,9 +119,18 @@ export default function OnBoardScreen({ navigation }) {
               </TouchableOpacity>
             </View>
             <View style={{ width: "100%" }}>
-              <Text style={styles.username}>
-                {username.length > 0 ? "Username" : "Username*"}
-              </Text>
+              <View
+                style={{
+                  marginTop: 30,
+                  marginBottom: 10,
+                  flexDirection: "row",
+                }}
+              >
+                <Text style={styles.username}>Username</Text>
+                {username.length <= 0 && (
+                  <Text style={[styles.username, { color: "#9E70F6" }]}>*</Text>
+                )}
+              </View>
               <TextInput
                 value={username}
                 onChangeText={(text) => {
@@ -131,7 +141,19 @@ export default function OnBoardScreen({ navigation }) {
                     });
                   }
                 }}
-                style={styles.username_input}
+                style={[
+                  fonts.body2,
+                  {
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    paddingHorizontal: 15,
+                    backgroundColor: "#F4F4F4",
+                    borderRadius: 10,
+                    marginBottom: 32,
+                    width: "100%",
+                    height: 40,
+                  },
+                ]}
                 placeholderTextColor={"#707070"}
               />
               <Text style={styles.bio}>Bio</Text>
@@ -145,7 +167,23 @@ export default function OnBoardScreen({ navigation }) {
                     });
                   }
                 }}
-                style={styles.bio_input}
+                style={[
+                  fonts.body2,
+                  {
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingHorizontal: 15,
+                    backgroundColor: "#F4F4F4",
+                    borderRadius: 10,
+                    minHeight: 100,
+                    textAlignVertical: "top",
+                    maxHeight: 160,
+                    width: "100%",
+                    paddingVertical: 10,
+                    height: 40,
+                    fontSize: 18,
+                  },
+                ]}
                 placeholderTextColor={"#707070"}
                 numberOfLines={4}
                 multiline={true}
@@ -224,13 +262,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
-  titleText: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 18,
-    marginTop: 20,
-  },
+
   profilePic: {
     height: 132,
     width: 132,
@@ -238,40 +272,17 @@ const styles = StyleSheet.create({
     borderRadius: 66,
   },
   username: {
-    marginTop: 30,
-    marginBottom: 10,
     fontSize: 18,
-    marginStart: 10,
     fontFamily: "Rubik-Medium",
-  },
-  username_input: {
-    backgroundColor: "#F4F4F4",
-    width: "100%",
-    borderRadius: 10,
-    paddingVertical: 10,
-    height: 40,
-    paddingHorizontal: 10,
-    fontSize: 18,
   },
 
   bio: {
     marginBottom: 10,
     marginTop: 30,
-    marginStart: 10,
     fontSize: 18,
     fontFamily: "Rubik-Medium",
   },
-  bio_input: {
-    backgroundColor: "#F4F4F4",
-    width: "100%",
-    borderRadius: 10,
-    paddingVertical: 10,
-    height: 40,
-    paddingHorizontal: 10,
-    fontSize: 18,
-    minHeight: 100,
-    textAlignVertical: "top",
-  },
+
   purpleButton: {
     marginTop: 30,
     alignItems: "center",

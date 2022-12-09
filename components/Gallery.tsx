@@ -1,9 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { Children, ReactElement } from "react";
-import { Image, StyleSheet } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { Image, StyleSheet, View } from "react-native";
 import PagerView from "react-native-pager-view";
-import { Text, View } from "./Themed";
 
 function Background({ children }: { children: JSX.Element }) {
   return (

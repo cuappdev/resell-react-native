@@ -1,40 +1,27 @@
-import React, { useEffect, useRef, useState } from "react";
-import Modal from "react-native-modal";
+import React, { useState } from "react";
 
 import {
   StyleSheet,
   Text,
-  Pressable,
   View,
-  Image,
-  Alert,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  ImageBackground,
   Dimensions,
   TextInput,
   Platform,
-  ListRenderItem,
-  StatusBar,
   KeyboardAvoidingView,
   Keyboard,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
-import * as ImagePicker from "expo-image-picker";
 
-import { AntDesign, Feather } from "@expo/vector-icons";
-import { pressedOpacity } from "../constants/Values";
-import Carousel, {
-  Pagination,
-  ParallaxImage,
-} from "react-native-snap-carousel";
-import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import ButtonBanner from "../components/ButtonBanner";
 import { FILTER1 } from "../data/filter";
 import { NegotiationModal } from "../components/NegotiationModal";
-import { json } from "stream/consumers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
+import Layout from "../constants/Layout";
+import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
 
 export function NewPostDetail({ navigation, route }) {
   const { image } = route.params;
@@ -52,17 +39,18 @@ export function NewPostDetail({ navigation, route }) {
       }
     }
   });
+  console.log(userId);
   const postRequest = () => {
-    //console.log(image.length);
     const Json = JSON.stringify({
       title: title,
       description: description,
       categories: [FILTER1[count].title],
-      price: parseInt(price.substring(1)),
+      price: Number(price.substring(1)),
+      // created: Math.round(new Date().getTime() / 1000),
       imagesBase64: image,
       userId: userId,
     });
-    //console.log(Json);
+    console.log(Json);
     fetch("https://resell-dev.cornellappdev.com/api/post/", {
       method: "POST",
       headers: {
@@ -72,20 +60,17 @@ export function NewPostDetail({ navigation, route }) {
       body: Json,
     })
       .then(function (response) {
-        // alert(JSON.stringify(response));
-
         if (!response.ok) {
-          let error = new Error(response.statusText);
-          throw error;
+          // let error = new Error(response.statusText);
+          console.log("why", response.body);
         } else {
+          makeToast("New listing posted");
+
           return response.json();
         }
       })
       .then(async function (data) {
         navigation.navigate("Root");
-      })
-      .catch((error) => {
-        //alert(error.message);
       });
   };
 
@@ -100,16 +85,23 @@ export function NewPostDetail({ navigation, route }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View>
-          <Text style={styles.smallText}>Title</Text>
+          <Text
+            style={[
+              fonts.Title1,
+              { marginStart: 24, marginBottom: 8, height: 26 },
+            ]}
+          >
+            Title
+          </Text>
           <TextInput
             style={[
+              fonts.body2,
               {
                 paddingVertical: 10,
                 paddingHorizontal: 10,
-                fontSize: 18,
                 backgroundColor: "#F4F4F4",
                 borderRadius: 10,
-                height: 42,
+                height: 40,
                 marginHorizontal: 24,
                 marginBottom: 32,
               },
@@ -118,11 +110,16 @@ export function NewPostDetail({ navigation, route }) {
             onChangeText={(text) => {
               setTitle(text);
             }}
-            onKeyPress={({ nativeEvent }) => {}}
-            onContentSizeChange={(event) => {}}
           />
 
-          <Text style={styles.smallText}>Price</Text>
+          <Text
+            style={[
+              fonts.Title1,
+              { marginStart: 24, marginBottom: 10, height: 26 },
+            ]}
+          >
+            Price
+          </Text>
           <TouchableOpacity
             style={{ marginHorizontal: 24, width: 120 }}
             onPress={() => setModalVisible(true)}
@@ -135,15 +132,16 @@ export function NewPostDetail({ navigation, route }) {
                 height: 40,
                 backgroundColor: "#F4F4F4",
                 borderRadius: 10,
-                marginBottom: 24,
+                marginBottom: 32,
               }}
             >
               <Text
-                style={{
-                  fontFamily: "Rubik-Regular",
-                  fontSize: 18,
-                  color: "#707070",
-                }}
+                style={[
+                  fonts.body2,
+                  {
+                    color: "#707070",
+                  },
+                ]}
               >
                 {price == "" ? "$" : price}
               </Text>
@@ -159,13 +157,20 @@ export function NewPostDetail({ navigation, route }) {
             post={null}
             setHeight={null}
           />
-          <Text style={styles.smallText}>Item Description</Text>
+          <Text
+            style={[
+              fonts.Title1,
+              { marginStart: 24, marginBottom: 8, height: 26 },
+            ]}
+          >
+            Item Description
+          </Text>
           <TextInput
             style={[
+              fonts.body2,
               {
                 paddingVertical: 10,
                 paddingHorizontal: 10,
-                fontSize: 18,
                 backgroundColor: "#F4F4F4",
                 borderRadius: 10,
                 marginHorizontal: 24,
@@ -187,11 +192,16 @@ export function NewPostDetail({ navigation, route }) {
             onChangeText={(text) => {
               setDescription(text);
             }}
-            onKeyPress={({ nativeEvent }) => {}}
-            onContentSizeChange={(event) => {}}
             multiline={true}
           />
-          <Text style={styles.smallText}>Select Categories</Text>
+          <Text
+            style={[
+              fonts.Title1,
+              { marginStart: 24, marginBottom: 8, height: 26 },
+            ]}
+          >
+            Select Categories
+          </Text>
           <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
         </View>
         <View style={styles.purpleButton}>
@@ -211,81 +221,12 @@ export function NewPostDetail({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  noResultView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   purpleButton: {
     marginTop: 30,
     alignItems: "center",
     width: "100%",
     backgroundColor: "white",
     position: "absolute",
-    bottom: "5%",
-  },
-  noResultHeader: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    marginBottom: 16,
-  },
-  noResultSubHeader: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    textAlign: "center",
-    color: "#707070",
-    flexShrink: 0,
-    width: "70%",
-    fontWeight: "400",
-  },
-  roundButton1: {
-    width: 64,
-    height: 64,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-    borderRadius: 100,
-    elevation: 10,
-    shadowOpacity: 0.2,
-    shadowColor: "#171717",
-    shadowOffset: { width: 1, height: 3 },
-    backgroundColor: "white",
-  },
-  smallText: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    marginStart: 32,
-    marginBottom: 8,
-    height: 26,
-  },
-  buttonContinue: {
-    backgroundColor: "#9E70F6",
-    paddingHorizontal: 60,
-    paddingVertical: 16,
-    borderRadius: 25,
-    elevation: 2,
-    width: "60%",
-  },
-  textStyle: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    color: "white",
-    textAlign: "center",
-    letterSpacing: 0.5,
-  },
-  item: {
-    width: screenWidth - 60,
-    height: screenWidth - 60,
-    margin: 0,
-  },
-  imageContainer: {
-    flex: 1,
-    // marginBottom: Platform.select({ ios: 0, android: 1 }), // Prevent a random Android rendering issue
-    backgroundColor: "white",
-    borderRadius: 8,
-  },
-  image: {
-    ...StyleSheet.absoluteFillObject,
-    resizeMode: "cover",
+    bottom: Layout.window.height * 0.05,
   },
 });

@@ -20,10 +20,19 @@ export function NumberPad({
   productName,
 }) {
   const [input, setInput] = useState(
-    screen === "NewPost" && originalText.length > 0 ? originalText.slice(1) : ""
+    (screen === "NewPost" ||
+      screen == "NewRequestMax" ||
+      screen == "NewRequestMin") &&
+      originalText.length > 0
+      ? originalText.slice(1)
+      : ""
   );
   useEffect(() => {
-    if (screen === "NewPost") {
+    if (
+      screen === "NewPost" ||
+      screen == "NewRequestMax" ||
+      screen == "NewRequestMin"
+    ) {
       setOriginalText(input);
     }
   }, [input]);
@@ -64,10 +73,16 @@ export function NumberPad({
         setHeight(120);
       } else if (screen == "ChatSeller") {
         setOriginalText(
-          original.concat("I would say $" + tempt + " would be better.")
+          original.concat(
+            "The lowest I can accept for this item would be $" + tempt + "."
+          )
         );
         setHeight(80);
-      } else if (screen == "NewPost") {
+      } else if (
+        screen === "NewPost" ||
+        screen == "NewRequestMax" ||
+        screen == "NewRequestMin"
+      ) {
         setOriginalText("$" + tempt);
       }
     }

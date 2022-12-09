@@ -1,7 +1,6 @@
 // import firebase from "firebase/app";
 import * as firebase from "firebase";
-import "firebase/auth";
-import "firebase/firestore";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDoA6LS50__vx9PsHk_olqlM_CInjJnG7o",
   authDomain: "resell-e99a2.firebaseapp.com",
@@ -22,5 +21,6 @@ if (firebase.apps.length === 0) {
 export const db = app.firestore();
 export const chatRef = db.collection("chats");
 export const historyRef = db.collection("history");
-
+export const userRef = db.collection("user");
+export const requestRef = db.collection("requests");
 export const auth = firebase.auth();

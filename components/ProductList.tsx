@@ -21,7 +21,15 @@ import { json } from "stream/consumers";
  */
 export function ProductList({ data, navigation, onRefresh, screen }) {
   const [userId, setUserId] = useState("");
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [accessToken, setAccessToken] = useState("");
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result != undefined) {
+        setAccessToken(result);
+      }
+    }
+  });
+
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
       if (result !== null && result !== undefined) {
@@ -29,27 +37,47 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       }
     }
   });
-  const [access, SetAccess] = useState("");
-  AsyncStorage.getItem("accessToken", (errs, result) => {
-    if (!errs && result != null) {
-      if (result !== null) {
-        SetAccess(result);
+  const isSaved = async (item) => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/isSaved/postId/" +
+          item.id,
+        {
+          method: "GET",
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+      if (response.ok) {
+        const json = await response.json();
+        if (json != null) {
+          navigation.navigate("ProductHome", {
+            post: item,
+            screen: screen,
+            savedInitial: json.isSaved,
+          });
+        }
+        console.log("ok");
+      } else {
+        const json = await response.json();
+
+        console.log(accessToken);
       }
+    } catch (error) {
+      console.log(error);
+      console.log(accessToken);
+      console.log(item.id);
+      console.log(userId);
     }
-  });
+  };
   const renderItem = ({ item }) => {
     return (
       <ProductCard
         title={item.title}
         price={item.price}
         image={item.images ? item.images[0] : null}
-        onPress={() => {
-          navigation.navigate("ProductHome", {
-            post: item,
-            screen: screen,
-            savedInitial: false,
-          });
-        }}
+        onPress={() => isSaved(item)}
       />
     );
   };
@@ -75,7 +103,12 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
         showsVerticalScrollIndicator={false}
         refreshControl={
           onRefresh && (
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl
+              tintColor={"#DE6CD3"}
+              colors={["#DE6CD3"]}
+              refreshing={false}
+              onRefresh={onRefresh}
+            />
           )
         }
       >

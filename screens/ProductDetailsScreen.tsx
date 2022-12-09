@@ -12,8 +12,6 @@ import {
   View,
   TouchableOpacity,
   Text,
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
   Platform,
   Image,
@@ -21,8 +19,7 @@ import {
   Share,
 } from "react-native";
 import SlidingUpPanel from "rn-sliding-up-panel";
-import GreyButton from "../components/GreyButton";
-import { menuBarTop } from "../constants/Layout";
+import Layout, { menuBarTop } from "../constants/Layout";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
@@ -122,10 +119,10 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "500",
     textAlign: "center",
-    fontFamily: "Rubik-Regular",
+    fontFamily: "Rubik-Medium",
   },
   button1: {
     width: 230,
@@ -138,7 +135,7 @@ const styles = StyleSheet.create({
 
   buttonText2: {
     color: "black",
-    fontSize: 16,
+    fontSize: 18,
     textAlign: "center",
     fontWeight: "500",
     fontFamily: "Rubik-Medium",
@@ -178,11 +175,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const [userId, setUserId] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
-  const [sellerVenmo, setSellerVenmo] = useState("");
 
   const [profileImage, setProfileImage] = useState("");
   const [modalVisibility, setModalVisibility] = useState(false);
-
+  const [accessToken, setAccessToken] = useState("");
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result != undefined) {
+        setAccessToken(result);
+      }
+    }
+  });
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
       if (result !== null && result !== undefined) {
@@ -240,7 +243,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setSellerName(
         userResult.user.givenName + " " + userResult.user.familyName
       );
-      setSellerVenmo(userResult.user.venmoHandle);
       setProfileImage(userResult.user.photoUrl);
       setSellerEmail(userResult.user.email);
     } catch (error) {
@@ -264,44 +266,65 @@ export default function ProductDetailsScreen({ route, navigation }) {
       }
     } catch (error) {}
   };
-  fetchIsSaved();
+  useEffect(() => {
+    fetchIsSaved();
+  }, [userId]);
 
   const save = async () => {
     try {
       const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/save/userId/" +
-          userId +
-          "/postId/" +
-          post.id
+        "https://resell-dev.cornellappdev.com/api/post/save/postId/" + post.id,
+        {
+          method: "POST",
+          headers: {
+            Authorization: accessToken,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
       );
-      const json = await response.json();
-      setIsSaved(json.isSaved);
-    } catch (error) {}
+      setIsSaved(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const unsave = async () => {
     try {
       const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/unsave/userId/" +
-          userId +
-          "/postId/" +
-          post.id
+        "https://resell-dev.cornellappdev.com/api/post/unsave/postId/" +
+          post.id,
+        {
+          method: "POST",
+          headers: {
+            Authorization: accessToken,
+
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
       );
-      const json = await response.json();
-      setIsSaved(json.isSaved);
-    } catch (error) {}
+      setIsSaved(false);
+    } catch (error) {
+      console.log(error);
+      alert("sadUnsave");
+    }
   };
 
   const onShare = async () => {
     try {
       const result = await Share.share({
+        title: "Check out this " + post.title + "on Resell",
         message:
           "Check out this " +
           post.title +
           " posted by " +
           sellerName +
-          " on Cornell Appdev Resell App, it's only for " +
-          post.price,
+          ". It's only for $" +
+          post.price +
+          ". Following the link if you have Resell already downloaded:/n" +
+          "resell://product/" +
+          post.id,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -316,21 +339,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
       alert(error.message);
     }
   };
-  const [accessToken, setAccessToken] = useState("");
 
-  AsyncStorage.getItem("accessToken", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setAccessToken(result);
-      }
-    }
-  });
   const sPanel = useRef<SlidingUpPanel | null>(null);
   useEffect(() => {
     if (sPanel.current !== null) {
       sPanel.current.show(
         Dimensions.get("window").height -
-          Math.min(400, Dimensions.get("window").width * maxImgRatio - 40)
+          Math.min(400, Layout.window.width * maxImgRatio - 40)
       );
     }
     // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
@@ -370,6 +385,34 @@ export default function ProductDetailsScreen({ route, navigation }) {
     });
   };
 
+  const archivePost = () => {
+    fetch(
+      "https://resell-dev.cornellappdev.com/api/post/archive/postId/" + post.id,
+      {
+        method: "POST",
+        headers: {
+          Authorization: accessToken,
+
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    ).then(function (response) {
+      alert(JSON.stringify(response));
+
+      if (!response.ok) {
+        console.log("sad");
+        let error = new Error(response.statusText);
+        throw error;
+      } else {
+        console.log("archived");
+        setModalVisibility(false);
+        navigation.goBack();
+        return response.json();
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -382,7 +425,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <BackButton />
       </TouchableOpacity>
-      {screen === "Profile" && (
+      {(screen === "Profile" || screen === "Archived") && (
         <TouchableOpacity
           activeOpacity={pressedOpacity}
           style={styles.trashButton}
@@ -440,36 +483,55 @@ export default function ProductDetailsScreen({ route, navigation }) {
           />
         </View>
       </SlidingUpPanel>
-      {screen != "Profile" && sellerEmail != auth?.currentUser?.email && (
-        <View style={styles.greyButton}>
-          <PurpleButton
-            onPress={() => {
-              historyRef
-                .doc(auth?.currentUser?.email)
-                .collection("sellers")
-                .doc(sellerEmail)
-                .update({ viewed: true });
-              navigation.navigate("ChatWindow", {
-                name: sellerName,
-                receiverImage: profileImage,
-                venmo: sellerVenmo,
-                email: sellerEmail,
-                post: post,
-                isBuyer: true,
-                screen: "product",
-              });
-            }}
-            text={"Contact Seller"}
-            enabled={true}
+      {screen != "Profile" &&
+        screen != "Archived" &&
+        sellerEmail != auth?.currentUser?.email && (
+          <View style={styles.greyButton}>
+            <PurpleButton
+              onPress={async () => {
+                var confirmedTime = "";
+                var confirmedViewed = false;
+
+                const myHistoryRef = await historyRef
+                  .doc(auth?.currentUser?.email)
+                  .collection("sellers")
+                  .doc(sellerEmail);
+                const doc = await myHistoryRef.get();
+                if (doc.exists) {
+                  console.log(doc.data());
+                  historyRef
+                    .doc(auth?.currentUser?.email)
+                    .collection("sellers")
+                    .doc(sellerEmail)
+                    .update({ viewed: true });
+                  confirmedTime = doc.data().confirmedTime;
+                  confirmedViewed = doc.data().confirmedViewed;
+                }
+
+                navigation.navigate("ChatWindow", {
+                  name: sellerName,
+                  receiverImage: profileImage,
+                  email: sellerEmail,
+                  post: post,
+                  isBuyer: true,
+                  confirmedTime: confirmedTime,
+                  confirmedViewed: confirmedViewed,
+                  screen: "product",
+                });
+              }}
+              text={"Contact Seller"}
+              enabled={true}
+            />
+          </View>
+        )}
+      {screen != "Profile" &&
+        screen != "Archived" &&
+        sellerEmail != auth?.currentUser?.email && (
+          <LinearGradient
+            colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
+            style={styles.bottomGradient}
           />
-        </View>
-      )}
-      {screen != "Profile" && sellerEmail != auth?.currentUser?.email && (
-        <LinearGradient
-          colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
-          style={styles.bottomGradient}
-        />
-      )}
+        )}
       <Modal
         isVisible={modalVisibility}
         backdropOpacity={0.2}
@@ -478,9 +540,14 @@ export default function ProductDetailsScreen({ route, navigation }) {
         }}
         style={{ justifyContent: "flex-end", margin: 0 }}
       >
-        <View style={styles.modal}>
+        <View
+          style={[
+            styles.modal,
+            screen == "Archived" && { paddingBottom: "10%" },
+          ]}
+        >
           <Text style={[styles.buttonText2, { padding: "3%" }]}>
-            Delete Listing?
+            Delete Listing Permanently?
           </Text>
           <TouchableOpacity
             onPress={() => {
@@ -491,15 +558,19 @@ export default function ProductDetailsScreen({ route, navigation }) {
               <Text style={styles.buttonText}> Delete</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisibility(false);
-            }}
-          >
-            <View style={styles.button1}>
-              <Text style={styles.buttonText2}> Cancel</Text>
-            </View>
-          </TouchableOpacity>
+          {screen != "Archived" && (
+            <TouchableOpacity
+              onPress={() => {
+                archivePost();
+              }}
+            >
+              <View style={styles.button1}>
+                <Text style={[styles.buttonText, { color: "#000000" }]}>
+                  Archive Only
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </Modal>
     </View>

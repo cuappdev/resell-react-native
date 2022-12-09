@@ -1,23 +1,25 @@
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "./store";
 
-const initialState = {
-    signedIn:false
-}
+export const SignInSlice = createSlice({
+  name: "signedIn",
+  initialState: { signedIn: false, accessToken: "" },
+  reducers: {
+    login: (state, action: PayloadAction<string>) => {
+      state.signedIn = true;
+      state.accessToken = action.payload;
+      return state;
+    },
+    logout: (state, action: PayloadAction) => {
+      state.signedIn = false;
+      state.accessToken = "";
 
-const signInReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case 'LOG_IN':
-            return {
-                ...state,
-                signedIn:action.payload
-            }
-        case 'LOG_OUT':
-            return {
-                ...state,
-                signedIn:action.payload
-            }
-        default: 
-            return state
-    }
-}
+      return state;
+    },
+  },
+});
+export const signedInState = (state: RootState) => state;
 
-export default signInReducer;
+export const { login, logout } = SignInSlice.actions;
+export default SignInSlice.reducer;

@@ -19,17 +19,14 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button,
   Platform,
   NativeModules,
-  SafeAreaView,
   StatusBar,
 } from "react-native";
 
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-import ModalScreen from "../screens/ModalScreen";
-import NotFoundScreen from "../screens/NotFoundScreen";
+
 import NotificationPreferencesScreen from "../screens/NotificationPreferencesScreen";
 import HomeScreen from "../screens/HomeScreen";
 import SavedScreen from "../screens/SavedScreen";
@@ -48,9 +45,8 @@ import {
   ProfileStackParamList,
   OnboardStackParamList,
   ChatStackParamList,
-} from "../types";
+} from "./types";
 import LinkingConfiguration from "./LinkingConfiguration";
-import PostScreen from "../screens/PostScreen";
 import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import Home from "../assets/svg-components/home";
 import ClickedHome from "../assets/svg-components/home_clicked";
@@ -69,9 +65,12 @@ import OnBoardScreen from "../screens/OnBoardScreen";
 import ChatWindow from "../screens/ChatWindow";
 import { NewPostImage } from "../screens/NewPostImage";
 import { NewPostDetail } from "../screens/NewPostDetail";
-import Edit from "../assets/svg-components/edit";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import Venmo from "../assets/svg-components/venmo";
+import { useSelector } from "react-redux";
+import RequestMatches from "../screens/RequestMatches";
+import { fonts } from "../globalStyle/globalFont";
+import { NewRequestScreen } from "../screens/NewRequest";
 
 export default function Navigation({
   colorScheme,
@@ -138,14 +137,8 @@ function RootNavigator({ onboard }) {
         component={BottomTabNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="NotFound"
-        component={NotFoundScreen}
-        options={{ title: "Oops!" }}
-      />
-      <Stack.Group>
-        <Stack.Screen name="Modal" component={ModalScreen} />
 
+      <Stack.Group>
         <Stack.Screen
           name="NewPostImage"
           options={({ navigation }) => ({
@@ -169,7 +162,7 @@ function RootNavigator({ onboard }) {
                     style={{
                       position: "absolute",
                       right: 20,
-                      alignItems: "flex-end",
+                      alignItems: "center",
                       justifyContent: "center",
                       height: 50,
                       width: 50,
@@ -183,9 +176,7 @@ function RootNavigator({ onboard }) {
                       style={{ marginStart: 18 }}
                     />
                   </TouchableOpacity>
-                  <Text style={{ fontFamily: "Rubik-Medium", fontSize: 20 }}>
-                    New Listing
-                  </Text>
+                  <Text style={fonts.pageHeading3}>New Listing</Text>
                 </View>
               );
             },
@@ -215,7 +206,7 @@ function RootNavigator({ onboard }) {
                     style={{
                       position: "absolute",
                       left: 24,
-                      alignItems: "flex-start",
+                      alignItems: "center",
                       justifyContent: "center",
                       width: 50,
                       height: 50,
@@ -224,15 +215,13 @@ function RootNavigator({ onboard }) {
                   >
                     <AntDesign name="left" size={24} color="black" />
                   </TouchableOpacity>
-                  <Text style={{ fontFamily: "Rubik-Medium", fontSize: 20 }}>
-                    New Listing
-                  </Text>
+                  <Text style={fonts.pageHeading3}>New Listing</Text>
                   <TouchableOpacity
                     activeOpacity={pressedOpacity}
                     style={{
                       position: "absolute",
                       right: 20,
-                      alignItems: "flex-end",
+                      alignItems: "center",
                       justifyContent: "center",
                       width: 50,
                       height: 50,
@@ -246,6 +235,46 @@ function RootNavigator({ onboard }) {
             },
           })}
           component={NewPostDetail}
+        />
+
+        <Stack.Screen
+          name="NewRequest"
+          options={({ navigation }) => ({
+            headerShadowVisible: false,
+            headerStyle: styles.headerNoShadow,
+            headerBackVisible: false,
+            headerTitleAlign: "center",
+            header: () => {
+              return (
+                <View
+                  style={{
+                    height: 70,
+                    backgroundColor: "#ffffff",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: Platform.OS === "ios" ? 35 : 0,
+                  }}
+                >
+                  <Text style={fonts.pageHeading3}>Request Details</Text>
+                  <TouchableOpacity
+                    activeOpacity={pressedOpacity}
+                    style={{
+                      position: "absolute",
+                      right: 20,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 50,
+                      height: 50,
+                    }}
+                    onPress={() => navigation.navigate("Root")}
+                  >
+                    <AntDesign name="close" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              );
+            },
+          })}
+          component={NewRequestScreen}
         />
         <Stack.Screen
           name="ProductHome"
@@ -318,13 +347,74 @@ function ProfileNavigator({ navigation }) {
   return (
     <ProfileStack.Navigator
       screenOptions={{
-        headerShown: false,
         contentStyle: {
           backgroundColor: "#FFFFFF",
         },
       }}
     >
-      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+      <ProfileStack.Screen
+        options={{
+          headerShown: false,
+        }}
+        name="Profile"
+        component={ProfileScreen}
+      />
+      <ProfileStack.Screen
+        name="RequestMatches"
+        options={({ navigation, route }) => ({
+          headerShadowVisible: false,
+          headerStyle: styles.headerNoShadow,
+          headerBackVisible: false,
+          headerTitleAlign: "center",
+
+          header: () => {
+            return (
+              <View
+                style={{
+                  height: 70,
+                  backgroundColor: "#ffffff",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: Platform.OS === "ios" ? 35 : 0,
+                }}
+              >
+                <View
+                  style={{
+                    width: "100%",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 24,
+                    marginBottom: 24,
+                  }}
+                >
+                  <Text
+                    style={[
+                      fonts.pageHeading2,
+                      { width: 170, height: 52, marginTop: 8 },
+                    ]}
+                  >
+                    {(route.params as any).title + " Request Matches"}
+                  </Text>
+
+                  <TouchableOpacity
+                    style={{
+                      width: 50,
+                      alignItems: "center",
+                      height: 50,
+                      justifyContent: "center",
+                    }}
+                    onPress={() => navigation.goBack()}
+                  >
+                    <AntDesign name="close" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          },
+        })}
+        component={RequestMatches}
+      />
+
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
@@ -346,7 +436,13 @@ function ProfileNavigator({ navigation }) {
           headerShown: false,
         }}
       />
-      <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
+      <ProfileStack.Screen
+        name="EditProfile"
+        options={{
+          headerShown: false,
+        }}
+        component={EditProfileScreen}
+      />
     </ProfileStack.Navigator>
   );
 }
@@ -394,15 +490,7 @@ function OnboardNavigator({ navigation }) {
                   marginTop: Platform.OS === "ios" ? 35 : 0,
                 }}
               >
-                <Text
-                  style={{
-                    fontFamily: "Roboto-Medium",
-                    fontSize: 18,
-                    fontWeight: "bold",
-                  }}
-                >
-                  Set up your profile
-                </Text>
+                <Text style={fonts.pageHeading3}>Set up your profile</Text>
               </View>
             );
           },
@@ -432,7 +520,7 @@ function OnboardNavigator({ navigation }) {
                   style={{
                     position: "absolute",
                     left: 24,
-                    alignItems: "flex-start",
+                    alignItems: "center",
                     justifyContent: "center",
                     width: 50,
                     height: 50,
@@ -448,16 +536,7 @@ function OnboardNavigator({ navigation }) {
                     alignItems: "center",
                   }}
                 >
-                  <Text
-                    style={{
-                      fontFamily: "Roboto-Medium",
-                      fontSize: 18,
-                      fontWeight: "bold",
-                      marginEnd: 6,
-                    }}
-                  >
-                    Link your
-                  </Text>
+                  <Text style={fonts.pageHeading3}>Link your </Text>
 
                   <Venmo style={{ marginTop: 3 }} />
                 </View>
@@ -520,15 +599,16 @@ export function BottomTabNavigator({ route }) {
           title: "",
           tabBarShowLabel: false,
           headerStyle: styles.headerNoShadow,
-          headerLeft: () => <Text style={styles.savedHeader}>Saved</Text>,
-          // headerRight: () => (
-          //   <TouchableOpacity
-          //     activeOpacity={pressedOpacity}
-          //     style={{ marginRight: 20 }}
-          //   >
-          //     <HeaderIcon name="search" color="black" size={24} />
-          //   </TouchableOpacity>
-          // ),
+          headerLeft: () => (
+            <Text
+              style={[
+                fonts.pageHeading1,
+                { marginStart: 24, marginTop: 8, marginEnd: -24 },
+              ]}
+            >
+              Saved
+            </Text>
+          ),
         })}
       />
       <BottomTab.Screen
@@ -539,7 +619,16 @@ export function BottomTabNavigator({ route }) {
           tabBarShowLabel: false,
           title: "",
 
-          headerLeft: () => <Text style={styles.savedHeader}>Messages</Text>,
+          headerLeft: () => (
+            <Text
+              style={[
+                fonts.pageHeading1,
+                { marginStart: 24, marginTop: 8, marginEnd: -24 },
+              ]}
+            >
+              Messages
+            </Text>
+          ),
         })}
       />
       <BottomTab.Screen
@@ -576,34 +665,6 @@ const styles = StyleSheet.create({
   },
   noHeader: {
     height: 0,
-  },
-  savedHeader: {
-    fontFamily: "Rubik-Medium",
-    fontStyle: "normal",
-    fontWeight: "500",
-    fontSize: 32,
-    lineHeight: 38,
-    marginStart: 24,
-    marginTop: 8,
-    marginEnd: -24,
-  },
-  chatHeader: {
-    fontFamily: "Rubik-Medium",
-    fontStyle: "normal",
-    fontWeight: "500",
-    fontSize: 20,
-    lineHeight: 24,
-    color: "#000000",
-    textAlign: "center",
-  },
-  chatSubheader: {
-    fontFamily: "Rubik-Medium",
-    fontStyle: "normal",
-    fontWeight: "500",
-    fontSize: 14,
-    lineHeight: 17,
-    color: "#787878",
-    textAlign: "center",
   },
 });
 export function HeaderIcon(props: {

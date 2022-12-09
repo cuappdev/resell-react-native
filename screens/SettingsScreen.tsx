@@ -13,15 +13,17 @@ import Logout from "../assets/svg-components/logout";
 import Edit from "../assets/svg-components/edit";
 import Notifications from "../assets/svg-components/notifications";
 import Feedback from "../assets/svg-components/feedback";
-import { HeaderIcon } from "../navigation";
 import { Feather } from "@expo/vector-icons";
 import Modal from "react-native-modal";
-import PurpleButton from "../components/PurpleButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import NetworkLogger from "react-native-network-logger";
-import { useDispatch } from "react-redux";
-import { logout } from "../state_manage/actions/signInActions";
+
+import { useDispatch, useSelector } from "react-redux";
 import { auth } from "../config/firebase";
+import { logout } from "../state_manage/reducers/signInReducer";
+import {
+  getUserId,
+  storeEmail,
+  storeSignedIn,
+} from "../utils/asychStorageFunctions";
 
 const styles = StyleSheet.create({
   container: {
@@ -113,21 +115,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function 
-SettingsScreen({ navigation }) {
+export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
   const log_out = () => dispatch(logout());
 
   const [modalVisibility, setModalVisibility] = useState(false);
   const [userId, setUserId] = useState("");
 
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
+  getUserId(setUserId);
 
   const getUser = async () => {
     try {
@@ -137,7 +132,6 @@ SettingsScreen({ navigation }) {
       if (response.ok) {
         const json = await response.json();
         const user = json.user;
-        console.log(user);
         navigation.navigate("EditProfile", {
           initialRealname: user.givenName + " " + user.familyName,
           initialUsername: user.username,
@@ -219,12 +213,11 @@ SettingsScreen({ navigation }) {
           </Text>
           <TouchableOpacity
             onPress={async () => {
-              try {
-                await AsyncStorage.setItem("SignedIn", "false");
-              } catch (e) {
-                console.log(e);
-              }
+              storeSignedIn("false");
+              storeEmail("");
+
               log_out();
+
               auth
                 .signOut()
                 .then(() => {})
