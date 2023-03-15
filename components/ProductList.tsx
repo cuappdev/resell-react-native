@@ -61,6 +61,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
         console.log("ok");
       } else {
         const json = await response.json();
+        console.log("NoProduct");
 
         console.log(accessToken);
       }

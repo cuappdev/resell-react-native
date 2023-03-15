@@ -12,8 +12,7 @@ import {
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ButtonBanner } from "../components/ButtonBanner";
-// import * as Notifications from "expo-notifications";
-
+import { Subscription } from "expo-modules-core";
 import NoticeBanner from "../components/NoticeBanner";
 import { Bubble, GiftedChat, Message } from "react-native-gifted-chat";
 import { NegotiationModal } from "../components/NegotiationModal";
@@ -35,6 +34,77 @@ import BuyerSyncModal from "../components/BuyerSyncModal";
 import SellerConfirmModal from "../components/SellerConfirmModal";
 import SellerSyncModal from "../components/SellerSyncModal";
 import MeetingDetailModal from "../components/MeetingDetailModal";
+import * as Device from "expo-device";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
+// const triggerNotifications = async () => {
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title: "Check out these items! ",
+//       body: "You got 5 items related to your request.",
+//     },
+//     trigger: { seconds: 2 },
+//   });
+// };
+
+async function sendPushNotification(expoPushToken, title, body, data) {
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title: title,
+    body: body,
+    data: data,
+  };
+
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
+}
 export default function ChatWindow({ navigation, route }) {
   const {
     email,
@@ -82,43 +152,40 @@ export default function ChatWindow({ navigation, route }) {
   const [BuyerSyncVisible, setBuyerSyncVisible] = React.useState(false);
   const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
   const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-    }),
-  });
 
-  // useEffect(() => {
-  //   if (selectTime != "") {
+  interface notification {
+    request;
+  }
 
-  //     console.log("hereSync");
-  //   }
-  // }, [selectTime]);
-  const triggerNotifications = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Check out these items! ",
-        body: "You got 5 items related to your request.",
-      },
-      trigger: { seconds: 2 },
-    });
-  };
-  // const [notification, setNotification] = useState(false);
-  // const notificationListener = useRef();
-  // useEffect(() => {
-  //   notificationListener.current =
-  //     Notifications.addNotificationReceivedListener((notification) => {
-  //       setNotification(notification);
-  //     });
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] =
+    useState<Notifications.Notification>();
+  const notificationListener = useRef<Subscription>();
+  const responseListener = useRef<Subscription>();
 
-  //   return () => {
-  //     Notifications.removeNotificationSubscription(
-  //       notificationListener.current
-  //     );
-  //   };
-  // }, []);
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
+
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
+
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
   useEffect(() => {
     if (isSendingAvailability && text.length > 0) {
       setPlaceholder(text);

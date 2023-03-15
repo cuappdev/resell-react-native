@@ -24,6 +24,7 @@ import {
   storeEmail,
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const styles = StyleSheet.create({
   container: {
@@ -215,6 +216,7 @@ export default function SettingsScreen({ navigation }) {
             onPress={async () => {
               storeSignedIn("false");
               storeEmail("");
+              AsyncStorage.clear();
 
               log_out();
 
