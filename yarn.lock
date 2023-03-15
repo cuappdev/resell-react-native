@@ -6194,7 +6194,7 @@ dot-prop@^5.2.0:
   dependencies:
     is-obj "^2.0.0"
 
-dotenv@^16.0.2:
+dotenv@^16.0.2, dotenv@^16.0.3:
   version "16.0.3"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.3.tgz#115aec42bac5053db3c456db30cc243a5a836a07"
   integrity sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==
@@ -6704,6 +6704,13 @@ expo-crypto@~11.0.0:
   resolved "https://registry.yarnpkg.com/expo-crypto/-/expo-crypto-11.0.0.tgz#e434ebede6bae20f5a5cf7d7ea99d41e7b67690e"
   integrity sha512-EH1Ikcy/HxfLJpo+zVRic4Igl6AovZEksAheKfeM2u+2TfL3FEBiQo+cGkuIa8NQ9ui3xYqQcyMk+IIZ6AO0Xg==
 
+expo-device@~4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/expo-device/-/expo-device-4.3.0.tgz#a25257febe8dd18378f556ef61b5ff73ee687a6b"
+  integrity sha512-NRmsEuZVxx0EvD/dHZdng87wDgN9msfyjqp5DbNIyzvMGhxOrGtE/iEivvMyOdQpVotHGK8rBRbFKJzOtYB5lg==
+  dependencies:
+    ua-parser-js "^0.7.19"
+
 expo-error-recovery@~3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/expo-error-recovery/-/expo-error-recovery-3.2.0.tgz#3a4543382904a5e70829cb41d7fc0f022c2bef6e"
@@ -6826,7 +6833,7 @@ expo-modules-core@0.11.9, expo-modules-core@^0.11.5:
     compare-versions "^3.4.0"
     invariant "^2.2.4"
 
-expo-notifications@^0.16.1:
+expo-notifications@~0.16.1:
   version "0.16.1"
   resolved "https://registry.yarnpkg.com/expo-notifications/-/expo-notifications-0.16.1.tgz#4e6c74fb6b3aa615a36f587e0fd4876ca48ecf91"
   integrity sha512-GYXZnR5VCU79tM/2senPJ0jWq04PFAvh3chFYaz9qvUjJwl/AV/BQz0xOUNXGXmm8nBf6FA8B4exDV8h4KhV6g==
@@ -13000,6 +13007,13 @@ react-native-communications@^2.2.1:
   resolved "https://registry.yarnpkg.com/react-native-communications/-/react-native-communications-2.2.1.tgz#7883b56b20a002eeb790c113f8616ea8692ca795"
   integrity sha512-5+C0X9mopI0+qxyQHzOPEi5v5rxNBQjxydPPiKMQSlX1RBIcJ8uTcqUPssQ9Mo8p6c1IKIWJUSqCj4jAmD0qVQ==
 
+react-native-dotenv@^3.4.8:
+  version "3.4.8"
+  resolved "https://registry.yarnpkg.com/react-native-dotenv/-/react-native-dotenv-3.4.8.tgz#42284070a9994076cd700805c2dd28051c9e1432"
+  integrity sha512-fg9F8X/cG1kDTwRLgLz3t+AMbsULoFHbUVltdQarmrJ3kNllD1Zq7ZgY85bp8BnPwk0DnYQzKbooiLsUoKd10w==
+  dependencies:
+    dotenv "^16.0.3"
+
 react-native-elements@^3.4.2:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/react-native-elements/-/react-native-elements-3.4.2.tgz#66602be9c5e0e0a2a831913adec80ff6518d1ee2"
@@ -13125,15 +13139,15 @@ react-native-reanimated@~2.9.1:
     setimmediate "^1.0.5"
     string-hash-64 "^1.0.3"
 
-react-native-root-siblings@^4.0.0:
+react-native-root-siblings@^4.0.0, react-native-root-siblings@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/react-native-root-siblings/-/react-native-root-siblings-4.1.1.tgz#b7742db7634a87f507eb99a5fd699c4f10c46ab0"
   integrity sha512-sdmLElNs5PDWqmZmj4/aNH4anyxreaPm61c4ZkRiR8SO/GzLg6KjAbb0e17RmMdnBdD0AIQbS38h/l55YKN4ZA==
 
-react-native-root-toast@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/react-native-root-toast/-/react-native-root-toast-3.4.0.tgz#f5fedc06c80b0ed20a93be8832d32e9a67762187"
-  integrity sha512-2jv9XG9tK0rbXkD3IaO/clSJJQYXRnOCnGliZnYP/Z6I3u2QtdOp5xQ/ni8BbLqpPwSeKfCuO7R9H6iHuAN+Ig==
+react-native-root-toast@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/react-native-root-toast/-/react-native-root-toast-3.3.1.tgz#f1eef0692f9e516b040ddd943ae0730fde44b8b0"
+  integrity sha512-+3BoxU3672VtmISDgIkjQ/l4qsisKMkl6j6Syc325q+QqDxoOxnDD1cWUUrtRgefbYqDCfcAWfX958BtplBIMg==
   dependencies:
     deprecated-react-native-prop-types "^2.3.0"
     prop-types "^15.5.10"
@@ -15266,6 +15280,11 @@ typescript@^4.6.3:
   version "4.9.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.3.tgz#3aea307c1746b8c384435d8ac36b8a2e580d85db"
   integrity sha512-CIfGzTelbKNEnLpLdGFgdyKhG23CKdKgQPOBc+OUNrkJ2vr+KSzsSV5kq5iWhEQbok+quxgGzrAtGWCyU7tHnA==
+
+ua-parser-js@^0.7.19:
+  version "0.7.33"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.33.tgz#1d04acb4ccef9293df6f70f2c3d22f3030d8b532"
+  integrity sha512-s8ax/CeZdK9R/56Sui0WM6y9OFREJarMRHqLB2EwkovemBxNQ+Bqu8GAsUnVcXKgphb++ghr/B2BZx4mahujPw==
 
 ua-parser-js@^0.7.30:
   version "0.7.32"

@@ -18,6 +18,7 @@ import PurpleButton from "../components/PurpleButton";
 import { useIsFocused } from "@react-navigation/native";
 import { fonts } from "../globalStyle/globalFont";
 import { getAccessToken, getUserId } from "../utils/asychStorageFunctions";
+import { auth } from "../config/firebase";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -39,7 +40,7 @@ export default function HomeScreen({ navigation, route }) {
       filterPostsIngress(FILTER[count].title);
     }
   }, [isFocused]);
-
+  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
   useEffect(() => {
     if (count == 0) {
       getPosts();

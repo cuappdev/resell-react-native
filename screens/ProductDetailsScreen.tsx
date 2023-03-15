@@ -310,6 +310,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       alert("sadUnsave");
     }
   };
+  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
 
   const onShare = async () => {
     try {

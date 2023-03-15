@@ -49,7 +49,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.cornellappdev.resell",
-      buildNumber: "2.0.1",
+      buildNumber: "2.0.2",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
         NSRemindersUsageDescription: "Allow Resell to access your reminders",

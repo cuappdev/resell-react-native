@@ -9,7 +9,6 @@ Logs.enableExpoCliLogging();
 import * as Google from "expo-auth-session/providers/google";
 import { auth, userRef } from "../config/firebase";
 import { useDispatch, useSelector } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import Header from "../assets/svg-components/header";
 import PurpleButton from "../components/PurpleButton";
@@ -28,7 +27,6 @@ import {
   storeSignedIn,
   storeUserId,
 } from "../utils/asychStorageFunctions";
-import { ResponseType } from "expo-auth-session";
 export default function SignIn() {
   const [request, result, promptAsync] = Google.useIdTokenAuthRequest({
     expoClientId:
@@ -62,14 +60,12 @@ export default function SignIn() {
 
   const colorScheme = useColorScheme();
   const [onBoard, setOnBoarded] = useState(false);
-  // const [showPagination, setShowPagination] = useState(true);
 
   useEffect(() => {
     getSignedIn(setSigned);
     getEmail(setEmail);
     console.log("email", email);
     console.log("signedIn", isSignedIn);
-    console.log(userId);
 
     if (email !== "" && isSignedIn) {
       getUserId(setUserId);
@@ -114,7 +110,6 @@ export default function SignIn() {
               photoUrl: json.picture,
             },
           };
-          console.log(userProfile);
           postRequest(userProfile);
         }
       })
@@ -164,11 +159,6 @@ export default function SignIn() {
               setOnBoarded(doc.data().onboarded);
             }
           }
-          log_in({
-            accessToken: json.accessToken,
-            userId: json.userId,
-            email: result.user.email,
-          });
           storeAccessToken(json.accessToken);
           storeUserId(json.userId);
           storeEmail(result.user.email);
