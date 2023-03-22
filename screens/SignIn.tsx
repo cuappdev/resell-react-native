@@ -29,6 +29,10 @@ import {
   storeUserId,
 } from "../utils/asychStorageFunctions";
 export default function SignIn() {
+  console.log("expo", api.EXPO_CLIENT_ID);
+  console.log("expo", api.ANDROID_CLIENT_ID);
+  console.log("expo", api.IOS_CLIENT_ID);
+
   const [request, result, promptAsync] = Google.useIdTokenAuthRequest({
     expoClientId: api.EXPO_CLIENT_ID,
     iosClientId: api.IOS_CLIENT_ID,
