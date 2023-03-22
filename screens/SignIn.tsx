@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import useColorScheme from "../hooks/useColorScheme";
 import Navigation from "../navigation";
 import { Logs } from "expo";
+import api from "../config/config";
 
 Logs.enableExpoCliLogging();
 import * as Google from "expo-auth-session/providers/google";
@@ -29,10 +30,9 @@ import {
 } from "../utils/asychStorageFunctions";
 export default function SignIn() {
   const [request, result, promptAsync] = Google.useIdTokenAuthRequest({
-    expoClientId:
-      "947198045768-i9tuc7gvs6hipq2uid5pove59pdlh9jm.apps.googleusercontent.com",
-    iosClientId: `947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com`,
-    androidClientId: `947198045768-miln50ernorl8s7kqibnpp59hoklor3n.apps.googleusercontent.com`,
+    expoClientId: api.EXPO_CLIENT_ID,
+    iosClientId: api.IOS_CLIENT_ID,
+    androidClientId: api.IOS_CLIENT_ID,
     // iosStandaloneAppClientId:
     //   "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
     // androidStandaloneAppClientId:
