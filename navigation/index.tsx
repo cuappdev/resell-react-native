@@ -372,7 +372,6 @@ function ProfileNavigator({ navigation }) {
               <View
                 style={{
                   height: 70,
-                  backgroundColor: "#ffffff",
                   justifyContent: "center",
                   alignItems: "center",
                   marginTop: Platform.OS === "ios" ? 35 : 0,
