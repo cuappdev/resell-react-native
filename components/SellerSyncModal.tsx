@@ -1,18 +1,44 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-native-modal";
-import { Dimensions, StyleSheet, Text, View, Platform } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  Alert,
+} from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import * as Calendar from "expo-calendar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Toast from "react-native-root-toast";
+import { fonts } from "../globalStyle/globalFont";
+import moment from "moment";
+import { makeToast } from "../utils/Toast";
 export default function SellerSyncModal({
-  syncMeetingVisible,
-  setSyncMeetingVisible,
+  visible,
+  setVisible,
   eventTitle,
+  startDate,
 }) {
+  const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
+  const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
+  const endDate = moment(momentDate).add(30, "m");
+  const dateText = startText + "-" + endDate.format("h:mm a");
   const [calendarID, setCalendarID] = useState("");
-  const [selectedStartDate, setSelectedStartDate] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status === "granted") {
+        const calendars = await Calendar.getCalendarsAsync(
+          Calendar.EntityTypes.EVENT
+        );
+        console.log("Here are all your calendars:");
+        console.log({ calendars });
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     AsyncStorage.getItem("calendarID", (errs, result) => {
@@ -21,7 +47,6 @@ export default function SellerSyncModal({
           setCalendarID(result);
         } else {
           createCalendar();
-          setCalendarID(calendarID);
         }
       }
     });
@@ -34,6 +59,12 @@ export default function SellerSyncModal({
       console.log(e);
     }
   };
+
+  async function getDefaultCalendarSource() {
+    const defaultCalendar = await Calendar.getDefaultCalendarAsync();
+    return defaultCalendar.source;
+  }
+
   async function createCalendar() {
     const defaultCalendarSource: Calendar.Source =
       Platform.OS === "ios"
@@ -41,7 +72,7 @@ export default function SellerSyncModal({
         : { isLocalAccount: true, name: "Resell Appointments", type: "LOCAL" };
     const newCalendarID = await Calendar.createCalendarAsync({
       title: "Resell Appointments",
-      color: "blue",
+      color: "#9E70F6",
       entityType: Calendar.EntityTypes.EVENT,
       sourceId: defaultCalendarSource.id,
       source: defaultCalendarSource,
@@ -55,76 +86,64 @@ export default function SellerSyncModal({
     return newCalendarID;
   }
 
-  async function getDefaultCalendarSource() {
-    const calendars = await Calendar.getCalendarsAsync(
-      Calendar.EntityTypes.EVENT
-    );
-    const defaultCalendars = calendars.filter(
-      (each) => each.source.name === "Default"
-    );
-    return defaultCalendars.length
-      ? defaultCalendars[0].source
-      : calendars[0].source;
-  }
-
   const addNewEvent = async () => {
     try {
-      const startDate = "2022-11-03";
-      const startDateWithTime = new Date(startDate + "T11:30:00");
-      // const endDateWithTime = new Date(startDate + 'T12:30:00')
-      const endDateWithTime = new Date(startDate + "T12:30:00");
-      const res = await Calendar.createEventAsync(calendarID, {
-        endDate: startDateWithTime,
-        startDate: endDateWithTime,
+      const startDateWithTime = momentDate.toDate();
+      const endDateWithTime = endDate.toDate();
+      await Calendar.createEventAsync(calendarID, {
+        endDate: endDateWithTime,
+        startDate: startDateWithTime,
         title: eventTitle,
       });
-      console.log("added event: ", res);
+      console.log("added event: ", endDateWithTime);
       console.log("added event: ", startDateWithTime);
     } catch (e) {
+      makeToast("Cannot access your calendar!");
+
       console.log(e);
     }
   };
 
   return (
     <Modal //Confirm Meeting details
-      isVisible={syncMeetingVisible}
+      isVisible={visible}
       backdropOpacity={0.2}
       onBackdropPress={() => {
-        setSyncMeetingVisible(false);
+        setVisible(false);
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
       <View style={styles.slideUp}>
-        <Text style={styles.MeetingDetailsBoldText}>
+        <Text style={[fonts.pageHeading3]}>
           Sync meeting to Google Calendar?
         </Text>
-        <View style={styles.purpleButton}>
+        <View>
           <PurpleButton
             text={"Sync"}
             onPress={() => {
-              (async () => {
+              async () => {
                 const { status } =
                   await Calendar.requestCalendarPermissionsAsync();
                 if (status === "granted") {
                   addNewEvent();
-                  setSyncMeetingVisible(false);
+                  makeToast("Added event to your calendar!");
+
                   console.log("CalendarID: ", calendarID);
                 } else {
                   console.log("permission not granted");
-                  let toast = Toast.show("Calendar Permission not Granted", {
-                    duration: Toast.durations.LONG,
-                  });
+                  makeToast("Calendar Permission not Granted");
                 }
-              })();
+              };
+              setVisible(false);
             }}
             enabled={true}
           />
         </View>
 
         <Text
-          style={styles.MeetingDetailsBoldText}
+          style={fonts.Title2}
           onPress={() => {
-            setSyncMeetingVisible(false);
+            setVisible(false);
           }}
         >
           Cancel
@@ -138,21 +157,11 @@ const styles = StyleSheet.create({
   slideUp: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 220,
+    height: 240,
     backgroundColor: "#ffffff",
     width: "100%",
     marginHorizontal: 0,
     alignItems: "center",
-    padding: 35,
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  purpleButton: {
-    marginTop: 35,
-    marginBottom: 21,
-  },
-  MeetingDetailsBoldText: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 17,
+    justifyContent: "space-evenly",
   },
 });

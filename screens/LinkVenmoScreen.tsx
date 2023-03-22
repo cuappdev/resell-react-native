@@ -1,28 +1,34 @@
 import * as React from "react";
-import { StyleSheet, Text, View, TextInput } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
 import { menuBarTop } from "../constants/Layout";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState } from "react";
-import { auth } from "../config/firebase";
+import { useEffect, useState } from "react";
+import { auth, userRef } from "../config/firebase";
+import { userInfo } from "os";
+import { fonts } from "../globalStyle/globalFont";
+import { getAccessToken, storeOnboarded } from "../utils/asychStorageFunctions";
+import { useSelector } from "react-redux";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
-  const [accessToken, setAccessToken] = useState("");
 
-  AsyncStorage.getItem("accessToken", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setAccessToken(result);
-      }
-    }
-  });
+  const [accessToken, setAccessToken] = useState("");
+  useEffect(() => {
+    getAccessToken(setAccessToken);
+  }, []);
+
   const setOnboarded = async () => {
-    console.log(image);
+    // const accessToken = useSelector(getAccessToken);
     try {
-      await AsyncStorage.setItem("Onboarded", "true");
       const Json = JSON.stringify({
         photoUrlBase64: image,
         username: username,
@@ -39,9 +45,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
         },
         body: Json,
       })
-        .then(function (response) {
-          // alert(JSON.stringify(response));
-
+        .then((response) => {
           if (!response.ok) {
             let error = new Error(response.statusText);
             throw error;
@@ -50,23 +54,12 @@ export default function LinkVenmoScreen({ navigation, route }) {
           }
         })
         .then(async function (data) {
-          auth.currentUser
-            .updateProfile({
-              displayName: data.user.givenName + " " + data.user.familyName,
-              photoURL: data.user.photoUrl,
-            })
-            .then(() => {
-              // Profile updated!
-              // ...
-            })
-            .catch((error) => {
-              // An error occurred
-              // ...
-              alert(error);
-            });
-        })
-        .catch((error) => {
-          //alert(error.message);
+          auth.currentUser.updateProfile({
+            displayName: data.user.givenName + " " + data.user.familyName,
+            photoURL: data.user.photoUrl,
+          });
+          userRef.doc(data.user.email).set({ onboarded: true, venmo: venmo });
+          storeOnboarded("true");
         });
     } catch (e) {
       console.log(e);
@@ -74,48 +67,62 @@ export default function LinkVenmoScreen({ navigation, route }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.description}>
-        Your Venmo handle will only be visible to people interested in buying
-        your listing.
-      </Text>
-      <View style={{ flexDirection: "column", width: "100%" }}>
-        <Text style={styles.handle}>Venmo Handle</Text>
-        <TextInput
-          style={styles.username_input}
-          placeholderTextColor={"#707070"}
-          value={venmo}
-          onChangeText={(text) => setVenmo(text)}
-        />
-      </View>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
+        <Text style={[fonts.body1, { marginTop: 24, color: "#707070" }]}>
+          Your Venmo handle will only be visible to people interested in buying
+          your listing.
+        </Text>
+        <View style={{ flexDirection: "column", width: "100%" }}>
+          <Text style={styles.handle}>Venmo Handle</Text>
+          <TextInput
+            style={[
+              fonts.body2,
+              {
+                paddingTop: 10,
+                paddingBottom: 10,
+                paddingHorizontal: 15,
+                backgroundColor: "#F4F4F4",
+                borderRadius: 10,
+                marginBottom: 32,
+                width: "100%",
+                height: 40,
+              },
+            ]}
+            placeholderTextColor={"#707070"}
+            value={venmo}
+            onChangeText={(text) => setVenmo(text)}
+          />
+        </View>
 
-      <View style={styles.purpleButton}>
-        <PurpleButton
-          text={"Continue"}
-          onPress={() => {
-            navigation.navigate("Root", {
-              screen: "HomeTab",
-              params: { showPanel: true },
-            });
-            // setOnboarded();
-          }}
-          enabled={venmo.length > 0}
-        />
+        <View style={styles.purpleButton}>
+          <PurpleButton
+            text={"Continue"}
+            onPress={() => {
+              navigation.navigate("Root", {
+                screen: "HomeTab",
+                params: { showPanel: true },
+              });
+              setOnboarded();
+            }}
+            enabled={venmo.length > 0}
+          />
+        </View>
+        <View style={styles.skipButton}>
+          <SkipButton
+            text={"Skip"}
+            onPress={() => {
+              navigation.navigate("Root", {
+                screen: "HomeTab",
+                params: { showPanel: true },
+              });
+              setVenmo("");
+              setOnboarded();
+            }}
+          />
+        </View>
       </View>
-      <View style={styles.skipButton}>
-        <SkipButton
-          text={"Skip"}
-          onPress={() => {
-            navigation.navigate("Root", {
-              screen: "HomeTab",
-              params: { showPanel: true },
-            });
-            setVenmo("");
-            // setOnboarded();
-          }}
-        />
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -130,27 +137,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     height: "100%",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
-  titleText: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 18,
-    marginTop: 20,
-    fontWeight: "bold",
-  },
-  description: {
-    width: 320,
-    marginTop: 30,
-    color: "grey",
-    fontSize: 16,
-  },
+
   handle: {
     marginTop: 40,
     marginBottom: 10,
-    marginStart: 10,
     fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "Rubik-Regular",
+    fontFamily: "Rubik-Medium",
   },
   username_input: {
     backgroundColor: "#F4F4F4",
@@ -159,17 +153,7 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 10,
   },
-  bio: {
-    marginTop: 30,
-    marginRight: 320,
-    fontWeight: "bold",
-  },
-  bio_input: {
-    backgroundColor: "#F4F4F4",
-    width: "100%",
-    borderRadius: 10,
-    height: 40,
-  },
+
   purpleButton: {
     position: "absolute",
     alignItems: "center",

@@ -1,42 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
-import { StyleSheet, TouchableOpacity } from "react-native";
-import { Text, View } from "../components/Themed";
-import { SafeAreaView, Image } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import { LogBox } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+} from "react-native";
 
-import { ProductList } from "../components/ProductList";
+import { Image } from "react-native";
+import { LogBox } from "react-native";
+
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 // State imports
-import { setBio, setName } from "../state_manage/actions/profileScreenActions";
 import { useDispatch, useSelector } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import LoadingScreen from "./LoadingScreen";
 import { useIsFocused } from "@react-navigation/native";
-import ColoredPlus from "../assets/svg-components/colored_plus";
-
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import PostIcon from "../assets/svg-components/postIcon";
+import ArchiveIcon from "../assets/svg-components/archiveIcon";
+import RequestIcon from "../assets/svg-components/requestIcon";
+import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
+import { OwnPostRoute } from "./OwnPostRoute";
+import { ArchivedPost } from "./ArchivedRoute";
+import { RequestRoute } from "./RequestRoute";
+import { fonts } from "../globalStyle/globalFont";
+import { getUserId } from "../utils/asychStorageFunctions";
 export default function ProfileScreen({ navigation }) {
-  const dispatch = useDispatch();
   const isFocused = useIsFocused();
+  const [expand, setExpand] = useState(false);
+  const [userId, setUserId] = useState("");
+  getUserId(setUserId);
 
-  // const changeName = (name: string) => dispatch(setName(name));
-  // const changeBio = (bio: string) => dispatch(setBio(bio));
-
-  // const name = useSelector((state: any) => {
-  //   return state.profile.name;
-  // });
-
-  // const bio = useSelector((state: any) => {
-  //   return state.profile.bio;
-  // });
-
-  const [isLoading, setLoading] = useState(true);
-  const [fetchFailed, setFetchFailed] = useState(false);
+  const [isUserLoading, setUserLoading] = useState(true);
+  const [fetchUserFailed, setFetchUserFailed] = useState(false);
+  const [isOwnPostLoading, setOwnPostLoading] = useState(true);
+  const [fetchOwnPostFailed, setFetchOwnPostFailed] = useState(false);
+  const [isArchivedLoading, setArchivedLoading] = useState(true);
+  const [fetchArchivedFailed, setFetchArchivedFailed] = useState(false);
+  const [isRequestLoading, setRequestLoading] = useState(true);
+  const [fetchRequestFailed, setFetchRequestFailed] = useState(false);
   const [username, setUsername] = useState("");
   const [realname, setRealname] = useState("");
 
@@ -44,18 +50,63 @@ export default function ProfileScreen({ navigation }) {
   const [image, setImage] = useState("");
 
   const [posts, setPosts] = useState([]);
-  const [userId, setUserId] = useState("");
+  const [archived, setArchived] = useState([]);
+  const [requests, setRequests] = useState([]);
 
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
+  const ownPostRoute = () => {
+    return (
+      <OwnPostRoute
+        navigation={navigation}
+        isLoading={isOwnPostLoading}
+        fetchFailed={fetchOwnPostFailed}
+        posts={posts}
+        onRefresh={getPostsRefresh}
+      />
+    );
+  };
 
+  const archiveRoute = () => {
+    return (
+      <ArchivedPost
+        navigation={navigation}
+        isLoading={isArchivedLoading}
+        fetchFailed={fetchArchivedFailed}
+        archived={archived}
+        onRefresh={getArchivedRefresh}
+      />
+    );
+  };
+
+  const requestRoute = () => {
+    return (
+      <RequestRoute
+        navigation={navigation}
+        isLoading={isRequestLoading}
+        fetchFailed={fetchRequestFailed}
+        requests={requests}
+        onRefresh={null}
+      />
+    );
+  };
+
+  useEffect(() => {
+    // update posts when home screen is entered again
+    getUserIngress();
+    getPostsIngress();
+    getArchivedIngress();
+    getRequestIngress();
+  }, [isFocused]);
+
+  useEffect(() => {
+    getPosts();
+    getArchived();
+    getRequest();
+    getUser();
+  }, [userId]);
   const getUser = async () => {
     try {
+      setUserLoading(true);
+
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/user/id/" + userId
       );
@@ -69,17 +120,11 @@ export default function ProfileScreen({ navigation }) {
       }
     } catch (error) {
       console.error(error);
+      setFetchUserFailed(true);
+    } finally {
+      setUserLoading(false);
     }
   };
-
-  useEffect(() => {
-    // update posts when home screen is entered again
-    getUserIngress();
-  }, [isFocused]);
-  useEffect(() => {
-    // update posts when home screen is entered again
-    getPostsIngress();
-  }, [isFocused]);
   const getUserIngress = async () => {
     try {
       const response = await fetch(
@@ -95,12 +140,13 @@ export default function ProfileScreen({ navigation }) {
       }
     } catch (error) {
       console.error(error);
+      setFetchUserFailed(true);
     }
   };
 
   const getPosts = async () => {
     try {
-      setLoading(true);
+      setOwnPostLoading(true);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
       );
@@ -111,9 +157,9 @@ export default function ProfileScreen({ navigation }) {
       }
     } catch (error) {
       console.error(error);
-      setFetchFailed(true);
+      setFetchOwnPostFailed(true);
     } finally {
-      setLoading(false);
+      setOwnPostLoading(false);
     }
   };
   const getPostsIngress = async () => {
@@ -127,91 +173,263 @@ export default function ProfileScreen({ navigation }) {
       }
     } catch (error) {
       console.error(error);
-      setFetchFailed(true);
+      setFetchOwnPostFailed(true);
     }
   };
-  useEffect(() => {
-    getPosts();
-  }, [userId]);
 
-  useEffect(() => {
-    getUser();
-  }, [userId]);
+  const getPostsRefresh = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
+      );
+      setOwnPostLoading(true);
+      const json = await response.json();
+      setPosts(json.posts);
+    } catch (error) {
+      console.error(error);
+      setFetchOwnPostFailed(true);
+    } finally {
+      setTimeout(() => {
+        setOwnPostLoading(false);
+      }, 500); //display loading animation
+    }
+  };
 
+  const getArchived = async () => {
+    try {
+      setArchivedLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
+          userId,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const json = await response.json();
+        // console.log(json);
+        setArchived(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchArchivedFailed(true);
+    } finally {
+      setArchivedLoading(false);
+    }
+  };
+
+  const getArchivedIngress = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
+          userId,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setArchived(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchArchivedFailed(true);
+    }
+  };
+  const getArchivedRefresh = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/archive/userId/" + userId
+      );
+      setArchivedLoading(true);
+      const json = await response.json();
+      setArchived(json.posts);
+      console.log(archived);
+    } catch (error) {
+      console.error(error);
+      setFetchArchivedFailed(true);
+    } finally {
+      setTimeout(() => {
+        setArchivedLoading(false);
+      }, 500); //display loading animation
+    }
+  };
+  const getRequest = async () => {
+    try {
+      setRequestLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/request/userId/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setRequests(json.requests);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchRequestFailed(true);
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  const getRequestIngress = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/request/userId/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        setRequests(json.requests);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchRequestFailed(true);
+    }
+  };
+
+  const [routes, setRoutes] = useState([
+    { key: "ownPost" },
+    { key: "archive" },
+    { key: "request" },
+  ]);
+  const [index, setIndex] = useState(0);
+
+  const _handleIndexChange = (index) => setIndex(index);
+
+  const _renderTabBar = (props) => {
+    const inputRange = routes.map((x, i) => i);
+
+    return (
+      <TabBar
+        {...props}
+        indicatorContainerStyle={{ backgroundColor: "white" }}
+        indicatorStyle={{ backgroundColor: "black", height: 1 }}
+        renderIcon={({ route, focused, color }) => {
+          if (route.key == "ownPost") {
+            return <PostIcon color={focused ? "#000" : "#BEBEBE"} />;
+          } else if (route.key == "archive") {
+            return <ArchiveIcon color={focused ? "#000" : "#BEBEBE"} />;
+          } else if (route.key == "request") {
+            return <RequestIcon color={focused ? "#000" : "#BEBEBE"} />;
+          }
+        }}
+        style={{
+          backgroundColor: "white",
+          height: 48,
+          borderBottomWidth: 1,
+          borderBottomColor: "#BEBEBE",
+        }}
+      />
+    );
+  };
+
+  const _renderScene = SceneMap({
+    ownPost: ownPostRoute,
+    archive: archiveRoute,
+    request: requestRoute,
+  });
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-      >
-        <SafeAreaView>
-          <View style={styles.upperContainer}>
-            {/* <TouchableOpacity activeOpacity={pressedOpacity}>
-              <ProfileScreenIcon name="search" color="black" size={24} />
-            </TouchableOpacity> */}
-            <View
-              style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 10,
-                marginTop: 10,
-              }}
-            >
-              <Image style={styles.profileBubble} source={{ uri: image }} />
-            </View>
-            <TouchableOpacity
-              style={{
-                position: "absolute",
-                end: 10,
-                top: 10,
-                width: 50,
-                height: 50,
-                alignItems: "center",
-              }}
-              activeOpacity={pressedOpacity}
-              onPress={() => navigation.navigate("Settings")}
-            >
-              <ProfileScreenIcon name="settings" color="black" size={24} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.profileTextContainer}>
-            <Text style={styles.profileNameText}>{username}</Text>
-            <Text style={styles.profileRealNameText}>{realname}</Text>
-
-            <Text style={styles.profileBioText}>{bio}</Text>
-          </View>
-          <View style={{ height: "100%", flex: 1 }}>
-            {isLoading ? (
-              <LoadingScreen screen={"Profile"} />
-            ) : fetchFailed ? (
-              <LoadingScreen screen={"Profile"} />
-            ) : (
-              <ProductList
-                data={posts}
-                screen={"Profile"}
-                navigation={navigation}
-                onRefresh={null}
-              />
-            )}
-          </View>
-        </SafeAreaView>
-      </ScrollView>
-      <LinearGradient
-        colors={["#DF9856", "#DE6CD3", "#AD68E3"]}
-        style={styles.highLight}
-        start={{ x: 0.9, y: 0 }}
-        end={{ x: 0.1, y: 1 }}
-      >
-        <TouchableOpacity
-          style={styles.plusButton}
-          onPress={() => navigation.navigate("NewPostImage")}
+      <View style={styles.upperContainer}>
+        <View
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 10,
+            marginTop: 10,
+          }}
         >
-          <ColoredPlus />
+          <Image style={styles.profileBubble} source={{ uri: image }} />
+        </View>
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            end: 10,
+            top: 10,
+            width: 50,
+            height: 50,
+            alignItems: "center",
+          }}
+          activeOpacity={pressedOpacity}
+          onPress={() => navigation.navigate("Settings")}
+        >
+          <ProfileScreenIcon name="settings" color="black" size={24} />
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
+      <View style={styles.profileTextContainer}>
+        {isUserLoading || fetchUserFailed ? (
+          <View
+            style={{
+              width: 114,
+              height: 24,
+              backgroundColor: "#F4F4F4",
+              borderRadius: 20,
+              marginTop: 12,
+            }}
+          />
+        ) : (
+          <Text style={[fonts.pageHeading3, { marginTop: 12 }]}>
+            {username}
+          </Text>
+        )}
+        {isUserLoading || fetchUserFailed ? (
+          <View
+            style={{
+              width: 70,
+              height: 20,
+              backgroundColor: "#F4F4F4",
+              borderRadius: 10,
+              marginTop: 9,
+            }}
+          />
+        ) : (
+          <Text style={[fonts.body2, { color: "#707070", marginTop: 4 }]}>
+            {realname}
+          </Text>
+        )}
+        {!isUserLoading && !fetchUserFailed && (
+          <Text
+            style={[
+              fonts.body2,
+              {
+                maxWidth: "93%",
+                textAlign: "center",
+                marginTop: 16,
+              },
+            ]}
+            numberOfLines={3}
+          >
+            {bio}
+          </Text>
+        )}
+      </View>
+      <TabView
+        navigationState={{
+          index,
+          routes,
+        }}
+        renderScene={_renderScene}
+        renderTabBar={_renderTabBar}
+        onIndexChange={_handleIndexChange}
+      />
+
+      <ExpandablePlusButton
+        onListingPressed={() => navigation.navigate("NewPostImage")}
+        onRequestPressed={() => navigation.navigate("NewRequest")}
+        expand={expand}
+        setExpand={setExpand}
+      />
     </View>
   );
 }
@@ -229,74 +447,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     paddingTop: 10,
+    marginTop: Platform.OS === "ios" ? 35 : 0,
   },
+
   upperContainer: {
     display: "flex",
     flexDirection: "row",
   },
-  highLight: {
-    marginVertical: 5,
-    marginHorizontal: 5,
-    borderRadius: 30,
-    position: "absolute",
-    right: 40,
-    width: 60,
-    height: 60,
-    bottom: 110,
-    alignContent: "center",
-    paddingVertical: 2,
-    zIndex: 2,
-    paddingHorizontal: 2,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
 
-  profileBubbleContainer: {
-    flexGrow: 1,
-  },
   profileBubble: {
     width: 89,
     height: 89,
     borderRadius: 50,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#F4F4F4",
   },
   profileTextContainer: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     paddingHorizontal: 18,
-    marginBottom: 10,
-  },
-  profileNameText: {
-    fontFamily: "Rubik-Bold",
-    fontSize: 20,
-    paddingTop: 12,
-  },
-  profileRealNameText: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    paddingBottom: 9,
-    color: "#707070",
-  },
-  profileBioText: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    maxWidth: "93%",
-    textAlign: "center",
-  },
-  plusButton: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    borderRadius: 28,
-    width: 56,
-    height: 56,
+    marginBottom: 16,
   },
 });

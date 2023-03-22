@@ -45,7 +45,6 @@ export default function LoadingScreen({ screen }) {
         <Image
           style={styles.emptyFeed}
           source={require("../assets/images/mediumLoading.jpg")}
-          resizeMethod="resize"
         />
       )}
       {screen == "Home" && (
@@ -63,11 +62,12 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    paddingHorizontal: 16,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingTop: 8,
   },
   emptyFeed: {
     width: scaledWidth,
-    height: scaledHeight,
-    top: 0,
+    resizeMode: "stretch",
   },
 });

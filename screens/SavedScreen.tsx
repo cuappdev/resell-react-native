@@ -1,18 +1,16 @@
 import * as React from "react";
-import { StyleSheet, FlatList, SafeAreaView, Text } from "react-native";
+import { StyleSheet, FlatList, SafeAreaView, Text, View } from "react-native";
 import { LogBox } from "react-native";
-import { View } from "../components/Themed";
-import { ScrollView } from "react-native-gesture-handler";
-import ProductCard from "../components/ProductCard";
 import { ProductList } from "../components/ProductList";
 
-import { RootTabScreenProps } from "../types";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import { useIsFocused } from "@react-navigation/native";
+import { fonts } from "../globalStyle/globalFont";
+import { getAccessToken } from "../utils/asychStorageFunctions";
 
 export default function SavedScreen({ navigation }) {
   const [userId, setUserId] = useState("");
@@ -20,14 +18,9 @@ export default function SavedScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
   const isFocused = useIsFocused();
+  const [accessToken, setAccessToken] = useState("");
+  getAccessToken(setAccessToken);
 
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
   useEffect(() => {
     getPosts();
   }, [userId]);
@@ -35,13 +28,23 @@ export default function SavedScreen({ navigation }) {
   const getPosts = async () => {
     try {
       setLoading(true);
+
       const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+        "https://resell-dev.cornellappdev.com/api/post/save/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: accessToken,
+
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
       );
       if (response.ok) {
         const json = await response.json();
         // console.log(json);
-        setPosts(json.user.saved);
+        setPosts(json.posts);
       }
     } catch (error) {
       console.error(error);
@@ -55,22 +58,62 @@ export default function SavedScreen({ navigation }) {
     // update posts when home screen is entered again
     getPostsIngress();
   }, [isFocused]);
+  console.log(userId);
   const getPostsIngress = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+        "https://resell-dev.cornellappdev.com/api/post/save/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: accessToken,
+
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
       );
       if (response.ok) {
         const json = await response.json();
         // console.log(json);
-        setPosts(json.user.saved);
+        setPosts(json.posts);
       }
     } catch (error) {
       console.error(error);
       setFetchFailed(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getSavedRefreshed = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/post/save/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: accessToken,
+
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const json = await response.json();
+        // console.log(json);
+        setPosts(json.posts);
+      }
+    } catch (error) {
+      console.error(error);
+      setFetchFailed(true);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 500); //display loading animation
     }
   };
 
@@ -82,8 +125,17 @@ export default function SavedScreen({ navigation }) {
         <LoadingScreen screen={"Saved"} />
       ) : posts.length == 0 ? (
         <View style={styles.noResultView}>
-          <Text style={styles.noResultHeader}>No results</Text>
-          <Text style={styles.noResultSubHeader}>
+          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+            No results
+          </Text>
+          <Text
+            style={[
+              fonts.body1,
+              {
+                color: "#707070",
+              },
+            ]}
+          >
             Go and explore some posts
           </Text>
         </View>
@@ -92,7 +144,7 @@ export default function SavedScreen({ navigation }) {
           data={posts}
           navigation={navigation}
           screen={"Saved"}
-          onRefresh={undefined}
+          onRefresh={getSavedRefreshed}
         />
       )}
     </View>
@@ -112,11 +164,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 15,
-  },
-  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
-  noResultSubHeader: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    color: "#707070",
   },
 });

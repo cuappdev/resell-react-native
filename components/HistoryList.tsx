@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React from "react";
+import { fonts } from "../globalStyle/globalFont";
 
 export default function HistoryList({ searchHistory, searchSubmit }) {
   /**
@@ -16,7 +17,7 @@ export default function HistoryList({ searchHistory, searchSubmit }) {
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.outer} onPress={() => searchSubmit(item)}>
       <View>
-        <Text style={styles.text}>{item}</Text>
+        <Text style={[styles.text, fonts.body1]}>{item}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -32,5 +33,5 @@ export default function HistoryList({ searchHistory, searchSubmit }) {
 }
 const styles = StyleSheet.create({
   outer: { marginStart: 24, marginTop: 9, marginBottom: 12, width: "auto" },
-  text: { color: "#707070", fontSize: 19, fontFamily: "Rubik-Regular" },
+  text: { color: "#707070" },
 });
