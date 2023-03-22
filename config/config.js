@@ -1,0 +1,21 @@
+import {
+  API_KEY,
+  EXPO_CLIENT_ID,
+  IOS_CLIENT_ID,
+  ANDROID_CLIENT_ID,
+  ANDROID_CLIENT_ID_S,
+  IOS_CLIENT_ID_S,
+  AUTH_DOMAIN,
+  PROJECT_ID,
+} from "@env";
+const config = {
+  API_KEY,
+  EXPO_CLIENT_ID,
+  IOS_CLIENT_ID,
+  ANDROID_CLIENT_ID,
+  ANDROID_CLIENT_ID_S,
+  IOS_CLIENT_ID_S,
+  AUTH_DOMAIN,
+  PROJECT_ID,
+};
+export default config;
