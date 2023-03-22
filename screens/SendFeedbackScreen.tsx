@@ -10,7 +10,6 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { IconButton, Colors } from "react-native-paper";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
 import * as ImagePicker from "expo-image-picker";

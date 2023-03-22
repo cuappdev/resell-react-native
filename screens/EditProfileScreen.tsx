@@ -22,10 +22,13 @@ import { pressedOpacity } from "../constants/Values";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { json } from "stream/consumers";
 import { ScrollView } from "react-native";
 import { platform } from "os";
-import { auth } from "../config/firebase";
+import { auth, userRef } from "../config/firebase";
+import { useSelector } from "react-redux";
+import { fonts } from "../globalStyle/globalFont";
+import { getAccessToken } from "../utils/asychStorageFunctions";
+import { makeToast } from "../utils/Toast";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -101,79 +104,52 @@ export default function EditProfileScreen({ navigation, route }) {
     };
   }, []);
   const [accessToken, setAccessToken] = useState("");
+
+  getAccessToken(setAccessToken);
   const [invalidName, setInvalidName] = useState(false);
 
-  AsyncStorage.getItem("accessToken", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result != undefined) {
-        setAccessToken(result);
-      }
-    }
-  });
-
   const submit = async () => {
-    try {
-      var Json;
-      if (image.startsWith("https")) {
-        Json = JSON.stringify({
-          photoUrlBase64: "",
-          username: username,
-          venmoHandle: venmo,
-          bio: bio,
-        });
-      } else {
-        Json = JSON.stringify({
-          photoUrlBase64: image,
-          username: username,
-          venmoHandle: venmo,
-          bio: bio,
-        });
+    var Json;
+    if (image.startsWith("https")) {
+      Json = JSON.stringify({
+        photoUrlBase64: "",
+        username: username,
+        venmoHandle: venmo,
+        bio: bio,
+      });
+    } else {
+      Json = JSON.stringify({
+        photoUrlBase64: image,
+        username: username,
+        venmoHandle: venmo,
+        bio: bio,
+      });
+    }
+    console.log(Json);
+    const response = await fetch(
+      "https://resell-dev.cornellappdev.com/api/user",
+      {
+        method: "POST",
+        headers: {
+          Authorization: accessToken,
+
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: Json,
       }
+    );
 
-      // console.log(Json);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      )
-        .then(function (response) {
-          // alert(JSON.stringify(response));
-          console.log(response);
-          navigation.goBack();
-          return response.json();
-        })
-        .then(async function (data) {
-          auth.currentUser
-            .updateProfile({
-              displayName: data.user.givenName + " " + data.user.familyName,
-              photoURL: data.user.photoUrl,
-            })
-            .then(() => {
-              // Profile updated!
-              // ...
-            })
-            .catch((error) => {
-              // An error occurred
-              // ...
-              alert(error);
-            });
-        })
-        .catch((error) => {
-          //alert(error.message);
-        });
-    } catch (e) {
-      console.log(e);
+    if (response.ok) {
+      const data = await response.json();
+      auth.currentUser.updateProfile({
+        displayName: data.user.givenName + " " + data.user.familyName,
+        photoURL: data.user.photoUrl,
+      });
+      userRef.doc(data.user.email).update({ venmo: venmo });
+      navigation.goBack();
     }
   };
-
   const scroll = useRef<ScrollView | null>(null);
   return (
     <TouchableWithoutFeedback
@@ -197,20 +173,21 @@ export default function EditProfileScreen({ navigation, route }) {
             <BackButton color="black" />
           </TouchableOpacity>
           <View style={styles.title}>
-            <Text style={styles.titleText}>Edit Profile</Text>
+            <Text style={fonts.pageHeading3}>Edit Profile</Text>
           </View>
           <TouchableOpacity
             onPress={() => {
+              Keyboard.dismiss();
               if (username.length > 0) {
-                // submit();
-                navigation.goBack();
+                submit();
+                makeToast("Profile Updated Successfully");
               } else {
-                Alert.alert("Warning", "Username cannot be empty");
+                makeToast("Username cannot be empty");
               }
             }}
             style={styles.headerButton}
           >
-            <Text style={styles.buttonText}>Save</Text>
+            <Text style={[fonts.Title1, { color: "#9E70F6" }]}>Save</Text>
           </TouchableOpacity>
         </View>
         <KeyboardAvoidingView
@@ -245,8 +222,10 @@ export default function EditProfileScreen({ navigation, route }) {
                     minHeight: 30,
                   }}
                 >
-                  <Text style={styles.text}>Name</Text>
-                  <Text style={styles.content}>{initialRealname}</Text>
+                  <Text style={[fonts.Title1, { marginStart: 24 }]}>Name</Text>
+                  <Text style={[fonts.body1, { marginEnd: 24 }]}>
+                    {initialRealname}
+                  </Text>
                 </View>
                 <View
                   style={{
@@ -256,8 +235,10 @@ export default function EditProfileScreen({ navigation, route }) {
                     minHeight: 30,
                   }}
                 >
-                  <Text style={styles.text}>Netid</Text>
-                  <Text style={styles.content}>{initialNetId}</Text>
+                  <Text style={[fonts.Title1, { marginStart: 24 }]}>Netid</Text>
+                  <Text style={[fonts.body1, { marginEnd: 24 }]}>
+                    {initialNetId}
+                  </Text>
                 </View>
                 <View
                   style={{
@@ -267,7 +248,9 @@ export default function EditProfileScreen({ navigation, route }) {
                   }}
                 >
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.text}>Username</Text>
+                    <Text style={[fonts.Title1, { marginStart: 24 }]}>
+                      Username
+                    </Text>
                     {invalidName && (
                       <View
                         style={{
@@ -292,11 +275,23 @@ export default function EditProfileScreen({ navigation, route }) {
                       flexDirection: "column",
                       alignItems: "flex-end",
                       width: "40%",
-                      marginEnd: 20,
+                      marginEnd: 24,
                     }}
                   >
                     <TextInput
-                      style={styles.text_input}
+                      style={[
+                        fonts.body1,
+                        {
+                          paddingTop: 10,
+                          paddingBottom: 10,
+                          paddingHorizontal: 15,
+                          backgroundColor: "#F4F4F4",
+                          borderRadius: 10,
+                          minHeight: 40,
+                          width: "100%",
+                          textAlign: "right",
+                        },
+                      ]}
                       value={username}
                       onChangeText={(text) => {
                         setUsername(text);
@@ -329,16 +324,30 @@ export default function EditProfileScreen({ navigation, route }) {
                     marginBottom: 30,
                   }}
                 >
-                  <Text style={styles.text}>Venmo Link</Text>
+                  <Text style={[fonts.Title1, { marginStart: 24 }]}>
+                    Venmo Link
+                  </Text>
                   <View
                     style={{
                       flexDirection: "column",
                       width: "40%",
-                      marginEnd: 20,
+                      marginEnd: 24,
                     }}
                   >
                     <TextInput
-                      style={styles.text_input}
+                      style={[
+                        fonts.body1,
+                        {
+                          paddingTop: 10,
+                          paddingBottom: 10,
+                          paddingHorizontal: 15,
+                          backgroundColor: "#F4F4F4",
+                          borderRadius: 10,
+                          minHeight: 40,
+                          width: "100%",
+                          textAlign: "right",
+                        },
+                      ]}
                       value={venmo}
                       onChangeText={(text) => {
                         setVenmo(text);
@@ -357,21 +366,27 @@ export default function EditProfileScreen({ navigation, route }) {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Text style={styles.text}>Bio</Text>
+                  <Text style={[fonts.Title1, { marginStart: 24 }]}>Bio</Text>
                   <View
                     style={{
                       flexDirection: "column",
                       alignItems: "flex-end",
                       width: "70%",
                       height: 100,
-                      marginEnd: 20,
+                      marginEnd: 24,
                       marginBottom: 50,
                     }}
                   >
                     <TextInput
                       style={[
-                        styles.text_input,
+                        fonts.body1,
                         {
+                          paddingTop: 10,
+                          borderRadius: 10,
+                          padding: 10,
+                          width: "100%",
+                          minHeight: 40,
+                          backgroundColor: "#F4F4F4",
                           textAlign: "left",
                           textAlignVertical: "top",
                           height: 100,
@@ -390,18 +405,7 @@ export default function EditProfileScreen({ navigation, route }) {
                         }
                       }}
                     />
-                    {/* {false && (
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: "Rubik-Regular",
-                  color: "#FF0000",
-                  marginTop: 4,
-                }}
-              >
-                Cannot be empty
-              </Text>
-            )} */}
+
                     {bio.length > 0 && (
                       <Text
                         style={{
@@ -446,10 +450,7 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? menuBarTop : 20,
     alignItems: "center",
   },
-  titleText: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-  },
+
   headerButton: {
     marginEnd: 10,
     marginTop: Platform.OS === "ios" ? menuBarTop : 20,
@@ -458,11 +459,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
   },
-  buttonText: {
-    color: "#9E70F6",
-    fontFamily: "Rubik-Medium",
-    fontSize: 16,
-  },
+
   roundButton1: {
     width: 32,
     height: 32,
@@ -482,27 +479,5 @@ const styles = StyleSheet.create({
     height: 132,
     width: 132,
     borderRadius: 66,
-  },
-  text: {
-    fontSize: 18,
-    marginStart: 20,
-    fontFamily: "Rubik-Medium",
-  },
-  content: {
-    fontFamily: "Rubik-Regular",
-    fontWeight: "400",
-    fontSize: 18,
-    marginEnd: 20,
-  },
-  text_input: {
-    backgroundColor: "#F4F4F4",
-    borderRadius: 10,
-    padding: 10,
-    minHeight: 40,
-    fontSize: 18,
-    fontFamily: "Rubik-Regular",
-    width: "100%",
-    textAlign: "right",
-    paddingTop: 10,
   },
 });

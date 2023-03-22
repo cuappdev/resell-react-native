@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-native-modal";
 
 import {
@@ -6,42 +6,259 @@ import {
   Text,
   View,
   Alert,
-  StyleProp,
   ViewStyle,
+  StyleProp,
+  Platform,
 } from "react-native";
 import WeekView from "react-native-week-view";
 import PurpleButton from "./PurpleButton";
+import BuyerSyncModal from "./BuyerSyncModal";
 const moment = require("moment");
+import * as Calendar from "expo-calendar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fonts } from "../globalStyle/globalFont";
+import { type } from "os";
 
 export function AvailabilityModal({
   availabilityVisible,
   setAvailabilityVisible,
   setIsSendingAvailability,
+  setBuyerProposeVisible,
   setScheduleCallback,
   bubbleInput,
   isBubble,
   setIsBubble,
   setHeight,
+  selectdate,
   username,
+  isBuyer,
+  setSelectedTime,
 }) {
-  const [hasPrev, setHasPrev] = useState(false);
+  interface availabilityEvent {
+    id: number;
+    description?: string;
+    startDate: Date;
+    endDate: Date;
+    color: String;
+  }
+  const myEvents: availabilityEvent[] = [
+    {
+      id: 1,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 12, 0),
+      endDate: new Date(2022, 12, 4, 12, 30),
+      color: "blue",
+    },
+    {
+      id: 2,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 12, 30),
+      endDate: new Date(2022, 12, 4, 13, 0),
+      color: "blue",
+    },
+    {
+      id: 3,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 13, 0),
+      endDate: new Date(2022, 12, 4, 13, 30),
+      color: "blue",
+    },
+    {
+      id: 4,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 13, 30),
+      endDate: new Date(2022, 12, 4, 14, 0),
+      color: "blue",
+    },
+    {
+      id: 5,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 14, 0),
+      endDate: new Date(2022, 12, 4, 14, 30),
+      color: "blue",
+    },
+    {
+      id: 6,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 14, 30),
+      endDate: new Date(2022, 12, 4, 15, 0),
+      color: "blue",
+    },
+    {
+      id: 7,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 15, 0),
+      endDate: new Date(2022, 12, 4, 15, 30),
+      color: "blue",
+    },
+    {
+      id: 8,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 15, 30),
+      endDate: new Date(2022, 12, 4, 16, 0),
+      color: "blue",
+    },
+    {
+      id: 9,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 16, 0),
+      endDate: new Date(2022, 12, 4, 16, 30),
+      color: "blue",
+    },
+    {
+      id: 10,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 16, 30),
+      endDate: new Date(2022, 12, 4, 17, 0),
+      color: "blue",
+    },
+    {
+      id: 11,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 17, 0),
+      endDate: new Date(2022, 12, 4, 17, 30),
+      color: "blue",
+    },
+    {
+      id: 12,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 17, 30),
+      endDate: new Date(2022, 12, 4, 18, 0),
+      color: "blue",
+    },
+    {
+      id: 13,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 18, 30),
+      endDate: new Date(2022, 12, 4, 19, 0),
+      color: "blue",
+    },
+    {
+      id: 14,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 19, 0),
+      endDate: new Date(2022, 12, 4, 19, 30),
+      color: "blue",
+    },
+    {
+      id: 15,
+      description: "Event",
+      startDate: new Date(2022, 12, 4, 19, 30),
+      endDate: new Date(2022, 12, 4, 20, 0),
+      color: "blue",
+    },
+
+    {
+      id: 16,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 12, 0),
+      endDate: new Date(2022, 12, 5, 12, 30),
+      color: "blue",
+    },
+    {
+      id: 17,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 12, 30),
+      endDate: new Date(2022, 12, 5, 13, 0),
+      color: "blue",
+    },
+    {
+      id: 18,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 13, 0),
+      endDate: new Date(2022, 12, 5, 13, 30),
+      color: "blue",
+    },
+    {
+      id: 19,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 13, 30),
+      endDate: new Date(2022, 12, 5, 14, 0),
+      color: "blue",
+    },
+    {
+      id: 20,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 14, 0),
+      endDate: new Date(2022, 12, 5, 14, 30),
+      color: "blue",
+    },
+    {
+      id: 21,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 14, 30),
+      endDate: new Date(2022, 12, 5, 15, 0),
+      color: "blue",
+    },
+    {
+      id: 22,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 15, 0),
+      endDate: new Date(2022, 12, 5, 15, 30),
+      color: "blue",
+    },
+    {
+      id: 23,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 15, 30),
+      endDate: new Date(2022, 12, 5, 16, 0),
+      color: "blue",
+    },
+    {
+      id: 24,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 16, 0),
+      endDate: new Date(2022, 12, 5, 16, 30),
+      color: "blue",
+    },
+    {
+      id: 25,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 16, 30),
+      endDate: new Date(2022, 12, 5, 17, 0),
+      color: "blue",
+    },
+    {
+      id: 26,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 17, 0),
+      endDate: new Date(2022, 12, 5, 17, 30),
+      color: "blue",
+    },
+    {
+      id: 27,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 17, 30),
+      endDate: new Date(2022, 12, 5, 18, 0),
+      color: "blue",
+    },
+    {
+      id: 28,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 18, 30),
+      endDate: new Date(2022, 12, 5, 19, 0),
+      color: "blue",
+    },
+    {
+      id: 29,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 19, 0),
+      endDate: new Date(2022, 12, 5, 19, 30),
+      color: "blue",
+    },
+    {
+      id: 30,
+      description: "Event",
+      startDate: new Date(2022, 12, 5, 19, 30),
+      endDate: new Date(2022, 12, 5, 20, 0),
+      color: "blue",
+    },
+  ];
+
   const [schedule, setSchedule] = useState<any[]>([]);
+  const [largestIndex, setLargestIndex] = useState(30);
   function MyEventComponent({ event, position }) {
     switch (event.color) {
-      case "#c8b9fa":
-        return (
-          //While deleting an event style
-          <View
-            style={{
-              width: position.width,
-              height: "100%",
-              borderWidth: 2,
-              borderStyle: "dashed",
-              borderColor: "#ffffff",
-              backgroundColor: "#c8b9fa",
-            }}
-          ></View>
-        ) as any;
       case "#9E70F6":
         return (
           //a complete event style
@@ -51,11 +268,11 @@ export function AvailabilityModal({
               height: "100%",
               backgroundColor: "#9E70F6",
             }}
-          ></View>
+          />
         ) as any;
-      case "":
+      case "f8f4fc":
         return (
-          //Start time of an event style, start event always have color of ""
+          //select time of an event style, start event always have color of "f8f4fc"
           <View
             style={{
               width: position.width,
@@ -65,33 +282,35 @@ export function AvailabilityModal({
               borderColor: "#9E70F6",
               backgroundColor: "#f8f4fc",
             }}
-          ></View>
+          />
         ) as any;
     }
   }
 
   const onClickGrid = (event, startHour, date) => {
-    if (!isBubble) {
+    if (!isBubble && schedule.length < 20) {
       //Make sure it's not avaliability bubble mode, which is not editable
       let year = date.getFullYear();
       let month = date.getMonth();
       let day = date.getDate();
       let minute = date.getMinutes();
-      let length = schedule.length;
+      var duplicate = false;
 
-      for (let i = 0; i < schedule.length; i++) {
-        //If current grid is already an event in schedule, return
-        if (schedule[i].startDate <= date && schedule[i].endDate >= date) {
-          return;
+      schedule.forEach(checkIfExisted);
+
+      function checkIfExisted(s) {
+        if (s.startDate <= date && s.endDate >= date) {
+          console.log("here");
+          duplicate = true;
         }
       }
 
-      if (!hasPrev) {
-        // If there is no previous event, create a 30 minute start event, with color ""
+      // If there is no previous event, create a 30 minute start event, with color ""
+      if (!duplicate) {
         setSchedule([
           ...schedule,
           {
-            id: length,
+            id: largestIndex + 1,
             startDate: new Date(
               year,
               month,
@@ -111,108 +330,26 @@ export function AvailabilityModal({
               0,
               0
             ),
-            color: "",
+            color: "#9E70F6",
           },
         ]);
-        setHasPrev(true);
-      } else {
-        if (
-          //Make sure event are on the same day, and after the start event start date
-          schedule[length - 1].startDate <= date &&
-          schedule[length - 1].startDate.getDay() == date.getDay()
-        ) {
-          var endDate = new Date(
-            year,
-            month,
-            day,
-            minute >= 30 ? startHour + 1 : startHour,
-            minute >= 30 ? 0 : 30,
-            0,
-            0
-          );
-
-          var oldStartDate = schedule[length - 1].startDate;
-          var temptSchedule = [
-            ...schedule
-              .slice(0, length - 1)
-              .filter((e) => e.endDate < oldStartDate || e.startDate > endDate),
-            {
-              id: length - 1,
-              startDate: oldStartDate,
-              endDate: endDate,
-              color: "#9E70F6",
-            },
-          ];
-          resetScheduleIndex(temptSchedule);
-          setSchedule(temptSchedule);
-          setHasPrev(false);
-        }
+        setLargestIndex(largestIndex + 1);
       }
     }
   };
-
   const onEventPress = (event) => {
     let length = schedule.length;
     if (!isBubble) {
-      //Make sure it's not avaliability bubble mode, which is not editable
-
-      if (hasPrev) {
-        // connect two events, if an event is clicked after the start event, rather than a grid is clicked
-        if (
-          schedule[length - 1].startDate <= event.startDate &&
-          schedule[length - 1].startDate.getDay() == event.startDate.getDay()
-        ) {
-          var temptSchedule = [
-            ...schedule.slice(0, length - 1).filter((e) => e.id !== event.id),
-            {
-              id: length - 1,
-              startDate: schedule[length - 1].startDate,
-              endDate: event.endDate,
-              color: "#9E70F6",
-            },
-          ];
-          setHasPrev(false);
-          resetScheduleIndex(temptSchedule);
-          setSchedule(temptSchedule);
-        }
+      if (schedule.length == 1) {
+        setSchedule([]);
       } else {
-        //Delete an event, changed the event color
-        var temptSchedule = [
-          ...schedule.filter((e) => e.id !== event.id),
-          {
-            id: parseInt(event.id),
-            startDate: event.startDate as Date,
-            endDate: event.endDate,
-            color: "#c8b9fa",
-          },
-        ];
-        setSchedule(temptSchedule);
-        Alert.alert(
-          "Delete an Avaliability",
-          "Are you sure you want to delete the availability starts at \n " +
-            moment(event.startDate).format("MMMM Do YYYY, h:mm a"),
-          [
-            {
-              text: "Cancel",
-              onPress: () => {
-                var temptSchedule = [
-                  ...schedule.filter((e) => e.id !== event.id),
-                  {
-                    id: event.id,
-                    startDate: event.startDate,
-                    endDate: event.endDate,
-                    color: "#9E70F6",
-                  },
-                ];
-                setSchedule(temptSchedule);
-              },
-
-              style: "cancel",
-            },
-            { text: "OK", onPress: () => deleteEvent(event) },
-          ]
-        );
+        var tempt = schedule.filter((e) => e.id !== event.id);
+        setSchedule(tempt);
       }
+    } else if (isBuyer) {
+      setAvailabilityVisible(false);
+      setSelectedTime(moment(event.startDate).format("MMMM Do YYYY, h:mm a"));
+      console.log("gotTime");
     }
   };
   const resetScheduleIndex = (temptSchedule) => {
@@ -221,21 +358,17 @@ export function AvailabilityModal({
       temptSchedule[i].id = i;
     }
   };
-  const deleteEvent = (event) => {
-    if (schedule.length == 1) {
-      setSchedule([]);
-    } else {
-      var tempt = schedule.filter((e) => e.id !== event.id);
-      resetScheduleIndex(tempt);
-      setSchedule(tempt);
-    }
-  };
 
   return (
     <Modal
       backdropColor="black"
       backdropOpacity={0.2}
       isVisible={availabilityVisible}
+      onModalHide={() => {
+        if (isBubble && isBuyer && selectdate != "") {
+          setBuyerProposeVisible(true);
+        }
+      }}
       onBackdropPress={() => {
         setAvailabilityVisible(false);
         setSchedule([]);
@@ -247,6 +380,9 @@ export function AvailabilityModal({
           <Text style={[styles.textStyle, { marginBottom: 30 }]}>
             {isBubble ? username + "'s Avaliability" : "Select a time to meet"}
           </Text>
+          {!isBubble && (
+            <Text style={fonts.body2}>{schedule.length + "/ 20"}</Text>
+          )}
           <WeekView
             selectedDate={new Date()}
             headerStyle={styles.headerStyle}
@@ -256,11 +392,12 @@ export function AvailabilityModal({
             events={isBubble ? bubbleInput : schedule}
             fixedHorizontally={false}
             showTitle={false}
-            numberOfDays={4}
+            numberOfDays={3}
             beginAgendaAt={9 * 60}
             endAgendaAt={23 * 60}
             hoursInDisplay={20}
             startHour={8}
+            timesColumnWidth={0.28}
             eventContainerStyle={{ marginLeft: 2 }}
             onGridClick={onClickGrid}
             formatDateHeader={"  ddd[\n]MMM D"}
@@ -276,6 +413,7 @@ export function AvailabilityModal({
                   setAvailabilityVisible(!availabilityVisible);
                   if (!isBubble) {
                     if (schedule.length > 0) {
+                      resetScheduleIndex(schedule);
                       setIsSendingAvailability(true);
                       setScheduleCallback(schedule);
                       setSchedule([]);

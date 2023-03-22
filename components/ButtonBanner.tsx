@@ -23,21 +23,23 @@ export function ButtonBanner(props) {
    * @returns a horizontally scrollable button banner
    */
   const renderButton = ({ item }) => {
-    return (
-      <Button
-        title={item.title}
-        id={item.id}
-        count={props.count}
-        setCount={props.setCount}
-        modalVisible={props.modalVisible}
-        setModalVisible={props.setModalVisible}
-        availabilityVisible={props.availabilityVisible}
-        setAvailabilityVisible={props.setAvailabilityVisible}
-        setIsBubble={props.setIsBubble}
-        alwaysColor={props.alwaysColor}
-        venmo={props.venmo}
-      />
-    );
+    if (item.title !== "Send Availablity" || !props.isBuyer) {
+      return (
+        <Button
+          title={item.title}
+          id={item.id}
+          count={props.count}
+          setCount={props.setCount}
+          modalVisible={props.modalVisible}
+          setModalVisible={props.setModalVisible}
+          availabilityVisible={props.availabilityVisible}
+          setAvailabilityVisible={props.setAvailabilityVisible}
+          setIsBubble={props.setIsBubble}
+          alwaysColor={props.alwaysColor}
+          OthersEmail={props.OthersEmail}
+        />
+      );
+    }
   };
 
   return (

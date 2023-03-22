@@ -5,8 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  View,
+  Text,
 } from "react-native";
-import { Text, View } from "./Themed";
 import ModalBar from "../assets/svg-components/modal_bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "../config/firebase";
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
   container_header: {
     justifyContent: "flex-start",
     width: "100%",
+    backgroundColor: "#ffffff",
   },
   container_body: {
     flex: 1,

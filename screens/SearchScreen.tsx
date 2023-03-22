@@ -6,10 +6,10 @@ import {
   TextInput,
   Keyboard,
   LogBox,
+  View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { View } from "../components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 
@@ -18,6 +18,7 @@ import { ProductList } from "../components/ProductList";
 import HistoryList from "../components/HistoryList";
 import { AntDesign } from "@expo/vector-icons";
 import LoadingScreen from "./LoadingScreen";
+import { fonts } from "../globalStyle/globalFont";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -30,11 +31,6 @@ export default function SearchScreen({ navigation, route }) {
 
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
   const [data, setData] = useState([]);
-  const [noResult, setNoResult] = useState(false);
-
-  const backtoHome = () => {
-    navigation.navigate("Home");
-  };
 
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
@@ -62,7 +58,9 @@ export default function SearchScreen({ navigation, route }) {
       //console.error(error);
       setFetchFailed(true);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 500); //display loading animation
     }
   };
 
@@ -80,13 +78,7 @@ export default function SearchScreen({ navigation, route }) {
     setHistory(JSON.stringify(tempt));
     getPosts(text);
   };
-  useEffect(() => {
-    if (!data || data.length == 0) {
-      setNoResult(true);
-    } else {
-      setNoResult(false);
-    }
-  }, [data]);
+
   const setHistory = async (history) => {
     try {
       await AsyncStorage.setItem("history", history);
@@ -103,7 +95,7 @@ export default function SearchScreen({ navigation, route }) {
           <View style={styles.container}>
             <View style={styles.searchBar__clicked}>
               <TextInput
-                style={styles.input}
+                style={[fonts.body2, { width: "90%" }]}
                 placeholder="What are you looking for"
                 placeholderTextColor={"#707070"}
                 returnKeyType="search"
@@ -122,7 +114,18 @@ export default function SearchScreen({ navigation, route }) {
               />
             </View>
           </View>
-          <TouchableOpacity style={{ marginStart: 15 }} onPress={backtoHome}>
+          <TouchableOpacity
+            style={{
+              marginStart: 15,
+              width: 50,
+              height: 50,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => {
+              navigation.navigate("Home");
+            }}
+          >
             <AntDesign name="close" size={25} color="#707070" />
           </TouchableOpacity>
         </View>
@@ -135,10 +138,32 @@ export default function SearchScreen({ navigation, route }) {
           <LoadingScreen screen={"Search"} />
         ) : isSearchSubmitted && data.length == 0 ? (
           <View style={styles.noResultView}>
-            <Text style={styles.noResultHeader}>No results</Text>
-            <Text style={styles.noResultSubHeader}>
-              Please try another search
+            <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+              No results
             </Text>
+            <Text
+              style={[
+                fonts.body1,
+                {
+                  color: "#707070",
+                },
+              ]}
+            >
+              Try another search or
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("NewRequest")}>
+              <Text
+                style={[
+                  fonts.body1,
+                  {
+                    color: "#707070",
+                    textDecorationLine: "underline",
+                  },
+                ]}
+              >
+                submit a request
+              </Text>
+            </TouchableOpacity>
           </View>
         ) : isSearchSubmitted && data.length != 0 ? (
           <ProductList
@@ -196,21 +221,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     height: 40,
   },
-  input: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 18,
-    width: "90%",
-  },
+
   noResultView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 15,
-  },
-  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
-  noResultSubHeader: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    color: "#707070",
   },
 });

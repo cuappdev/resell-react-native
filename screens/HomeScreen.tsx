@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, Text, Image } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, Image, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import Modal from "react-native-modal";
-import { View } from "../components/Themed";
 // import { SafeAreaView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FAB } from "react-native-paper";
 import { LogBox } from "react-native";
 import { FILTER } from "../data/filter";
-import { DATA } from "../data/product";
+
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductList } from "../components/ProductList";
 import Header from "../assets/svg-components/header";
 import { HeaderIcon } from "../navigation/index";
 import { pressedOpacity } from "../constants/Values";
-import { homeBackgroundGray } from "../constants/Colors";
 import LoadingScreen from "../screens/LoadingScreen";
-import SlidingUpPanel from "rn-sliding-up-panel";
 import PurpleButton from "../components/PurpleButton";
-import ResellLogo from "../assets/svg-components/resell_logo";
 import { useIsFocused } from "@react-navigation/native";
+import { fonts } from "../globalStyle/globalFont";
+import { getAccessToken, getUserId } from "../utils/asychStorageFunctions";
+import { auth } from "../config/firebase";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 export default function HomeScreen({ navigation, route }) {
+  const [accessToken, setAccessToken] = useState("");
+  getUserId(setAccessToken);
+  console.log(accessToken);
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
@@ -39,7 +40,7 @@ export default function HomeScreen({ navigation, route }) {
       filterPostsIngress(FILTER[count].title);
     }
   }, [isFocused]);
-
+  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
   useEffect(() => {
     if (count == 0) {
       getPosts();
@@ -159,7 +160,6 @@ export default function HomeScreen({ navigation, route }) {
   useEffect(() => {
     getPosts();
   }, []);
-
   const { showPanel } = route.params;
   const [welcomeState, setWelcomeState] = useState(showPanel);
 
@@ -199,8 +199,10 @@ export default function HomeScreen({ navigation, route }) {
           <LoadingScreen screen={"Home"} />
         ) : posts.length == 0 ? (
           <View style={styles.noResultView}>
-            <Text style={styles.noResultHeader}>No results</Text>
-            <Text style={styles.noResultSubHeader}>
+            <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+              No Posts Found
+            </Text>
+            <Text style={[fonts.body1, { color: "#707070" }]}>
               Please try another category
             </Text>
           </View>
@@ -226,7 +228,7 @@ export default function HomeScreen({ navigation, route }) {
           <View style={styles.slideUp}>
             <DetailPullUpHeader
               title={"Welcome to Resell"}
-              description={"Thrifting and selling has never been this easy"}
+              description={"Empowering sustainable buyers and sellers"}
             />
             <View style={styles.purpleButton}>
               <PurpleButton
@@ -289,11 +291,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 15,
-  },
-  noResultHeader: { fontFamily: "Rubik-Medium", fontSize: 18, marginBottom: 8 },
-  noResultSubHeader: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    color: "#707070",
   },
 });

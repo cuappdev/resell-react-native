@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
+import { userRef } from "../config/firebase";
 
 /**
  *
@@ -25,7 +26,7 @@ function Button(props) {
   useEffect(() => {
     setClicked(props.count === props.id);
   }, [props.count]);
-  const onPress = () => {
+  const onPress = async () => {
     props.setCount(props.id);
     if (props.title == "Negotiate") {
       props.setModalVisible(!props.modalVisible);
@@ -35,8 +36,17 @@ function Button(props) {
       props.setIsBubble(false);
     }
     if (props.title == "Pay with Venmo") {
-      if (props.venmo) {
-        Linking.openURL("https://account.venmo.com/u/" + props.venmo);
+      console.log("here", props.otherEmail);
+
+      const myUserRef = await userRef.doc(props.OthersEmail);
+      const doc = await myUserRef.get();
+      var venmo = "";
+      if (doc.exists) {
+        console.log("ww", doc.data());
+        venmo = doc.data().venmo;
+      }
+      if (venmo !== "") {
+        Linking.openURL("https://account.venmo.com/u/" + venmo);
       } else {
         Alert.alert(
           "Warning",
