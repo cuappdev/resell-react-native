@@ -1,15 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Modal from "react-native-modal";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import PurpleButton from "./PurpleButton";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import { auth, historyRef } from "../config/firebase";
 import moment from "moment";

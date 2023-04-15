@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { Children, ReactElement } from "react";
+import React from "react";
 import { Image, StyleSheet, View } from "react-native";
 import PagerView from "react-native-pager-view";
 

@@ -221,7 +221,7 @@ export default function SignIn() {
         source={require("../assets/images/signinbackgroundhue.png")}
       />
       <View style={styles.innerContainer}>
-        <ResellLogo height={130} width={96} props={undefined} />
+        <ResellLogo width={130} height={96} props={undefined} />
         <View style={{ marginTop: 16 }}>
           <Header />
         </View>

@@ -1,23 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "react-native-modal";
 
-import {
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  ViewStyle,
-  StyleProp,
-  Platform,
-} from "react-native";
+import { StyleSheet, Text, View, ViewStyle, StyleProp } from "react-native";
 import WeekView from "react-native-week-view";
 import PurpleButton from "./PurpleButton";
-import BuyerSyncModal from "./BuyerSyncModal";
 const moment = require("moment");
-import * as Calendar from "expo-calendar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fonts } from "../globalStyle/globalFont";
-import { type } from "os";
 
 export function AvailabilityModal({
   availabilityVisible,

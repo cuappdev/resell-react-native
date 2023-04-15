@@ -1,14 +1,7 @@
 import { useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Easing,
-} from "react-native";
-import { Modal, Portal } from "react-native-paper";
+import { View, TouchableOpacity, StyleSheet, Animated } from "react-native";
 import ColoredPlus from "../assets/svg-components/colored_plus";
 import NewListing from "../assets/svg-components/newListing";
 import NewListingClicked from "../assets/svg-components/newListingClicked";

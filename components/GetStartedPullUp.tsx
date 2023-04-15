@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import { fonts } from "../globalStyle/globalFont";
 
@@ -11,7 +11,7 @@ export function DetailPullUpHeader({ title, description }) {
       >
         {title}
       </Text>
-      <ResellLogo width={75} height={145} props={undefined} />
+      <ResellLogo width={145} height={75} props={undefined} />
       <Text
         style={[
           fonts.body1,

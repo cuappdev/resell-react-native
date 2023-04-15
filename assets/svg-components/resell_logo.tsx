@@ -3,8 +3,8 @@ import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
 function ResellLogo({ props, height, width }) {
   return (
     <Svg
-      width={height}
-      height={width}
+      width={width}
+      height={height}
       viewBox="0 0 58 78"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

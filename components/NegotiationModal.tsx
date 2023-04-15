@@ -4,7 +4,6 @@ import Modal from "react-native-modal";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { NumberPad } from "./CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
-import { TouchableOpacity } from "react-native-gesture-handler";
 const windowHeight = Dimensions.get("window").height;
 import { Platform, NativeModules } from "react-native";
 const { StatusBarManager } = NativeModules;
