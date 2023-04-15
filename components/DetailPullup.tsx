@@ -8,9 +8,11 @@ import {
   View,
   Text,
 } from "react-native";
-import ModalBar from "../assets/svg-components/modal_bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DiscountTag from "../assets/svg-components/discountTag";
+import ModalBar from "../assets/svg-components/modal_bar";
 import { auth } from "../config/firebase";
+import { to2DP } from "../utils/Math";
 
 export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
   return (
@@ -20,7 +22,22 @@ export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
       </View>
       <View style={styles.expandRow}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.price}>{"$" + item.price}</Text>
+        {item.isDiscounted ? (
+          <View>
+            <View style={styles.compactRow}>
+              <View style={styles.discountTagView}>
+                <DiscountTag height={24.09} width={21.67} />
+              </View>
+              <Text style={styles.price}>{"$" + to2DP(item.price)}</Text>
+            </View>
+            <View style={styles.compactRow}>
+              <Text style={styles.prevPrice}>{"was"}</Text>
+              <Text style={styles.prevPriceLine}>{to2DP(item.prevPrice)}</Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.price}>{"$" + item.price}</Text>
+        )}
       </View>
       <View style={styles.paddedRow}>
         <Image source={{ uri: sellerProfile }} style={styles.profileImage} />
@@ -127,6 +144,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
   },
+  compactRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
   expandRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -149,6 +170,21 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Medium",
     paddingRight: 20,
     maxWidth: "25%",
+  },
+  prevPrice: {
+    fontSize: 16,
+    fontFamily: "Rubik-Medium",
+    color: "#898A8D",
+  },
+  prevPriceLine: {
+    fontSize: 16,
+    fontFamily: "Rubik-Medium",
+    textDecorationLine: "line-through",
+    color: "#898A8D",
+    paddingRight: 20,
+  },
+  discountTagView: {
+    paddingRight: 5,
   },
   profile: {
     fontSize: 16,
