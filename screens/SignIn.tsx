@@ -12,6 +12,10 @@ import {
 Logs.enableExpoCliLogging();
 
 export default function SignIn() {
+  GoogleSignin.configure({
+    webClientId: "TODO", // client ID of type WEB for your server (needed to verify user ID and offline access)
+    iosClientId: "TODO",
+  });
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
