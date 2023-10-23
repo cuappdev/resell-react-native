@@ -1,220 +1,36 @@
-import React from "react";
-import { StyleSheet, View, Image, Alert } from "react-native";
-import { useEffect, useState } from "react";
-import useColorScheme from "../hooks/useColorScheme";
-import Navigation from "../navigation";
 import { Logs } from "expo";
-import api from "../config/config";
+import React from "react";
+import { Image, StyleSheet, View } from "react-native";
+import Header from "../assets/svg-components/header";
+import ResellLogo from "../assets/svg-components/resell_logo";
+import PurpleButton from "../components/PurpleButton";
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 
 Logs.enableExpoCliLogging();
-import * as Google from "expo-auth-session/providers/google";
-import { auth, userRef } from "../config/firebase";
-import { useDispatch, useSelector } from "react-redux";
-import ResellLogo from "../assets/svg-components/resell_logo";
-import Header from "../assets/svg-components/header";
-import PurpleButton from "../components/PurpleButton";
 
-import { login, signedInState } from "../state_manage/reducers/signInReducer";
-import {
-  getAccessToken,
-  getEmail,
-  getOnboard,
-  getSignedIn,
-  getUserId,
-  storeAccessToken,
-  storeEmail,
-  storeExpireAt,
-  storeRefreshToken,
-  storeSignedIn,
-  storeUserId,
-} from "../utils/asychStorageFunctions";
 export default function SignIn() {
-  const [request, result, promptAsync] = Google.useIdTokenAuthRequest({
-    expoClientId: api.EXPO_CLIENT_ID,
-    iosClientId: api.IOS_CLIENT_ID,
-    androidClientId: api.IOS_CLIENT_ID,
-    // iosStandaloneAppClientId:
-    //   "947198045768-vju27cp537legpef5ok51obpjshq11bj.apps.googleusercontent.com",
-    // androidStandaloneAppClientId:
-    //   "947198045768-miln50ernorl8s7kqibnpp59hoklor3n.apps.googleusercontent.com",
-  });
-
-  useEffect(() => {
-    if (result?.type === "success") {
-      console.log("Google SignIn", "SUCCESS", result);
-      const token = result.params.id_token;
-      console.log(fetchUserInfo(token));
-    } else {
-      console.log("Google SignIn", "FAILURE", result);
-    }
-  }, [result]);
-
-  const dispatch = useDispatch();
-  const [email, setEmail] = useState("");
-  const [userId, setUserId] = useState("");
-  const [accessToken, setAccessToken] = useState("");
-  const signedIn = useSelector(signedInState);
-  const [isSignedIn, setSigned] = useState(false);
-
-  const log_in = (SUser) => dispatch(login(SUser));
-
-  const colorScheme = useColorScheme();
-  const [onBoard, setOnBoarded] = useState(false);
-
-  useEffect(() => {
-    getSignedIn(setSigned);
-    getEmail(setEmail);
-    console.log("email", email);
-    console.log("signedIn", isSignedIn);
-
-    if (email !== "" && isSignedIn) {
-      getUserId(setUserId);
-      setOnBoarded(true);
-      getAccessToken(setAccessToken);
-      log_in({
-        accessToken: accessToken,
-      });
-      firebaseSignIn(email, userId);
-    }
-  }, [email]);
-  useEffect(() => {
-    getOnboard(setOnBoarded);
-  }, []);
-  // useEffect(() => {
-  //   if (showPagination) {
-  //     setTimeout(() => setShowPagination(false), 3000);
-  //   }
-  // }, [showPagination]);
-
-  async function fetchUserInfo(token) {
-    await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then(async (json) => {
-        if (json.error) {
-          console.log(json.error);
-        } else {
-          const userProfile = {
-            idToken: token,
-            user: {
-              email: json.email,
-              familyName: json.family_name,
-              givenName: json.given_name,
-              id: json.sub,
-              name: json.name,
-              photoUrl: json.picture,
-            },
-          };
-          postRequest(userProfile);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  const register = (email, password) => {
-    auth
-      .createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        storeAuthUser(user, password);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        if (
-          errorMessage ===
-          "The email address is already in use by another account."
-        ) {
-          firebaseSignIn(email, password);
-        }
-      });
-  };
-  const postRequest = (result) => {
-    fetch("https://resell-dev.cornellappdev.com/api/auth/login/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(result),
-    })
-      .then((response) => response.json())
-      .then(async (json) => {
-        if (json.error) {
-          alert("Please Use Your Cornell Email :)");
-        } else {
-          if (!onBoard) {
-            const myUserRef = await userRef.doc(result.user.email);
-            const doc = await myUserRef.get();
-            if (doc.exists) {
-              console.log(doc.data());
-              setOnBoarded(doc.data().onboarded);
-            }
-          }
-          storeAccessToken(json.accessToken);
-          storeUserId(json.userId);
-          storeEmail(result.user.email);
-          storeExpireAt(json.expiresAt + "");
-          storeRefreshToken(json.refreshToken);
-          register(result.user.email, json.userId);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  const storeAuthUser = async (user, userId) => {
+  const signIn = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        user
-          .updateProfile({
-            displayName: json.user.givenName + " " + json.user.familyName,
-            photoURL: json.user.photoUrl,
-          })
-          .then(() => {
-            console.log("finish");
-            log_in(accessToken);
-
-            storeSignedIn("true");
-            setSigned(true);
-          })
-          .catch((error) => {
-            alert(error);
-          });
-      }
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log("user info");
     } catch (error) {
-      console.error(error);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log("Sign in was cancelled");
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log("operation already in progress");
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log("play services not available");
+      } else {
+        console.log(`Some other error ${error}`);
+      }
     }
   };
 
-  const firebaseSignIn = (email, password) => {
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        storeAuthUser(user, password);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-      });
-  };
-  return signedIn.signIn.signedIn ? (
-    <Navigation colorScheme={colorScheme} onboard={onBoard} />
-  ) : (
+  return (
     <View style={styles.containerSignIn}>
       <Image
         style={styles.gradient0}
@@ -230,9 +46,7 @@ export default function SignIn() {
         {/* {!showPagination && ( */}
         <PurpleButton
           text={"Log in with NetID"}
-          onPress={() => {
-            promptAsync();
-          }}
+          onPress={signIn}
           enabled={true}
         />
         {/* {showPagination && <CornellAppdev />} */}
