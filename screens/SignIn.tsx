@@ -1,13 +1,16 @@
+import {
+  GoogleSignin,
+  User,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import { Logs } from "expo";
-import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+import Navigation from "../navigation";
+import { getOnboard } from "../utils/asychStorageFunctions";
 
 Logs.enableExpoCliLogging();
 
@@ -16,10 +19,20 @@ export default function SignIn() {
     webClientId: "TODO", // client ID of type WEB for your server (needed to verify user ID and offline access)
     iosClientId: "TODO",
   });
+  const colorScheme = useColorScheme();
+  const [user, setUser] = useState<User>(null);
+  const [onboard, setOnboard] = useState(false);
   const signIn = async () => {
     try {
+      // Not really sure why we need this line but the guide set to put it in
+      // Maybe it's required for Android? If not, remove it.
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      const mUser = userInfo.user;
+      if (mUser != null) {
+        setUser(userInfo);
+      }
+
       console.log("user info");
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -33,8 +46,14 @@ export default function SignIn() {
       }
     }
   };
+  useEffect(() => {
+    async () => {
+      setUser(await GoogleSignin.getCurrentUser());
+      getOnboard(setOnboard);
+    };
+  }, []);
 
-  return (
+  return user == null ? (
     <View style={styles.containerSignIn}>
       <Image
         style={styles.gradient0}
@@ -56,6 +75,8 @@ export default function SignIn() {
         {/* {showPagination && <CornellAppdev />} */}
       </View>
     </View>
+  ) : (
+    <Navigation colorScheme={colorScheme} onboard={onboard} />
   );
 }
 
