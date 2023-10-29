@@ -3,7 +3,8 @@ import firebase, { getApps, initializeApp } from "firebase/app";
 import { getFirestore, collection } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-const firebaseConfig = {
+// TODO use environment variables
+export const firebaseConfig = {
   apiKey: "TODO",
   authDomain: "TODO",
   databaseURL: "TODO",

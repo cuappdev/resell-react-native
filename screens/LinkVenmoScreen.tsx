@@ -1,33 +1,34 @@
+import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import {
+  Keyboard,
   StyleSheet,
   Text,
-  View,
   TextInput,
   TouchableWithoutFeedback,
-  Keyboard,
+  View,
 } from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
-import { menuBarTop } from "../constants/Layout";
-import { useEffect, useState } from "react";
-import { auth, userRef } from "../config/firebase";
-import { userInfo } from "os";
 import { fonts } from "../globalStyle/globalFont";
-import { getAccessToken, storeOnboarded } from "../utils/asychStorageFunctions";
-import { useSelector } from "react-redux";
+import { storeOnboarded } from "../utils/asychStorageFunctions";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
+  const [user, setUser] = useState<User>(null);
 
-  const [accessToken, setAccessToken] = useState("");
   useEffect(() => {
-    getAccessToken(setAccessToken);
+    const getUser = async () => {
+      setUser(await GoogleSignin.getCurrentUser());
+    };
+    getUser();
   }, []);
 
-  const setOnboarded = async () => {
-    // const accessToken = useSelector(getAccessToken);
+  const updateProfile = async () => {
     try {
       const Json = JSON.stringify({
         photoUrlBase64: image,
@@ -35,34 +36,44 @@ export default function LinkVenmoScreen({ navigation, route }) {
         venmoHandle: venmo,
         bio: bio,
       });
-      await fetch("https://resell-dev.cornellappdev.com/api/user/", {
-        method: "POST",
-        headers: {
-          Authorization: accessToken,
-
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: Json,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            let error = new Error(response.statusText);
-            throw error;
-          } else {
-            return response.json();
-          }
-        })
-        .then(async function (data) {
-          auth.currentUser.updateProfile({
-            displayName: data.user.givenName + " " + data.user.familyName,
-            photoURL: data.user.photoUrl,
-          });
-          userRef.doc(data.user.email).set({ onboarded: true, venmo: venmo });
-          storeOnboarded("true");
-        });
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: user.idToken,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: Json,
+        }
+      );
+      /*
+      TODO for some reason updating our custom backend service is giving an 
+      unauthorized error, I believe it's because we're missing the token field.
+      Look in Resell backend text channel for the question I asked and the 
+      backend docs.
+      */
+      if (!response.ok) {
+        let error = new Error(response.statusText);
+        console.log(`response status = ${response.statusText}`);
+        console.log(`response = ${response.status}`);
+        throw error;
+      }
+      const data = response.json;
+      // These are some examples of how you can use React Native Firebase
+      // TODO refactor ALL calls of the Firebase JS SDK to React Native Firebase
+      await auth().currentUser.updateProfile({
+        displayName: username,
+        photoURL: image,
+      });
+      console.log(`JSON = ${JSON.stringify(data)}`);
+      await firestore()
+        .doc(user.user.email)
+        .set({ onboarded: true, venmo: venmo });
+      storeOnboarded("true");
     } catch (e) {
-      console.log(e);
+      console.log(`issue: ${e}`);
     }
   };
 
@@ -98,12 +109,12 @@ export default function LinkVenmoScreen({ navigation, route }) {
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
-            onPress={() => {
+            onPress={async () => {
+              await updateProfile();
               navigation.navigate("Root", {
                 screen: "HomeTab",
                 params: { showPanel: true },
               });
-              setOnboarded();
             }}
             enabled={venmo.length > 0}
           />
@@ -111,13 +122,13 @@ export default function LinkVenmoScreen({ navigation, route }) {
         <View style={styles.skipButton}>
           <SkipButton
             text={"Skip"}
-            onPress={() => {
+            onPress={async () => {
+              setVenmo("");
+              await updateProfile();
               navigation.navigate("Root", {
                 screen: "HomeTab",
                 params: { showPanel: true },
               });
-              setVenmo("");
-              setOnboarded();
             }}
           />
         </View>

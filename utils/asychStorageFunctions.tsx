@@ -6,7 +6,7 @@ export const storeSignedIn = async (signedIn) => {
     console.log(e);
   }
 };
-export const storeOnboarded = async (onboard) => {
+export const storeOnboarded = async (onboard: "true" | "false") => {
   try {
     await AsyncStorage.setItem("onboard", onboard);
   } catch (e) {
@@ -90,21 +90,6 @@ export const getAccessToken = async (setAccessToken) => {
   AsyncStorage.getItem("accessToken", async (errs, result) => {
     if (!errs && result !== null) {
       setAccessToken(result);
-    }
-  });
-};
-
-export const getRefreshToken = async (setRefreshToken) => {
-  AsyncStorage.getItem("refreshToken", async (errs, result) => {
-    if (!errs && result !== null) {
-      setRefreshToken(result);
-    }
-  });
-};
-export const getExpiredAt = async (setExpiredAt) => {
-  AsyncStorage.getItem("expireAt", async (errs, result) => {
-    if (!errs && result !== null) {
-      setExpiredAt(result);
     }
   });
 };

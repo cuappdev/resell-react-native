@@ -1,3 +1,4 @@
+import auth, { firebase } from "@react-native-firebase/auth";
 import {
   GoogleSignin,
   User,
@@ -9,9 +10,9 @@ import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
+import { firebaseConfig } from "../config/firebase";
 import Navigation from "../navigation";
-import { getOnboard } from "../utils/asychStorageFunctions";
-
+// TODO environment variables STILL not working Dx
 Logs.enableExpoCliLogging();
 
 export default function SignIn() {
@@ -27,13 +28,17 @@ export default function SignIn() {
       // Not really sure why we need this line but the guide set to put it in
       // Maybe it's required for Android? If not, remove it.
       await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
+      const userInfo = await GoogleSignin.signIn({});
       const mUser = userInfo.user;
       if (mUser != null) {
         setUser(userInfo);
+        const googleCredential = auth.GoogleAuthProvider.credential(
+          userInfo.idToken
+        );
+        return auth().signInWithCredential(googleCredential);
       }
 
-      console.log("user info");
+      console.log(`user info = ${JSON.stringify(mUser)}`);
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log("Sign in was cancelled");
@@ -47,10 +52,10 @@ export default function SignIn() {
     }
   };
   useEffect(() => {
-    async () => {
+    const tryLogin = async () => {
       setUser(await GoogleSignin.getCurrentUser());
-      getOnboard(setOnboard);
     };
+    tryLogin();
   }, []);
 
   return user == null ? (

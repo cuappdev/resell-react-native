@@ -33,7 +33,7 @@ export default function OnBoardScreen({ navigation }) {
       aspect: [1, 1],
       quality: 0.5,
     });
-    if (!result.cancelled) {
+    if (!result.canceled) {
       console.log(result);
       setImage("data:image/jpeg;base64," + result["base64"]);
     }
