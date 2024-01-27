@@ -12,13 +12,13 @@ import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
 import { firebaseConfig } from "../config/firebase";
 import Navigation from "../navigation";
-// TODO environment variables STILL not working Dx
+
 Logs.enableExpoCliLogging();
 
 export default function SignIn() {
   GoogleSignin.configure({
-    webClientId: "TODO", // client ID of type WEB for your server (needed to verify user ID and offline access)
-    iosClientId: "TODO",
+    webClientId: process.env.WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
+    iosClientId: process.env.IOS_CLIENT_ID,
   });
   const colorScheme = useColorScheme();
   const [user, setUser] = useState<User>(null);
