@@ -2,9 +2,10 @@
 import firebase, { getApps, initializeApp } from "firebase/app";
 import { getFirestore, collection } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { API_KEY } from "@env";
 
 export const firebaseConfig = {
-  apiKey: process.env.API_KEY,
+  apiKey: API_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   databaseURL: process.env.DATABASE_URL,
   projectId: process.env.PROJECT_ID,

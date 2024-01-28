@@ -12,12 +12,12 @@ import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
 import { firebaseConfig } from "../config/firebase";
 import Navigation from "../navigation";
-
+import { WEB_CLIENT_ID } from "@env";
 Logs.enableExpoCliLogging();
 
 export default function SignIn() {
   GoogleSignin.configure({
-    webClientId: process.env.WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
+    webClientId: WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
     iosClientId: process.env.IOS_CLIENT_ID,
   });
   const colorScheme = useColorScheme();
