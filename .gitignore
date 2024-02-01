@@ -130,4 +130,3 @@ config/GoogleService-Info.plist
 
 # @end expo-cli
 package-lock.json
-yarn.lock
