@@ -1,6 +1,11 @@
+import { PROJECT_ID } from "@env";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
+import * as Notifications from "expo-notifications";
 import * as React from "react";
 import { useEffect, useState } from "react";
+
 import {
   Keyboard,
   StyleSheet,
@@ -13,8 +18,6 @@ import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
 import { fonts } from "../globalStyle/globalFont";
 import { storeOnboarded } from "../utils/asychStorageFunctions";
-import auth from "@react-native-firebase/auth";
-import firestore from "@react-native-firebase/firestore";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
@@ -29,7 +32,36 @@ export default function LinkVenmoScreen({ navigation, route }) {
   }, []);
 
   const updateProfile = async () => {
+    const userData = user.user;
     try {
+      const accessTokenBody = JSON.stringify({
+        idToken: user.idToken,
+        deviceToken: await Notifications.getExpoPushTokenAsync({
+          projectId: PROJECT_ID,
+        }),
+        type: "success",
+        user: {
+          email: userData.email,
+          familyName: userData.familyName,
+          givenName: userData.givenName,
+          id: userData.id,
+          name: userData.name,
+          photoUrl: userData.photo,
+        },
+      });
+
+      // start by gaining access token from the backend
+      const accessTokenRes = await fetch(
+        "https://resell-dev.cornellappdev.com/api/auth/login/",
+        {
+          method: "POST",
+          body: accessTokenBody,
+        }
+      );
+      if (!accessTokenRes.ok) {
+        console.log("something wrong: " + JSON.stringify(accessTokenRes));
+      }
+
       const Json = JSON.stringify({
         photoUrlBase64: image,
         username: username,
@@ -58,20 +90,27 @@ export default function LinkVenmoScreen({ navigation, route }) {
         let error = new Error(response.statusText);
         console.log(`response status = ${response.statusText}`);
         console.log(`response = ${response.status}`);
+        console.log("maybe this won't actually be that bad");
+        console.log(JSON.stringify(response));
         throw error;
+      } else {
+        const data = response.json;
+        // These are some examples of how you can use React Native Firebase
+        // TODO refactor ALL calls of the Firebase JS SDK to React Native Firebase
+        await auth().currentUser.updateProfile({
+          displayName: username,
+          photoURL: image,
+        });
+        console.log(`JSON = ${JSON.stringify(data)}`);
+        await firestore()
+          .doc(user.user.email)
+          .set({ onboarded: true, venmo: venmo });
+        storeOnboarded("true");
+        navigation.navigate("Root", {
+          screen: "HomeTab",
+          params: { showPanel: true },
+        });
       }
-      const data = response.json;
-      // These are some examples of how you can use React Native Firebase
-      // TODO refactor ALL calls of the Firebase JS SDK to React Native Firebase
-      await auth().currentUser.updateProfile({
-        displayName: username,
-        photoURL: image,
-      });
-      console.log(`JSON = ${JSON.stringify(data)}`);
-      await firestore()
-        .doc(user.user.email)
-        .set({ onboarded: true, venmo: venmo });
-      storeOnboarded("true");
     } catch (e) {
       console.log(`issue: ${e}`);
     }
@@ -111,10 +150,6 @@ export default function LinkVenmoScreen({ navigation, route }) {
             text={"Continue"}
             onPress={async () => {
               await updateProfile();
-              navigation.navigate("Root", {
-                screen: "HomeTab",
-                params: { showPanel: true },
-              });
             }}
             enabled={venmo.length > 0}
           />
