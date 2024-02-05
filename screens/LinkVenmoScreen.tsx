@@ -1,4 +1,3 @@
-import { PROJECT_ID } from "@env";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
@@ -36,10 +35,11 @@ export default function LinkVenmoScreen({ navigation, route }) {
     try {
       const accessTokenBody = JSON.stringify({
         idToken: user.idToken,
-        deviceToken: await Notifications.getExpoPushTokenAsync({
-          projectId: PROJECT_ID,
-        }),
-        type: "success",
+        deviceToken: (
+          await Notifications.getExpoPushTokenAsync({
+            projectId: "22e60432-5ecd-4672-a160-0a0c72395237",
+          })
+        ).data,
         user: {
           email: userData.email,
           familyName: userData.familyName,
@@ -49,7 +49,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
           photoUrl: userData.photo,
         },
       });
-
+      console.log("hello world");
       // start by gaining access token from the backend
       const accessTokenRes = await fetch(
         "https://resell-dev.cornellappdev.com/api/auth/login/",
@@ -60,6 +60,14 @@ export default function LinkVenmoScreen({ navigation, route }) {
       );
       if (!accessTokenRes.ok) {
         console.log("something wrong: " + JSON.stringify(accessTokenRes));
+        console.log(`tried body ${accessTokenBody}`);
+      } else {
+        console.log("\n\nhello world\n\n");
+        console.log(
+          `access token received successfully! ${JSON.stringify(
+            accessTokenRes
+          )}`
+        );
       }
 
       const Json = JSON.stringify({
