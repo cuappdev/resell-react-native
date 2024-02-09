@@ -32,44 +32,95 @@ export default function LinkVenmoScreen({ navigation, route }) {
 
   const updateProfile = async () => {
     const userData = user.user;
+    //#region create account
+    const body = JSON.stringify({
+      username: userData.name,
+      netid: userData.email.substring(
+        0,
+        userData.email.indexOf("@cornell.edu")
+      ),
+      givenName: userData.givenName,
+      familyName: userData.familyName,
+      photoUrl: userData.photo,
+      venmoHandle: venmo,
+      email: userData.email,
+      googleId: user.idToken,
+      bio: bio,
+    });
     try {
-      const accessTokenBody = JSON.stringify({
-        idToken: user.idToken,
-        deviceToken: (
-          await Notifications.getExpoPushTokenAsync({
-            projectId: "22e60432-5ecd-4672-a160-0a0c72395237",
-          })
-        ).data,
-        user: {
-          email: userData.email,
-          familyName: userData.familyName,
-          givenName: userData.givenName,
-          id: userData.id,
-          name: userData.name,
-          photoUrl: userData.photo,
+      const route: string = "https://resell-dev.cornellappdev.com/api/auth/";
+      console.log(`sending to ${route}`);
+      console.log(`body: ${body}`);
+      const result = await fetch(route, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: body,
       });
-      console.log("hello world");
-      // start by gaining access token from the backend
-      const accessTokenRes = await fetch(
-        "https://resell-dev.cornellappdev.com/api/auth/login/",
-        {
-          method: "POST",
-          body: accessTokenBody,
-        }
-      );
-      if (!accessTokenRes.ok) {
-        console.log("something wrong: " + JSON.stringify(accessTokenRes));
-        console.log(`tried body ${accessTokenBody}`);
-      } else {
-        console.log("\n\nhello world\n\n");
-        console.log(
-          `access token received successfully! ${JSON.stringify(
-            accessTokenRes
-          )}`
-        );
-      }
+      console.log(`result: ${JSON.stringify(await result.json())}`);
+    } catch (e) {
+      console.log(`issue: ${e}`);
+    }
+    //#endregion
 
+    //#region get user session
+    const sessionResponse = await fetch(
+      "https://resell-dev.cornellappdev.com/api/auth/sessions/84fbd1ca-4d10-48f3-bfff-a599def991de",
+      { method: "GET" }
+    );
+    console.log(
+      `sessionResponse: ${JSON.stringify(await sessionResponse.json())}`
+    );
+    //#endregion
+
+    //#region login account
+    const accessTokenBody = JSON.stringify({
+      idToken: user.idToken,
+      accessToken:
+        "f3f06bcc4c3d9f85a931bcff121f31843f14dc3fbd814fe515b5361cb3d37498b742ff3e0b087c4cb996cb86239874461093d446113cf402114a9045c10ef864",
+      deviceToken: (
+        await Notifications.getExpoPushTokenAsync({
+          projectId: "22e60432-5ecd-4672-a160-0a0c72395237",
+        })
+      ).data,
+      user: {
+        email: userData.email,
+        familyName: userData.familyName,
+        givenName: userData.givenName,
+        id: userData.id,
+        name: userData.name,
+        photoUrl: userData.photo,
+      },
+    });
+
+    // start by gaining access token from the backend
+    const accessTokenRes = await fetch(
+      "https://resell-dev.cornellappdev.com/api/auth/login/",
+      {
+        method: "POST",
+        body: accessTokenBody,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(`\n\n COMMENTING ON ACCESS TOKEN \n\n`);
+    if (!accessTokenRes.ok) {
+      console.log(
+        `\n\n something wrong: ${JSON.stringify(
+          await accessTokenRes.json()
+        )}\n\n`
+      );
+    } else {
+      console.log(
+        `access token received successfully! ${JSON.stringify(accessTokenRes)}`
+      );
+    }
+    //#endregion
+
+    //#region update profile
+    if (false) {
       const Json = JSON.stringify({
         photoUrlBase64: image,
         username: username,
@@ -89,17 +140,17 @@ export default function LinkVenmoScreen({ navigation, route }) {
         }
       );
       /*
-      TODO for some reason updating our custom backend service is giving an 
-      unauthorized error, I believe it's because we're missing the token field.
-      Look in Resell backend text channel for the question I asked and the 
-      backend docs.
-      */
+    TODO for some reason updating our custom backend service is giving an
+    unauthorized error, I believe it's because we're missing the token field.
+    Look in Resell backend text channel for the question I asked and the
+    backend docs.
+    */
       if (!response.ok) {
         let error = new Error(response.statusText);
-        console.log(`response status = ${response.statusText}`);
-        console.log(`response = ${response.status}`);
-        console.log("maybe this won't actually be that bad");
-        console.log(JSON.stringify(response));
+        // console.log(`response status = ${response.statusText}`);
+        // console.log(`response = ${response.status}`);
+        // console.log("maybe this won't actually be that bad");
+        // console.log(JSON.stringify(response));
         throw error;
       } else {
         const data = response.json;
@@ -109,7 +160,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
           displayName: username,
           photoURL: image,
         });
-        console.log(`JSON = ${JSON.stringify(data)}`);
+        // console.log(`JSON = ${JSON.stringify(data)}`);
         await firestore()
           .doc(user.user.email)
           .set({ onboarded: true, venmo: venmo });
@@ -119,9 +170,9 @@ export default function LinkVenmoScreen({ navigation, route }) {
           params: { showPanel: true },
         });
       }
-    } catch (e) {
-      console.log(`issue: ${e}`);
     }
+
+    //#endregion
   };
 
   return (
