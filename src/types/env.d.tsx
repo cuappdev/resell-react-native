@@ -13,4 +13,5 @@ declare module "@env" {
   export const ANDROID_CLIENT_ID_S: string;
   export const IOS_CLIENT_ID_S: string;
   export const WEB_CLIENT_ID: string;
+  export const BASE_API_URL: string;
 }

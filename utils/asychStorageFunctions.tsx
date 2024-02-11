@@ -93,3 +93,5 @@ export const getAccessToken = async (setAccessToken) => {
     }
   });
 };
+
+export const returnAccessToken = () => AsyncStorage.getItem("accessToken");

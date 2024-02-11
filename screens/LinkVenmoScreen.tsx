@@ -1,9 +1,8 @@
-import auth from "@react-native-firebase/auth";
-import firestore from "@react-native-firebase/firestore";
 import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
-import * as Notifications from "expo-notifications";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { auth } from "../config/firebase";
 
 import {
   Keyboard,
@@ -13,168 +12,117 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
 import { useApiClient } from "../data/ApiClientProvider";
 import { fonts } from "../globalStyle/globalFont";
-import { storeOnboarded } from "../utils/asychStorageFunctions";
+import {
+  storeAccessToken,
+  storeOnboarded,
+} from "../utils/asychStorageFunctions";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
   const [user, setUser] = useState<User>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const api = useApiClient();
 
   useEffect(() => {
     const getUser = async () => {
-      setUser(await GoogleSignin.getCurrentUser());
+      const loggedInUser = await GoogleSignin.getCurrentUser();
+      setUser(loggedInUser);
+      const cred = GoogleAuthProvider.credential(loggedInUser.idToken);
+      try {
+        await signInWithCredential(auth, cred);
+        console.log("signed in");
+      } catch (_) {
+        setError("Unknown error with sign in occurred");
+      }
     };
     getUser();
   }, []);
 
-  const updateProfile = async () => {
+  const createAccount = () => {
+    setIsLoading(true);
     const userData = user.user;
-    //#region create account
-    const body = JSON.stringify({
-      username: userData.name,
-      netid: userData.email.substring(
-        0,
-        userData.email.indexOf("@cornell.edu")
-      ),
-      givenName: userData.givenName,
-      familyName: userData.familyName,
-      photoUrl: userData.photo,
+
+    api
+      .post("/auth/", {
+        username: userData.name,
+        netid: userData.email.substring(
+          0,
+          userData.email.indexOf("@cornell.edu")
+        ),
+        givenName: userData.givenName,
+        familyName: userData.familyName,
+        photoUrl: userData.photo,
+        venmoHandle: venmo,
+        email: userData.email,
+        googleId: user.idToken,
+        bio: bio,
+      })
+      .then((res) => {
+        // if it's an error result and they don't already have an account
+        if (res.error && res.httpCode !== 409) {
+          setError("Error creating account");
+          console.log(`res httpCode: ${res.httpCode}`);
+          return;
+        } else {
+          console.log(`create account result: ${JSON.stringify(res)}`);
+        }
+        signIn();
+      });
+  };
+  const signIn = () => {
+    const googleUserData = user.user;
+    const uid = auth.currentUser.uid;
+    console.log(`user id: ${uid}`);
+    console.log(`google ID: ${user.user.id}`);
+
+    // we need to find the user's ID from the backend manually
+    console.log(`trying to find user id`);
+    api.get(`/user/googleId/${googleUserData.id}/`).then((res) => {
+      console.log(`JSON: ${JSON.stringify(res)}`);
+      if (res?.user?.id) {
+        getAccessToken(res.user.id);
+      } else {
+        setError(res?.error ?? "Unknown user error");
+      }
+    });
+
+    setIsLoading(false);
+  };
+  const getAccessToken = async (userId: string) => {
+    //#region login account
+    // Gain access token from the backend
+    const accessTokenRes = await api.get(`/auth/sessions/${userId}/`);
+    const accessToken = accessTokenRes?.sessions?.[0]?.accessToken;
+    if (accessToken) {
+      await storeAccessToken(accessToken);
+      await api.loadAccessToken();
+      updateProfileOnBackend();
+    }
+    //#endregion
+  };
+  const updateProfileOnBackend = async () => {
+    const response = await api.post("/user/", {
+      photoUrlBase64: image,
+      username: username,
       venmoHandle: venmo,
-      email: userData.email,
-      googleId: user.idToken,
       bio: bio,
     });
-    try {
-      const route: string = "https://resell-dev.cornellappdev.com/api/auth/";
-      console.log(`sending to ${route}`);
-      console.log(`body: ${body}`);
-      const result = await fetch(route, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body,
-      });
-      console.log(`result: ${JSON.stringify(await result.json())}`);
-    } catch (e) {
-      console.log(`issue: ${e}`);
-    }
-    //#endregion
+    console.log(`response: ${response}`);
+    console.log(`response json: ${JSON.stringify(response)}`);
+    await storeOnboarded("true");
+    setIsLoading(false);
 
-    //#region get user session
-    const sessionResponse = await fetch(
-      "https://resell-dev.cornellappdev.com/api/auth/sessions/84fbd1ca-4d10-48f3-bfff-a599def991de",
-      { method: "GET" }
-    );
-    console.log(
-      `sessionResponse: ${JSON.stringify(await sessionResponse.json())}`
-    );
-    //#endregion
-
-    //#region login account
-    const accessTokenBody = JSON.stringify({
-      idToken: user.idToken,
-      accessToken:
-        "f3f06bcc4c3d9f85a931bcff121f31843f14dc3fbd814fe515b5361cb3d37498b742ff3e0b087c4cb996cb86239874461093d446113cf402114a9045c10ef864",
-      deviceToken: (
-        await Notifications.getExpoPushTokenAsync({
-          projectId: "22e60432-5ecd-4672-a160-0a0c72395237",
-        })
-      ).data,
-      user: {
-        email: userData.email,
-        familyName: userData.familyName,
-        givenName: userData.givenName,
-        id: userData.id,
-        name: userData.name,
-        photoUrl: userData.photo,
-      },
+    navigation.navigate("Root", {
+      screen: "HomeTab",
+      params: { showPanel: true },
     });
-
-    // start by gaining access token from the backend
-    const accessTokenRes = await fetch(
-      "https://resell-dev.cornellappdev.com/api/auth/login/",
-      {
-        method: "POST",
-        body: accessTokenBody,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    console.log(`\n\n COMMENTING ON ACCESS TOKEN \n\n`);
-    if (!accessTokenRes.ok) {
-      console.log(
-        `\n\n something wrong: ${JSON.stringify(
-          await accessTokenRes.json()
-        )}\n\n`
-      );
-    } else {
-      console.log(
-        `access token received successfully! ${JSON.stringify(accessTokenRes)}`
-      );
-    }
-    //#endregion
-
-    //#region update profile
-    if (false) {
-      const Json = JSON.stringify({
-        photoUrlBase64: image,
-        username: username,
-        venmoHandle: venmo,
-        bio: bio,
-      });
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: user.idToken,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      );
-      /*
-    TODO for some reason updating our custom backend service is giving an
-    unauthorized error, I believe it's because we're missing the token field.
-    Look in Resell backend text channel for the question I asked and the
-    backend docs.
-    */
-      if (!response.ok) {
-        let error = new Error(response.statusText);
-        // console.log(`response status = ${response.statusText}`);
-        // console.log(`response = ${response.status}`);
-        // console.log("maybe this won't actually be that bad");
-        // console.log(JSON.stringify(response));
-        throw error;
-      } else {
-        const data = response.json;
-        // These are some examples of how you can use React Native Firebase
-        // TODO refactor ALL calls of the Firebase JS SDK to React Native Firebase
-        await auth().currentUser.updateProfile({
-          displayName: username,
-          photoURL: image,
-        });
-        // console.log(`JSON = ${JSON.stringify(data)}`);
-        await firestore()
-          .doc(user.user.email)
-          .set({ onboarded: true, venmo: venmo });
-        storeOnboarded("true");
-        navigation.navigate("Root", {
-          screen: "HomeTab",
-          params: { showPanel: true },
-        });
-      }
-    }
-
-    //#endregion
   };
 
   return (
@@ -209,22 +157,18 @@ export default function LinkVenmoScreen({ navigation, route }) {
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
-            onPress={async () => {
-              await updateProfile();
-            }}
+            onPress={createAccount}
             enabled={venmo.length > 0}
           />
         </View>
+        {isLoading && <ActivityIndicator size={"large"} color="#9E70F6" />}
+        {error && <Text style={{ color: "red" }}>{error}</Text>}
         <View style={styles.skipButton}>
           <SkipButton
             text={"Skip"}
-            onPress={async () => {
+            onPress={() => {
               setVenmo("");
-              await updateProfile();
-              navigation.navigate("Root", {
-                screen: "HomeTab",
-                params: { showPanel: true },
-              });
+              createAccount();
             }}
           />
         </View>
