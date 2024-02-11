@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
+import { useApiClient } from "../data/ApiClientProvider";
 import { fonts } from "../globalStyle/globalFont";
 import { storeOnboarded } from "../utils/asychStorageFunctions";
 
@@ -22,6 +23,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
   const [user, setUser] = useState<User>(null);
+  const api = useApiClient();
 
   useEffect(() => {
     const getUser = async () => {

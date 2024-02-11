@@ -5,72 +5,68 @@
  */
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  NavigationContainer,
-  DefaultTheme,
-  DarkTheme,
-} from "@react-navigation/native";
-import { pressedOpacity } from "../constants/Values";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import {
-  StyleSheet,
   ColorSchemeName,
-  View,
+  NativeModules,
+  Platform,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  Platform,
-  NativeModules,
-  StatusBar,
+  View,
 } from "react-native";
+import { pressedOpacity } from "../constants/Values";
 
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 
-import NotificationPreferencesScreen from "../screens/NotificationPreferencesScreen";
-import HomeScreen from "../screens/HomeScreen";
-import SavedScreen from "../screens/SavedScreen";
 import ChatScreen from "../screens/ChatScreen";
+import HomeScreen from "../screens/HomeScreen";
+import NotificationPreferencesScreen from "../screens/NotificationPreferencesScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import SavedScreen from "../screens/SavedScreen";
+import SearchScreen from "../screens/SearchScreen";
 import SendFeedbackScreen from "../screens/SendFeedbackScreen";
 import SettingsScreen from "../screens/SettingsScreen";
-import SearchScreen from "../screens/SearchScreen";
 
+import BookMark from "../assets/svg-components/bookmark";
+import ClickedBookMark from "../assets/svg-components/bookmark_clicked";
+import Chat from "../assets/svg-components/chat";
+import ClickedChat from "../assets/svg-components/clicked_chat";
+import ClickedProfile from "../assets/svg-components/clicked_profile";
+import Home from "../assets/svg-components/home";
+import ClickedHome from "../assets/svg-components/home_clicked";
+import Profile from "../assets/svg-components/profile";
+import ProductDetailsScreen from "../screens/ProductDetailsScreen";
+import LinkingConfiguration from "./LinkingConfiguration";
 import {
+  ChatStackParamList,
+  HomeStackParamList,
+  OnboardStackParamList,
+  ProfileStackParamList,
   RootStackParamList,
   RootTabParamList,
   RootTabScreenProps,
-  HomeStackParamList,
   SavedStackParamList,
-  ProfileStackParamList,
-  OnboardStackParamList,
-  ChatStackParamList,
 } from "./types";
-import LinkingConfiguration from "./LinkingConfiguration";
-import ProductDetailsScreen from "../screens/ProductDetailsScreen";
-import Home from "../assets/svg-components/home";
-import ClickedHome from "../assets/svg-components/home_clicked";
-import BookMark from "../assets/svg-components/bookmark";
-import ClickedBookMark from "../assets/svg-components/bookmark_clicked";
-import ClickedChat from "../assets/svg-components/clicked_chat";
-import Chat from "../assets/svg-components/chat";
-import ClickedProfile from "../assets/svg-components/clicked_profile";
-import Profile from "../assets/svg-components/profile";
 const { StatusBarManager } = NativeModules;
 
 import { bottomTabsHeight } from "../constants/Layout";
 
-import LinkVenmoScreen from "../screens/LinkVenmoScreen";
-import OnBoardScreen from "../screens/OnBoardScreen";
-import ChatWindow from "../screens/ChatWindow";
-import { NewPostImage } from "../screens/NewPostImage";
-import { NewPostDetail } from "../screens/NewPostDetail";
-import EditProfileScreen from "../screens/EditProfileScreen";
 import Venmo from "../assets/svg-components/venmo";
-import { useSelector } from "react-redux";
-import RequestMatches from "../screens/RequestMatches";
+import ApiClientProvider from "../data/ApiClientProvider";
 import { fonts } from "../globalStyle/globalFont";
+import ChatWindow from "../screens/ChatWindow";
+import EditProfileScreen from "../screens/EditProfileScreen";
+import LinkVenmoScreen from "../screens/LinkVenmoScreen";
+import { NewPostDetail } from "../screens/NewPostDetail";
+import { NewPostImage } from "../screens/NewPostImage";
 import { NewRequestScreen } from "../screens/NewRequest";
+import OnBoardScreen from "../screens/OnBoardScreen";
+import RequestMatches from "../screens/RequestMatches";
 
 export default function Navigation({
   colorScheme,
@@ -117,187 +113,189 @@ if (Platform.OS === "android") {
 }
 function RootNavigator({ onboard }) {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        contentStyle: {
-          backgroundColor: "#FFFFFF",
-        },
-      }}
-      initialRouteName="ProfileOnboard"
-    >
-      {!onboard && (
+    <ApiClientProvider>
+      <Stack.Navigator
+        screenOptions={{
+          contentStyle: {
+            backgroundColor: "#FFFFFF",
+          },
+        }}
+        initialRouteName="ProfileOnboard"
+      >
+        {!onboard && (
+          <Stack.Screen
+            name="ProfileOnboard"
+            component={OnboardNavigator}
+            options={{ headerShown: false }}
+          />
+        )}
         <Stack.Screen
-          name="ProfileOnboard"
-          component={OnboardNavigator}
+          name="Root"
+          component={BottomTabNavigator}
           options={{ headerShown: false }}
         />
-      )}
-      <Stack.Screen
-        name="Root"
-        component={BottomTabNavigator}
-        options={{ headerShown: false }}
-      />
 
-      <Stack.Group>
-        <Stack.Screen
-          name="NewPostImage"
-          options={({ navigation }) => ({
-            headerShadowVisible: false,
-            headerStyle: styles.headerNoShadow,
-            headerBackVisible: false,
-            headerTitleAlign: "center",
-            header: () => {
-              return (
-                <View
-                  style={{
-                    height: 70,
-                    backgroundColor: "#ffffff",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginTop: Platform.OS === "ios" ? 35 : 0,
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={pressedOpacity}
+        <Stack.Group>
+          <Stack.Screen
+            name="NewPostImage"
+            options={({ navigation }) => ({
+              headerShadowVisible: false,
+              headerStyle: styles.headerNoShadow,
+              headerBackVisible: false,
+              headerTitleAlign: "center",
+              header: () => {
+                return (
+                  <View
                     style={{
-                      position: "absolute",
-                      right: 20,
-                      alignItems: "center",
+                      height: 70,
+                      backgroundColor: "#ffffff",
                       justifyContent: "center",
-                      height: 50,
-                      width: 50,
+                      alignItems: "center",
+                      marginTop: Platform.OS === "ios" ? 35 : 0,
                     }}
-                    onPress={() => navigation.goBack()}
                   >
-                    <AntDesign
-                      name="close"
-                      size={24}
-                      color="black"
-                      style={{ marginStart: 18 }}
-                    />
-                  </TouchableOpacity>
-                  <Text style={fonts.pageHeading3}>New Listing</Text>
-                </View>
-              );
-            },
-          })}
-          component={NewPostImage}
-        />
-        <Stack.Screen
-          name="NewPostDetail"
-          options={({ navigation }) => ({
-            headerShadowVisible: false,
-            headerStyle: styles.headerNoShadow,
-            headerBackVisible: false,
-            headerTitleAlign: "center",
-            header: () => {
-              return (
-                <View
-                  style={{
-                    height: 70,
-                    backgroundColor: "#ffffff",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginTop: Platform.OS === "ios" ? 35 : 0,
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={pressedOpacity}
+                    <TouchableOpacity
+                      activeOpacity={pressedOpacity}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: 50,
+                        width: 50,
+                      }}
+                      onPress={() => navigation.goBack()}
+                    >
+                      <AntDesign
+                        name="close"
+                        size={24}
+                        color="black"
+                        style={{ marginStart: 18 }}
+                      />
+                    </TouchableOpacity>
+                    <Text style={fonts.pageHeading3}>New Listing</Text>
+                  </View>
+                );
+              },
+            })}
+            component={NewPostImage}
+          />
+          <Stack.Screen
+            name="NewPostDetail"
+            options={({ navigation }) => ({
+              headerShadowVisible: false,
+              headerStyle: styles.headerNoShadow,
+              headerBackVisible: false,
+              headerTitleAlign: "center",
+              header: () => {
+                return (
+                  <View
                     style={{
-                      position: "absolute",
-                      left: 24,
-                      alignItems: "center",
+                      height: 70,
+                      backgroundColor: "#ffffff",
                       justifyContent: "center",
-                      width: 50,
-                      height: 50,
-                    }}
-                    onPress={() => navigation.goBack()}
-                  >
-                    <AntDesign name="left" size={24} color="black" />
-                  </TouchableOpacity>
-                  <Text style={fonts.pageHeading3}>New Listing</Text>
-                  <TouchableOpacity
-                    activeOpacity={pressedOpacity}
-                    style={{
-                      position: "absolute",
-                      right: 20,
                       alignItems: "center",
-                      justifyContent: "center",
-                      width: 50,
-                      height: 50,
+                      marginTop: Platform.OS === "ios" ? 35 : 0,
                     }}
-                    onPress={() => navigation.navigate("Root")}
                   >
-                    <AntDesign name="close" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
-              );
-            },
-          })}
-          component={NewPostDetail}
-        />
+                    <TouchableOpacity
+                      activeOpacity={pressedOpacity}
+                      style={{
+                        position: "absolute",
+                        left: 24,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 50,
+                        height: 50,
+                      }}
+                      onPress={() => navigation.goBack()}
+                    >
+                      <AntDesign name="left" size={24} color="black" />
+                    </TouchableOpacity>
+                    <Text style={fonts.pageHeading3}>New Listing</Text>
+                    <TouchableOpacity
+                      activeOpacity={pressedOpacity}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 50,
+                        height: 50,
+                      }}
+                      onPress={() => navigation.navigate("Root")}
+                    >
+                      <AntDesign name="close" size={24} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                );
+              },
+            })}
+            component={NewPostDetail}
+          />
 
-        <Stack.Screen
-          name="NewRequest"
-          options={({ navigation }) => ({
-            headerShadowVisible: false,
-            headerStyle: styles.headerNoShadow,
-            headerBackVisible: false,
-            headerTitleAlign: "center",
-            header: () => {
-              return (
-                <View
-                  style={{
-                    height: 70,
-                    backgroundColor: "#ffffff",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginTop: Platform.OS === "ios" ? 35 : 0,
-                  }}
-                >
-                  <Text style={fonts.pageHeading3}>Request Details</Text>
-                  <TouchableOpacity
-                    activeOpacity={pressedOpacity}
+          <Stack.Screen
+            name="NewRequest"
+            options={({ navigation }) => ({
+              headerShadowVisible: false,
+              headerStyle: styles.headerNoShadow,
+              headerBackVisible: false,
+              headerTitleAlign: "center",
+              header: () => {
+                return (
+                  <View
                     style={{
-                      position: "absolute",
-                      right: 20,
-                      alignItems: "center",
+                      height: 70,
+                      backgroundColor: "#ffffff",
                       justifyContent: "center",
-                      width: 50,
-                      height: 50,
+                      alignItems: "center",
+                      marginTop: Platform.OS === "ios" ? 35 : 0,
                     }}
-                    onPress={() => navigation.navigate("Root")}
                   >
-                    <AntDesign name="close" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
-              );
-            },
-          })}
-          component={NewRequestScreen}
-        />
-        <Stack.Screen
-          name="ProductHome"
-          component={ProductDetailsScreen}
-          options={{
-            headerShown: false,
-            headerTitle: "",
-            headerTransparent: true,
-          }}
-        />
-      </Stack.Group>
-      <Stack.Group screenOptions={{ presentation: "card" }}>
-        <Stack.Screen
-          name="ChatWindow"
-          options={{
-            headerShown: false,
-            headerTitle: "",
-            headerTransparent: true,
-          }}
-          component={ChatWindow}
-        />
-      </Stack.Group>
-    </Stack.Navigator>
+                    <Text style={fonts.pageHeading3}>Request Details</Text>
+                    <TouchableOpacity
+                      activeOpacity={pressedOpacity}
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 50,
+                        height: 50,
+                      }}
+                      onPress={() => navigation.navigate("Root")}
+                    >
+                      <AntDesign name="close" size={24} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                );
+              },
+            })}
+            component={NewRequestScreen}
+          />
+          <Stack.Screen
+            name="ProductHome"
+            component={ProductDetailsScreen}
+            options={{
+              headerShown: false,
+              headerTitle: "",
+              headerTransparent: true,
+            }}
+          />
+        </Stack.Group>
+        <Stack.Group screenOptions={{ presentation: "card" }}>
+          <Stack.Screen
+            name="ChatWindow"
+            options={{
+              headerShown: false,
+              headerTitle: "",
+              headerTransparent: true,
+            }}
+            component={ChatWindow}
+          />
+        </Stack.Group>
+      </Stack.Navigator>
+    </ApiClientProvider>
   );
 }
 
