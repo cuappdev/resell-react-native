@@ -24,8 +24,7 @@ export default class ApiClient {
     route: string,
     body?: Record<string, any>,
     headers?: Record<string, string>,
-    options?: any,
-    onError?: (error: any) => void
+    options?: any
   ) {
     return fetch(BASE_API_URL + route, {
       method: type,
@@ -36,9 +35,7 @@ export default class ApiClient {
         ...headers,
       },
       ...options,
-    })
-      .then((response) => response.json())
-      .catch((error) => onError(error));
+    }).then((response) => response.json());
   }
 
   async get(
@@ -72,9 +69,8 @@ export default class ApiClient {
     route: string,
     body?: Record<string, any>,
     headers?: Record<string, string>,
-    options?: any,
-    onError?: (error: any) => void
+    options?: any
   ) {
-    return this.request("POST", route, body, headers, options, onError);
+    return this.request("POST", route, body, headers, options);
   }
 }
