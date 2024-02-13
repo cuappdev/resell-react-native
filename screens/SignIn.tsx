@@ -1,4 +1,5 @@
-import auth, { firebase } from "@react-native-firebase/auth";
+import { WEB_CLIENT_ID } from "@env";
+import auth from "@react-native-firebase/auth";
 import {
   GoogleSignin,
   User,
@@ -10,9 +11,7 @@ import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
-import { firebaseConfig } from "../config/firebase";
 import Navigation from "../navigation";
-import { WEB_CLIENT_ID } from "@env";
 Logs.enableExpoCliLogging();
 
 export default function SignIn() {

@@ -1,8 +1,8 @@
 // import firebase from "firebase/app";
-import firebase, { getApps, initializeApp } from "firebase/app";
-import { getFirestore, collection } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 import { API_KEY } from "@env";
+import firebase, { getApps, initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { collection, getFirestore } from "firebase/firestore";
 
 export const firebaseConfig = {
   apiKey: API_KEY,
@@ -15,7 +15,7 @@ export const firebaseConfig = {
   measurementId: process.env.MEASUREMENT_ID,
 };
 let app;
-if (getApps().length === 0) {
+if (!getApps().length) {
   app = initializeApp(firebaseConfig);
 } else {
   app = firebase.getApp(); // if already initialized, use that one
