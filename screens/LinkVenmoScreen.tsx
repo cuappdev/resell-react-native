@@ -61,7 +61,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
         photoUrl: userData.photo,
         venmoHandle: venmo,
         email: userData.email,
-        googleId: user.idToken,
+        googleId: userData.id,
         bio: bio,
       })
       .then((res) => {
