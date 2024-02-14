@@ -1,34 +1,31 @@
-import React, { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
-import { pressedOpacity } from "../constants/Values";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
-  StatusBar,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
-  Text,
 } from "react-native";
+import { pressedOpacity } from "../constants/Values";
 
-import { Image } from "react-native";
-import { LogBox } from "react-native";
+import { Image, LogBox } from "react-native";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 // State imports
-import { useDispatch, useSelector } from "react-redux";
 import { useIsFocused } from "@react-navigation/native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import PostIcon from "../assets/svg-components/postIcon";
+import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import ArchiveIcon from "../assets/svg-components/archiveIcon";
+import PostIcon from "../assets/svg-components/postIcon";
 import RequestIcon from "../assets/svg-components/requestIcon";
 import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
-import { OwnPostRoute } from "./OwnPostRoute";
-import { ArchivedPost } from "./ArchivedRoute";
-import { RequestRoute } from "./RequestRoute";
 import { fonts } from "../globalStyle/globalFont";
 import { getUserId } from "../utils/asychStorageFunctions";
+import { ArchivedPost } from "./ArchivedRoute";
+import { OwnPostRoute } from "./OwnPostRoute";
+import { RequestRoute } from "./RequestRoute";
 export default function ProfileScreen({ navigation }) {
   const isFocused = useIsFocused();
   const [expand, setExpand] = useState(false);

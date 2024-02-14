@@ -1,5 +1,8 @@
 import { BASE_API_URL } from "@env";
-import { returnAccessToken } from "../utils/asychStorageFunctions";
+import {
+  returnAccessToken,
+  storeAccessToken,
+} from "../utils/asychStorageFunctions";
 
 /**
  * The ApiClient is an abstraction of common networking actions that we perform
@@ -22,7 +25,20 @@ export default class ApiClient {
    * Async Storage
    */
   async loadAccessToken() {
-    this.accessToken = await returnAccessToken();
+    try {
+      this.accessToken = await returnAccessToken();
+    } catch (_) {
+      this.accessToken = null;
+    }
+  }
+
+  /**
+   * Removes the access token from React Native Async Storage
+   * as well as from the api client.
+   */
+  async clearAccessToken() {
+    await storeAccessToken("");
+    this.accessToken = null;
   }
 
   private async request(
@@ -113,5 +129,9 @@ export default class ApiClient {
     options?: any
   ) {
     return this.request("POST", route, body, headers, options);
+  }
+
+  hasAccessToken(): boolean {
+    return this.accessToken ? true : false;
   }
 }

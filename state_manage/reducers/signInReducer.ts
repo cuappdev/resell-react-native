@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 
 export const SignInSlice = createSlice({
@@ -8,6 +8,7 @@ export const SignInSlice = createSlice({
   reducers: {
     login: (state, action: PayloadAction<string>) => {
       state.signedIn = true;
+      console.log(`updated signed in state`);
       state.accessToken = action.payload;
       return state;
     },

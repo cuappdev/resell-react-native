@@ -21,7 +21,7 @@ export const storeEmail = async (email) => {
   }
 };
 
-export const storeUserId = async (userid) => {
+export const storeUserId = async (userid: string) => {
   try {
     await AsyncStorage.setItem("userId", userid);
   } catch (e) {
@@ -29,7 +29,7 @@ export const storeUserId = async (userid) => {
   }
 };
 
-export const storeAccessToken = async (accessToken) => {
+export const storeAccessToken = async (accessToken: string) => {
   try {
     await AsyncStorage.setItem("accessToken", accessToken);
   } catch (e) {
@@ -86,6 +86,7 @@ export const getUserId = async (setUserId) => {
     }
   });
 };
+
 export const getAccessToken = async (setAccessToken) => {
   AsyncStorage.getItem("accessToken", async (errs, result) => {
     if (!errs && result !== null) {
