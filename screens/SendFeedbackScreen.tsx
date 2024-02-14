@@ -8,6 +8,7 @@ import {
   Platform,
   Image,
   Alert,
+  FlatList,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BackButton from "../assets/svg-components/back_button";
@@ -15,6 +16,8 @@ import { menuBarTop } from "../constants/Layout";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { FAB } from "react-native-paper";
+import { red100 } from "react-native-paper/lib/typescript/styles/colors";
+import { render } from "react-dom";
 
 const styles = StyleSheet.create({
   container: {
@@ -54,7 +57,7 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Regular",
     fontSize: 16,
     marginTop: Platform.OS === "ios" ? menuBarTop + 50 : 70,
-    marginHorizontal: 20,
+    marginHorizontal: 24,
     textAlign: "center",
   },
   feedbackText: {
@@ -62,7 +65,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#F4F4F4",
     borderRadius: 10,
-    marginHorizontal: 20,
+    marginHorizontal: 24,
     marginTop: 20,
     height: 190,
     padding: 10,
@@ -72,26 +75,29 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Medium",
     fontSize: 16,
     marginTop: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 24,
   },
   fab: {
     marginTop: "auto",
     marginBottom: "auto",
   },
   chosenImage: {
-    width: 300,
-    height: 200,
+    width: 100,
+    height: 100,
     borderRadius: 20,
   },
   imageUploadWrapper: {
     paddingTop: 10,
-    alignItems: "center",
+    marginHorizontal: 24,
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flex: 3,
+    gap: 10
   },
 });
 
 export default function SendFeedbackScreen({ navigation }) {
-  const [image, setImage] = useState<string | undefined>(undefined);
-  const [selectImage, setSelectImage] = React.useState(false);
+  const [images, setImages] = useState([]);
   const [feedbackText, setFeedbackText] = useState("");
   const [userId, setUserId] = useState("");
 
@@ -118,7 +124,7 @@ export default function SendFeedbackScreen({ navigation }) {
               const { status } =
                 await ImagePicker.requestMediaLibraryPermissionsAsync();
               if (status !== "granted") {
-                alert("Sorry, we need gallary permissions to make this work!");
+                alert("Sorry, we need gallery permissions to make this work!");
               } else {
                 storePermission();
               }
@@ -134,11 +140,29 @@ export default function SendFeedbackScreen({ navigation }) {
       base64: true,
       quality: 0.5,
     });
-    if (!result.cancelled && result !== null) {
-      setSelectImage(true);
-      setImage("data:image/jpeg;base64," + result["base64"]);
+    if (!result.canceled && result !== null) {
+      if (images.length < 3) {
+        setImages([...images, "data:image/jpeg;base64," + result["base64"]]);
+      } else {
+        let updatedImages = [...images];
+        updatedImages[2] = "data:image/jpeg;base64," + result["base64"];
+        setImages(updatedImages);
+      }
     }
   };
+
+  const editImage = async (index) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      base64: true,
+      quality: 0.5,
+    });
+    if (!result.canceled && result !== null) {
+      let updatedImages = [...images];
+      updatedImages[index] = "data:image/jpeg;base64," + result["base64"];
+      setImages(updatedImages);
+    }
+  }
 
   const submitFeedback = async () => {
     try {
@@ -152,7 +176,7 @@ export default function SendFeedbackScreen({ navigation }) {
           },
           body: JSON.stringify({
             description: feedbackText,
-            images: [image],
+            images: images, //TODO: Not sure if backend can take a list of images, will check in
             userId: userId, //TODO: replace this with actual userID
           }),
         }
@@ -202,7 +226,12 @@ export default function SendFeedbackScreen({ navigation }) {
       />
       <Text style={styles.sectionTitle}>Image Upload</Text>
       <View style={styles.imageUploadWrapper}>
-        {!selectImage && (
+        {images.map((item, index) => (
+          <TouchableOpacity key={index} onPress={() => editImage(index)}>
+            <Image style={styles.chosenImage} source={{ uri: item }} />
+          </TouchableOpacity>
+        ))}
+        {images.length < 3 && (
           <TouchableOpacity
             style={[
               styles.chosenImage,
@@ -216,11 +245,6 @@ export default function SendFeedbackScreen({ navigation }) {
               color={"#808080"}
               theme={{ colors: { accent: "white" } }}
             />
-          </TouchableOpacity>
-        )}
-        {selectImage && (
-          <TouchableOpacity onPress={pickImage}>
-            <Image style={styles.chosenImage} source={{ uri: image }} />
           </TouchableOpacity>
         )}
       </View>
