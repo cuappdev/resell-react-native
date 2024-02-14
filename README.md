@@ -26,6 +26,10 @@ Therefore you must build for Android or iOS.
 6. `cd ../`
 7. `npx expo run:ios`
 
+### Steps for Android:
+
+We are currently facing build issues for Android. Unfortunately we cannot just use Expo Go since this project uses React Native Google Sign In. We are going to prioritize iOS for now but when we get Android to consistently build this file will be updated.
+
 ## Reference and next steps
 
 For next steps on how to open the app on iOS or Android devices, please refer to [Expo's official documentation on the topic](https://docs.expo.dev/get-started/create-a-new-app/).
