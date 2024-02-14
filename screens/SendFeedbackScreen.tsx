@@ -176,7 +176,7 @@ export default function SendFeedbackScreen({ navigation }) {
           },
           body: JSON.stringify({
             description: feedbackText,
-            images: images, //TODO: Not sure if backend can take a list of images, will check in
+            images: images,
             userId: userId, //TODO: replace this with actual userID
           }),
         }
