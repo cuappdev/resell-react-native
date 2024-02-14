@@ -13,9 +13,9 @@ import {
   View,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
-import { useApiClient } from "../data/ApiClientProvider";
 import { fonts } from "../globalStyle/globalFont";
 import {
   storeAccessToken,

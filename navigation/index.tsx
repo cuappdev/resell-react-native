@@ -56,8 +56,8 @@ const { StatusBarManager } = NativeModules;
 
 import { bottomTabsHeight } from "../constants/Layout";
 
+import ApiClientProvider from "../api/ApiClientProvider";
 import Venmo from "../assets/svg-components/venmo";
-import ApiClientProvider from "../data/ApiClientProvider";
 import { fonts } from "../globalStyle/globalFont";
 import ChatWindow from "../screens/ChatWindow";
 import EditProfileScreen from "../screens/EditProfileScreen";
