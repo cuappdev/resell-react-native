@@ -1,5 +1,4 @@
 import { WEB_CLIENT_ID } from "@env";
-import auth from "@react-native-firebase/auth";
 import {
   GoogleSignin,
   User,
@@ -31,10 +30,6 @@ export default function SignIn() {
       const mUser = userInfo.user;
       if (mUser != null) {
         setUser(userInfo);
-        const googleCredential = auth.GoogleAuthProvider.credential(
-          userInfo.idToken
-        );
-        return auth().signInWithCredential(googleCredential);
       }
 
       console.log(`user info = ${JSON.stringify(mUser)}`);
