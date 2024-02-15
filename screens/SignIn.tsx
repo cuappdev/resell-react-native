@@ -4,6 +4,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { Logs } from "expo";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +12,7 @@ import { useApiClient } from "../api/ApiClientProvider";
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
+import { auth } from "../config/firebase";
 import Navigation from "../navigation";
 import {
   login,
@@ -18,8 +20,10 @@ import {
   signedInState,
 } from "../state_manage/reducers/signInReducer";
 import {
+  getOnboard,
   returnAccessToken,
   storeAccessToken,
+  storeUserId,
 } from "../utils/asychStorageFunctions";
 
 Logs.enableExpoCliLogging();
@@ -33,6 +37,7 @@ export default function SignIn() {
   const signedIn = useSelector(signedInState);
   const dispatch = useDispatch();
   const api = useApiClient();
+  const [onboarded, setOnboarded] = useState(false);
 
   const [error, setError] = useState("");
 
@@ -45,6 +50,10 @@ export default function SignIn() {
       // Start by getting user info from GoogleSignIn
       const user = await GoogleSignin.signIn();
       const userData = user.user;
+
+      // Sign in on Firebase:
+      const credential = GoogleAuthProvider.credential(user.idToken);
+      await signInWithCredential(auth, credential);
 
       // Create an account:
       let accountId: string = "";
@@ -68,6 +77,8 @@ export default function SignIn() {
         return;
       } else {
         accountId = createAccountRes.user?.id;
+        // also since creating an account just worked they need to onboard
+        setOnboarded(false);
       }
 
       // It's possible the user already has an account, try to log them in
@@ -79,6 +90,9 @@ export default function SignIn() {
         setError("Error finding account information");
         return;
       }
+
+      // Now we know the accountId is right, store it
+      await storeUserId(accountId);
 
       // Get an access token and login using it
       const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
@@ -111,11 +125,17 @@ export default function SignIn() {
         dispatch(logout());
       }
     };
+
+    const checkOnboarded = async () => {
+      getOnboard(setOnboarded);
+    };
+
     checkLoggedIn();
+    checkOnboarded();
   }, []);
 
   return signedIn.signIn.signedIn ? (
-    <Navigation colorScheme={colorScheme} onboard />
+    <Navigation colorScheme={colorScheme} onboard={onboarded} />
   ) : (
     <View style={styles.containerSignIn}>
       <Image

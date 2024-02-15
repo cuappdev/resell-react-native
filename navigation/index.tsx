@@ -122,7 +122,7 @@ function RootNavigator({ onboard }) {
         }}
         initialRouteName="ProfileOnboard"
       >
-        {!onboard && (
+        {onboard === "false" && (
           <Stack.Screen
             name="ProfileOnboard"
             component={OnboardNavigator}
