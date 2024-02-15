@@ -1,7 +1,6 @@
 import { WEB_CLIENT_ID } from "@env";
 import {
   GoogleSignin,
-  User,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { Logs } from "expo";
@@ -25,19 +24,16 @@ import {
 
 Logs.enableExpoCliLogging();
 
-export default function SignIn({ navigation, route }) {
+export default function SignIn() {
   GoogleSignin.configure({
     webClientId: WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
     iosClientId: process.env.IOS_CLIENT_ID,
   });
   const colorScheme = useColorScheme();
-  const [user, setUser] = useState<User>(null);
-  const [loggedIn, setLoggedIn] = useState(false);
   const signedIn = useSelector(signedInState);
   const dispatch = useDispatch();
   const api = useApiClient();
 
-  // TODO implement error text
   const [error, setError] = useState("");
 
   const signIn = async () => {
@@ -49,9 +45,6 @@ export default function SignIn({ navigation, route }) {
       // Start by getting user info from GoogleSignIn
       const user = await GoogleSignin.signIn();
       const userData = user.user;
-      if (userData != null) {
-        setUser(user);
-      }
 
       // Create an account:
       let accountId: string = "";
@@ -68,6 +61,8 @@ export default function SignIn({ navigation, route }) {
         googleId: userData.id,
       });
       if (createAccountRes.error && createAccountRes.httpCode !== 409) {
+        // If the httpCode is 409, that means there account already exists, so
+        // we just need to log them in and we don't need to terminate sign in
         setError("Error creating account");
         console.log(`res httpCode: ${createAccountRes.httpCode}`);
         return;
@@ -87,7 +82,6 @@ export default function SignIn({ navigation, route }) {
 
       // Get an access token and login using it
       const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
-      console.log(`route: /auth/sessions/${user.user.id}/`);
       const accessToken = accessTokenRes?.sessions?.[0]?.accessToken;
       if (accessToken) {
         await storeAccessToken(accessToken);
@@ -110,10 +104,8 @@ export default function SignIn({ navigation, route }) {
   };
   useEffect(() => {
     const checkLoggedIn = async () => {
-      console.log(`checking login`);
       const token = await returnAccessToken();
       if (token) {
-        console.log(`token`);
         dispatch(login(token));
       } else {
         dispatch(logout());
@@ -123,7 +115,7 @@ export default function SignIn({ navigation, route }) {
   }, []);
 
   return signedIn.signIn.signedIn ? (
-    <Navigation colorScheme={colorScheme} onboard={loggedIn} />
+    <Navigation colorScheme={colorScheme} onboard />
   ) : (
     <View style={styles.containerSignIn}>
       <Image
