@@ -73,7 +73,6 @@ export default function SignIn() {
         // If the httpCode is 409, that means there account already exists, so
         // we just need to log them in and we don't need to terminate sign in
         setError("Error creating account");
-        console.log(`res httpCode: ${createAccountRes.httpCode}`);
         return;
       } else {
         accountId = createAccountRes.user?.id;
