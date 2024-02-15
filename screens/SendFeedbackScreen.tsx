@@ -8,7 +8,6 @@ import {
   Platform,
   Image,
   Alert,
-  FlatList,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BackButton from "../assets/svg-components/back_button";
@@ -16,8 +15,6 @@ import { menuBarTop } from "../constants/Layout";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { FAB } from "react-native-paper";
-import { red100 } from "react-native-paper/lib/typescript/styles/colors";
-import { render } from "react-dom";
 
 const styles = StyleSheet.create({
   container: {

@@ -95,40 +95,58 @@ export const ExpandablePlusButton = ({
         />
       )}
       <TouchableOpacity
+        style={{
+          position: "absolute",
+          right: 25,
+          bottom: 260,
+          width: 153,
+          height: 43,
+          zIndex: 100,
+        }}
         onPressIn={() => setOnListing(true)}
         onPressOut={() => setOnListing(false)}
         onPress={onListingPressed}
       >
-        <Animated.View
-          style={{
-            position: "absolute",
-            right: 25,
-            bottom: 100,
-            opacity: fade,
-            transform: [{ translateY: listingBottom }],
-          }}
-        >
-          {onListing ? <NewListingClicked /> : <NewListing />}
-        </Animated.View>
       </TouchableOpacity>
+      <Animated.View
+        style={{
+          position: "absolute",
+          right: 25,
+          bottom: 100,
+          opacity: fade,
+          zIndex: 0,
+          transform: [{ translateY: listingBottom }],
+        }}
+      >
+        {onListing ? <NewListingClicked /> : <NewListing />}
+      </Animated.View>
 
       <TouchableOpacity
+        style={{
+          position: "absolute",
+          right: 25,
+          bottom: 190,
+          width: 163,
+          height: 43,
+          zIndex: 100,
+        }}
         onPressIn={() => setOnRequest(true)}
         onPressOut={() => setOnRequest(false)}
         onPress={onRequestPressed}
       >
-        <Animated.View
-          style={{
-            position: "absolute",
-            right: 25,
-            bottom: 100,
-            opacity: fade,
-            transform: [{ translateY: requestBottom }],
-          }}
-        >
-          {onRequest ? <NewRequestClicked /> : <NewRequest />}
-        </Animated.View>
       </TouchableOpacity>
+      <Animated.View
+        style={{
+          position: "absolute",
+          right: 25,
+          bottom: 100,
+          opacity: fade,
+          zIndex: 0,
+          transform: [{ translateY: requestBottom }],
+        }}
+      >
+        {onRequest ? <NewRequestClicked /> : <NewRequest />}
+      </Animated.View>
 
       <LinearGradient
         colors={["#DF9856", "#DE6CD3", "#AD68E3"]}

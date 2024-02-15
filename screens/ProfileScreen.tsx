@@ -200,7 +200,7 @@ export default function ProfileScreen({ navigation }) {
       setArchivedLoading(true);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
-          userId,
+        userId,
         {
           method: "GET",
           headers: {
@@ -226,7 +226,7 @@ export default function ProfileScreen({ navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
-          userId,
+        userId,
         {
           method: "GET",
           headers: {
