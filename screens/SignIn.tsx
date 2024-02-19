@@ -107,9 +107,9 @@ export default function SignIn() {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log("Sign in was cancelled");
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("operation already in progress");
+        console.log("Operation already in progress");
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log("play services not available");
+        console.log("Play services not available");
       } else {
         console.log(`Some other error ${error}`);
       }

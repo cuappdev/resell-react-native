@@ -8,7 +8,6 @@ export const SignInSlice = createSlice({
   reducers: {
     login: (state, action: PayloadAction<string>) => {
       state.signedIn = true;
-      console.log(`updated signed in state`);
       state.accessToken = action.payload;
       return state;
     },
