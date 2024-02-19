@@ -36,7 +36,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
     } else {
       console.log(`update response: ${JSON.stringify(response)}`);
     }
-    await storeOnboarded("true");
+    await storeOnboarded(true);
     setIsLoading(false);
 
     navigation.navigate("Root", {

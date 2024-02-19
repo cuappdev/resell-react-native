@@ -69,15 +69,16 @@ export default function SignIn() {
         email: userData.email,
         googleId: userData.id,
       });
-      if (createAccountRes.error && createAccountRes.httpCode !== 409) {
+
+      if (!createAccountRes.error || createAccountRes.httpCode === 409) {
         // If the httpCode is 409, that means there account already exists, so
         // we just need to log them in and we don't need to terminate sign in
-        setError("Error creating account");
-        return;
-      } else {
         accountId = createAccountRes.user?.id;
         // also since creating an account just worked they need to onboard
         setOnboarded(false);
+      } else {
+        setError("Error creating account");
+        return;
       }
 
       // It's possible the user already has an account, try to log them in
@@ -104,14 +105,16 @@ export default function SignIn() {
         setError("Failed to sign into account");
       }
     } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("Sign in was cancelled");
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("Operation already in progress");
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log("Play services not available");
-      } else {
-        console.log(`Some other error ${error}`);
+      switch (error.code) {
+        case statusCodes.SIGN_IN_CANCELLED:
+          console.log("Sign in was cancelled");
+          break;
+        case statusCodes.IN_PROGRESS:
+          console.log("Operation already in progress");
+        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+          console.log("Play services not available");
+        default:
+          console.log(`Some other error ${error}`);
       }
     }
   };

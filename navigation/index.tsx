@@ -164,7 +164,7 @@ function RootNavigator({ onboard }) {
                         height: 50,
                         width: 50,
                       }}
-                      onPress={() => navigation.goBack()}
+                      onPress={navigation.goBack}
                     >
                       <AntDesign
                         name="close"
@@ -208,7 +208,7 @@ function RootNavigator({ onboard }) {
                         width: 50,
                         height: 50,
                       }}
-                      onPress={() => navigation.goBack()}
+                      onPress={navigation.goBack}
                     >
                       <AntDesign name="left" size={24} color="black" />
                     </TouchableOpacity>
@@ -400,7 +400,7 @@ function ProfileNavigator({ navigation }) {
                       height: 50,
                       justifyContent: "center",
                     }}
-                    onPress={() => navigation.goBack()}
+                    onPress={navigation.goBack}
                   >
                     <AntDesign name="close" size={24} color="black" />
                   </TouchableOpacity>
@@ -522,7 +522,7 @@ function OnboardNavigator({ navigation }) {
                     width: 50,
                     height: 50,
                   }}
-                  onPress={() => navigation.goBack()}
+                  onPress={navigation.goBack}
                 >
                   <AntDesign name="left" size={24} color="black" />
                 </TouchableOpacity>
