@@ -111,8 +111,10 @@ export default function SignIn() {
           break;
         case statusCodes.IN_PROGRESS:
           console.log("Operation already in progress");
+          break;
         case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
           console.log("Play services not available");
+          break;
         default:
           console.log(`Some other error ${error}`);
       }
