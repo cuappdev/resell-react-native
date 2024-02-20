@@ -6,9 +6,9 @@ export const storeSignedIn = async (signedIn) => {
     console.log(e);
   }
 };
-export const storeOnboarded = async (onboard: "true" | "false") => {
+export const storeOnboarded = async (onboard: boolean) => {
   try {
-    await AsyncStorage.setItem("onboard", onboard);
+    await AsyncStorage.setItem("onboard", onboard.toString())
   } catch (e) {
     console.log(e);
   }

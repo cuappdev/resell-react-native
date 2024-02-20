@@ -60,7 +60,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
         console.log(`response = ${response.status}`);
         throw error;
       }
-      const data = response.json;
+      const data = await response.json();
       // These are some examples of how you can use React Native Firebase
       // TODO refactor ALL calls of the Firebase JS SDK to React Native Firebase
       await auth().currentUser.updateProfile({
@@ -71,7 +71,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
       await firestore()
         .doc(user.user.email)
         .set({ onboarded: true, venmo: venmo });
-      storeOnboarded("true");
+      storeOnboarded(true);
     } catch (e) {
       console.log(`issue: ${e}`);
     }

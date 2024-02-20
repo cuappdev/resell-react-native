@@ -140,10 +140,6 @@ export default function SendFeedbackScreen({ navigation }) {
     if (!result.canceled && result !== null) {
       if (images.length < 3) {
         setImages([...images, "data:image/jpeg;base64," + result["base64"]]);
-      } else {
-        let updatedImages = [...images];
-        updatedImages[2] = "data:image/jpeg;base64," + result["base64"];
-        setImages(updatedImages);
       }
     }
   };
@@ -223,9 +219,9 @@ export default function SendFeedbackScreen({ navigation }) {
       />
       <Text style={styles.sectionTitle}>Image Upload</Text>
       <View style={styles.imageUploadWrapper}>
-        {images.map((item, index) => (
+        {images.map((imageURI, index) => (
           <TouchableOpacity key={index} onPress={() => editImage(index)}>
-            <Image style={styles.chosenImage} source={{ uri: item }} />
+            <Image style={styles.chosenImage} source={{ uri: imageURI }} />
           </TouchableOpacity>
         ))}
         {images.length < 3 && (

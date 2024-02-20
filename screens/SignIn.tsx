@@ -40,14 +40,18 @@ export default function SignIn() {
 
       console.log(`user info = ${JSON.stringify(mUser)}`);
     } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("Sign in was cancelled");
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("operation already in progress");
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log("play services not available");
-      } else {
-        console.log(`Some other error ${error}`);
+      switch (error.code) {
+        case statusCodes.SIGN_IN_CANCELLED:
+          console.log("Sign in was cancelled");
+          break;
+        case statusCodes.IN_PROGRESS:
+          console.log("operation already in progress");
+          break;
+        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+          console.log("play services not available");
+          break;
+        default:
+          console.log(`Some other error ${error}`);
       }
     }
   };
