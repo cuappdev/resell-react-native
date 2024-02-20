@@ -1,69 +1,48 @@
 import * as React from "react";
+import { useState } from "react";
+
 import {
+  Keyboard,
   StyleSheet,
   Text,
-  View,
   TextInput,
   TouchableWithoutFeedback,
-  Keyboard,
+  View,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
+import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
-import { menuBarTop } from "../constants/Layout";
-import { useEffect, useState } from "react";
-import { auth, userRef } from "../config/firebase";
-import { userInfo } from "os";
 import { fonts } from "../globalStyle/globalFont";
-import { getAccessToken, storeOnboarded } from "../utils/asychStorageFunctions";
-import { useSelector } from "react-redux";
+import { storeOnboarded } from "../utils/asychStorageFunctions";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const api = useApiClient();
 
-  const [accessToken, setAccessToken] = useState("");
-  useEffect(() => {
-    getAccessToken(setAccessToken);
-  }, []);
-
-  const setOnboarded = async () => {
-    // const accessToken = useSelector(getAccessToken);
-    try {
-      const Json = JSON.stringify({
-        photoUrlBase64: image,
-        username: username,
-        venmoHandle: venmo,
-        bio: bio,
-      });
-      await fetch("https://resell-dev.cornellappdev.com/api/user/", {
-        method: "POST",
-        headers: {
-          Authorization: accessToken,
-
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: Json,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            let error = new Error(response.statusText);
-            throw error;
-          } else {
-            return response.json();
-          }
-        })
-        .then(async function (data) {
-          auth.currentUser.updateProfile({
-            displayName: data.user.givenName + " " + data.user.familyName,
-            photoURL: data.user.photoUrl,
-          });
-          userRef.doc(data.user.email).set({ onboarded: true, venmo: venmo });
-          storeOnboarded("true");
-        });
-    } catch (e) {
-      console.log(e);
+  const updateProfileOnBackend = async () => {
+    const response = await api.post("/user/", {
+      photoUrlBase64: image,
+      username: username,
+      venmoHandle: venmo,
+      bio: bio,
+    });
+    if (response.error) {
+      setError("Failed to update profile");
+      return;
+    } else {
+      console.log(`update response: ${JSON.stringify(response)}`);
     }
+    await storeOnboarded(true);
+    setIsLoading(false);
+
+    navigation.navigate("Root", {
+      screen: "HomeTab",
+      params: { showPanel: true },
+    });
   };
 
   return (
@@ -98,26 +77,18 @@ export default function LinkVenmoScreen({ navigation, route }) {
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
-            onPress={() => {
-              navigation.navigate("Root", {
-                screen: "HomeTab",
-                params: { showPanel: true },
-              });
-              setOnboarded();
-            }}
+            onPress={updateProfileOnBackend}
             enabled={venmo.length > 0}
           />
         </View>
+        {isLoading && <ActivityIndicator size={"large"} color="#9E70F6" />}
+        {error && <Text style={{ color: "red" }}>{error}</Text>}
         <View style={styles.skipButton}>
           <SkipButton
             text={"Skip"}
             onPress={() => {
-              navigation.navigate("Root", {
-                screen: "HomeTab",
-                params: { showPanel: true },
-              });
               setVenmo("");
-              setOnboarded();
+              updateProfileOnBackend();
             }}
           />
         </View>

@@ -6,9 +6,9 @@ export const storeSignedIn = async (signedIn) => {
     console.log(e);
   }
 };
-export const storeOnboarded = async (onboard) => {
+export const storeOnboarded = async (onboard: boolean) => {
   try {
-    await AsyncStorage.setItem("onboard", onboard);
+    await AsyncStorage.setItem("onboard", onboard.toString());
   } catch (e) {
     console.log(e);
   }
@@ -21,7 +21,7 @@ export const storeEmail = async (email) => {
   }
 };
 
-export const storeUserId = async (userid) => {
+export const storeUserId = async (userid: string) => {
   try {
     await AsyncStorage.setItem("userId", userid);
   } catch (e) {
@@ -29,7 +29,7 @@ export const storeUserId = async (userid) => {
   }
 };
 
-export const storeAccessToken = async (accessToken) => {
+export const storeAccessToken = async (accessToken: string) => {
   try {
     await AsyncStorage.setItem("accessToken", accessToken);
   } catch (e) {
@@ -55,7 +55,7 @@ export const storeExpireAt = async (expiresAt) => {
 
 export const getOnboard = async (setOnBoarded) => {
   AsyncStorage.getItem("onboard", async (errs, result) => {
-    if (!errs && result !== null) {
+    if (!errs && result !== null && result !== "false") {
       setOnBoarded(true);
     }
   });
@@ -63,7 +63,7 @@ export const getOnboard = async (setOnBoarded) => {
 export const getSignedIn = async (setSigned) => {
   AsyncStorage.getItem("signedIn", async (errs, result) => {
     if (!errs && result !== null) {
-      if (result == "true") {
+      if (result === "true") {
         setSigned(true);
       } else {
         setSigned(false);
@@ -86,6 +86,7 @@ export const getUserId = async (setUserId) => {
     }
   });
 };
+
 export const getAccessToken = async (setAccessToken) => {
   AsyncStorage.getItem("accessToken", async (errs, result) => {
     if (!errs && result !== null) {
@@ -94,17 +95,4 @@ export const getAccessToken = async (setAccessToken) => {
   });
 };
 
-export const getRefreshToken = async (setRefreshToken) => {
-  AsyncStorage.getItem("refreshToken", async (errs, result) => {
-    if (!errs && result !== null) {
-      setRefreshToken(result);
-    }
-  });
-};
-export const getExpiredAt = async (setExpiredAt) => {
-  AsyncStorage.getItem("expireAt", async (errs, result) => {
-    if (!errs && result !== null) {
-      setExpiredAt(result);
-    }
-  });
-};
+export const returnAccessToken = () => AsyncStorage.getItem("accessToken");

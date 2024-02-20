@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState } from "react";
 import {
-  SafeAreaView,
-  StyleSheet,
   FlatList,
-  ScrollView,
-  RefreshControl,
-  View,
   Platform,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 import ProductCard from "./ProductCard";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { json } from "stream/consumers";
 
 /**
  * Constructs a Button react component

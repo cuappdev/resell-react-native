@@ -41,6 +41,7 @@ export default {
           ],
         },
       ],
+      "@react-native-google-signin/google-signin",
     ],
     updates: {
       fallbackToCacheTimeout: 0,
@@ -49,6 +50,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.cornellappdev.resell",
+      googleServicesFile: "./config/GoogleService-Info.plist",
       buildNumber: "2.0.2",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
