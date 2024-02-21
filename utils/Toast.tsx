@@ -1,12 +1,20 @@
 import Toast from "react-native-root-toast";
-export const makeToast = (message) => {
+export const makeToast = (message: string) => {
   return Toast.show(message, {
+    // TODO add animation
     duration: Toast.durations.SHORT,
-    position: Toast.positions.BOTTOM,
-    backgroundColor: "#9E70F6",
-    animation: true,
+    position: Toast.positions.TOP,
+    backgroundColor: "#FEE6E6",
+    textColor: "#F20000",
+    shadow: false,
+    animation: false,
     hideOnPress: true,
+    containerStyle: {
+      borderRadius: 8,
+    },
+    opacity: 1,
     delay: 0,
+
     onShow: () => {
       // calls on toast\`s appear animation start
     },

@@ -1,34 +1,27 @@
-import React, { useRef } from "react";
+import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Text,
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  Platform,
   Image,
-  KeyboardAvoidingView,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
   TouchableWithoutFeedback,
-  StatusBar,
-  Alert,
+  View,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
-import { menuBarTop } from "../constants/Layout";
-import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
-import { Feather } from "@expo/vector-icons";
-import { pressedOpacity } from "../constants/Values";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ScrollView } from "react-native";
-import { platform } from "os";
 import { auth, userRef } from "../config/firebase";
-import { useSelector } from "react-redux";
+import { menuBarTop } from "../constants/Layout";
+import { pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
-import { getAccessToken } from "../utils/asychStorageFunctions";
 import { makeToast } from "../utils/Toast";
+import { getAccessToken } from "../utils/asychStorageFunctions";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -54,7 +47,7 @@ export default function EditProfileScreen({ navigation, route }) {
       aspect: [1, 1],
       quality: 0.5,
     });
-    if (!result.cancelled) {
+    if (!result.canceled) {
       console.log(result);
       setImage("data:image/jpeg;base64," + result["base64"]);
     }

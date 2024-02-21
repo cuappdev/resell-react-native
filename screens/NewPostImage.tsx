@@ -6,30 +6,30 @@ import React, {
   useState,
 } from "react";
 
+import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ImageEditor } from "expo-image-editor";
+import * as ImagePicker from "expo-image-picker";
 import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
   Animated,
+  Dimensions,
   FlatList,
   NativeScrollEvent,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-const { width: screenWidth } = Dimensions.get("window");
-import * as ImagePicker from "expo-image-picker";
-import { Feather } from "@expo/vector-icons";
 import { pressedOpacity } from "../constants/Values";
-import { ImageEditor } from "expo-image-editor";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+const { width: screenWidth } = Dimensions.get("window");
 
-import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
-import PurpleButton from "../components/PurpleButton";
+import { LinearGradient } from "expo-linear-gradient";
+import AnimatedDotsCarousel from "react-native-animated-dots-carousel";
 import { ScreenWidth } from "react-native-elements/dist/helpers";
 import ColoredPlus from "../assets/svg-components/colored_plus";
-import { LinearGradient } from "expo-linear-gradient";
+import PurpleButton from "../components/PurpleButton";
 import Layout from "../constants/Layout";
 import { fonts } from "../globalStyle/globalFont";
 export function NewPostImage({ navigation }) {
@@ -82,7 +82,7 @@ export function NewPostImage({ navigation }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-    if (!result.cancelled) {
+    if (!result.canceled) {
       console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
