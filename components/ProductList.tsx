@@ -72,10 +72,11 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
     }
   };
   const renderItem = ({ item }) => {
+    console.log(`item JSON: ${JSON.stringify(item)}`);
     return (
       <ProductCard
         title={item.title}
-        price={item.price}
+        price={item.altered_price}
         image={item.images ? item.images[0] : null}
         onPress={() => isSaved(item)}
       />
