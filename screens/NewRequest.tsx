@@ -41,6 +41,7 @@ export function NewRequestScreen({ navigation, route }) {
   const postRequest = async () => {
     try {
       setIsLoading(true);
+      console.log(`description: ${description}`);
       const response = await api.post("/request/", {
         title: title,
         description: description,
@@ -48,6 +49,7 @@ export function NewRequestScreen({ navigation, route }) {
       });
       setIsLoading(false);
       if (response.request) {
+        console.log(`request posted: ${JSON.stringify(response.request)}`);
         makeToast({ message: "New request posted" });
         navigation.navigate("Root");
       } else {
