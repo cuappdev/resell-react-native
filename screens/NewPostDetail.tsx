@@ -51,7 +51,10 @@ export function NewPostDetail({ navigation, route }) {
     if (res.post) {
       navigation.navigate("Root");
     } else {
-      makeToast("Error creating post, check your internet");
+      makeToast({
+        message: "Error creating post, check your internet",
+        type: "ERROR",
+      });
     }
   };
 

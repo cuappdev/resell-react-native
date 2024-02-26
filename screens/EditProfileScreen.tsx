@@ -173,9 +173,12 @@ export default function EditProfileScreen({ navigation, route }) {
               Keyboard.dismiss();
               if (username.length > 0) {
                 submit();
-                makeToast("Profile Updated Successfully");
+                makeToast({ message: "Profile Updated Successfully" });
               } else {
-                makeToast("Username cannot be empty");
+                makeToast({
+                  message: "Username cannot be empty",
+                  type: "ERROR",
+                });
               }
             }}
             style={styles.headerButton}

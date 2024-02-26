@@ -1,21 +1,21 @@
 import React, { useState } from "react";
 
 import {
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
-  View,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Dimensions,
-  TextInput,
-  Platform,
-  KeyboardAvoidingView,
-  Keyboard,
+  View,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 
-import { NegotiationModal } from "../components/NegotiationModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NegotiationModal } from "../components/NegotiationModal";
 import PurpleButton from "../components/PurpleButton";
 import Layout from "../constants/Layout";
 import { fonts } from "../globalStyle/globalFont";
@@ -60,7 +60,7 @@ export function NewRequestScreen({ navigation, route }) {
           let error = new Error(response.statusText);
           throw error;
         } else {
-          makeToast("New request posted");
+          makeToast({ message: "New request posted" });
 
           return response.json();
         }

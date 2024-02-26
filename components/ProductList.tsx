@@ -72,7 +72,6 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
     }
   };
   const renderItem = ({ item }) => {
-    console.log(`item JSON: ${JSON.stringify(item)}`);
     return (
       <ProductCard
         title={item.title}

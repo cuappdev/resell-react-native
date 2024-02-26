@@ -1,12 +1,12 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React from "react";
 
 import {
+  Animated,
   StyleSheet,
-  View,
   Text,
   TouchableOpacity,
-  Animated,
+  View,
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { makeToast } from "../utils/Toast";
@@ -37,7 +37,7 @@ const RequestCard = ({
         let error = new Error(response.statusText);
         throw error;
       } else {
-        makeToast("Request Deleted");
+        makeToast({ message: "Request Deleted" });
         return response.json();
       }
     });

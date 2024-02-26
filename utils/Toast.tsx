@@ -1,13 +1,18 @@
 import Toast from "react-native-root-toast";
-export const makeToast = (message: string) => {
+export const makeToast = ({
+  message,
+  type = "INFO",
+}: {
+  message: string;
+  type?: "INFO" | "ERROR";
+}) => {
   return Toast.show(message, {
-    // TODO add animation
     duration: Toast.durations.SHORT,
     position: Toast.positions.TOP,
-    backgroundColor: "#FEE6E6",
-    textColor: "#F20000",
+    backgroundColor: type === "ERROR" ? "#FEE6E6" : "#F6F1FF",
+    textColor: type === "ERROR" ? "#F20000" : "#9E70F6",
     shadow: false,
-    animation: false,
+    animation: true,
     hideOnPress: true,
     containerStyle: {
       borderRadius: 8,
