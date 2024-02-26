@@ -198,10 +198,7 @@ export function NewPostDetail({ navigation, route }) {
             }}
             isLoading={isLoading}
             enabled={
-              description.length > 0 &&
-              title.length > 0 &&
-              price.length > 1 &&
-              !isLoading
+              description.length > 0 && title.length > 0 && price.length > 1
             }
           />
         </View>

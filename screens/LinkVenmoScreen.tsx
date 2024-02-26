@@ -9,7 +9,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
 import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
@@ -79,9 +78,9 @@ export default function LinkVenmoScreen({ navigation, route }) {
             text={"Continue"}
             onPress={updateProfileOnBackend}
             enabled={venmo.length > 0}
+            isLoading={isLoading}
           />
         </View>
-        {isLoading && <ActivityIndicator size={"large"} color="#9E70F6" />}
         {error && <Text style={{ color: "red" }}>{error}</Text>}
         <View style={styles.skipButton}>
           <SkipButton

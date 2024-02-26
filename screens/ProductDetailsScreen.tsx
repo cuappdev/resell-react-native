@@ -400,8 +400,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
         },
       }
     ).then(function (response) {
-      alert(JSON.stringify(response));
-
       if (!response.ok) {
         console.log("sad");
         let error = new Error(response.statusText);

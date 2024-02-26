@@ -270,8 +270,7 @@ export function NewRequestScreen({ navigation, route }) {
               title.length > 0 &&
               max.length > 1 &&
               min.length > 1 &&
-              Number(max.substring(1)) > Number(min.substring(1)) &&
-              !isLoading
+              Number(max.substring(1)) > Number(min.substring(1))
             }
             isLoading={isLoading}
           />

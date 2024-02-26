@@ -4,6 +4,17 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { fonts } from "../globalStyle/globalFont";
 
+/**
+ * Resell purple button component
+ * @param enabled whether the button is enabled, if false the onPress action will
+ * do nothing and the button takes on a disabled style. The disabled state will also
+ * occur if isLoading is true regardless of the value of enabled
+ * @param onPress the press action
+ * @param text the button label
+ * @param isLoading whether the button is loading, if true the button goes into
+ * a loading state, disabling itself and displaying a loading icon
+ * @returns
+ */
 export default function PurpleButton({
   enabled,
   onPress,
@@ -16,11 +27,11 @@ export default function PurpleButton({
   isLoading?: boolean;
 }) {
   return (
-    <TouchableOpacity onPress={enabled ? onPress : undefined}>
+    <TouchableOpacity onPress={enabled && !isLoading ? onPress : undefined}>
       <View
         style={[
           styles.button,
-          enabled
+          enabled && !isLoading
             ? { backgroundColor: "#9E70F6" }
             : { backgroundColor: "#c8b9fa" },
         ]}
