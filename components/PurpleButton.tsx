@@ -1,21 +1,29 @@
 // this is the general layout for the button that allows users to continue
 import React from "react";
-import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { fonts } from "../globalStyle/globalFont";
 
-export default function PurpleButton(props) {
+export default function PurpleButton({
+  enabled,
+  onPress,
+  text,
+}: {
+  enabled: boolean;
+  onPress: () => void;
+  text: string;
+}) {
   return (
-    <TouchableOpacity onPress={props.enabled ? props.onPress : undefined}>
+    <TouchableOpacity onPress={enabled ? onPress : undefined}>
       <View
         style={[
           styles.button,
-          props.enabled
+          enabled
             ? { backgroundColor: "#9E70F6" }
             : { backgroundColor: "#c8b9fa" },
         ]}
       >
         <Text style={[{ color: "white", textAlign: "center" }, fonts.Title2]}>
-          {props.text}
+          {text}
         </Text>
       </View>
     </TouchableOpacity>
