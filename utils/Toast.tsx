@@ -11,6 +11,7 @@ export const makeToast = ({
     position: Toast.positions.TOP,
     backgroundColor: type === "ERROR" ? "#FEE6E6" : "#F6F1FF",
     textColor: type === "ERROR" ? "#F20000" : "#9E70F6",
+    textStyle: { fontWeight: "500" },
     shadow: false,
     animation: true,
     hideOnPress: true,
