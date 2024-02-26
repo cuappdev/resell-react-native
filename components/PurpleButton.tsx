@@ -25,7 +25,7 @@ export default function PurpleButton({
             : { backgroundColor: "#c8b9fa" },
         ]}
       >
-        {isLoading && <ActivityIndicator size="small" />}
+        {isLoading && <ActivityIndicator color="white" size="small" />}
         <Text style={[{ color: "white", textAlign: "center" }, fonts.Title2]}>
           {text}
         </Text>
@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     padding: "3%",
     borderRadius: 25,
     minHeight: 45,
+    gap: 12,
   },
 
   buttonText: {

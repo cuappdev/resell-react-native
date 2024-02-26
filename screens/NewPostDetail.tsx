@@ -49,6 +49,9 @@ export function NewPostDetail({ navigation, route }) {
 
     if (res.post) {
       navigation.navigate("Root");
+      makeToast({
+        message: "Item successfully posted",
+      });
     } else {
       makeToast({
         message: "Error creating post, check your internet",
@@ -195,7 +198,10 @@ export function NewPostDetail({ navigation, route }) {
             }}
             isLoading={isLoading}
             enabled={
-              description.length > 0 && title.length > 0 && price.length > 1
+              description.length > 0 &&
+              title.length > 0 &&
+              price.length > 1 &&
+              !isLoading
             }
           />
         </View>
