@@ -13,13 +13,13 @@ import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
 import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
 import { storeOnboarded } from "../utils/asychStorageFunctions";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const api = useApiClient();
 
   const updateProfileOnBackend = async () => {
@@ -30,7 +30,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
       bio: bio,
     });
     if (response.error) {
-      setError("Failed to update profile");
+      makeToast({ message: "Failed to update profile", type: "ERROR" });
       return;
     } else {
       console.log(`update response: ${JSON.stringify(response)}`);
@@ -81,7 +81,6 @@ export default function LinkVenmoScreen({ navigation, route }) {
             isLoading={isLoading}
           />
         </View>
-        {error && <Text style={{ color: "red" }}>{error}</Text>}
         <View style={styles.skipButton}>
           <SkipButton
             text={"Skip"}

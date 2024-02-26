@@ -40,8 +40,6 @@ export default function SignIn() {
   const api = useApiClient();
   const [onboarded, setOnboarded] = useState(false);
 
-  const [error, setError] = useState("");
-
   const signIn = async () => {
     try {
       // Not really sure why we need this line but the guide set to put it in
