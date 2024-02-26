@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
+import {
+  GestureHandlerRootView,
+  Swipeable,
+} from "react-native-gesture-handler";
 import { makeToast } from "../utils/Toast";
 
 const RequestCard = ({
@@ -73,48 +76,50 @@ const RequestCard = ({
     );
   };
   return (
-    <Swipeable
-      renderRightActions={renderRightActions}
-      ref={(ref) => (row[index] = ref)}
-      onSwipeableOpen={() => closeRow(index)}
-    >
-      <TouchableOpacity
-        style={styles.container}
-        onPress={() =>
-          navigation.navigate("RequestMatches", {
-            requestId: requestId,
-            title: title,
-          })
-        }
+    <GestureHandlerRootView>
+      <Swipeable
+        renderRightActions={renderRightActions}
+        ref={(ref) => (row[index] = ref)}
+        onSwipeableOpen={() => closeRow(index)}
       >
-        <Animated.View style={[styles.textBox]}>
-          <Text style={styles.title}>{title}</Text>
-          <Text numberOfLines={1} style={styles.description}>
-            {description}
-          </Text>
-        </Animated.View>
-        {numberReceived > 0 && (
-          <View
-            style={{
-              position: "absolute",
-              width: numberReceived > 9 ? 26 : 20,
-              height: 16,
-              backgroundColor: "#9E70F6",
-              borderRadius: 8,
-              alignItems: "center",
-              justifyContent: "center",
-              marginStart: 12,
-              right: 16,
-              top: 12,
-            }}
-          >
-            <Text style={{ color: "#FFFFFF", fontSize: 10, lineHeight: 12 }}>
-              {numberReceived ? "9+" : numberReceived}
+        <TouchableOpacity
+          style={styles.container}
+          onPress={() =>
+            navigation.navigate("RequestMatches", {
+              requestId: requestId,
+              title: title,
+            })
+          }
+        >
+          <Animated.View style={[styles.textBox]}>
+            <Text style={styles.title}>{title}</Text>
+            <Text numberOfLines={1} style={styles.description}>
+              {description}
             </Text>
-          </View>
-        )}
-      </TouchableOpacity>
-    </Swipeable>
+          </Animated.View>
+          {numberReceived > 0 && (
+            <View
+              style={{
+                position: "absolute",
+                width: numberReceived > 9 ? 26 : 20,
+                height: 16,
+                backgroundColor: "#9E70F6",
+                borderRadius: 8,
+                alignItems: "center",
+                justifyContent: "center",
+                marginStart: 12,
+                right: 16,
+                top: 12,
+              }}
+            >
+              <Text style={{ color: "#FFFFFF", fontSize: 10, lineHeight: 12 }}>
+                {numberReceived ? "9+" : numberReceived}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </Swipeable>
+    </GestureHandlerRootView>
   );
 };
 export default RequestCard;

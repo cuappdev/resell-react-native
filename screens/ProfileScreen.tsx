@@ -263,17 +263,20 @@ export default function ProfileScreen({ navigation }) {
   };
   const getRequest = async () => {
     // TODO for some reason this is crashing the app
-    // setRequestLoading(true);
-    // try {
-    //   const data = await api.get(`/request/userId/${userId}`);
-    //   if (data.requests) {
-    //     console.log(`got requests!!! \n\n\n\n`);
-    //     setRequests(data.requests);
-    //   } else {
-    //     setFetchRequestFailed(true);
-    //   }
-    //   setRequestLoading(false);
-    // } catch (error) {}
+    setRequestLoading(true);
+    try {
+      const data = await api.get(`/request/userId/${userId}`);
+      if (data) {
+        console.log(`hello data`);
+        console.log(`data JSON: ${JSON.stringify(data)}`);
+        if (data.requests) {
+          console.log(`yay!`);
+          console.log(data.requests);
+          // crashes even with setRequests([{}])
+          setRequests(data.requests);
+        }
+      }
+    } catch (error) {}
   };
 
   const [routes, setRoutes] = useState([
