@@ -1,15 +1,15 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState } from "react";
 import {
   FlatList,
   Image,
-  StyleSheet,
   ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
   View,
-  Text,
 } from "react-native";
 import ModalBar from "../assets/svg-components/modal_bar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "../config/firebase";
 
 export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
