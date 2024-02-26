@@ -12,7 +12,6 @@ import {
   View,
 } from "react-native";
 
-import { ActivityIndicator } from "react-native-paper";
 import { useApiClient } from "../api/ApiClientProvider";
 import ButtonBanner from "../components/ButtonBanner";
 import { NegotiationModal } from "../components/NegotiationModal";
@@ -189,12 +188,12 @@ export function NewPostDetail({ navigation, route }) {
           <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
         </View>
         <View style={styles.purpleButton}>
-          {isLoading && <ActivityIndicator size={"large"} />}
           <PurpleButton
             text={"Continue"}
             onPress={() => {
               postRequest();
             }}
+            isLoading={isLoading}
             enabled={
               description.length > 0 && title.length > 0 && price.length > 1
             }

@@ -1,16 +1,19 @@
 // this is the general layout for the button that allows users to continue
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import { fonts } from "../globalStyle/globalFont";
 
 export default function PurpleButton({
   enabled,
   onPress,
   text,
+  isLoading = false,
 }: {
   enabled: boolean;
   onPress: () => void;
   text: string;
+  isLoading?: boolean;
 }) {
   return (
     <TouchableOpacity onPress={enabled ? onPress : undefined}>
@@ -22,6 +25,7 @@ export default function PurpleButton({
             : { backgroundColor: "#c8b9fa" },
         ]}
       >
+        {isLoading && <ActivityIndicator size="small" />}
         <Text style={[{ color: "white", textAlign: "center" }, fonts.Title2]}>
           {text}
         </Text>
@@ -33,7 +37,7 @@ export default function PurpleButton({
 const styles = StyleSheet.create({
   button: {
     width: 200,
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     padding: "3%",
