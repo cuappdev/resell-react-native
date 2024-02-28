@@ -6,7 +6,7 @@ import {
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, View, useColorScheme } from "react-native";
+import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useApiClient } from "../api/ApiClientProvider";
 import Header from "../assets/svg-components/header";
@@ -19,6 +19,7 @@ import {
   logout,
   signedInState,
 } from "../state_manage/reducers/signInReducer";
+import { makeToast } from "../utils/Toast";
 import {
   getOnboard,
   returnAccessToken,
@@ -38,8 +39,6 @@ export default function SignIn() {
   const dispatch = useDispatch();
   const api = useApiClient();
   const [onboarded, setOnboarded] = useState(false);
-
-  const [error, setError] = useState("");
 
   const signIn = async () => {
     try {
@@ -77,7 +76,7 @@ export default function SignIn() {
         // also since creating an account just worked they need to onboard
         setOnboarded(false);
       } else {
-        setError("Error creating account");
+        makeToast({ message: "Error creating account", type: "ERROR" });
         return;
       }
 
@@ -87,10 +86,12 @@ export default function SignIn() {
         accountId = userDataResult?.user?.id;
       }
       if (!accountId) {
-        setError("Error finding account information");
+        makeToast({
+          message: "Error finding account information",
+          type: "ERROR",
+        });
         return;
       }
-
       // Now we know the accountId is right, store it
       await storeUserId(accountId);
 
@@ -102,21 +103,24 @@ export default function SignIn() {
         await api.loadAccessToken();
         dispatch(login(accessToken));
       } else {
-        setError("Failed to sign into account");
+        makeToast({ message: "Failed to sign into account", type: "ERROR" });
       }
     } catch (error) {
       switch (error.code) {
         case statusCodes.SIGN_IN_CANCELLED:
-          console.log("Sign in was cancelled");
+          makeToast({ message: "Sign in was cancelled", type: "ERROR" });
           break;
         case statusCodes.IN_PROGRESS:
-          console.log("Operation already in progress");
+          makeToast({
+            message: "Operation already in progress",
+            type: "ERROR",
+          });
           break;
         case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-          console.log("Play services not available");
+          makeToast({ message: "Play services not available", type: "ERROR" });
           break;
         default:
-          console.log(`Some other error ${error}`);
+          makeToast({ message: "An unknown error occurred", type: "ERROR" });
       }
     }
   };
@@ -152,7 +156,6 @@ export default function SignIn() {
           <Header />
         </View>
       </View>
-      {error && <Text style={styles.errorTextStyle}>{error}</Text>}
       <View style={styles.signInButton}>
         <PurpleButton
           text={"Log in with NetID"}

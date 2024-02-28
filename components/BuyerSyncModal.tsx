@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from "react";
-import Modal from "react-native-modal";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-  Alert,
-} from "react-native";
-import PurpleButton from "./PurpleButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Calendar from "expo-calendar";
-import { fonts } from "../globalStyle/globalFont";
-import { auth, historyRef } from "../config/firebase";
 import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { Alert, Platform, StyleSheet, Text, View } from "react-native";
+import Modal from "react-native-modal";
+import { auth, historyRef } from "../config/firebase";
+import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import PurpleButton from "./PurpleButton";
 export default function BuyerSyncModal({
   visible,
   setVisible,
@@ -155,10 +148,13 @@ export default function BuyerSyncModal({
                 await Calendar.requestCalendarPermissionsAsync();
               if (status === "granted") {
                 addNewEvent();
-                makeToast("Added event to your calendar!");
+                makeToast({ message: "Added event to your calendar!" });
               } else {
                 console.log("permission not granted");
-                makeToast("Calendar Permission not Granted");
+                makeToast({
+                  message: "Calendar Permission not Granted",
+                  type: "ERROR",
+                });
               }
             }}
             enabled={true}

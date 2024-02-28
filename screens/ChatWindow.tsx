@@ -1,40 +1,38 @@
-import React from "react";
+import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
+import { ImageEditor } from "expo-image-editor";
+import { Subscription } from "expo-modules-core";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  StyleSheet,
-  SafeAreaView,
-  TextInput,
-  TouchableOpacity,
-  Text,
   Image,
   Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { ButtonBanner } from "../components/ButtonBanner";
-import { Subscription } from "expo-modules-core";
-import NoticeBanner from "../components/NoticeBanner";
 import { Bubble, GiftedChat, Message } from "react-native-gifted-chat";
-import { NegotiationModal } from "../components/NegotiationModal";
-import { AntDesign } from "@expo/vector-icons";
-import { AvailabilityModal } from "../components/AvailabilityMatch";
 import { AvailabilityBubble } from "../components/AvailabilityBubble";
-import { ImageEditor } from "expo-image-editor";
+import { AvailabilityModal } from "../components/AvailabilityMatch";
+import { ButtonBanner } from "../components/ButtonBanner";
+import { NegotiationModal } from "../components/NegotiationModal";
+import NoticeBanner from "../components/NoticeBanner";
 
-import * as ImagePicker from "expo-image-picker";
-import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
-import { auth, chatRef, historyRef } from "../config/firebase";
-import ProductCard from "../components/ProductCard";
-import BackButton from "../assets/svg-components/back_button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Device from "expo-device";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
-import { fonts } from "../globalStyle/globalFont";
+import BackButton from "../assets/svg-components/back_button";
 import BuyerProposeModal from "../components/BuyerProposeModal";
 import BuyerSyncModal from "../components/BuyerSyncModal";
+import MeetingDetailModal from "../components/MeetingDetailModal";
+import ProductCard from "../components/ProductCard";
 import SellerConfirmModal from "../components/SellerConfirmModal";
 import SellerSyncModal from "../components/SellerSyncModal";
-import MeetingDetailModal from "../components/MeetingDetailModal";
-import * as Device from "expo-device";
+import { auth, chatRef, historyRef } from "../config/firebase";
+import { fonts } from "../globalStyle/globalFont";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -387,7 +385,7 @@ export default function ChatWindow({ navigation, route }) {
       // allowsEditing: true,
       // aspect: [3, 4],
     });
-    if (!result.cancelled) {
+    if (!result.canceled) {
       // console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);

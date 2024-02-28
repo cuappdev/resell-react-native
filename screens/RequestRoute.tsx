@@ -1,15 +1,15 @@
-import { platform } from "os";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
+  FlatList,
   Platform,
   StyleSheet,
-  FlatList,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 import RequestCard from "../components/RequestCard";
+import { bottomTabsHeight } from "../constants/Layout";
 import { fonts } from "../globalStyle/globalFont";
 
 export const RequestRoute = ({
@@ -24,24 +24,29 @@ export const RequestRoute = ({
   const [refreshing, setRefreshing] = React.useState(false);
 
   const renderItem = ({ item, index }) => {
-    var length = 0;
+    let length = 0;
 
-    if (item.matches != undefined) {
+    if (item.matches) {
       length = item.matches.length;
     }
 
     return (
-      <RequestCard
-        title={item.title}
-        description={item.title}
-        numberReceived={length}
-        requestId={item.id}
-        index={index}
-        row={row}
-        prevOpenedRow={prevOpenedRow}
-        setPrevOpenedRow={setPrevOpenedRow}
-        navigation={navigation}
-      />
+      <View>
+        <RequestCard
+          title={item.title}
+          description={item.description}
+          numberReceived={length}
+          requestId={item.id}
+          index={index}
+          row={row}
+          prevOpenedRow={prevOpenedRow}
+          setPrevOpenedRow={setPrevOpenedRow}
+          navigation={navigation}
+        />
+        {index === requests.length - 1 && (
+          <View style={{ height: bottomTabsHeight }} />
+        )}
+      </View>
     );
   };
   return (

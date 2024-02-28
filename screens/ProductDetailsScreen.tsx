@@ -150,7 +150,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const [item, setItem] = useState({
     images: post.images,
     title: post.title,
-    price: post.price,
+    price: post.altered_price,
     description: post.description,
     categories: post.categories,
     similarItems: [],
@@ -160,7 +160,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     setItem({
       images: post.images,
       title: post.title,
-      price: post.price,
+      price: post.altered_price,
       description: post.description,
       categories: post.categories,
       similarItems: [],
@@ -323,7 +323,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
           " posted by " +
           sellerName +
           ". It's only for $" +
-          post.price +
+          item.price +
           ". Following the link if you have Resell already downloaded:/n" +
           "resell://product/" +
           post.id,
@@ -400,8 +400,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
         },
       }
     ).then(function (response) {
-      alert(JSON.stringify(response));
-
       if (!response.ok) {
         console.log("sad");
         let error = new Error(response.statusText);

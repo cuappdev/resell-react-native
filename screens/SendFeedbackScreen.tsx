@@ -1,20 +1,19 @@
-import React from "react";
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  Platform,
-  Image,
-  Alert,
-} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { FAB } from "react-native-paper";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
-import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
-import { FAB } from "react-native-paper";
 
 const styles = StyleSheet.create({
   container: {
@@ -134,7 +133,7 @@ export default function SendFeedbackScreen({ navigation }) {
       base64: true,
       quality: 0.5,
     });
-    if (!result.cancelled && result !== null) {
+    if (result && !result.canceled) {
       setSelectImage(true);
       setImage("data:image/jpeg;base64," + result["base64"]);
     }
@@ -153,7 +152,7 @@ export default function SendFeedbackScreen({ navigation }) {
           body: JSON.stringify({
             description: feedbackText,
             images: [image],
-            userId: userId, //TODO: replace this with actual userID
+            userId: userId,
           }),
         }
       );

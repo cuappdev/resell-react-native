@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from "react";
-import Modal from "react-native-modal";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-  Alert,
-} from "react-native";
-import PurpleButton from "../components/PurpleButton";
-import * as Calendar from "expo-calendar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Calendar from "expo-calendar";
+import React, { useEffect, useState } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import Modal from "react-native-modal";
+import PurpleButton from "../components/PurpleButton";
 
-import Toast from "react-native-root-toast";
-import { fonts } from "../globalStyle/globalFont";
 import moment from "moment";
+import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 export default function SellerSyncModal({
   visible,
@@ -98,7 +90,7 @@ export default function SellerSyncModal({
       console.log("added event: ", endDateWithTime);
       console.log("added event: ", startDateWithTime);
     } catch (e) {
-      makeToast("Cannot access your calendar!");
+      makeToast({ message: "Cannot access your calendar!", type: "ERROR" });
 
       console.log(e);
     }
@@ -126,12 +118,15 @@ export default function SellerSyncModal({
                   await Calendar.requestCalendarPermissionsAsync();
                 if (status === "granted") {
                   addNewEvent();
-                  makeToast("Added event to your calendar!");
+                  makeToast({ message: "Added event to your calendar!" });
 
                   console.log("CalendarID: ", calendarID);
                 } else {
                   console.log("permission not granted");
-                  makeToast("Calendar Permission not Granted");
+                  makeToast({
+                    message: "Calendar Permission not Granted",
+                    type: "ERROR",
+                  });
                 }
               };
               setVisible(false);

@@ -1,27 +1,26 @@
 import React, { useState } from "react";
 
 import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
-  View,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Dimensions,
-  TextInput,
-  Platform,
-  KeyboardAvoidingView,
-  Keyboard,
+  View,
 } from "react-native";
-const { width: screenWidth } = Dimensions.get("window");
 
+import { useApiClient } from "../api/ApiClientProvider";
 import ButtonBanner from "../components/ButtonBanner";
-import { FILTER1 } from "../data/filter";
 import { NegotiationModal } from "../components/NegotiationModal";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
 import Layout from "../constants/Layout";
+import { FILTER1 } from "../data/filter";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import { getUserId } from "../utils/asychStorageFunctions";
 
 export function NewPostDetail({ navigation, route }) {
   const { image } = route.params;
@@ -31,47 +30,34 @@ export function NewPostDetail({ navigation, route }) {
   const [description, setDescription] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const api = useApiClient();
+  getUserId(setUserId);
 
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
-  console.log(userId);
-  const postRequest = () => {
-    const Json = JSON.stringify({
+  const postRequest = async () => {
+    setIsLoading(true);
+    const res = await api.post("/post/", {
       title: title,
       description: description,
       categories: [FILTER1[count].title],
       price: Number(price.substring(1)),
-      // created: Math.round(new Date().getTime() / 1000),
+      original_price: Number(price.substring(1)),
       imagesBase64: image,
       userId: userId,
     });
-    console.log(Json);
-    fetch("https://resell-dev.cornellappdev.com/api/post/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: Json,
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          // let error = new Error(response.statusText);
-          console.log("why", response.body);
-        } else {
-          makeToast("New listing posted");
+    setIsLoading(false);
 
-          return response.json();
-        }
-      })
-      .then(async function (data) {
-        navigation.navigate("Root");
+    if (res.post) {
+      navigation.navigate("Root");
+      makeToast({
+        message: "Item successfully posted",
       });
+    } else {
+      makeToast({
+        message: "Error creating post, check your internet",
+        type: "ERROR",
+      });
+    }
   };
 
   return (
@@ -210,6 +196,7 @@ export function NewPostDetail({ navigation, route }) {
             onPress={() => {
               postRequest();
             }}
+            isLoading={isLoading}
             enabled={
               description.length > 0 && title.length > 0 && price.length > 1
             }

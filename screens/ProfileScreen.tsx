@@ -1,27 +1,28 @@
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
+  Image,
+  LogBox,
   Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SceneMap, TabBar, TabView } from "react-native-tab-view";
+import ArchiveIcon from "../assets/svg-components/archiveIcon";
+import PostIcon from "../assets/svg-components/postIcon";
+import RequestIcon from "../assets/svg-components/requestIcon";
+import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
 import { pressedOpacity } from "../constants/Values";
-
-import { Image, LogBox } from "react-native";
+import { fonts } from "../globalStyle/globalFont";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 // State imports
 import { useIsFocused } from "@react-navigation/native";
-import { SceneMap, TabBar, TabView } from "react-native-tab-view";
-import ArchiveIcon from "../assets/svg-components/archiveIcon";
-import PostIcon from "../assets/svg-components/postIcon";
-import RequestIcon from "../assets/svg-components/requestIcon";
-import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
-import { fonts } from "../globalStyle/globalFont";
+import { useApiClient } from "../api/ApiClientProvider";
 import { getUserId } from "../utils/asychStorageFunctions";
 import { ArchivedPost } from "./ArchivedRoute";
 import { OwnPostRoute } from "./OwnPostRoute";
@@ -42,6 +43,7 @@ export default function ProfileScreen({ navigation }) {
   const [fetchRequestFailed, setFetchRequestFailed] = useState(false);
   const [username, setUsername] = useState("");
   const [realname, setRealname] = useState("");
+  const api = useApiClient();
 
   const [bio, setBio] = useState("");
   const [image, setImage] = useState("");
@@ -91,7 +93,7 @@ export default function ProfileScreen({ navigation }) {
     getUserIngress();
     getPostsIngress();
     getArchivedIngress();
-    getRequestIngress();
+    getRequest();
   }, [isFocused]);
 
   useEffect(() => {
@@ -260,35 +262,15 @@ export default function ProfileScreen({ navigation }) {
     }
   };
   const getRequest = async () => {
+    setRequestLoading(true);
     try {
-      setRequestLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/request/userId/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setRequests(json.requests);
+      const data = await api.get(`/request/userId/${userId}`);
+      if (data && data.requests) {
+        setRequests(data.requests);
       }
     } catch (error) {
-      console.error(error);
       setFetchRequestFailed(true);
-    } finally {
-      setRequestLoading(false);
-    }
-  };
-
-  const getRequestIngress = async () => {
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/request/userId/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setRequests(json.requests);
-      }
-    } catch (error) {
       console.error(error);
-      setFetchRequestFailed(true);
     }
   };
 

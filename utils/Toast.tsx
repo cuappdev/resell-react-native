@@ -1,12 +1,27 @@
 import Toast from "react-native-root-toast";
-export const makeToast = (message) => {
+import Colors from "../constants/Colors";
+export const makeToast = ({
+  message,
+  type = "INFO",
+}: {
+  message: string;
+  type?: "INFO" | "ERROR";
+}) => {
   return Toast.show(message, {
     duration: Toast.durations.SHORT,
-    position: Toast.positions.BOTTOM,
-    backgroundColor: "#9E70F6",
+    position: Toast.positions.TOP,
+    backgroundColor: type === "ERROR" ? Colors.errorBg : Colors.toastBg,
+    textColor: type === "ERROR" ? Colors.errorState : Colors.resellPurple,
+    textStyle: { fontWeight: "500" },
+    shadow: false,
     animation: true,
     hideOnPress: true,
+    containerStyle: {
+      borderRadius: 8,
+    },
+    opacity: 1,
     delay: 0,
+
     onShow: () => {
       // calls on toast\`s appear animation start
     },
@@ -21,7 +36,7 @@ export const makeToast = (message) => {
     },
   });
 };
-export const hideToast = (toast) => {
+export const hideToast = (toast: any) => {
   // You can manually hide the Toast, or it will automatically disappear after a `duration` ms timeout.
   setTimeout(function () {
     Toast.hide(toast);

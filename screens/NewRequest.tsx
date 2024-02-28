@@ -1,27 +1,30 @@
 import React, { useState } from "react";
 
 import {
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
-  View,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Dimensions,
-  TextInput,
-  Platform,
-  KeyboardAvoidingView,
-  Keyboard,
+  View,
 } from "react-native";
 const { width: screenWidth } = Dimensions.get("window");
 
+import { useApiClient } from "../api/ApiClientProvider";
 import { NegotiationModal } from "../components/NegotiationModal";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
 import Layout from "../constants/Layout";
 import { fonts } from "../globalStyle/globalFont";
+import { getUserId } from "../utils/asychStorageFunctions";
 import { makeToast } from "../utils/Toast";
 
 export function NewRequestScreen({ navigation, route }) {
+  const api = useApiClient();
+
   const [title, setTitle] = useState("");
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
@@ -30,44 +33,29 @@ export function NewRequestScreen({ navigation, route }) {
   const [minModalVisible, setMinModalVisible] = useState(false);
   const [maxModalVisible, setMaxModalVisible] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [userId, setUserId] = useState("");
+  getUserId(setUserId);
 
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
-  console.log(userId);
-  const postRequest = () => {
-    const Json = JSON.stringify({
-      title: title,
-      description: description,
-      userId: userId,
-    });
-    console.log(Json);
-    fetch("https://resell-dev.cornellappdev.com/api/request/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: Json,
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          let error = new Error(response.statusText);
-          throw error;
-        } else {
-          makeToast("New request posted");
-
-          return response.json();
-        }
-      })
-      .then(async function (data) {
-        navigation.navigate("Root");
+  const postRequest = async () => {
+    try {
+      setIsLoading(true);
+      console.log(`description: ${description}`);
+      const response = await api.post("/request/", {
+        title: title,
+        description: description,
+        userId: userId,
       });
+      setIsLoading(false);
+      if (response.request) {
+        console.log(`request posted: ${JSON.stringify(response.request)}`);
+        makeToast({ message: "New request posted" });
+        navigation.navigate("Root");
+      } else {
+        makeToast({ message: "Error posting request", type: "ERROR" });
+      }
+    } catch (e: unknown) {}
   };
 
   return (
@@ -284,6 +272,7 @@ export function NewRequestScreen({ navigation, route }) {
               min.length > 1 &&
               Number(max.substring(1)) > Number(min.substring(1))
             }
+            isLoading={isLoading}
           />
         </View>
       </KeyboardAvoidingView>

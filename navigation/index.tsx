@@ -575,7 +575,7 @@ export function BottomTabNavigator({ route }) {
         },
 
         tabBarIconStyle: { justifyContent: "center" },
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarActiveTintColor: Colors.tint,
         tabBarStyle: styles.BottomTab,
         tabBarHideOnKeyboard: true,
       })}
