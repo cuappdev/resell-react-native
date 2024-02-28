@@ -2,6 +2,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import Colors from "../constants/Colors";
 import { fonts } from "../globalStyle/globalFont";
 
 /**
@@ -32,8 +33,8 @@ export default function PurpleButton({
         style={[
           styles.button,
           enabled && !isLoading
-            ? { backgroundColor: "#9E70F6" }
-            : { backgroundColor: "#c8b9fa" },
+            ? { backgroundColor: Colors.resellPurple }
+            : { backgroundColor: Colors.inactivePurple },
         ]}
       >
         {isLoading && <ActivityIndicator color="white" size="small" />}

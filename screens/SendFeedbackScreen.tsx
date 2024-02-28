@@ -133,7 +133,7 @@ export default function SendFeedbackScreen({ navigation }) {
       base64: true,
       quality: 0.5,
     });
-    if (!result.canceled && result !== null) {
+    if (result && !result.canceled) {
       setSelectImage(true);
       setImage("data:image/jpeg;base64," + result["base64"]);
     }
@@ -152,7 +152,7 @@ export default function SendFeedbackScreen({ navigation }) {
           body: JSON.stringify({
             description: feedbackText,
             images: [image],
-            userId: userId, //TODO: replace this with actual userID
+            userId: userId,
           }),
         }
       );

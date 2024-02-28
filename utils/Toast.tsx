@@ -1,4 +1,5 @@
 import Toast from "react-native-root-toast";
+import Colors from "../constants/Colors";
 export const makeToast = ({
   message,
   type = "INFO",
@@ -9,8 +10,8 @@ export const makeToast = ({
   return Toast.show(message, {
     duration: Toast.durations.SHORT,
     position: Toast.positions.TOP,
-    backgroundColor: type === "ERROR" ? "#FEE6E6" : "#F6F1FF",
-    textColor: type === "ERROR" ? "#F20000" : "#9E70F6",
+    backgroundColor: type === "ERROR" ? Colors.errorBg : Colors.toastBg,
+    textColor: type === "ERROR" ? Colors.errorState : Colors.resellPurple,
     textStyle: { fontWeight: "500" },
     shadow: false,
     animation: true,

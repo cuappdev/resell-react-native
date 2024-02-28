@@ -12,6 +12,7 @@ import {
   GestureHandlerRootView,
   Swipeable,
 } from "react-native-gesture-handler";
+import Colors from "../constants/Colors";
 import { makeToast } from "../utils/Toast";
 
 const RequestCard = ({
@@ -103,7 +104,7 @@ const RequestCard = ({
                 position: "absolute",
                 width: numberReceived > 9 ? 26 : 20,
                 height: 16,
-                backgroundColor: "#9E70F6",
+                backgroundColor: Colors.resellPurple,
                 borderRadius: 8,
                 alignItems: "center",
                 justifyContent: "center",

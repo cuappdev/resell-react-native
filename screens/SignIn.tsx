@@ -92,7 +92,6 @@ export default function SignIn() {
         });
         return;
       }
-
       // Now we know the accountId is right, store it
       await storeUserId(accountId);
 
