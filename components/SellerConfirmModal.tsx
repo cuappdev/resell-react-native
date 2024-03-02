@@ -1,10 +1,11 @@
+import { collection, doc, updateDoc } from "firebase/firestore";
+import moment from "moment";
 import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
-import PurpleButton from "./PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
-import moment from "moment";
+import PurpleButton from "./PurpleButton";
 export default function SellerConfirmModal({
   visible,
   setVisible,
@@ -49,24 +50,25 @@ export default function SellerConfirmModal({
           <PurpleButton
             text={"Confirm"}
             onPress={() => {
-              historyRef
-                .doc(auth?.currentUser?.email)
-                .collection("buyers")
-                .doc(email)
-                .update({
-                  proposedViewed: true,
-                });
-              historyRef
-                .doc(email)
-                .collection("sellers")
-                .doc(auth?.currentUser?.email)
-                .update({
-                  recentMessage: "Seller Confirmed",
-                  recentSender: auth?.currentUser?.email,
-                  confirmedTime: startDate,
-                  confirmedViewed: false,
-                  viewed: false,
-                });
+              // update sellers and buyers docs:
+
+              const sellerDoc = doc(
+                collection(doc(historyRef, auth.currentUser.email), "buyers"),
+                email
+              );
+              updateDoc(sellerDoc, { proposedView: true });
+
+              const buyerDoc = doc(
+                collection(doc(historyRef, email), "sellers"),
+                auth.currentUser.email
+              );
+              updateDoc(buyerDoc, {
+                recentMessage: "Seller Confirmed",
+                recentSender: auth?.currentUser?.email,
+                confirmedTime: startDate,
+                confirmedViewed: false,
+                viewed: false,
+              });
               setVisible(false);
               setShowNotice(false);
               setActivateIcon(true);
