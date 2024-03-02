@@ -1,19 +1,20 @@
+import { Feather } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   FlatList,
   Image,
-  View,
+  StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
 
+import { useIsFocused } from "@react-navigation/native";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 import ChatTbas from "../components/ChatTabs";
 import { auth, historyRef } from "../config/firebase";
-import { fonts } from "../globalStyle/globalFont";
 import { IBuyerPreview, ISellerPreview } from "../data/struct";
-import { useIsFocused } from "@react-navigation/native";
+import { fonts } from "../globalStyle/globalFont";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
@@ -25,12 +26,14 @@ export default function ChatScreen({ navigation }) {
 
   const getPurchase = async () => {
     setPurchase([]);
-    const query = historyRef
-      .doc(auth?.currentUser?.email) //my email and I have a bunches of chats with sellers in the purchase list
-      .collection("sellers");
+
+    const sellersQuery = collection(
+      doc(historyRef, auth.currentUser?.email),
+      "sellers"
+    );
 
     try {
-      query.onSnapshot((querySnapshot) => {
+      onSnapshot(sellersQuery, (querySnapshot) => {
         var tempt: IBuyerPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
@@ -55,10 +58,13 @@ export default function ChatScreen({ navigation }) {
   const getOffer = async () => {
     setOffer([]);
 
-    const query = historyRef.doc(auth?.currentUser?.email).collection("buyers");
+    const buyersQuery = collection(
+      doc(historyRef, auth.currentUser?.email),
+      "buyers"
+    );
 
     try {
-      query.onSnapshot((querySnapshot) => {
+      onSnapshot(buyersQuery, (querySnapshot) => {
         var tempt: ISellerPreview[] = [];
 
         querySnapshot.docs.forEach((doc) => {
