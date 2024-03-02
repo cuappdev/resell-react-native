@@ -584,7 +584,7 @@ export default function ChatWindow({ navigation, route }) {
           setAvailabilityVisible={setAvailabilityVisible}
           setIsBubble={setIsBubble}
           alwaysColor={true}
-          OthersEmail={email}
+          otherEmail={email}
         />
         <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
           <TouchableOpacity
