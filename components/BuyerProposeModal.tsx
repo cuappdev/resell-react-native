@@ -1,10 +1,10 @@
+import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import { auth, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
-import { makeToast } from "../utils/Toast";
 import PurpleButton from "./PurpleButton";
 export default function BuyerProposeModal({
   visible,
@@ -51,39 +51,30 @@ export default function BuyerProposeModal({
           <PurpleButton
             text={"Propose Meeting"}
             onPress={async () => {
-              const myHistoryRef = await historyRef
-                .doc(sellerEmail)
-                .collection("buyers")
-                .doc(auth?.currentUser?.email);
-              const doc = await myHistoryRef.get();
+              // update the interaction history to include the time proposal
 
-              if (doc.exists) {
-                myHistoryRef.update({
-                  recentMessage: "Proposed a Time",
-                  recentSender: auth?.currentUser?.email,
-                  proposedTime: startDate,
-                  proposedViewed: false,
-                  viewed: false,
-                });
+              const interactionHistoryRef = doc(
+                collection(doc(historyRef, sellerEmail), "buyers"),
+                auth.currentUser.email
+              );
+              const updateData = {
+                recentMessage: "Proposed a Time",
+                recentSender: auth?.currentUser?.email,
+                proposedTime: startDate,
+                proposedViewed: false,
+                viewed: false,
+              };
+              const interactionHistoryDoc = await getDoc(interactionHistoryRef);
+              if (interactionHistoryDoc.exists()) {
+                updateDoc(interactionHistoryRef, updateData);
               } else {
-                historyRef
-                  .doc(sellerEmail)
-                  .collection("buyers")
-                  .doc(auth?.currentUser?.email)
-                  .set({
-                    item: post,
-                    recentMessage: "Proposed a Time",
-                    recentSender: auth?.currentUser?.email,
-                    name: auth?.currentUser?.displayName,
-                    image: auth?.currentUser?.photoURL,
-                    viewed: false,
-                    proposedTime: startDate,
-                    proposedViewed: false,
-                  });
+                setDoc(interactionHistoryRef, {
+                  item: post,
+                  name: auth?.currentUser?.displayName,
+                  image: auth?.currentUser?.photoURL,
+                  ...updateData,
+                });
               }
-              setStartDate("");
-              setVisible(false);
-              makeToast({ message: "Time proposed" });
             }}
             enabled={true}
           />
