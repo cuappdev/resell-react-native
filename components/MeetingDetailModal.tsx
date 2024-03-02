@@ -1,24 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import PurpleButton from "./PurpleButton";
 
-import { auth, historyRef } from "../config/firebase";
+import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
+import { auth, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 export default function meetingDetailModal({
   visible,
   setVisible,
   startDate,
-  sellerEmail,
+  otherEmail,
   name,
   post,
   isBuyer,
@@ -28,6 +20,8 @@ export default function meetingDetailModal({
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
+  const sellerEmail = isBuyer ? otherEmail : auth.currentUser.email;
+  const buyerEmail = isBuyer ? auth.currentUser.email : otherEmail;
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
@@ -61,22 +55,29 @@ export default function meetingDetailModal({
         <TouchableOpacity
           style={{ position: "absolute", bottom: "11%" }}
           onPress={async () => {
-            await historyRef
-              .doc(isBuyer ? sellerEmail : auth?.currentUser?.email)
-              .collection("buyers")
-              .doc(isBuyer ? auth?.currentUser?.email : sellerEmail)
-              .update({
+            // update interaction histories for seller and buyer
+            // seller:
+            updateDoc(
+              doc(
+                collection(doc(historyRef, sellerEmail), "buyers"),
+                buyerEmail
+              ),
+              {
                 proposedTime: "",
                 proposedViewed: false,
-              });
-            await historyRef
-              .doc(isBuyer ? auth?.currentUser?.email : sellerEmail)
-              .collection("sellers")
-              .doc(isBuyer ? sellerEmail : auth?.currentUser?.email)
-              .update({
+              }
+            );
+            // buyer:
+            updateDoc(
+              doc(
+                collection(doc(historyRef, sellerEmail), "sellers"),
+                sellerEmail
+              ),
+              {
                 confirmedTime: "",
                 confirmedViewed: false,
-              });
+              }
+            );
 
             setVisible(false);
             setActivateIcon(false);

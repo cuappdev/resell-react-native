@@ -921,7 +921,7 @@ export default function ChatWindow({ navigation, route }) {
           visible={meetingDetailVisible}
           setVisible={setMeetingDetailVisible}
           startDate={isBuyer ? confirmedTime : proposedTime}
-          sellerEmail={email}
+          otherEmail={email}
           name={name}
           post={post}
           isBuyer={isBuyer}
