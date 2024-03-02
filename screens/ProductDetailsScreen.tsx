@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -492,20 +493,18 @@ export default function ProductDetailsScreen({ route, navigation }) {
                 var confirmedTime = "";
                 var confirmedViewed = false;
 
-                const myHistoryRef = await historyRef
-                  .doc(auth?.currentUser?.email)
-                  .collection("sellers")
-                  .doc(sellerEmail);
-                const doc = await myHistoryRef.get();
-                if (doc.exists) {
-                  console.log(doc.data());
-                  historyRef
-                    .doc(auth?.currentUser?.email)
-                    .collection("sellers")
-                    .doc(sellerEmail)
-                    .update({ viewed: true });
-                  confirmedTime = doc.data().confirmedTime;
-                  confirmedViewed = doc.data().confirmedViewed;
+                const myHistoryRef = doc(
+                  collection(
+                    doc(historyRef, auth.currentUser.email),
+                    "sellers"
+                  ),
+                  sellerEmail
+                );
+                const myDoc = await getDoc(myHistoryRef);
+                if (myDoc.exists()) {
+                  updateDoc(myHistoryRef, { viewed: true });
+                  confirmedTime = myDoc.data().confirmedTime;
+                  confirmedViewed = myDoc.data().confirmedViewed;
                 }
 
                 navigation.navigate("ChatWindow", {

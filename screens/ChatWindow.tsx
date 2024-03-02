@@ -24,6 +24,16 @@ import * as Device from "expo-device";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import BackButton from "../assets/svg-components/back_button";
 import BuyerProposeModal from "../components/BuyerProposeModal";
 import BuyerSyncModal from "../components/BuyerSyncModal";
@@ -120,6 +130,9 @@ export default function ChatWindow({ navigation, route }) {
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
 
+  const buyerEmail = isBuyer ? auth.currentUser.email : email;
+  const sellerEmail = isBuyer ? email : auth.currentUser.email;
+
   const [modalVisible, setModalVisible] = useState(false);
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
 
@@ -208,43 +221,28 @@ export default function ChatWindow({ navigation, route }) {
       recentMessage = "[Image]";
     }
 
-    historyRef
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .collection("sellers")
-      .doc(isBuyer ? email : auth?.currentUser?.email)
-      .set({
-        item: post,
-        recentMessage: recentMessage,
-        recentSender: auth?.currentUser?.email,
-        name: isBuyer ? name : auth?.currentUser?.displayName,
-        image: isBuyer ? receiverImage : auth?.currentUser?.photoURL,
-        viewed: isBuyer,
-        confirmedTime:
-          confirmedTime == "" || confirmedTime == undefined
-            ? ""
-            : confirmedTime,
-        confirmedViewed: confirmedViewed || false,
-      });
-    historyRef
-      .doc(isBuyer ? email : auth?.currentUser?.email)
-      .collection("buyers")
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .set({
-        item: post,
-        recentMessage: recentMessage,
-        recentSender: auth?.currentUser?.email,
-        name: isBuyer ? auth?.currentUser?.displayName : name,
-        image: isBuyer ? auth?.currentUser?.photoURL : receiverImage,
-        viewed: !isBuyer,
-        proposedTime:
-          proposedTime == "" || proposedTime == undefined ? "" : proposedTime,
-        proposedViewed: proposedViewed || false,
-      });
-    const messageRef = chatRef
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .collection(isBuyer ? email : auth?.currentUser?.email);
+    let docRef = doc(historyRef, buyerEmail);
 
-    messageRef.add({
+    let sellersRef = doc(collection(docRef, "sellers"), sellerEmail);
+    let buyersRef = doc(collection(docRef, "buyers"), buyerEmail);
+
+    let data = {
+      item: post,
+      recentMessage: recentMessage,
+      recentSender: user?.email,
+      name: isBuyer ? name : user?.displayName,
+      image: isBuyer ? receiverImage : user?.photoURL,
+      viewed: isBuyer,
+      confirmedTime:
+        confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,
+      confirmedViewed: confirmedViewed || false,
+    };
+
+    setDoc(sellersRef, data);
+    setDoc(buyersRef, data);
+
+    const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
+    addDoc(messageRef, {
       _id,
       text,
       availability,
@@ -497,37 +495,43 @@ export default function ChatWindow({ navigation, route }) {
   const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
-    const unsubscribe = chatRef
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .collection(isBuyer ? email : auth?.currentUser.email)
-      .orderBy("createdAt", "desc")
-      .onSnapshot((snapshot) => {
-        setMessages(
-          snapshot.docs.map((doc) => ({
-            _id: doc.data()._id,
-            text: doc.data().text,
-            availability: doc.data().availability,
-            product: doc.data().product,
-            image: doc.data().image,
-            createdAt: doc.data().createdAt.toDate(),
-            user: doc.data().user,
-          }))
-        );
-      });
-    if (isBuyer) {
-      historyRef
-        .doc(auth?.currentUser?.email)
-        .collection("sellers")
-        .doc(email)
-        .update({ viewed: true });
-    } else {
-      historyRef
-        .doc(auth?.currentUser?.email)
-        .collection("buyers")
-        .doc(email)
-        .update({ viewed: true });
-    }
-    return () => unsubscribe();
+    // Get a reference to the current chat
+    const timeDescQuery = orderBy("createdAt", "desc");
+    const currentChat = query(
+      collection(doc(chatRef, buyerEmail), sellerEmail),
+      timeDescQuery
+    );
+    /*
+    When we call on snapshot we pass in a callback function that updates the 
+    state of the chat whenever it changes according to Firebase. The call to
+    onSnapshot returns a reference to a function that, when called, unsubscribes 
+    the user from this chat. We call this on the dispose of the useEffect hook.
+    */
+    const unsubscribeFromChat = onSnapshot(currentChat, (snapshot) => {
+      setMessages(
+        snapshot.docs.map((doc) => ({
+          _id: doc.data()._id,
+          text: doc.data().text,
+          availability: doc.data().availability,
+          product: doc.data().product,
+          image: doc.data().image,
+          createdAt: doc.data().createdAt.toDate(),
+          user: doc.data().user,
+        }))
+      );
+    });
+    // Update the chat as viewed
+    updateDoc(
+      doc(
+        collection(
+          doc(historyRef, auth.currentUser.email),
+          isBuyer ? "sellers" : "buyers"
+        ),
+        email
+      ),
+      { viewed: true }
+    );
+    return unsubscribeFromChat;
   }, []);
 
   function renderInputToolbar(props) {
@@ -898,7 +902,7 @@ export default function ChatWindow({ navigation, route }) {
           setVisible={setBuyerProposeVisible}
           setAvailabilityVisible={setAvailabilityVisible}
           startDate={selectTime}
-          sellerEmail={isBuyer ? email : auth?.currentUser?.email}
+          sellerEmail={sellerEmail}
           post={post}
           setStartDate={setSelectedTime}
         />
