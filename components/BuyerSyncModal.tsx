@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Calendar from "expo-calendar";
+import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Alert, Platform, StyleSheet, Text, View } from "react-native";
@@ -97,6 +98,16 @@ export default function BuyerSyncModal({
       console.log(e);
     }
   };
+  const updateViewed = () => {
+    updateDoc(
+      doc(
+        collection(doc(historyRef, auth.currentUser.email), "sellers"),
+        email
+      ),
+      { confirmedView: true }
+    );
+  };
+
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
@@ -105,13 +116,7 @@ export default function BuyerSyncModal({
         setActivateIcon(true);
         setVisible(false);
         setShowNotice(false);
-        historyRef
-          .doc(auth?.currentUser?.email)
-          .collection("sellers")
-          .doc(email)
-          .update({
-            confirmedViewed: true,
-          });
+        updateViewed();
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
@@ -133,13 +138,7 @@ export default function BuyerSyncModal({
           <PurpleButton
             text={"Sync to Calendar"}
             onPress={async () => {
-              historyRef
-                .doc(auth?.currentUser?.email)
-                .collection("sellers")
-                .doc(email)
-                .update({
-                  confirmedViewed: true,
-                });
+              updateViewed();
               setVisible(false);
               setShowNotice(false);
               setActivateIcon(true);
@@ -166,13 +165,7 @@ export default function BuyerSyncModal({
             setActivateIcon(true);
             setVisible(false);
             setShowNotice(false);
-            historyRef
-              .doc(auth?.currentUser?.email)
-              .collection("sellers")
-              .doc(email)
-              .update({
-                confirmedViewed: true,
-              });
+            updateViewed();
           }}
         >
           Cancel
