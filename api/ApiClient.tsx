@@ -1,4 +1,3 @@
-import { BASE_API_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { returnAccessToken } from "../utils/asychStorageFunctions";
 
@@ -46,7 +45,7 @@ export default class ApiClient {
     headers?: Record<string, string>,
     options?: any
   ) {
-    return fetch(BASE_API_URL + route, {
+    return fetch(process.env.BASE_API_URL + route, {
       method: type,
       body: body ? JSON.stringify(body) : "",
       headers: {

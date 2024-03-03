@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 
+import { doc, setDoc } from "firebase/firestore";
 import {
   Keyboard,
   StyleSheet,
@@ -12,6 +13,7 @@ import {
 import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
+import { auth, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 import { storeOnboarded } from "../utils/asychStorageFunctions";
@@ -23,6 +25,9 @@ export default function LinkVenmoScreen({ navigation, route }) {
   const api = useApiClient();
 
   const updateProfileOnBackend = async () => {
+    setIsLoading(true);
+
+    // update backend
     const response = await api.post("/user/", {
       photoUrlBase64: image,
       username: username,
@@ -35,6 +40,16 @@ export default function LinkVenmoScreen({ navigation, route }) {
     } else {
       console.log(`update response: ${JSON.stringify(response)}`);
     }
+    // update Firebase:
+    try {
+      await setDoc(doc(userRef, auth.currentUser.email), {
+        venmo: venmo,
+        onboarded: true,
+      });
+    } catch (e) {
+      makeToast({ message: "Failed to update profile", type: "ERROR" });
+    }
+
     await storeOnboarded(true);
     setIsLoading(false);
 
