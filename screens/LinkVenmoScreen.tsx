@@ -34,8 +34,6 @@ export default function LinkVenmoScreen({ navigation, route }) {
     if (response.error) {
       makeToast({ message: "Failed to update profile", type: "ERROR" });
       return;
-    } else {
-      console.log(`update response: ${JSON.stringify(response)}`);
     }
     const userDocRef = doc(userRef, auth.currentUser.email);
     try {
