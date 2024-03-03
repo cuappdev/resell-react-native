@@ -1,12 +1,11 @@
 // import firebase from "firebase/app";
-import { API_KEY } from "@env";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import firebase, { getApps, initializeApp } from "firebase/app";
 import { getReactNativePersistence, initializeAuth } from "firebase/auth";
 import { collection, getFirestore } from "firebase/firestore";
 
 export const firebaseConfig = {
-  apiKey: API_KEY,
+  apiKey: process.env.API_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   databaseURL: process.env.DATABASE_URL,
   projectId: process.env.PROJECT_ID,

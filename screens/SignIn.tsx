@@ -1,4 +1,3 @@
-import { WEB_CLIENT_ID } from "@env";
 import {
   GoogleSignin,
   statusCodes,
@@ -31,7 +30,7 @@ Logs.enableExpoCliLogging();
 
 export default function SignIn() {
   GoogleSignin.configure({
-    webClientId: WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
+    webClientId: process.env.WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
     iosClientId: process.env.IOS_CLIENT_ID,
   });
   const colorScheme = useColorScheme();
