@@ -85,6 +85,7 @@ export default function SignIn() {
         accountId = userDataResult?.user?.id;
       }
 
+      // Check if this user has onboarded
       const firebaseUserData = await getDoc(
         doc(userRef, auth.currentUser.email)
       );
