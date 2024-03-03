@@ -5,6 +5,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,7 +13,7 @@ import { useApiClient } from "../api/ApiClientProvider";
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
-import { auth } from "../config/firebase";
+import { auth, userRef } from "../config/firebase";
 import Navigation from "../navigation";
 import {
   login,
@@ -21,7 +22,6 @@ import {
 } from "../state_manage/reducers/signInReducer";
 import { makeToast } from "../utils/Toast";
 import {
-  getOnboard,
   returnAccessToken,
   storeAccessToken,
   storeUserId,
@@ -38,7 +38,8 @@ export default function SignIn() {
   const signedIn = useSelector(signedInState);
   const dispatch = useDispatch();
   const api = useApiClient();
-  const [onboarded, setOnboarded] = useState(false);
+  // whether the user needs to onboard
+  const [isOnboarded, setIsOnboarded] = useState(true);
 
   const signIn = async () => {
     try {
@@ -73,8 +74,6 @@ export default function SignIn() {
         // If the httpCode is 409, that means there account already exists, so
         // we just need to log them in and we don't need to terminate sign in
         accountId = createAccountRes.user?.id;
-        // also since creating an account just worked they need to onboard
-        setOnboarded(false);
       } else {
         makeToast({ message: "Error creating account", type: "ERROR" });
         return;
@@ -85,6 +84,12 @@ export default function SignIn() {
         const userDataResult = await api.get(`/user/googleId/${userData.id}/`);
         accountId = userDataResult?.user?.id;
       }
+
+      const firebaseUserData = await getDoc(
+        doc(userRef, auth.currentUser.email)
+      );
+      setIsOnboarded(firebaseUserData.data()?.onboarded ?? false);
+
       if (!accountId) {
         makeToast({
           message: "Error finding account information",
@@ -134,16 +139,11 @@ export default function SignIn() {
       }
     };
 
-    const checkOnboarded = async () => {
-      getOnboard(setOnboarded);
-    };
-
     checkLoggedIn();
-    checkOnboarded();
   }, []);
 
   return signedIn.signIn.signedIn ? (
-    <Navigation colorScheme={colorScheme} onboard={onboarded} />
+    <Navigation colorScheme={colorScheme} onboard={isOnboarded} />
   ) : (
     <View style={styles.containerSignIn}>
       <Image
