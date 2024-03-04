@@ -10,25 +10,21 @@ export function ButtonBanner(props) {
    * @param {list} data - a list of button names
    * @returns a horizontally scrollable button banner
    */
-  const renderButton = ({ item }) => {
-    if (item.title !== "Send Availablity" || !props.isBuyer) {
-      return (
-        <Button
-          title={item.title}
-          id={item.id}
-          count={props.count}
-          setCount={props.setCount}
-          modalVisible={props.modalVisible}
-          setModalVisible={props.setModalVisible}
-          availabilityVisible={props.availabilityVisible}
-          setAvailabilityVisible={props.setAvailabilityVisible}
-          setIsBubble={props.setIsBubble}
-          alwaysColor={props.alwaysColor}
-          otherEmail={props.otherEmail}
-        />
-      );
-    }
-  };
+  const renderButton = ({ item }) => (
+    <Button
+      title={item.title}
+      id={item.id}
+      count={props.count}
+      setCount={props.setCount}
+      modalVisible={props.modalVisible}
+      setModalVisible={props.setModalVisible}
+      availabilityVisible={props.availabilityVisible}
+      setAvailabilityVisible={props.setAvailabilityVisible}
+      setIsBubble={props.setIsBubble}
+      alwaysColor={props.alwaysColor}
+      otherEmail={props.otherEmail}
+    />
+  );
 
   return (
     <SafeAreaView style={styles.filter}>

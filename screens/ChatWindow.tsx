@@ -205,6 +205,7 @@ export default function ChatWindow({ navigation, route }) {
   }, [text, isSendingAvailability]);
 
   const onSend = useCallback((messages: any[] = []) => {
+    console.log(`send`);
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages)
     );
@@ -229,9 +230,9 @@ export default function ChatWindow({ navigation, route }) {
     let data = {
       item: post,
       recentMessage: recentMessage,
-      recentSender: user?.email,
-      name: isBuyer ? name : user?.displayName,
-      image: isBuyer ? receiverImage : user?.photoURL,
+      recentSender: auth.currentUser.email,
+      name: isBuyer ? name : auth.currentUser.displayName,
+      image: isBuyer ? receiverImage : auth.currentUser.photoURL,
       viewed: isBuyer,
       confirmedTime:
         confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,
@@ -253,9 +254,6 @@ export default function ChatWindow({ navigation, route }) {
     });
   }, []);
   function renderMessage(props) {
-    const {
-      currentMessage: { text: currText },
-    } = props;
     return (
       <Message
         {...props}
@@ -345,7 +343,7 @@ export default function ChatWindow({ navigation, route }) {
         <View style={{ width: "50%", marginVertical: 5 }}>
           <ProductCard
             title={currPost.title}
-            price={currPost.price}
+            price={currPost.altered_price}
             image={currPost.images ? post.images[0] : null}
           />
         </View>
@@ -769,9 +767,9 @@ export default function ChatWindow({ navigation, route }) {
     );
   }
 
-  const ref = useRef<GiftedChat<any> | null>(null);
+  const ref = useRef<any>();
   return (
-    <View
+    <SafeAreaView
       style={{
         backgroundColor: "#FFFFFF",
         padding: 0,
@@ -782,8 +780,6 @@ export default function ChatWindow({ navigation, route }) {
       <View
         style={{
           width: "100%",
-          paddingTop: Platform.OS === "ios" ? 35 : 0,
-          paddingBottom: Platform.OS === "ios" ? 10 : 0,
           height: Platform.OS === "ios" ? 90 : 70,
           borderBottomWidth: 1,
           borderColor: "#D6D6D6",
@@ -815,7 +811,7 @@ export default function ChatWindow({ navigation, route }) {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={async () => {
+          onPress={() => {
             setMeetingDetailVisible(true);
           }}
           style={styles.scheduleButton}
@@ -832,9 +828,9 @@ export default function ChatWindow({ navigation, route }) {
       <GiftedChat
         {...{ messages, onSend }}
         user={{
-          _id: auth?.currentUser?.email,
-          name: auth?.currentUser?.displayName,
-          avatar: auth?.currentUser?.photoURL,
+          _id: auth.currentUser.email,
+          name: auth.currentUser.displayName,
+          avatar: auth.currentUser.photoURL,
         }}
         showAvatarForEveryMessage={true}
         listViewProps={{
@@ -851,9 +847,7 @@ export default function ChatWindow({ navigation, route }) {
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
-
-      {/*TODO: SEND NAME AND PROPOSED DATE */}
-      {/* seller modal */}
+      {/* Modals below */}
       <>
         <NegotiationModal
           modalVisible={modalVisible}
@@ -928,7 +922,7 @@ export default function ChatWindow({ navigation, route }) {
           setActivateIcon={setActivateIcon}
         />
       </>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,23 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "react-native-modal";
 
-import {
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  ViewStyle,
-  StyleProp,
-  Platform,
-} from "react-native";
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import WeekView from "react-native-week-view";
 import PurpleButton from "./PurpleButton";
-import BuyerSyncModal from "./BuyerSyncModal";
 const moment = require("moment");
-import * as Calendar from "expo-calendar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fonts } from "../globalStyle/globalFont";
-import { type } from "os";
 
 export function AvailabilityModal({
   availabilityVisible,
@@ -34,227 +21,6 @@ export function AvailabilityModal({
   isBuyer,
   setSelectedTime,
 }) {
-  interface availabilityEvent {
-    id: number;
-    description?: string;
-    startDate: Date;
-    endDate: Date;
-    color: String;
-  }
-  const myEvents: availabilityEvent[] = [
-    {
-      id: 1,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 12, 0),
-      endDate: new Date(2022, 12, 4, 12, 30),
-      color: "blue",
-    },
-    {
-      id: 2,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 12, 30),
-      endDate: new Date(2022, 12, 4, 13, 0),
-      color: "blue",
-    },
-    {
-      id: 3,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 13, 0),
-      endDate: new Date(2022, 12, 4, 13, 30),
-      color: "blue",
-    },
-    {
-      id: 4,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 13, 30),
-      endDate: new Date(2022, 12, 4, 14, 0),
-      color: "blue",
-    },
-    {
-      id: 5,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 14, 0),
-      endDate: new Date(2022, 12, 4, 14, 30),
-      color: "blue",
-    },
-    {
-      id: 6,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 14, 30),
-      endDate: new Date(2022, 12, 4, 15, 0),
-      color: "blue",
-    },
-    {
-      id: 7,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 15, 0),
-      endDate: new Date(2022, 12, 4, 15, 30),
-      color: "blue",
-    },
-    {
-      id: 8,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 15, 30),
-      endDate: new Date(2022, 12, 4, 16, 0),
-      color: "blue",
-    },
-    {
-      id: 9,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 16, 0),
-      endDate: new Date(2022, 12, 4, 16, 30),
-      color: "blue",
-    },
-    {
-      id: 10,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 16, 30),
-      endDate: new Date(2022, 12, 4, 17, 0),
-      color: "blue",
-    },
-    {
-      id: 11,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 17, 0),
-      endDate: new Date(2022, 12, 4, 17, 30),
-      color: "blue",
-    },
-    {
-      id: 12,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 17, 30),
-      endDate: new Date(2022, 12, 4, 18, 0),
-      color: "blue",
-    },
-    {
-      id: 13,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 18, 30),
-      endDate: new Date(2022, 12, 4, 19, 0),
-      color: "blue",
-    },
-    {
-      id: 14,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 19, 0),
-      endDate: new Date(2022, 12, 4, 19, 30),
-      color: "blue",
-    },
-    {
-      id: 15,
-      description: "Event",
-      startDate: new Date(2022, 12, 4, 19, 30),
-      endDate: new Date(2022, 12, 4, 20, 0),
-      color: "blue",
-    },
-
-    {
-      id: 16,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 12, 0),
-      endDate: new Date(2022, 12, 5, 12, 30),
-      color: "blue",
-    },
-    {
-      id: 17,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 12, 30),
-      endDate: new Date(2022, 12, 5, 13, 0),
-      color: "blue",
-    },
-    {
-      id: 18,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 13, 0),
-      endDate: new Date(2022, 12, 5, 13, 30),
-      color: "blue",
-    },
-    {
-      id: 19,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 13, 30),
-      endDate: new Date(2022, 12, 5, 14, 0),
-      color: "blue",
-    },
-    {
-      id: 20,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 14, 0),
-      endDate: new Date(2022, 12, 5, 14, 30),
-      color: "blue",
-    },
-    {
-      id: 21,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 14, 30),
-      endDate: new Date(2022, 12, 5, 15, 0),
-      color: "blue",
-    },
-    {
-      id: 22,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 15, 0),
-      endDate: new Date(2022, 12, 5, 15, 30),
-      color: "blue",
-    },
-    {
-      id: 23,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 15, 30),
-      endDate: new Date(2022, 12, 5, 16, 0),
-      color: "blue",
-    },
-    {
-      id: 24,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 16, 0),
-      endDate: new Date(2022, 12, 5, 16, 30),
-      color: "blue",
-    },
-    {
-      id: 25,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 16, 30),
-      endDate: new Date(2022, 12, 5, 17, 0),
-      color: "blue",
-    },
-    {
-      id: 26,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 17, 0),
-      endDate: new Date(2022, 12, 5, 17, 30),
-      color: "blue",
-    },
-    {
-      id: 27,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 17, 30),
-      endDate: new Date(2022, 12, 5, 18, 0),
-      color: "blue",
-    },
-    {
-      id: 28,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 18, 30),
-      endDate: new Date(2022, 12, 5, 19, 0),
-      color: "blue",
-    },
-    {
-      id: 29,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 19, 0),
-      endDate: new Date(2022, 12, 5, 19, 30),
-      color: "blue",
-    },
-    {
-      id: 30,
-      description: "Event",
-      startDate: new Date(2022, 12, 5, 19, 30),
-      endDate: new Date(2022, 12, 5, 20, 0),
-      color: "blue",
-    },
-  ];
-
   const [schedule, setSchedule] = useState<any[]>([]);
   const [largestIndex, setLargestIndex] = useState(30);
   function MyEventComponent({ event, position }) {
@@ -288,7 +54,7 @@ export function AvailabilityModal({
   }
 
   const onClickGrid = (event, startHour, date) => {
-    if (!isBubble && schedule.length < 20) {
+    if (!isBubble) {
       //Make sure it's not avaliability bubble mode, which is not editable
       let year = date.getFullYear();
       let month = date.getMonth();
@@ -299,6 +65,7 @@ export function AvailabilityModal({
       schedule.forEach(checkIfExisted);
 
       function checkIfExisted(s) {
+        // console.log(`s: ${JSON.stringify(s)}`);
         if (s.startDate <= date && s.endDate >= date) {
           console.log("here");
           duplicate = true;
@@ -378,11 +145,10 @@ export function AvailabilityModal({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={[styles.textStyle, { marginBottom: 30 }]}>
-            {isBubble ? username + "'s Avaliability" : "Select a time to meet"}
+            {isBubble
+              ? username + "'s Avaliability"
+              : "When are you free to meet?"}
           </Text>
-          {!isBubble && (
-            <Text style={fonts.body2}>{schedule.length + "/ 20"}</Text>
-          )}
           <WeekView
             selectedDate={new Date()}
             headerStyle={styles.headerStyle}
@@ -395,7 +161,7 @@ export function AvailabilityModal({
             numberOfDays={3}
             beginAgendaAt={9 * 60}
             endAgendaAt={23 * 60}
-            hoursInDisplay={20}
+            hoursInDisplay={24}
             startHour={8}
             timesColumnWidth={0.28}
             eventContainerStyle={{ marginLeft: 2 }}
@@ -455,8 +221,8 @@ const styles = StyleSheet.create({
   modalView: {
     height: "100%",
     width: "100%",
-    paddingVertical: 25,
-    paddingHorizontal: 30,
+    paddingVertical: 24,
+    paddingHorizontal: 32,
     alignItems: "center",
   },
   buttonContinue: {
