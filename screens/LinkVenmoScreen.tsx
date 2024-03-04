@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import {
   Keyboard,
   StyleSheet,
@@ -25,6 +25,9 @@ export default function LinkVenmoScreen({ navigation, route }) {
   const api = useApiClient();
 
   const updateProfileOnBackend = async () => {
+    setIsLoading(true);
+
+    // update backend
     const response = await api.post("/user/", {
       photoUrlBase64: image,
       username: username,
@@ -34,13 +37,17 @@ export default function LinkVenmoScreen({ navigation, route }) {
     if (response.error) {
       makeToast({ message: "Failed to update profile", type: "ERROR" });
       return;
+    } else {
+      console.log(`update response: ${JSON.stringify(response)}`);
     }
-    const userDocRef = doc(userRef, auth.currentUser.email);
+    // update Firebase:
     try {
-      await updateDoc(userDocRef, { onboarded: true, venmo: venmo });
-    } catch (error) {
+      await setDoc(doc(userRef, auth.currentUser.email), {
+        venmo: venmo,
+        onboarded: true,
+      });
+    } catch (e) {
       makeToast({ message: "Failed to update profile", type: "ERROR" });
-      return;
     }
 
     await storeOnboarded(true);
