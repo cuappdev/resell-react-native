@@ -18,10 +18,10 @@ import { fonts } from "../globalStyle/globalFont";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
-  var temptPuchrase = 0; //for the number of unread on the top
-  var temptOrder = 0; //for the number of unread on the top
   const [purchase, setPurchase] = useState<IBuyerPreview[]>([]);
   const [offer, setOffer] = useState<ISellerPreview[]>([]);
+  const [purchaseUnread, setPurchaseUnread] = useState(0);
+  const [offerUnread, setOfferUnread] = useState(0);
   const isFocused = useIsFocused();
 
   const getPurchase = (): Unsubscribe => {
@@ -96,33 +96,24 @@ export default function ChatScreen({ navigation }) {
     };
   }, [isFocused]);
 
-  purchase.forEach((element) => {
-    if (!element.viewed) {
-      temptPuchrase = temptPuchrase + 1;
-    }
-  });
-  useEffect(() => {
-    offer.forEach((element) => {
+  const countNotViewed = (
+    chatPreviews: IBuyerPreview[] | ISellerPreview[]
+  ): number => {
+    let notViewed = 0;
+    chatPreviews.forEach((element) => {
       if (!element.viewed) {
-        temptOrder = temptOrder + 1;
+        notViewed++;
       }
     });
-    console.log(`offers: ${JSON.stringify(offer)}`);
+    return notViewed;
+  };
+  useEffect(() => {
+    setPurchaseUnread(countNotViewed(purchase));
+  }, [purchase]);
+
+  useEffect(() => {
+    setOfferUnread(countNotViewed(offer));
   }, [offer]);
-
-  const [purchaseUnread, setPurchaseUnread] = useState(0);
-  useEffect(() => {
-    setPurchaseUnread(temptPuchrase);
-  }, [temptPuchrase]);
-
-  const [offerUnread, setOfferUnread] = useState(temptOrder);
-  useEffect(() => {
-    setOfferUnread(temptOrder);
-  }, [temptOrder]);
-
-  useEffect(() => {
-    console.log(`purchase: ${isPurchase}`);
-  }, [isPurchase]);
 
   const renderItem = ({ item }: { item: IBuyerPreview | ISellerPreview }) => {
     var products = " • " + item.recentItem.title;
