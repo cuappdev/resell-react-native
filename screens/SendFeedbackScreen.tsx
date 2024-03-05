@@ -8,13 +8,19 @@ import {
   Platform,
   Image,
   Alert,
+  Dimensions
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BackButton from "../assets/svg-components/back_button";
+import DeleteImage from "../assets/svg-components/deleteImage";
+import ExitIcon from "../assets/svg-components/exit";
 import { menuBarTop } from "../constants/Layout";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import { FAB } from "react-native-paper";
+import Modal from "react-native-modal";
+
+const imageSize = (Dimensions.get('window').width - 68) / 3;
 
 const styles = StyleSheet.create({
   container: {
@@ -38,7 +44,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontFamily: "Rubik-Medium",
-    fontSize: 18,
+    fontSize: 20,
   },
   headerButton: {
     position: "absolute",
@@ -48,11 +54,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#9E70F6",
     fontFamily: "Rubik-Medium",
-    fontSize: 16,
+    fontSize: 18,
+    textAlign: "center"
   },
   feedbackInstructions: {
     fontFamily: "Rubik-Regular",
-    fontSize: 16,
+    fontSize: 18,
     marginTop: Platform.OS === "ios" ? menuBarTop + 50 : 70,
     marginHorizontal: 24,
     textAlign: "center",
@@ -70,7 +77,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: "Rubik-Medium",
-    fontSize: 16,
+    fontSize: 20,
     marginTop: 20,
     marginHorizontal: 24,
   },
@@ -79,8 +86,8 @@ const styles = StyleSheet.create({
     marginBottom: "auto",
   },
   chosenImage: {
-    width: 100,
-    height: 100,
+    width: imageSize,
+    height: imageSize,
     borderRadius: 20,
   },
   imageUploadWrapper: {
@@ -91,12 +98,63 @@ const styles = StyleSheet.create({
     flex: 3,
     gap: 10
   },
+  deleteImageButton: {
+    position: "absolute",
+    top: -8,
+    right: -2,
+  },
+  deleteModal: {
+    borderRadius: 20,
+    height: 250,
+    backgroundColor: "#ffffff",
+    marginHorizontal: 24,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+  },
+  modalText: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    marginHorizontal: 24,
+    textAlignVertical: "top",
+    textAlign: "center",
+    paddingHorizontal: 50,
+  },
+  deleteButton: {
+    borderRadius: 50,
+    overflow: 'hidden',
+    width: Dimensions.get('window').width - 138,
+    marginHorizontal: 24,
+    marginBottom: 10,
+  },
+  deleteButtonText: {
+    fontFamily: "Rubik-Medium",
+    fontSize: 18,
+    textAlign: "center",
+    color: "white",
+    backgroundColor: "#9E70F6",
+    paddingVertical: 14,
+  },
+  cancelButtonText: {
+    color: "#707070",
+    fontFamily: "Rubik-Medium",
+    fontSize: 18,
+    textAlign: "center"
+  },
+  exitButton: {
+    position: "absolute",
+    top: 24,
+    right: 24,
+  }
+
 });
 
 export default function SendFeedbackScreen({ navigation }) {
   const [images, setImages] = useState([]);
   const [feedbackText, setFeedbackText] = useState("");
   const [userId, setUserId] = useState("");
+  const [deleteModalVisibility, setDeleteModalVisibility] = useState(false);
+  const [deleteImageIndex, setDeleteimageIndex] = useState(0);
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
@@ -156,6 +214,18 @@ export default function SendFeedbackScreen({ navigation }) {
       setImages(updatedImages);
     }
   }
+
+  const presentDeleteModal = (index) => {
+    setDeleteModalVisibility(true)
+    setDeleteimageIndex(index)
+  }
+
+  const deleteImage = () => {
+    setDeleteModalVisibility(false)
+    let updatedImages = [...images];
+    updatedImages.splice(deleteImageIndex, 1);
+    setImages(updatedImages);
+  };
 
   const submitFeedback = async () => {
     try {
@@ -222,6 +292,10 @@ export default function SendFeedbackScreen({ navigation }) {
         {images.map((imageURI, index) => (
           <TouchableOpacity key={index} onPress={() => editImage(index)}>
             <Image style={styles.chosenImage} source={{ uri: imageURI }} />
+            <TouchableOpacity style={styles.deleteImageButton} key={index} onPress={() => presentDeleteModal(index)}>
+              <DeleteImage></DeleteImage>
+            </TouchableOpacity>
+
           </TouchableOpacity>
         ))}
         {images.length < 3 && (
@@ -241,6 +315,43 @@ export default function SendFeedbackScreen({ navigation }) {
           </TouchableOpacity>
         )}
       </View>
+      <Modal
+        isVisible={deleteModalVisibility}
+        backdropOpacity={0.2}
+        onBackdropPress={() => {
+          setDeleteModalVisibility(false);
+        }}
+      >
+        <View style={styles.deleteModal}>
+          <Text style={styles.titleText}>
+            Delete Image
+          </Text>
+          <Text style={styles.modalText}>
+            Are you sure you'd like to delete this image?
+          </Text>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => {
+              deleteImage()
+            }}
+          >
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => {
+              setDeleteModalVisibility(false);
+            }}
+          >
+            <View>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.exitButton} onPress={() => setDeleteModalVisibility(false)}>
+            <ExitIcon></ExitIcon>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
