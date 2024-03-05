@@ -34,6 +34,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import BuyerProposeModal from "../components/BuyerProposeModal";
 import BuyerSyncModal from "../components/BuyerSyncModal";
@@ -43,6 +44,7 @@ import SellerConfirmModal from "../components/SellerConfirmModal";
 import SellerSyncModal from "../components/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -166,6 +168,8 @@ export default function ChatWindow({ navigation, route }) {
   interface notification {
     request;
   }
+
+  const apiClient = useApiClient();
 
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] =
@@ -348,6 +352,23 @@ export default function ChatWindow({ navigation, route }) {
             title={currPost.title}
             price={currPost.altered_price}
             image={currPost.images ? post.images[0] : null}
+            onPress={async () => {
+              const res = await apiClient.get(
+                `/post/isSaved/postId/${currPost.id}`
+              );
+              if (res.isSaved !== undefined) {
+                navigation.navigate("ProductHome", {
+                  post: currPost,
+                  screen: screen,
+                  savedInitial: res.isSaved,
+                });
+              } else {
+                makeToast({
+                  message: "Failed to open item details",
+                  type: "ERROR",
+                });
+              }
+            }}
           />
         </View>
       );
@@ -368,6 +389,7 @@ export default function ChatWindow({ navigation, route }) {
               minHeight: 200,
               resizeMode: "cover",
               marginHorizontal: 10,
+              borderRadius: 8,
             }}
           />
         </View>
