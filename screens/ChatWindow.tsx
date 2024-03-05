@@ -163,7 +163,6 @@ export default function ChatWindow({ navigation, route }) {
   const [BuyerSyncVisible, setBuyerSyncVisible] = React.useState(false);
   const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
   const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
-
   interface notification {
     request;
   }
@@ -205,7 +204,6 @@ export default function ChatWindow({ navigation, route }) {
   }, [text, isSendingAvailability]);
 
   const onSend = useCallback((messages: any[] = []) => {
-    console.log(`send`);
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages)
     );
@@ -221,13 +219,18 @@ export default function ChatWindow({ navigation, route }) {
     } else if (image != "") {
       recentMessage = "[Image]";
     }
+    // In the buyer's history, track a new seller
+    const buyerHistoryRef = doc(
+      collection(doc(historyRef, buyerEmail), "sellers"),
+      sellerEmail
+    );
+    // In the seller's history, track a new buyer
+    const sellerHistoryRef = doc(
+      collection(doc(historyRef, sellerEmail), "buyers"),
+      buyerEmail
+    );
 
-    let docRef = doc(historyRef, buyerEmail);
-
-    let sellersRef = doc(collection(docRef, "sellers"), sellerEmail);
-    let buyersRef = doc(collection(docRef, "buyers"), buyerEmail);
-
-    let data = {
+    const data = {
       item: post,
       recentMessage: recentMessage,
       recentSender: auth.currentUser.email,
@@ -239,8 +242,8 @@ export default function ChatWindow({ navigation, route }) {
       confirmedViewed: confirmedViewed || false,
     };
 
-    setDoc(sellersRef, data);
-    setDoc(buyersRef, data);
+    setDoc(buyerHistoryRef, data);
+    setDoc(sellerHistoryRef, data);
 
     const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
     addDoc(messageRef, {
