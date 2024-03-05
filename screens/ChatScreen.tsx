@@ -10,8 +10,8 @@ import {
 } from "react-native";
 
 import { useIsFocused } from "@react-navigation/native";
-import { collection, doc, onSnapshot } from "firebase/firestore";
-import ChatTbas from "../components/ChatTabs";
+import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
+import ChatTabs from "../components/ChatTabs";
 import { auth, historyRef } from "../config/firebase";
 import { IBuyerPreview, ISellerPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
@@ -24,7 +24,7 @@ export default function ChatScreen({ navigation }) {
   const [offer, setOffer] = useState<ISellerPreview[]>([]);
   const isFocused = useIsFocused();
 
-  const getPurchase = async () => {
+  const getPurchase = (): Unsubscribe => {
     setPurchase([]);
 
     const sellersQuery = collection(
@@ -33,8 +33,8 @@ export default function ChatScreen({ navigation }) {
     );
 
     try {
-      onSnapshot(sellersQuery, (querySnapshot) => {
-        var tempt: IBuyerPreview[] = [];
+      return onSnapshot(sellersQuery, (querySnapshot) => {
+        const tempt: IBuyerPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name,
@@ -55,18 +55,17 @@ export default function ChatScreen({ navigation }) {
       console.log("Error getting user: ", e);
     }
   };
-  const getOffer = async () => {
+  const getOffer = (): Unsubscribe => {
     setOffer([]);
 
     const buyersQuery = collection(
-      doc(historyRef, auth.currentUser?.email),
+      doc(historyRef, auth.currentUser.email),
       "buyers"
     );
 
     try {
-      onSnapshot(buyersQuery, (querySnapshot) => {
-        var tempt: ISellerPreview[] = [];
-
+      return onSnapshot(buyersQuery, (querySnapshot) => {
+        const tempt: ISellerPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name, //buyername
@@ -88,20 +87,29 @@ export default function ChatScreen({ navigation }) {
     }
   };
   useEffect(() => {
-    getPurchase();
-    getOffer();
+    const unsubFromPurchase = getPurchase();
+    const unsubFromOffers = getOffer();
+
+    return () => {
+      unsubFromPurchase();
+      unsubFromOffers();
+    };
   }, [isFocused]);
+
   purchase.forEach((element) => {
     if (!element.viewed) {
       temptPuchrase = temptPuchrase + 1;
     }
   });
+  useEffect(() => {
+    offer.forEach((element) => {
+      if (!element.viewed) {
+        temptOrder = temptOrder + 1;
+      }
+    });
+    console.log(`offers: ${JSON.stringify(offer)}`);
+  }, [offer]);
 
-  offer.forEach((element) => {
-    if (!element.viewed) {
-      temptOrder = temptOrder + 1;
-    }
-  });
   const [purchaseUnread, setPurchaseUnread] = useState(0);
   useEffect(() => {
     setPurchaseUnread(temptPuchrase);
@@ -111,6 +119,10 @@ export default function ChatScreen({ navigation }) {
   useEffect(() => {
     setOfferUnread(temptOrder);
   }, [temptOrder]);
+
+  useEffect(() => {
+    console.log(`purchase: ${isPurchase}`);
+  }, [isPurchase]);
 
   const renderItem = ({ item }: { item: IBuyerPreview | ISellerPreview }) => {
     var products = " • " + item.recentItem.title;
@@ -187,56 +199,58 @@ export default function ChatScreen({ navigation }) {
 
   return (
     <View style={{ backgroundColor: "#ffffff", height: "100%" }}>
-      <ChatTbas
+      <ChatTabs
         isPurchase={isPurchase}
         setIsPurchase={setIsPurchase}
         purchaseUnread={purchaseUnread}
         offerUnread={offerUnread}
       />
-      {purchase.length != 0 && isPurchase && (
-        <FlatList
-          data={purchase}
-          renderItem={renderItem}
-          keyboardShouldPersistTaps="always"
-        />
-      )}
-      {offer.length != 0 && !isPurchase && (
-        <FlatList
-          data={offer}
-          renderItem={renderItem}
-          keyboardShouldPersistTaps="always"
-        />
-      )}
-      {purchase.length == 0 && isPurchase && (
-        <View style={styles.noResultView}>
-          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-            No messages with sellers yet
-          </Text>
-          <Text
-            style={[
-              fonts.body1,
-              { color: "#707070", width: "80%", textAlign: "center" },
-            ]}
-          >
-            When you contact a seller, you’ll see your messages here
-          </Text>
-        </View>
-      )}
-      {offer.length == 0 && !isPurchase && (
-        <View style={styles.noResultView}>
-          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-            No messages with buyers yet
-          </Text>
-          <Text
-            style={[
-              fonts.body1,
-              { color: "#707070", width: "80%", textAlign: "center" },
-            ]}
-          >
-            When a buyer contacts you, you’ll see their messages here
-          </Text>
-        </View>
-      )}
+
+      {isPurchase &&
+        (purchase.length !== 0 ? (
+          <FlatList
+            data={purchase}
+            renderItem={renderItem}
+            keyboardShouldPersistTaps="always"
+          />
+        ) : (
+          <View style={styles.noResultView}>
+            <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+              No messages with sellers yet
+            </Text>
+            <Text
+              style={[
+                fonts.body1,
+                { color: "#707070", width: "80%", textAlign: "center" },
+              ]}
+            >
+              When you contact a seller, you’ll see your messages here
+            </Text>
+          </View>
+        ))}
+
+      {!isPurchase &&
+        (offer.length !== 0 ? (
+          <FlatList
+            data={offer}
+            renderItem={renderItem}
+            keyboardShouldPersistTaps="always"
+          />
+        ) : (
+          <View style={styles.noResultView}>
+            <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+              No messages with buyers yet
+            </Text>
+            <Text
+              style={[
+                fonts.body1,
+                { color: "#707070", width: "80%", textAlign: "center" },
+              ]}
+            >
+              When a buyer contacts you, you’ll see their messages here
+            </Text>
+          </View>
+        ))}
     </View>
   );
 }

@@ -1,6 +1,6 @@
-import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 /**
  *
@@ -10,7 +10,7 @@ import { LinearGradient } from "expo-linear-gradient";
  * @param {string} title - content on the button
  * @returns a button with linear gradient outline, the "All" button will always be initially marked as clicked
  */
-function ChatTbas({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
+function ChatTabs({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
   return (
     <View style={{ flexDirection: "row", marginStart: 24 }}>
       {isPurchase ? (
@@ -207,4 +207,4 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
 });
-export default ChatTbas;
+export default ChatTabs;
