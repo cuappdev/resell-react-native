@@ -132,8 +132,8 @@ export default function ChatScreen({ navigation }) {
             isPurchase
               ? {
                   name: item.sellerName, // the one are you are talking to
-                  receiverImage: item.image, // the one you are talking to
-                  email: item.email, // the one you are talking to
+                  receiverImage: item.image,
+                  email: item.email,
                   post: item.recentItem,
                   isBuyer: isPurchase,
                   confirmedTime: (item as IBuyerPreview).confirmedTime,
@@ -143,8 +143,8 @@ export default function ChatScreen({ navigation }) {
                 }
               : {
                   name: item.sellerName, // the one are you are talking to
-                  receiverImage: item.image, // the one you are talking to
-                  email: item.email, // the one you are talking to
+                  receiverImage: item.image,
+                  email: item.email,
                   post: item.recentItem,
                   isBuyer: isPurchase,
                   proposedTime: (item as ISellerPreview).proposedTime,

@@ -233,21 +233,36 @@ export default function ChatWindow({ navigation, route }) {
       collection(doc(historyRef, sellerEmail), "buyers"),
       buyerEmail
     );
+    // the names for buyer and seller
+    const buyersName = isBuyer ? auth.currentUser.displayName : name;
+    const sellersName = isBuyer ? name : auth.currentUser.displayName;
+    // images for buyer and seller
+    const buyersImage = isBuyer ? auth.currentUser.photoURL : receiverImage;
+    const sellersImage = isBuyer ? receiverImage : auth.currentUser.photoURL;
 
-    const data = {
+    const commonData = {
       item: post,
       recentMessage: recentMessage,
       recentSender: auth.currentUser.email,
-      name: isBuyer ? name : auth.currentUser.displayName,
-      image: isBuyer ? receiverImage : auth.currentUser.photoURL,
-      viewed: isBuyer,
       confirmedTime:
         confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,
       confirmedViewed: confirmedViewed || false,
     };
+    const buyerData = {
+      ...commonData,
+      name: sellersName,
+      image: sellersImage,
+      viewed: isBuyer,
+    };
+    const sellerData = {
+      ...commonData,
+      name: buyersName,
+      image: buyersImage,
+      viewed: !isBuyer,
+    };
 
-    setDoc(buyerHistoryRef, data);
-    setDoc(sellerHistoryRef, data);
+    setDoc(buyerHistoryRef, buyerData);
+    setDoc(sellerHistoryRef, sellerData);
 
     const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
     addDoc(messageRef, {
