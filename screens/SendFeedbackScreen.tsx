@@ -21,133 +21,6 @@ import Modal from "react-native-modal";
 
 const imageSize = (Dimensions.get('window').width - 68) / 3;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  backButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    left: 20,
-    zIndex: 1,
-    width: 20,
-    height: 30,
-  },
-  title: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  titleText: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 20,
-  },
-  headerButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    right: 20,
-  },
-  buttonText: {
-    color: "#9E70F6",
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    textAlign: "center"
-  },
-  feedbackInstructions: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 18,
-    marginTop: Platform.OS === "ios" ? menuBarTop + 50 : 70,
-    marginHorizontal: 24,
-    textAlign: "center",
-  },
-  feedbackText: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    backgroundColor: "#F4F4F4",
-    borderRadius: 10,
-    marginHorizontal: 24,
-    marginTop: 20,
-    height: 190,
-    padding: 10,
-    textAlignVertical: "top",
-  },
-  sectionTitle: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 20,
-    marginTop: 20,
-    marginHorizontal: 24,
-  },
-  fab: {
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  chosenImage: {
-    width: imageSize,
-    height: imageSize,
-    borderRadius: 20,
-  },
-  imageUploadWrapper: {
-    paddingTop: 10,
-    marginHorizontal: 24,
-    alignItems: "flex-start",
-    flexDirection: "row",
-    flex: 3,
-    gap: 10
-  },
-  deleteImageButton: {
-    position: "absolute",
-    top: -8,
-    right: -2,
-  },
-  deleteModal: {
-    borderRadius: 20,
-    height: 250,
-    backgroundColor: "#ffffff",
-    marginHorizontal: 24,
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "space-evenly",
-  },
-  modalText: {
-    fontFamily: "Rubik-Regular",
-    fontSize: 16,
-    marginHorizontal: 24,
-    textAlignVertical: "top",
-    textAlign: "center",
-    paddingHorizontal: 50,
-  },
-  deleteButton: {
-    borderRadius: 50,
-    overflow: 'hidden',
-    width: Dimensions.get('window').width - 138,
-    marginHorizontal: 24,
-    marginBottom: 10,
-  },
-  deleteButtonText: {
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    textAlign: "center",
-    color: "white",
-    backgroundColor: "#9E70F6",
-    paddingVertical: 14,
-  },
-  cancelButtonText: {
-    color: "#707070",
-    fontFamily: "Rubik-Medium",
-    fontSize: 18,
-    textAlign: "center"
-  },
-  exitButton: {
-    position: "absolute",
-    top: 24,
-    right: 24,
-  }
-
-});
-
 export default function SendFeedbackScreen({ navigation }) {
   const [images, setImages] = useState([]);
   const [feedbackText, setFeedbackText] = useState("");
@@ -207,7 +80,7 @@ export default function SendFeedbackScreen({ navigation }) {
       base64: true,
       quality: 0.5,
     });
-    if (!result.canceled && result !== null) {
+    if (result && !result.canceled) {
       let updatedImages = [...images];
       updatedImages[index] = "data:image/jpeg;base64," + result["base64"];
       setImages(updatedImages);
@@ -354,3 +227,130 @@ export default function SendFeedbackScreen({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  backButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop : 20,
+    left: 20,
+    zIndex: 1,
+    width: 20,
+    height: 30,
+  },
+  title: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop : 20,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  titleText: {
+    fontFamily: "Rubik-Medium",
+    fontSize: 20,
+  },
+  headerButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop : 20,
+    right: 20,
+  },
+  buttonText: {
+    color: "#9E70F6",
+    fontFamily: "Rubik-Medium",
+    fontSize: 18,
+    textAlign: "center"
+  },
+  feedbackInstructions: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 18,
+    marginTop: Platform.OS === "ios" ? menuBarTop + 50 : 70,
+    marginHorizontal: 24,
+    textAlign: "center",
+  },
+  feedbackText: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
+    marginHorizontal: 24,
+    marginTop: 20,
+    height: 190,
+    padding: 10,
+    textAlignVertical: "top",
+  },
+  sectionTitle: {
+    fontFamily: "Rubik-Medium",
+    fontSize: 20,
+    marginTop: 20,
+    marginHorizontal: 24,
+  },
+  fab: {
+    marginTop: "auto",
+    marginBottom: "auto",
+  },
+  chosenImage: {
+    width: imageSize,
+    height: imageSize,
+    borderRadius: 20,
+  },
+  imageUploadWrapper: {
+    paddingTop: 10,
+    marginHorizontal: 24,
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flex: 3,
+    gap: 10
+  },
+  deleteImageButton: {
+    position: "absolute",
+    top: -8,
+    right: -2,
+  },
+  deleteModal: {
+    borderRadius: 20,
+    height: 250,
+    backgroundColor: "#ffffff",
+    marginHorizontal: 24,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+  },
+  modalText: {
+    fontFamily: "Rubik-Regular",
+    fontSize: 16,
+    marginHorizontal: 24,
+    textAlignVertical: "top",
+    textAlign: "center",
+    paddingHorizontal: 50,
+  },
+  deleteButton: {
+    borderRadius: 50,
+    overflow: 'hidden',
+    width: Dimensions.get('window').width - 138,
+    marginHorizontal: 24,
+    marginBottom: 10,
+  },
+  deleteButtonText: {
+    fontFamily: "Rubik-Medium",
+    fontSize: 18,
+    textAlign: "center",
+    color: "white",
+    backgroundColor: "#9E70F6",
+    paddingVertical: 14,
+  },
+  cancelButtonText: {
+    color: "#707070",
+    fontFamily: "Rubik-Medium",
+    fontSize: 18,
+    textAlign: "center"
+  },
+  exitButton: {
+    position: "absolute",
+    top: 24,
+    right: 24,
+  }
+
+});

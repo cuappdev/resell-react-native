@@ -26,7 +26,7 @@ PODS:
     - ExpoModulesCore
   - EXPermissions (14.2.1):
     - ExpoModulesCore
-  - Expo (49.0.23):
+  - Expo (49.0.22):
     - ExpoModulesCore
   - ExpoAdapterGoogleSignIn (10.1.1):
     - ExpoModulesCore
@@ -775,7 +775,7 @@ SPEC CHECKSUMS:
   EXImageLoader: 34b214f9387e98f3c73989f15d8d5b399c9ab3f7
   EXNotifications: 09394cbd7165f9a4a00a53328aa09bf874bae717
   EXPermissions: 4f80cf527001aa408a22eddf076e61465ea71d5a
-  Expo: ba9abdf444dc6d2c05a82c4c1b51a2400beb6167
+  Expo: 9060b49fecf07bebf1dd967730d079aa5e750ebe
   ExpoAdapterGoogleSignIn: 6c55782832b7fbdc2c27dac05ef00445c103b8f3
   ExpoCrypto: a382ab9a2fa91f0b511ce1fe4d6baecee40a1615
   ExpoDevice: 1c1b0c9cad96c292c1de73948649cfd654b2b3c0
