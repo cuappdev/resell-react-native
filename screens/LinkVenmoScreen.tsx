@@ -1,6 +1,7 @@
-import { GoogleSignin, User } from "@react-native-google-signin/google-signin";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+import { doc, setDoc } from "firebase/firestore";
 import {
   Keyboard,
   StyleSheet,
@@ -9,72 +10,53 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
+import { auth, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
 import { storeOnboarded } from "../utils/asychStorageFunctions";
-import auth from "@react-native-firebase/auth";
-import firestore from "@react-native-firebase/firestore";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
   const [venmo, setVenmo] = useState("");
-  const [user, setUser] = useState<User>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const api = useApiClient();
 
-  useEffect(() => {
-    const getUser = async () => {
-      setUser(await GoogleSignin.getCurrentUser());
-    };
-    getUser();
-  }, []);
+  const updateProfileOnBackend = async () => {
+    setIsLoading(true);
 
-  const updateProfile = async () => {
-    try {
-      const Json = JSON.stringify({
-        photoUrlBase64: image,
-        username: username,
-        venmoHandle: venmo,
-        bio: bio,
-      });
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: user.idToken,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      );
-      /*
-      TODO for some reason updating our custom backend service is giving an 
-      unauthorized error, I believe it's because we're missing the token field.
-      Look in Resell backend text channel for the question I asked and the 
-      backend docs.
-      */
-      if (!response.ok) {
-        let error = new Error(response.statusText);
-        console.log(`response status = ${response.statusText}`);
-        console.log(`response = ${response.status}`);
-        throw error;
-      }
-      const data = await response.json();
-      // These are some examples of how you can use React Native Firebase
-      // TODO refactor ALL calls of the Firebase JS SDK to React Native Firebase
-      await auth().currentUser.updateProfile({
-        displayName: username,
-        photoURL: image,
-      });
-      console.log(`JSON = ${JSON.stringify(data)}`);
-      await firestore()
-        .doc(user.user.email)
-        .set({ onboarded: true, venmo: venmo });
-      storeOnboarded(true);
-    } catch (e) {
-      console.log(`issue: ${e}`);
+    // update backend
+    const response = await api.post("/user/", {
+      photoUrlBase64: image,
+      username: username,
+      venmoHandle: venmo,
+      bio: bio,
+    });
+    if (response.error) {
+      makeToast({ message: "Failed to update profile", type: "ERROR" });
+      return;
+    } else {
+      console.log(`update response: ${JSON.stringify(response)}`);
     }
+    // update Firebase:
+    try {
+      await setDoc(doc(userRef, auth.currentUser.email), {
+        venmo: venmo,
+        onboarded: true,
+      });
+    } catch (e) {
+      makeToast({ message: "Failed to update profile", type: "ERROR" });
+    }
+
+    await storeOnboarded(true);
+    setIsLoading(false);
+
+    navigation.navigate("Root", {
+      screen: "HomeTab",
+      params: { showPanel: true },
+    });
   };
 
   return (
@@ -109,26 +91,17 @@ export default function LinkVenmoScreen({ navigation, route }) {
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
-            onPress={async () => {
-              await updateProfile();
-              navigation.navigate("Root", {
-                screen: "HomeTab",
-                params: { showPanel: true },
-              });
-            }}
+            onPress={updateProfileOnBackend}
             enabled={venmo.length > 0}
+            isLoading={isLoading}
           />
         </View>
         <View style={styles.skipButton}>
           <SkipButton
             text={"Skip"}
-            onPress={async () => {
+            onPress={() => {
               setVenmo("");
-              await updateProfile();
-              navigation.navigate("Root", {
-                screen: "HomeTab",
-                params: { showPanel: true },
-              });
+              updateProfileOnBackend();
             }}
           />
         </View>

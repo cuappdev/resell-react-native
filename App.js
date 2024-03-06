@@ -1,10 +1,11 @@
-import SignIn from "./screens/SignIn";
-import useCachedResources from "./hooks/useCachedResources";
-import { store } from "./state_manage/reducers/store";
-import { Provider } from "react-redux";
-import { useEffect, useState } from "react";
 import * as Linking from "expo-linking";
+import { useEffect, useState } from "react";
 import { RootSiblingParent } from "react-native-root-siblings";
+import { Provider } from "react-redux";
+import ApiClientProvider from "./api/ApiClientProvider";
+import useCachedResources from "./hooks/useCachedResources";
+import SignIn from "./screens/SignIn";
+import { store } from "./state_manage/reducers/store";
 
 export default function App() {
   function handleDeepLink(event) {
@@ -33,9 +34,11 @@ export default function App() {
   } else {
     return (
       <RootSiblingParent>
-        <Provider store={store}>
-          <SignIn />
-        </Provider>
+        <ApiClientProvider>
+          <Provider store={store}>
+            <SignIn />
+          </Provider>
+        </ApiClientProvider>
       </RootSiblingParent>
     );
   }

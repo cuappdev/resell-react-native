@@ -1,11 +1,11 @@
 // import firebase from "firebase/app";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import firebase, { getApps, initializeApp } from "firebase/app";
-import { getFirestore, collection } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { API_KEY } from "@env";
+import { getReactNativePersistence, initializeAuth } from "firebase/auth";
+import { collection, getFirestore } from "firebase/firestore";
 
 export const firebaseConfig = {
-  apiKey: API_KEY,
+  apiKey: process.env.API_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   databaseURL: process.env.DATABASE_URL,
   projectId: process.env.PROJECT_ID,
@@ -15,7 +15,7 @@ export const firebaseConfig = {
   measurementId: process.env.MEASUREMENT_ID,
 };
 let app;
-if (getApps().length === 0) {
+if (!getApps().length) {
   app = initializeApp(firebaseConfig);
 } else {
   app = firebase.getApp(); // if already initialized, use that one
@@ -26,4 +26,6 @@ export const chatRef = collection(db, "chats");
 export const historyRef = collection(db, "history");
 export const userRef = collection(db, "user");
 export const requestRef = collection(db, "requests");
-export const auth = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});

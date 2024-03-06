@@ -1,20 +1,11 @@
-import React, { useState, useEffect } from "react";
-import Modal from "react-native-modal";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-  Platform,
-  Alert,
-} from "react-native";
-import PurpleButton from "./PurpleButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Calendar from "expo-calendar";
-import { auth, historyRef } from "../config/firebase";
 import moment from "moment";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import Modal from "react-native-modal";
+import { auth, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import PurpleButton from "./PurpleButton";
 export default function BuyerProposeModal({
   visible,
   setVisible,
@@ -92,7 +83,7 @@ export default function BuyerProposeModal({
               }
               setStartDate("");
               setVisible(false);
-              makeToast("Time proposed");
+              makeToast({ message: "Time proposed" });
             }}
             enabled={true}
           />

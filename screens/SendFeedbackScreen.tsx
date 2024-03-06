@@ -1,23 +1,22 @@
-import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useState } from "react";
 import {
-  Text,
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  Platform,
-  Image,
   Alert,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
   Dimensions
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FAB } from "react-native-paper";
 import BackButton from "../assets/svg-components/back_button";
 import DeleteImage from "../assets/svg-components/deleteImage";
 import ExitIcon from "../assets/svg-components/exit";
 import { menuBarTop } from "../constants/Layout";
-import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
-import { FAB } from "react-native-paper";
 import Modal from "react-native-modal";
 
 const imageSize = (Dimensions.get('window').width - 68) / 3;

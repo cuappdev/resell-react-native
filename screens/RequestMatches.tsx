@@ -1,23 +1,12 @@
+import { useIsFocused } from "@react-navigation/native";
 import * as React from "react";
-import {
-  StyleSheet,
-  FlatList,
-  SafeAreaView,
-  Text,
-  Platform,
-  View,
-} from "react-native";
-import { LogBox } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import ProductCard from "../components/ProductCard";
+import { useEffect, useState } from "react";
+import { LogBox, Platform, StyleSheet, Text, View } from "react-native";
 import { ProductList } from "../components/ProductList";
+import LoadingScreen from "./LoadingScreen";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import LoadingScreen from "./LoadingScreen";
-import { useIsFocused } from "@react-navigation/native";
 
 import { fonts } from "../globalStyle/globalFont";
 
