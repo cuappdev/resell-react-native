@@ -15,6 +15,8 @@ import NewListingClicked from "../assets/svg-components/newListingClicked";
 import NewRequest from "../assets/svg-components/newRequest";
 import NewRequestClicked from "../assets/svg-components/newRequestClicked";
 
+const spinValue = useRef(new Animated.Value(0)).current;
+
 export const ExpandablePlusButton = ({
   onRequestPressed,
   onListingPressed,
@@ -33,7 +35,7 @@ export const ExpandablePlusButton = ({
       setExpand(false);
     }
   }, [isFocused]);
-  const spinValue = useRef(new Animated.Value(0)).current;
+
 
   const onExpand = () => {
     if (expand) {
@@ -57,18 +59,6 @@ export const ExpandablePlusButton = ({
     inputRange: [0, 1],
     outputRange: ["0deg", "-45deg"],
   });
-  const listingBottom = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -160],
-  });
-  const requestBottom = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -90],
-  });
-  const fade = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
   return (
     <View
       style={{
@@ -84,51 +74,35 @@ export const ExpandablePlusButton = ({
     >
       {expand && (
         <TouchableOpacity
-          style={{
-            backgroundColor: "#000000",
-            opacity: 0.2,
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-          }}
+          style={styles.expandableView}
           onPress={onExpand}
         />
       )}
       <TouchableOpacity
+        style={styles.newListingButton}
         onPressIn={() => setOnListing(true)}
         onPressOut={() => setOnListing(false)}
         onPress={onListingPressed}
       >
-        <Animated.View
-          style={{
-            position: "absolute",
-            right: 25,
-            bottom: 100,
-            opacity: fade,
-            transform: [{ translateY: listingBottom }],
-          }}
-        >
-          {onListing ? <NewListingClicked /> : <NewListing />}
-        </Animated.View>
       </TouchableOpacity>
+      <Animated.View
+        style={styles.newListingButtonContainer}
+      >
+        {onListing ? <NewListingClicked /> : <NewListing />}
+      </Animated.View>
 
       <TouchableOpacity
+        style={styles.newRequestButton}
         onPressIn={() => setOnRequest(true)}
         onPressOut={() => setOnRequest(false)}
         onPress={onRequestPressed}
       >
-        <Animated.View
-          style={{
-            position: "absolute",
-            right: 25,
-            bottom: 100,
-            opacity: fade,
-            transform: [{ translateY: requestBottom }],
-          }}
-        >
-          {onRequest ? <NewRequestClicked /> : <NewRequest />}
-        </Animated.View>
       </TouchableOpacity>
+      <Animated.View
+        style={styles.newRequestButtonContainer}
+      >
+        {onRequest ? <NewRequestClicked /> : <NewRequest />}
+      </Animated.View>
 
       <LinearGradient
         colors={["#DF9856", "#DE6CD3", "#AD68E3"]}
@@ -145,6 +119,19 @@ export const ExpandablePlusButton = ({
     </View>
   );
 };
+
+const listingBottom = spinValue.interpolate({
+  inputRange: [0, 1],
+  outputRange: [0, -160],
+});
+const requestBottom = spinValue.interpolate({
+  inputRange: [0, 1],
+  outputRange: [0, -90],
+});
+const fade = spinValue.interpolate({
+  inputRange: [0, 1],
+  outputRange: [0, 1],
+});
 
 const styles = StyleSheet.create({
   highLight: {
@@ -174,5 +161,44 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     width: 56,
     height: 56,
+  },
+  expandableView: {
+    backgroundColor: "#000000",
+    opacity: 0.2,
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+  newListingButton: {
+    position: "absolute",
+    right: 25,
+    bottom: 260,
+    width: 153,
+    height: 43,
+    zIndex: 100,
+  },
+  newListingButtonContainer: {
+    position: "absolute",
+    right: 25,
+    bottom: 100,
+    opacity: fade,
+    zIndex: 0,
+    transform: [{ translateY: listingBottom }],
+  },
+  newRequestButton: {
+    position: "absolute",
+    right: 25,
+    bottom: 190,
+    width: 163,
+    height: 43,
+    zIndex: 100,
+  },
+  newRequestButtonContainer: {
+    position: "absolute",
+    right: 25,
+    bottom: 100,
+    opacity: fade,
+    zIndex: 0,
+    transform: [{ translateY: requestBottom }],
   },
 });
