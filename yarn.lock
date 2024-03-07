@@ -3412,9 +3412,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@~18.2.14":
-  version "18.2.63"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.63.tgz#4637c56146ad90f96d0583171edab953f7e6fe57"
-  integrity sha512-ppaqODhs15PYL2nGUOaOu2RSCCB4Difu4UFrP4I3NHLloXC/ESQzQMi9nvjfT1+rudd0d2L3fQPJxRSey+rGlQ==
+  version "18.2.64"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.64.tgz#3700fbb6b2fa60a6868ec1323ae4cbd446a2197d"
+  integrity sha512-MlmPvHgjj2p3vZaxbQgFUQFvD8QiZwACfGqEdDSWou5yISWxDQ4/74nCAwsUiX7UFLKZz3BbVSPj+YxeoGGCfg==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -5183,9 +5183,9 @@ ejs@^3.1.6, ejs@^3.1.7, ejs@^3.1.8:
     jake "^10.8.5"
 
 electron-to-chromium@^1.4.668:
-  version "1.4.693"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.693.tgz#001bb5dcb57ba404366ec39e1957d11886fc8a93"
-  integrity sha512-/if4Ueg0GUQlhCrW2ZlXwDAm40ipuKo+OgeHInlL8sbjt+hzISxZK949fZeJaVsheamrzANXvw1zQTvbxTvSHw==
+  version "1.4.695"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.695.tgz#1753f4017e8d7e72a1ce5058c0fc66c8b67bab8e"
+  integrity sha512-eMijZmeqPtm774pCZIOrfUHMs/7ls++W1sLhxwqgu8KQ8E2WmMtzwyqOMt0XXUJ3HTIPfuwlfwF+I5cwnfItBA==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -9432,10 +9432,10 @@ react-native-webview@13.2.2:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
-react-native-week-view@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/react-native-week-view/-/react-native-week-view-0.24.0.tgz#0ffe35623217f28ac691ccb3d237031c89e491f6"
-  integrity sha512-Vig0k5+UwtvNSYJt9fK7aNSLk5ePAQSSEFnL7B+0Jne8ne5ibBp6mDWfAnI09/Ioddt/sdBfP5kSOwMiSSEmXQ==
+react-native-week-view@^0.30.0:
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/react-native-week-view/-/react-native-week-view-0.30.0.tgz#89180f60ef45611eb331dfd2017c3a849f9a8546"
+  integrity sha512-6BwkvtK6H7Ik6iHIrKxA+3gUnd0siSSafVfL8BPEg8AiCl5cbZuzk54EhJAyS5+uYoFzx+a8hNM9ZhjDWFmUcQ==
   dependencies:
     memoize-one "^5.1.1"
     moment "^2.19.3"
