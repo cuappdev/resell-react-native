@@ -101,7 +101,10 @@ async function registerForPushNotificationsAsync() {
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log(token);
   } else {
-    alert("Must use physical device for Push Notifications");
+    makeToast({
+      message: "Must use physical device for Push Notifications",
+      type: "ERROR",
+    });
   }
 
   if (Platform.OS === "android") {
@@ -624,7 +627,8 @@ export default function ChatWindow({ navigation, route }) {
           alwaysColor={true}
           otherEmail={email}
         />
-        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+        <View style={styles.mainSendContainer}>
+          {/* Image input */}
           <TouchableOpacity
             style={{
               marginLeft: 15,
@@ -660,9 +664,11 @@ export default function ChatWindow({ navigation, route }) {
                     paddingTop: 10,
                     paddingBottom: 10,
                     textAlignVertical: "top",
+                    maxHeight: 60,
                   },
                   fonts.body2,
                 ]}
+                numberOfLines={3}
                 onChangeText={(t) => {
                   if (!isSendingAvailability) {
                     setText(t);
@@ -726,9 +732,10 @@ export default function ChatWindow({ navigation, route }) {
                 />
               </View>
             )}
-
             <View />
-            {(text.trim().length != 0 || isSendingAvailability) && (
+
+            {/* Send button */}
+            {(text.trim().length !== 0 || isSendingAvailability) && (
               <TouchableOpacity
                 style={{
                   marginRight: 10,
@@ -879,11 +886,7 @@ export default function ChatWindow({ navigation, route }) {
         ref={(chat) => (ref.current = chat)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        minInputToolbarHeight={
-          showProposeNotice || showConfirmNotice
-            ? 137 + Math.min(Math.max(40, height), 140)
-            : 80 + Math.min(Math.max(40, height), 140)
-        }
+        minInputToolbarHeight={150}
         renderMessage={renderMessage}
         scrollToBottom={true}
       />
@@ -973,6 +976,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4F4F4",
     borderRadius: 15,
     marginTop: 0,
+    maxHeight: 60,
+  },
+  mainSendContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   backButton: {

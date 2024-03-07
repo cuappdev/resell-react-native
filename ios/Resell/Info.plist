@@ -52,6 +52,8 @@
 	</dict>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Allow Resell to access your calendar</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Allow Resell to read and write to your calendar</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow Resell to access your camera.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -60,6 +62,8 @@
 	<string>Allow Resell to access your photos to let you share them.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow Resell to access your reminders</string>
+	<key>NSRemindersFullAccessUsageDescription</key> 
+	<string>Allow Resell to create a reminder for your meeting</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
