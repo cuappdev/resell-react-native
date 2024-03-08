@@ -5,7 +5,7 @@ import Modal from "react-native-modal";
 import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import { auth, historyRef } from "../config/firebase";
-import { fonts } from "../globalStyle/globalFont";
+import { fonts } from "../../globalStyle/globalFont";
 export default function meetingDetailModal({
   visible,
   setVisible,

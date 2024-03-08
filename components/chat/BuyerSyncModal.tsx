@@ -1,24 +1,41 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Calendar from "expo-calendar";
-import React, { useEffect, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
-import Modal from "react-native-modal";
-import PurpleButton from "../components/PurpleButton";
-
+import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
-import { fonts } from "../globalStyle/globalFont";
-import { makeToast } from "../utils/Toast";
-export default function SellerSyncModal({
+import React, { useEffect, useState } from "react";
+import { Alert, Platform, StyleSheet, Text, View } from "react-native";
+import Modal from "react-native-modal";
+import { auth, historyRef } from "../config/firebase";
+import { fonts } from "../../globalStyle/globalFont";
+import { makeToast } from "../../utils/Toast";
+import PurpleButton from "../PurpleButton";
+export default function BuyerSyncModal({
   visible,
   setVisible,
   eventTitle,
+  text,
+  email,
   startDate,
+  setShowNotice,
+  setActivateIcon,
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m");
   const dateText = startText + "-" + endDate.format("h:mm a");
   const [calendarID, setCalendarID] = useState("");
+
+  useEffect(() => {
+    AsyncStorage.getItem("calendarID", (errs, result) => {
+      if (!errs) {
+        if (result !== null && result !== undefined) {
+          setCalendarID(result);
+        } else {
+          createCalendar();
+        }
+      }
+    });
+  }, []);
   useEffect(() => {
     (async () => {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
@@ -32,18 +49,6 @@ export default function SellerSyncModal({
     })();
   }, []);
 
-  useEffect(() => {
-    AsyncStorage.getItem("calendarID", (errs, result) => {
-      if (!errs) {
-        if (result !== null && result !== undefined) {
-          setCalendarID(result);
-        } else {
-          createCalendar();
-        }
-      }
-    });
-  }, []);
-
   const storeCalendarID = async (calendarID) => {
     try {
       await AsyncStorage.setItem("calendarID", calendarID);
@@ -51,7 +56,6 @@ export default function SellerSyncModal({
       console.log(e);
     }
   };
-
   async function getDefaultCalendarSource() {
     const defaultCalendar = await Calendar.getDefaultCalendarAsync();
     return defaultCalendar.source;
@@ -87,13 +91,21 @@ export default function SellerSyncModal({
         startDate: startDateWithTime,
         title: eventTitle,
       });
-      console.log("added event: ", endDateWithTime);
       console.log("added event: ", startDateWithTime);
+      console.log("added event: ", endDateWithTime);
     } catch (e) {
-      makeToast({ message: "Cannot access your calendar!", type: "ERROR" });
-
+      Alert.alert("Sorry we don't have access to you calendar account");
       console.log(e);
     }
+  };
+  const updateViewed = () => {
+    updateDoc(
+      doc(
+        collection(doc(historyRef, auth.currentUser.email), "sellers"),
+        email
+      ),
+      { confirmedView: true }
+    );
   };
 
   return (
@@ -101,44 +113,59 @@ export default function SellerSyncModal({
       isVisible={visible}
       backdropOpacity={0.2}
       onBackdropPress={() => {
+        setActivateIcon(true);
         setVisible(false);
+        setShowNotice(false);
+        updateViewed();
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
       <View style={styles.slideUp}>
-        <Text style={[fonts.pageHeading3]}>
-          Sync meeting to Google Calendar?
+        <Text style={[fonts.pageHeading3, { marginTop: "14%" }]}>
+          Meeting Details
         </Text>
-        <View>
-          <PurpleButton
-            text={"Sync"}
-            onPress={() => {
-              async () => {
-                const { status } =
-                  await Calendar.requestCalendarPermissionsAsync();
-                if (status === "granted") {
-                  addNewEvent();
-                  makeToast({ message: "Added event to your calendar!" });
+        <View style={{ marginTop: 24 }}>
+          <Text style={fonts.body1}>{text}</Text>
 
-                  console.log("CalendarID: ", calendarID);
-                } else {
-                  console.log("permission not granted");
-                  makeToast({
-                    message: "Calendar Permission not Granted",
-                    type: "ERROR",
-                  });
-                }
-              };
+          <Text
+            style={[fonts.pageHeading3, { marginTop: 24, marginBottom: 4 }]}
+          >
+            Time
+          </Text>
+          <Text style={fonts.body1}>{dateText}</Text>
+        </View>
+        <View style={{ position: "absolute", bottom: "22%" }}>
+          <PurpleButton
+            text={"Sync to Calendar"}
+            onPress={async () => {
+              updateViewed();
               setVisible(false);
+              setShowNotice(false);
+              setActivateIcon(true);
+              console.log("here");
+              const { status } =
+                await Calendar.requestCalendarPermissionsAsync();
+              if (status === "granted") {
+                addNewEvent();
+                makeToast({ message: "Added event to your calendar!" });
+              } else {
+                console.log("permission not granted");
+                makeToast({
+                  message: "Calendar Permission not Granted",
+                  type: "ERROR",
+                });
+              }
             }}
             enabled={true}
           />
         </View>
-
         <Text
-          style={fonts.Title2}
+          style={[fonts.Title2, { position: "absolute", bottom: "11%" }]}
           onPress={() => {
+            setActivateIcon(true);
             setVisible(false);
+            setShowNotice(false);
+            updateViewed();
           }}
         >
           Cancel
@@ -152,11 +179,12 @@ const styles = StyleSheet.create({
   slideUp: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 240,
+    height: 400,
     backgroundColor: "#ffffff",
     width: "100%",
     marginHorizontal: 0,
     alignItems: "center",
-    justifyContent: "space-evenly",
+    paddingLeft: "14%",
+    paddingRight: "14%",
   },
 });

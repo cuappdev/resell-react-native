@@ -11,7 +11,7 @@ import {
 
 import { useIsFocused } from "@react-navigation/native";
 import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
-import ChatTabs from "../components/ChatTabs";
+import ChatTabs from "../components/chat/ChatTabs";
 import { auth, historyRef } from "../config/firebase";
 import { IBuyerPreview, ISellerPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";

@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { NumberPad } from "./CustomizedNumKeyBoard";
+import { NumberPad } from "../CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
 const windowHeight = Dimensions.get("window").height;
 const { StatusBarManager } = NativeModules;

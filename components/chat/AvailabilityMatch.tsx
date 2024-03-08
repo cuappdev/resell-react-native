@@ -3,7 +3,7 @@ import Modal from "react-native-modal";
 
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import WeekView from "react-native-week-view";
-import PurpleButton from "./PurpleButton";
+import PurpleButton from "../PurpleButton";
 const moment = require("moment");
 
 export function AvailabilityModal({
