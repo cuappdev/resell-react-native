@@ -1,18 +1,10 @@
 import React from "react";
 import Modal from "react-native-modal";
 
-import {
-  Dimensions,
-  NativeModules,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { NumberPad } from "./CustomizedNumKeyBoard";
+import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import { NumberPad } from "../CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
 const windowHeight = Dimensions.get("window").height;
-const { StatusBarManager } = NativeModules;
 const modalHeight =
   Platform.OS === "ios" ? windowHeight - 212 - 35 : windowHeight - 212;
 export function NegotiationModal({

@@ -13,10 +13,10 @@ import {
   View,
 } from "react-native";
 import { Bubble, GiftedChat, Message } from "react-native-gifted-chat";
-import { AvailabilityBubble } from "../components/AvailabilityBubble";
-import { AvailabilityModal } from "../components/AvailabilityMatch";
 import { ButtonBanner } from "../components/ButtonBanner";
-import { NegotiationModal } from "../components/NegotiationModal";
+import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
+import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
+import { NegotiationModal } from "../components/chat/NegotiationModal";
 import NoticeBanner from "../components/NoticeBanner";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -36,12 +36,12 @@ import {
 } from "firebase/firestore";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
-import BuyerProposeModal from "../components/BuyerProposeModal";
-import BuyerSyncModal from "../components/BuyerSyncModal";
-import MeetingDetailModal from "../components/MeetingDetailModal";
+import BuyerProposeModal from "../components/chat/BuyerProposeModal";
+import BuyerSyncModal from "../components/chat/BuyerSyncModal";
+import MeetingDetailModal from "../components/chat/MeetingDetailModal";
+import SellerConfirmModal from "../components/chat/SellerConfirmModal";
+import SellerSyncModal from "../components/chat/SellerSyncModal";
 import ProductCard from "../components/ProductCard";
-import SellerConfirmModal from "../components/SellerConfirmModal";
-import SellerSyncModal from "../components/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";

@@ -2,17 +2,9 @@ import React, { useState } from "react";
 import Modal from "react-native-modal";
 
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import WeekView, { WeekViewEvent } from "react-native-week-view";
-import Colors from "../constants/Colors";
-import PurpleButton from "./PurpleButton";
+import WeekView from "react-native-week-view";
+import PurpleButton from "../PurpleButton";
 const moment = require("moment");
-
-interface Event {
-  id: number;
-  startDate: Date;
-  endDate: Date;
-  color: string;
-}
 
 export function AvailabilityModal({
   availabilityVisible,
@@ -29,18 +21,39 @@ export function AvailabilityModal({
   isBuyer,
   setSelectedTime,
 }) {
-  const [schedule, setSchedule] = useState<Event[]>([]);
+  const [schedule, setSchedule] = useState<any[]>([]);
   const [largestIndex, setLargestIndex] = useState(30);
-  const [editingEvent, setEditingEvent] = useState<number | null>(null);
+  function MyEventComponent({ event, position }) {
+    switch (event.color) {
+      case "#9E70F6":
+        return (
+          //a complete event style
+          <View
+            style={{
+              width: position.width,
+              height: "100%",
+              backgroundColor: "#9E70F6",
+            }}
+          />
+        ) as any;
+      case "f8f4fc":
+        return (
+          //select time of an event style, start event always have color of "f8f4fc"
+          <View
+            style={{
+              width: position.width,
+              height: "100%",
+              borderWidth: 2,
+              borderStyle: "dashed",
+              borderColor: "#9E70F6",
+              backgroundColor: "#f8f4fc",
+            }}
+          />
+        ) as any;
+    }
+  }
 
-  const EDITING_CONFIG = {
-    bottom: true,
-    top: true,
-    left: false,
-    right: false,
-  };
-
-  const onClickGrid = (_, startHour: number, date: Date) => {
+  const onClickGrid = (event, startHour, date) => {
     if (!isBubble) {
       //Make sure it's not avaliability bubble mode, which is not editable
       let year = date.getFullYear();
@@ -61,10 +74,6 @@ export function AvailabilityModal({
 
       // If there is no previous event, create a 30 minute start event, with color ""
       if (!duplicate) {
-        if (editingEvent) {
-          setEditingEvent(null);
-          return;
-        }
         setSchedule([
           ...schedule,
           {
@@ -88,14 +97,14 @@ export function AvailabilityModal({
               0,
               0
             ),
-            color: Colors.resellPurple,
+            color: "#9E70F6",
           },
         ]);
         setLargestIndex(largestIndex + 1);
       }
     }
   };
-  const onEventPress = (event: WeekViewEvent) => {
+  const onEventPress = (event) => {
     let length = schedule.length;
     if (!isBubble) {
       if (schedule.length == 1) {
@@ -115,27 +124,6 @@ export function AvailabilityModal({
     for (let i = 0; i < temptSchedule.length; i++) {
       temptSchedule[i].id = i;
     }
-  };
-  const onEditEvent = (
-    newEvent: WeekViewEvent,
-    newStartDate: Date,
-    newEndDate: Date
-  ) => {
-    setSchedule(
-      schedule.map((event: Event) =>
-        event.id !== newEvent.id
-          ? event
-          : {
-              id: newEvent.id,
-              startDate: newStartDate,
-              endDate: newEndDate,
-              color: Colors.resellPurple,
-            }
-      )
-    );
-  };
-  const onEventLongPress = (event: WeekViewEvent) => {
-    setEditingEvent(event.id);
   };
 
   return (
@@ -179,14 +167,10 @@ export function AvailabilityModal({
             eventContainerStyle={{ marginLeft: 2 }}
             onGridClick={onClickGrid}
             formatDateHeader={"  ddd[\n]MMM D"}
+            EventComponent={MyEventComponent}
             onEventPress={onEventPress}
             showNowLine={true}
             nowLineColor={"#9E70F6"}
-            onEditEvent={onEditEvent}
-            editEventConfig={EDITING_CONFIG}
-            onEventLongPress={onEventLongPress}
-            editingEvent={editingEvent}
-            allowScrollByDay
           />
           {!isBubble && (
             <View style={styles.greyButton}>
@@ -261,7 +245,7 @@ const styles = StyleSheet.create({
   },
   greyButton: {
     position: "absolute",
-    bottom: 44,
+    bottom: 0,
     alignItems: "center",
     width: "100%",
     zIndex: 10,

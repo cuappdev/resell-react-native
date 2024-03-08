@@ -1,33 +1,34 @@
-import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
-import { auth, historyRef } from "../config/firebase";
-import { fonts } from "../globalStyle/globalFont";
-import PurpleButton from "./PurpleButton";
-export default function BuyerProposeModal({
+import { auth, historyRef } from "../../config/firebase";
+import { fonts } from "../../globalStyle/globalFont";
+import PurpleButton from "../PurpleButton";
+export default function SellerConfirmModal({
   visible,
   setVisible,
-  setAvailabilityVisible,
+  text,
   startDate,
-  sellerEmail,
-  post,
-  setStartDate,
+  setSyncMeetingVisible,
+  email,
+  setShowNotice,
+  setActivateIcon,
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
-  console.log(visible);
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
       backdropOpacity={0.2}
+      onModalHide={() => {
+        setSyncMeetingVisible(true);
+      }}
       onBackdropPress={() => {
         setVisible(false);
-        setStartDate(null);
-        setAvailabilityVisible(true);
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
@@ -36,9 +37,7 @@ export default function BuyerProposeModal({
           Meeting Details
         </Text>
         <View style={{ marginTop: 24 }}>
-          <Text style={fonts.body1}>
-            You are proposing the following meeting:
-          </Text>
+          <Text style={fonts.body1}>{text}</Text>
 
           <Text
             style={[fonts.pageHeading3, { marginTop: 24, marginBottom: 4 }]}
@@ -47,34 +46,32 @@ export default function BuyerProposeModal({
           </Text>
           <Text style={fonts.body1}>{dateText}</Text>
         </View>
-        <View style={{ position: "absolute", bottom: "22%" }}>
+        <View style={styles.purpleButton}>
           <PurpleButton
-            text={"Propose Meeting"}
-            onPress={async () => {
-              // update the interaction history to include the time proposal
+            text={"Confirm"}
+            onPress={() => {
+              // update sellers and buyers docs:
 
-              const interactionHistoryRef = doc(
-                collection(doc(historyRef, sellerEmail), "buyers"),
+              const sellerDoc = doc(
+                collection(doc(historyRef, auth.currentUser.email), "buyers"),
+                email
+              );
+              updateDoc(sellerDoc, { proposedView: true });
+
+              const buyerDoc = doc(
+                collection(doc(historyRef, email), "sellers"),
                 auth.currentUser.email
               );
-              const updateData = {
-                recentMessage: "Proposed a Time",
+              updateDoc(buyerDoc, {
+                recentMessage: "Seller Confirmed",
                 recentSender: auth?.currentUser?.email,
-                proposedTime: startDate,
-                proposedViewed: false,
+                confirmedTime: startDate,
+                confirmedViewed: false,
                 viewed: false,
-              };
-              const interactionHistoryDoc = await getDoc(interactionHistoryRef);
-              if (interactionHistoryDoc.exists()) {
-                updateDoc(interactionHistoryRef, updateData);
-              } else {
-                setDoc(interactionHistoryRef, {
-                  item: post,
-                  name: auth?.currentUser?.displayName,
-                  image: auth?.currentUser?.photoURL,
-                  ...updateData,
-                });
-              }
+              });
+              setVisible(false);
+              setShowNotice(false);
+              setActivateIcon(true);
             }}
             enabled={true}
           />
@@ -83,8 +80,6 @@ export default function BuyerProposeModal({
           style={[fonts.Title2, { position: "absolute", bottom: "11%" }]}
           onPress={() => {
             setVisible(false);
-            setStartDate(null);
-            setAvailabilityVisible(true);
           }}
         >
           Cancel
@@ -103,7 +98,12 @@ const styles = StyleSheet.create({
     width: "100%",
     marginHorizontal: 0,
     alignItems: "center",
+
     paddingLeft: "14%",
     paddingRight: "14%",
+  },
+  purpleButton: {
+    position: "absolute",
+    bottom: "22%",
   },
 });
