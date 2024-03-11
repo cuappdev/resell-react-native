@@ -12,6 +12,7 @@ import {
 import { useIsFocused } from "@react-navigation/native";
 import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
 import ChatTabs from "../components/chat/ChatTabs";
+import LoadingChat from "../components/chat/LoadingChat";
 import { auth, historyRef } from "../config/firebase";
 import { IBuyerPreview, ISellerPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
@@ -23,10 +24,12 @@ export default function ChatScreen({ navigation }) {
   const [purchaseUnread, setPurchaseUnread] = useState(0);
   const [offerUnread, setOfferUnread] = useState(0);
   const isFocused = useIsFocused();
+  const [isLoadingPurchase, setIsLoadingPurchase] = useState(true);
+  const [isLoadingOffers, setIsLoadingOffers] = useState(true);
 
   const getPurchase = (): Unsubscribe => {
     setPurchase([]);
-
+    setIsLoadingPurchase(true);
     const sellersQuery = collection(
       doc(historyRef, auth.currentUser?.email),
       "sellers"
@@ -50,6 +53,7 @@ export default function ChatScreen({ navigation }) {
           });
         });
         setPurchase(tempt);
+        setIsLoadingPurchase(false);
       });
     } catch (e) {
       console.log("Error getting user: ", e);
@@ -57,6 +61,7 @@ export default function ChatScreen({ navigation }) {
   };
   const getOffer = (): Unsubscribe => {
     setOffer([]);
+    setIsLoadingOffers(true);
 
     const buyersQuery = collection(
       doc(historyRef, auth.currentUser.email),
@@ -81,6 +86,7 @@ export default function ChatScreen({ navigation }) {
           });
         });
         setOffer(tempt);
+        setIsLoadingOffers(false);
       });
     } catch (e) {
       console.log("Error getting user: ", e);
@@ -196,8 +202,14 @@ export default function ChatScreen({ navigation }) {
         purchaseUnread={purchaseUnread}
         offerUnread={offerUnread}
       />
-
+      {(isLoadingPurchase || isLoadingOffers) && (
+        <View style={{ flexDirection: "column", gap: 24, paddingTop: 24 }}>
+          <LoadingChat />
+          <LoadingChat />
+        </View>
+      )}
       {isPurchase &&
+        !isLoadingPurchase &&
         (purchase.length !== 0 ? (
           <FlatList
             data={purchase}
@@ -221,6 +233,7 @@ export default function ChatScreen({ navigation }) {
         ))}
 
       {!isPurchase &&
+        !isLoadingOffers &&
         (offer.length !== 0 ? (
           <FlatList
             data={offer}
