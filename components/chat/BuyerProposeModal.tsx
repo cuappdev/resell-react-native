@@ -14,12 +14,22 @@ export default function BuyerProposeModal({
   sellerEmail,
   post,
   setStartDate,
+}: {
+  visible: boolean;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  setAvailabilityVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  startDate: string;
+  sellerEmail: string;
+  post: any;
+  setStartDate: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
-  console.log(visible);
+  console.log(`visible: ${visible}`);
+
+  const [shouldOpenAvailability, setShouldOpenAvailability] = useState(false);
 
   const [proposeLoading, setProposeLoading] = useState(false);
   return (
@@ -29,9 +39,14 @@ export default function BuyerProposeModal({
       onBackdropPress={() => {
         setVisible(false);
         setStartDate(null);
-        setAvailabilityVisible(true);
+        setShouldOpenAvailability(true);
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
+      onModalHide={() => {
+        if (shouldOpenAvailability) {
+          setAvailabilityVisible(true);
+        }
+      }}
     >
       <View style={styles.slideUp}>
         <Text style={[fonts.pageHeading3, { marginTop: "14%" }]}>
@@ -56,12 +71,10 @@ export default function BuyerProposeModal({
             onPress={async () => {
               setProposeLoading(true);
               // update the interaction history to include the time proposal
-              console.log(`interaction happened`);
               const interactionHistoryRef = doc(
                 collection(doc(historyRef, sellerEmail), "buyers"),
                 auth.currentUser.email
               );
-              console.log(`got interaction history`);
               const updateData = {
                 recentMessage: "Proposed a Time",
                 recentSender: auth?.currentUser?.email,
@@ -80,7 +93,7 @@ export default function BuyerProposeModal({
                   ...updateData,
                 });
               }
-              console.log(`and updated history doc`);
+              setShouldOpenAvailability(false);
               setProposeLoading(false);
               setVisible(false);
             }}
@@ -90,9 +103,9 @@ export default function BuyerProposeModal({
         <Text
           style={[fonts.Title2, { position: "absolute", bottom: "11%" }]}
           onPress={() => {
-            setVisible(false);
             setStartDate(null);
-            setAvailabilityVisible(true);
+            setShouldOpenAvailability(true);
+            setVisible(false);
           }}
         >
           Cancel

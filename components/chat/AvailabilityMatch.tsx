@@ -55,14 +55,13 @@ export function AvailabilityModal({
 
       schedule.forEach(checkIfExisted);
 
-      function checkIfExisted(s) {
+      function checkIfExisted(s: Event) {
         if (s.startDate <= date && s.endDate >= date) {
-          console.log("here");
           duplicate = true;
         }
       }
 
-      // If there is no previous event, create a 30 minute start event, with color ""
+      // If there is no previous event, create a 30 minute start event
       if (!duplicate) {
         if (editingEventId) {
           setEditingEventId(null);
@@ -109,7 +108,6 @@ export function AvailabilityModal({
     } else if (isBuyer) {
       setAvailabilityVisible(false);
       setSelectedTime(moment(event.startDate).format("MMMM Do YYYY, h:mm a"));
-      console.log("gotTime");
     }
   };
   const resetScheduleIndex = (temptSchedule) => {
@@ -146,7 +144,7 @@ export function AvailabilityModal({
       backdropOpacity={0.2}
       isVisible={availabilityVisible}
       onModalHide={() => {
-        if (isBubble && isBuyer && selectdate != "") {
+        if (isBubble && isBuyer && selectdate) {
           setBuyerProposeVisible(true);
         }
       }}
