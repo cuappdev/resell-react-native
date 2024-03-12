@@ -2,9 +2,17 @@ import React, { useState } from "react";
 import Modal from "react-native-modal";
 
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import WeekView from "react-native-week-view";
+import WeekView, { WeekViewEvent } from "react-native-week-view";
+import Colors from "../../constants/Colors";
 import PurpleButton from "../PurpleButton";
 const moment = require("moment");
+
+interface Event {
+  id: number;
+  startDate: Date;
+  endDate: Date;
+  color: string;
+}
 
 export function AvailabilityModal({
   availabilityVisible,
@@ -21,10 +29,22 @@ export function AvailabilityModal({
   isBuyer,
   setSelectedTime,
 }) {
-  const [schedule, setSchedule] = useState<any[]>([]);
+  const [schedule, setSchedule] = useState<Event[]>([]);
   const [largestIndex, setLargestIndex] = useState(30);
+  const [editingEventId, setEditingEventId] = useState<number | null>(null);
 
-  const onClickGrid = (event, startHour, date) => {
+  const EDITING_CONFIG = {
+    bottom: true,
+    top: true,
+    left: false,
+    right: false,
+  };
+
+  const onClickGrid = (_, startHour: number, date: Date) => {
+    if (editingEventId) {
+      setEditingEventId(null);
+      return;
+    }
     if (!isBubble) {
       //Make sure it's not avaliability bubble mode, which is not editable
       let year = date.getFullYear();
@@ -36,7 +56,6 @@ export function AvailabilityModal({
       schedule.forEach(checkIfExisted);
 
       function checkIfExisted(s) {
-        // console.log(`s: ${JSON.stringify(s)}`);
         if (s.startDate <= date && s.endDate >= date) {
           console.log("here");
           duplicate = true;
@@ -45,6 +64,10 @@ export function AvailabilityModal({
 
       // If there is no previous event, create a 30 minute start event, with color ""
       if (!duplicate) {
+        if (editingEventId) {
+          setEditingEventId(null);
+          return;
+        }
         setSchedule([
           ...schedule,
           {
@@ -68,15 +91,14 @@ export function AvailabilityModal({
               0,
               0
             ),
-            color: "#9E70F6",
+            color: Colors.resellPurple,
           },
         ]);
         setLargestIndex(largestIndex + 1);
       }
     }
   };
-  const onEventPress = (event) => {
-    let length = schedule.length;
+  const onEventPress = (event: WeekViewEvent) => {
     if (!isBubble) {
       if (schedule.length == 1) {
         setSchedule([]);
@@ -95,6 +117,27 @@ export function AvailabilityModal({
     for (let i = 0; i < temptSchedule.length; i++) {
       temptSchedule[i].id = i;
     }
+  };
+  const onEditEvent = (
+    newEvent: WeekViewEvent,
+    newStartDate: Date,
+    newEndDate: Date
+  ) => {
+    setSchedule(
+      schedule.map((event: Event) =>
+        event.id !== newEvent.id
+          ? event
+          : {
+              id: newEvent.id,
+              startDate: newStartDate,
+              endDate: newEndDate,
+              color: Colors.resellPurple,
+            }
+      )
+    );
+  };
+  const onEventLongPress = (event: WeekViewEvent) => {
+    setEditingEventId(event.id);
   };
 
   return (
@@ -141,6 +184,11 @@ export function AvailabilityModal({
             onEventPress={onEventPress}
             showNowLine={true}
             nowLineColor={"#9E70F6"}
+            onEditEvent={onEditEvent}
+            editEventConfig={EDITING_CONFIG}
+            onEventLongPress={onEventLongPress}
+            editingEvent={editingEventId}
+            allowScrollByDay
           />
           {!isBubble && (
             <View style={styles.greyButton}>
@@ -215,7 +263,7 @@ const styles = StyleSheet.create({
   },
   greyButton: {
     position: "absolute",
-    bottom: 0,
+    bottom: 44,
     alignItems: "center",
     width: "100%",
     zIndex: 10,
