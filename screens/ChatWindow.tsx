@@ -1026,5 +1026,4 @@ const FILTER = [
     title: "Send Availablity",
   },
   { id: 2, title: "Pay with Venmo" },
-  // { id: 3, title: "Ask For Refund" },
 ];

@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import { auth, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
+import { makeToast } from "../../utils/Toast";
 import PurpleButton from "../PurpleButton";
 export default function BuyerProposeModal({
   visible,
@@ -82,17 +83,28 @@ export default function BuyerProposeModal({
                 proposedViewed: false,
                 viewed: false,
               };
-              const interactionHistoryDoc = await getDoc(interactionHistoryRef);
-              if (interactionHistoryDoc.exists()) {
-                await updateDoc(interactionHistoryRef, updateData);
-              } else {
-                await setDoc(interactionHistoryRef, {
-                  item: post,
-                  name: auth?.currentUser?.displayName,
-                  image: auth?.currentUser?.photoURL,
-                  ...updateData,
+              try {
+                const interactionHistoryDoc = await getDoc(
+                  interactionHistoryRef
+                );
+                if (interactionHistoryDoc.exists()) {
+                  await updateDoc(interactionHistoryRef, updateData);
+                } else {
+                  await setDoc(interactionHistoryRef, {
+                    item: post,
+                    name: auth?.currentUser?.displayName,
+                    image: auth?.currentUser?.photoURL,
+                    ...updateData,
+                  });
+                }
+              } catch (_) {
+                setProposeLoading(false);
+                makeToast({
+                  message: "Failed to propose meeting",
+                  type: "ERROR",
                 });
               }
+
               setShouldOpenAvailability(false);
               setProposeLoading(false);
               setVisible(false);
