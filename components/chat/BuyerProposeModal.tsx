@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import moment from "moment";
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import { auth, historyRef } from "../../config/firebase";
@@ -20,6 +20,8 @@ export default function BuyerProposeModal({
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
   console.log(visible);
+
+  const [proposeLoading, setProposeLoading] = useState(false);
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
@@ -49,14 +51,17 @@ export default function BuyerProposeModal({
         </View>
         <View style={{ position: "absolute", bottom: "22%" }}>
           <PurpleButton
+            isLoading={proposeLoading}
             text={"Propose Meeting"}
             onPress={async () => {
+              setProposeLoading(true);
               // update the interaction history to include the time proposal
-
+              console.log(`interaction happened`);
               const interactionHistoryRef = doc(
                 collection(doc(historyRef, sellerEmail), "buyers"),
                 auth.currentUser.email
               );
+              console.log(`got interaction history`);
               const updateData = {
                 recentMessage: "Proposed a Time",
                 recentSender: auth?.currentUser?.email,
@@ -66,15 +71,18 @@ export default function BuyerProposeModal({
               };
               const interactionHistoryDoc = await getDoc(interactionHistoryRef);
               if (interactionHistoryDoc.exists()) {
-                updateDoc(interactionHistoryRef, updateData);
+                await updateDoc(interactionHistoryRef, updateData);
               } else {
-                setDoc(interactionHistoryRef, {
+                await setDoc(interactionHistoryRef, {
                   item: post,
                   name: auth?.currentUser?.displayName,
                   image: auth?.currentUser?.photoURL,
                   ...updateData,
                 });
               }
+              console.log(`and updated history doc`);
+              setProposeLoading(false);
+              setVisible(false);
             }}
             enabled={true}
           />

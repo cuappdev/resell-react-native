@@ -23,35 +23,6 @@ export function AvailabilityModal({
 }) {
   const [schedule, setSchedule] = useState<any[]>([]);
   const [largestIndex, setLargestIndex] = useState(30);
-  function MyEventComponent({ event, position }) {
-    switch (event.color) {
-      case "#9E70F6":
-        return (
-          //a complete event style
-          <View
-            style={{
-              width: position.width,
-              height: "100%",
-              backgroundColor: "#9E70F6",
-            }}
-          />
-        ) as any;
-      case "f8f4fc":
-        return (
-          //select time of an event style, start event always have color of "f8f4fc"
-          <View
-            style={{
-              width: position.width,
-              height: "100%",
-              borderWidth: 2,
-              borderStyle: "dashed",
-              borderColor: "#9E70F6",
-              backgroundColor: "#f8f4fc",
-            }}
-          />
-        ) as any;
-    }
-  }
 
   const onClickGrid = (event, startHour, date) => {
     if (!isBubble) {
@@ -167,7 +138,6 @@ export function AvailabilityModal({
             eventContainerStyle={{ marginLeft: 2 }}
             onGridClick={onClickGrid}
             formatDateHeader={"  ddd[\n]MMM D"}
-            EventComponent={MyEventComponent}
             onEventPress={onEventPress}
             showNowLine={true}
             nowLineColor={"#9E70F6"}
