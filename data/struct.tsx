@@ -44,6 +44,20 @@ export interface ISellerPreview {
   proposedTime: string;
   proposedViewed: boolean;
 }
+
+export interface ChatPreview {
+  sellerName: string;
+  email: string;
+  recentItem: IPostPreview;
+  image: string;
+  recentMessage: string;
+  recentSender: number;
+  viewed: boolean;
+  proposedTime?: string;
+  proposedViewed?: boolean;
+  confirmedTime?: string;
+  confirmedViewed?: boolean;
+}
 export interface SUser {
   // shorter version of user interface
   username: string;

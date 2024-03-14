@@ -43,8 +43,6 @@ export default function BuyerSyncModal({
         const calendars = await Calendar.getCalendarsAsync(
           Calendar.EntityTypes.EVENT
         );
-        console.log("Here are all your calendars:");
-        console.log({ calendars });
       }
     })();
   }, []);
@@ -115,7 +113,7 @@ export default function BuyerSyncModal({
       onBackdropPress={() => {
         setActivateIcon(true);
         setVisible(false);
-        setShowNotice(false);
+        // setShowNotice(false);
         updateViewed();
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
@@ -140,7 +138,7 @@ export default function BuyerSyncModal({
             onPress={async () => {
               updateViewed();
               setVisible(false);
-              setShowNotice(false);
+              // setShowNotice(false);
               setActivateIcon(true);
               console.log("here");
               const { status } =
@@ -164,7 +162,7 @@ export default function BuyerSyncModal({
           onPress={() => {
             setActivateIcon(true);
             setVisible(false);
-            setShowNotice(false);
+            // setShowNotice(false);
             updateViewed();
           }}
         >

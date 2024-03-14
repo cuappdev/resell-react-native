@@ -14,13 +14,13 @@ import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
 import ChatTabs from "../components/chat/ChatTabs";
 import LoadingChat from "../components/chat/LoadingChat";
 import { auth, historyRef } from "../config/firebase";
-import { IBuyerPreview, ISellerPreview } from "../data/struct";
+import { ChatPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
-  const [purchase, setPurchase] = useState<IBuyerPreview[]>([]);
-  const [offer, setOffer] = useState<ISellerPreview[]>([]);
+  const [purchase, setPurchase] = useState<ChatPreview[]>([]);
+  const [offer, setOffer] = useState<ChatPreview[]>([]);
   const [purchaseUnread, setPurchaseUnread] = useState(0);
   const [offerUnread, setOfferUnread] = useState(0);
   const isFocused = useIsFocused();
@@ -37,7 +37,7 @@ export default function ChatScreen({ navigation }) {
 
     try {
       return onSnapshot(sellersQuery, (querySnapshot) => {
-        const tempt: IBuyerPreview[] = [];
+        const tempt: ChatPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name,
@@ -50,6 +50,8 @@ export default function ChatScreen({ navigation }) {
             viewed: doc.data().viewed,
             confirmedTime: doc.data().confirmedTime,
             confirmedViewed: doc.data().confirmedViewed,
+            proposedTime: doc.data().proposedTime,
+            proposedViewed: doc.data().proposedViewed,
           });
         });
         setPurchase(tempt);
@@ -70,7 +72,7 @@ export default function ChatScreen({ navigation }) {
 
     try {
       return onSnapshot(buyersQuery, (querySnapshot) => {
-        const tempt: ISellerPreview[] = [];
+        const tempt: ChatPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name, //buyername
@@ -83,6 +85,8 @@ export default function ChatScreen({ navigation }) {
             viewed: doc.data().viewed,
             proposedTime: doc.data().proposedTime,
             proposedViewed: doc.data().proposedViewed,
+            confirmedTime: doc.data().confirmedTime,
+            confirmedViewed: doc.data().confirmedViewed,
           });
         });
         setOffer(tempt);
@@ -102,9 +106,7 @@ export default function ChatScreen({ navigation }) {
     };
   }, [isFocused]);
 
-  const countNotViewed = (
-    chatPreviews: IBuyerPreview[] | ISellerPreview[]
-  ): number => {
+  const countNotViewed = (chatPreviews: ChatPreview[]): number => {
     let notViewed = 0;
     chatPreviews.forEach((element) => {
       if (!element.viewed) {
@@ -121,48 +123,35 @@ export default function ChatScreen({ navigation }) {
     setOfferUnread(countNotViewed(offer));
   }, [offer]);
 
-  const renderItem = ({ item }: { item: IBuyerPreview | ISellerPreview }) => {
-    var products = " • " + item.recentItem.title;
+  const renderItem = ({ item: chatPreview }: { item: ChatPreview }) => {
+    var products = " • " + chatPreview.recentItem.title;
 
-    var message = item.recentSender == 1 ? "You: " : item.sellerName + ": ";
+    var message =
+      chatPreview.recentSender == 1 ? "You: " : chatPreview.sellerName + ": ";
 
-    message = message + item.recentMessage;
-
+    message = message + chatPreview.recentMessage;
+    console.log(`chatPreview: ${JSON.stringify(chatPreview)}`);
     return (
       <TouchableOpacity
         onPress={() => {
           //Changed viewed of data here.
 
-          navigation.navigate(
-            "ChatWindow",
-            isPurchase
-              ? {
-                  name: item.sellerName, // the one are you are talking to
-                  receiverImage: item.image,
-                  email: item.email,
-                  post: item.recentItem,
-                  isBuyer: isPurchase,
-                  confirmedTime: (item as IBuyerPreview).confirmedTime,
-                  confirmedViewed: (item as IBuyerPreview).confirmedViewed,
-
-                  screen: "chat",
-                }
-              : {
-                  name: item.sellerName, // the one are you are talking to
-                  receiverImage: item.image,
-                  email: item.email,
-                  post: item.recentItem,
-                  isBuyer: isPurchase,
-                  proposedTime: (item as ISellerPreview).proposedTime,
-                  proposedViewed: (item as ISellerPreview).proposedViewed,
-
-                  screen: "chat",
-                }
-          );
+          navigation.navigate("ChatWindow", {
+            name: chatPreview.sellerName, // the one are you are talking to
+            receiverImage: chatPreview.image,
+            email: chatPreview.email,
+            post: chatPreview.recentItem,
+            isBuyer: isPurchase,
+            confirmedTime: chatPreview.confirmedTime,
+            confirmedViewed: chatPreview.confirmedViewed,
+            proposedTime: (chatPreview as ChatPreview).proposedTime,
+            proposedViewed: (chatPreview as ChatPreview).proposedViewed,
+            screen: "chat",
+          });
         }}
       >
         <View style={styles.outer}>
-          {!item.viewed && <View style={styles.viewedDot} />}
+          {!chatPreview.viewed && <View style={styles.viewedDot} />}
           <Image
             style={[
               styles.image,
@@ -171,12 +160,12 @@ export default function ChatScreen({ navigation }) {
                 ? { marginStart: 24 }
                 : { marginStart: 12 },
             ]}
-            source={{ uri: item.image }}
+            source={{ uri: chatPreview.image }}
             resizeMode={"cover"}
           />
           <View style={styles.inner}>
             <Text numberOfLines={1} style={styles.items}>
-              <Text style={styles.sellerName}>{item.sellerName}</Text>
+              <Text style={styles.sellerName}>{chatPreview.sellerName}</Text>
               {products}
             </Text>
             <Text

@@ -1,10 +1,11 @@
 import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import { auth, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
+import { makeToast } from "../../utils/Toast";
 import PurpleButton from "../PurpleButton";
 export default function SellerConfirmModal({
   visible,
@@ -20,12 +21,17 @@ export default function SellerConfirmModal({
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSyncCalendar, setShowSyncCalendar] = useState(false);
+
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
       backdropOpacity={0.2}
       onModalHide={() => {
-        setSyncMeetingVisible(true);
+        if (showSyncCalendar) {
+          setSyncMeetingVisible(true);
+        }
       }}
       onBackdropPress={() => {
         setVisible(false);
@@ -49,31 +55,49 @@ export default function SellerConfirmModal({
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Confirm"}
-            onPress={() => {
-              // update sellers and buyers docs:
+            onPress={async () => {
+              setIsLoading(true);
+              try {
+                // update sellers and buyers docs:
+                const sellerDoc = doc(
+                  collection(doc(historyRef, auth.currentUser.email), "buyers"),
+                  email
+                );
+                updateDoc(sellerDoc, {
+                  proposedView: true,
+                  confirmedTime: startDate,
+                  proposedTime: "",
+                });
 
-              const sellerDoc = doc(
-                collection(doc(historyRef, auth.currentUser.email), "buyers"),
-                email
-              );
-              updateDoc(sellerDoc, { proposedView: true });
-
-              const buyerDoc = doc(
-                collection(doc(historyRef, email), "sellers"),
-                auth.currentUser.email
-              );
-              updateDoc(buyerDoc, {
-                recentMessage: "Seller Confirmed",
-                recentSender: auth?.currentUser?.email,
-                confirmedTime: startDate,
-                confirmedViewed: false,
-                viewed: false,
-              });
-              setVisible(false);
-              setShowNotice(false);
-              setActivateIcon(true);
+                const buyerDoc = doc(
+                  collection(doc(historyRef, email), "sellers"),
+                  auth.currentUser.email
+                );
+                await updateDoc(buyerDoc, {
+                  recentMessage: "Seller Confirmed",
+                  recentSender: auth?.currentUser?.email,
+                  confirmedTime: startDate,
+                  confirmedViewed: false,
+                  viewed: false,
+                  proposedTime: "",
+                });
+                setVisible(false);
+                setShowNotice(false);
+                setActivateIcon(true);
+                setShowSyncCalendar(true);
+                makeToast({
+                  message: "Meeting time confirmed.",
+                });
+              } catch (_) {
+                makeToast({
+                  message: "Error confirming meeting time",
+                  type: "ERROR",
+                });
+              }
+              setIsLoading(false);
             }}
-            enabled={true}
+            isLoading={isLoading}
+            enabled
           />
         </View>
         <Text

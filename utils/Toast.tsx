@@ -3,12 +3,14 @@ import Colors from "../constants/Colors";
 export const makeToast = ({
   message,
   type = "INFO",
+  duration = Toast.durations.SHORT,
 }: {
   message: string;
   type?: "INFO" | "ERROR";
+  duration?: number;
 }) => {
   return Toast.show(message, {
-    duration: Toast.durations.SHORT,
+    duration: duration,
     position: Toast.positions.TOP,
     backgroundColor: type === "ERROR" ? Colors.errorBg : Colors.toastBg,
     textColor: type === "ERROR" ? Colors.errorState : Colors.resellPurple,

@@ -17,7 +17,7 @@ import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
 import { NegotiationModal } from "../components/chat/NegotiationModal";
-import NoticeBanner from "../components/NoticeBanner";
+import NoticeBanner from "../components/chat/NoticeBanner";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
@@ -118,6 +118,19 @@ async function registerForPushNotificationsAsync() {
 
   return token;
 }
+interface ChatWindowParams {
+  email: string;
+  name: string;
+  receiverImage: string;
+  post: any;
+  isBuyer: string;
+  screen: string;
+  proposedTime: string;
+  confirmedTime: string;
+  proposedViewed: string;
+  confirmedViewed: string;
+}
+
 export default function ChatWindow({ navigation, route }) {
   const {
     email,
@@ -130,7 +143,9 @@ export default function ChatWindow({ navigation, route }) {
     confirmedTime,
     proposedViewed,
     confirmedViewed,
-  } = route.params;
+  }: ChatWindowParams = route.params;
+
+  console.log(`confirmedTime: ${confirmedTime}, proposedTime: ${proposedTime}`);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -153,12 +168,11 @@ export default function ChatWindow({ navigation, route }) {
 
   const [selectTime, setSelectedTime] = useState("");
   const [showConfirmNotice, setShowConfirmNotice] = useState(
-    confirmedTime != undefined && confirmedTime != "" && !confirmedViewed
+    confirmedTime ? true : false
   );
   const [showProposeNotice, setShowProposeNotice] = useState(
-    proposedTime != undefined && proposedTime != "" && !proposedViewed
+    proposedTime && !confirmedTime ? true : false
   );
-
   const [activateIcon, setActivateIcon] = useState(
     (confirmedTime != undefined && confirmedTime != "" && confirmedViewed) ||
       (proposedTime != undefined && proposedTime != "" && proposedViewed)

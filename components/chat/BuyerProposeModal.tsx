@@ -3,6 +3,7 @@ import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
+import Toast from "react-native-root-toast";
 import { auth, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
@@ -78,7 +79,7 @@ export default function BuyerProposeModal({
               );
               const updateData = {
                 recentMessage: "Proposed a Time",
-                recentSender: auth?.currentUser?.email,
+                recentSender: auth.currentUser.email,
                 proposedTime: startDate,
                 proposedViewed: false,
                 viewed: false,
@@ -92,11 +93,17 @@ export default function BuyerProposeModal({
                 } else {
                   await setDoc(interactionHistoryRef, {
                     item: post,
-                    name: auth?.currentUser?.displayName,
-                    image: auth?.currentUser?.photoURL,
+                    name: auth.currentUser.displayName,
+                    image: auth.currentUser.photoURL,
                     ...updateData,
                   });
                 }
+                makeToast({
+                  message:
+                    "Sent meeting proposal! Chat will be updated if the seller accepts",
+                  type: "INFO",
+                  duration: Toast.durations.LONG,
+                });
               } catch (_) {
                 setProposeLoading(false);
                 makeToast({
