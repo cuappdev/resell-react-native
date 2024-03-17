@@ -1,10 +1,7 @@
-import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
-import { Provider, Menu, Divider, Button } from "react-native-paper";
 import {
-  Animated,
   Dimensions,
   Image,
   Platform,
@@ -12,7 +9,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Modal from "react-native-modal";
@@ -233,6 +229,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
     }
   };
 
+  const onReport = () => {
+    setMenuVisible(false)
+    navigation.navigate("ReportPost");
+  }
+
   const sPanel = useRef<SlidingUpPanel | null>(null);
   useEffect(() => {
     if (sPanel.current !== null) {
@@ -310,7 +311,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const menuItems = [
     { label: 'Share', iconName: 'share', onPress: onShare },
-    { label: 'Report', iconName: 'flag' },
+    { label: 'Report', iconName: 'flag', onPress: onReport },
     (screen === "Profile" || screen === "Archived") &&
     { label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } },
   ];
