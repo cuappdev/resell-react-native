@@ -2,7 +2,9 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
+import { Provider, Menu, Divider, Button } from "react-native-paper";
 import {
+  Animated,
   Dimensions,
   Image,
   Platform,
@@ -10,137 +12,25 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Modal from "react-native-modal";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import BackButton from "../assets/svg-components/back_button";
-import BookMarkButton from "../assets/svg-components/bookmark_button";
-import BookMarkButtonSaved from "../assets/svg-components/bookmark_button_saved";
-import ExportButton from "../assets/svg-components/export_button";
+import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
+import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
+import EllipsesIcon from "../assets/svg-components/ellipses";
 import {
   DetailPullUpBody,
   DetailPullUpHeader,
 } from "../components/DetailPullup";
+import OptionsMenu from "../components/OptionsMenu";
 import Gallery from "../components/Gallery";
 import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
 import { pressedOpacity } from "../constants/Values";
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  topBar: {
-    height: Platform.OS === "ios" ? menuBarTop + 60 : 80,
-    width: "100%",
-    position: "absolute",
-    top: 0,
-    zIndex: 10,
-  },
-  backButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    left: 10,
-    zIndex: 15,
-    width: 50,
-    height: 50,
-    alignItems: "center",
-  },
-  trashButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop - 2 : 18,
-    right: 110,
-    zIndex: 15,
-    width: 50,
-    alignItems: "center",
-    height: 50,
-  },
-  bookmarkButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    right: 60,
-    zIndex: 15,
-    width: 50,
-    alignItems: "center",
-    height: 50,
-  },
-  exportButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    right: 10,
-    zIndex: 15,
-    width: 50,
-    alignItems: "center",
-    height: 50,
-  },
-  modal: {
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    height: 200,
-    backgroundColor: "#ffffff",
-    width: "100%",
-    marginHorizontal: 0,
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "space-evenly",
-  },
-  slideUp: {
-    flex: 1,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-  },
-  greyButton: {
-    position: "absolute",
-    bottom: 0,
-    alignItems: "center",
-    width: "100%",
-    zIndex: 10,
-    height: 80,
-    backgroundColor: "white",
-  },
-  bottomGradient: {
-    height: 60,
-    width: "100%",
-    position: "absolute",
-    bottom: 80,
-    zIndex: 10,
-  },
-  button: {
-    width: 230,
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "3%",
-    borderRadius: 25,
-    backgroundColor: "#d52300",
-  },
-
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "500",
-    textAlign: "center",
-    fontFamily: "Rubik-Medium",
-  },
-  button1: {
-    width: 230,
-    flexDirection: "column",
-    alignItems: "center",
-    backgroundColor: "white",
-    padding: "3%",
-    borderRadius: 25,
-  },
-
-  buttonText2: {
-    color: "black",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "500",
-    fontFamily: "Rubik-Medium",
-  },
-});
 
 export default function ProductDetailsScreen({ route, navigation }) {
   const { post, screen, savedInitial } = route.params;
@@ -177,6 +67,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const [sellerEmail, setSellerEmail] = useState("");
 
   const [profileImage, setProfileImage] = useState("");
+  const [menuVisible, setMenuVisible] = useState(false);
   const [modalVisibility, setModalVisibility] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   AsyncStorage.getItem("accessToken", (errs, result) => {
@@ -256,15 +147,15 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-          userId +
-          "/postId/" +
-          post.id
+        userId +
+        "/postId/" +
+        post.id
       );
       if (response.ok) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
   useEffect(() => {
     fetchIsSaved();
@@ -293,7 +184,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/unsave/postId/" +
-          post.id,
+        post.id,
         {
           method: "POST",
           headers: {
@@ -347,7 +238,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     if (sPanel.current !== null) {
       sPanel.current.show(
         Dimensions.get("window").height -
-          Math.min(400, Layout.window.width * maxImgRatio - 40)
+        Math.min(400, Layout.window.width * maxImgRatio - 40)
       );
     }
     // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
@@ -413,6 +304,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
     });
   };
 
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
+
+  const menuItems = [
+    { label: 'Share', iconName: 'share', onPress: onShare },
+    { label: 'Report', iconName: 'flag' },
+    (screen === "Profile" || screen === "Archived") &&
+    { label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } },
+  ];
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -425,36 +327,83 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <BackButton />
       </TouchableOpacity>
-      {(screen === "Profile" || screen === "Archived") && (
+      <View style={styles.optionsContainer}>
         <TouchableOpacity
-          activeOpacity={pressedOpacity}
-          style={styles.trashButton}
-          onPress={() => {
-            setModalVisibility(true);
-          }}
+          onPress={toggleMenu}
+          style={styles.optionsButton}
         >
-          <Feather name="trash" size={23} color="white" />
+          <EllipsesIcon />
         </TouchableOpacity>
-      )}
-      <TouchableOpacity
-        onPress={() => {
-          isSaved ? unsave() : save();
-        }}
-        style={styles.bookmarkButton}
-      >
-        {isSaved ? <BookMarkButtonSaved /> : <BookMarkButton />}
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onShare()} style={styles.exportButton}>
-        <ExportButton />
-      </TouchableOpacity>
+        <Modal
+          isVisible={menuVisible}
+          onBackdropPress={() => setMenuVisible(false)}
+          backdropOpacity={0.2}
+          animationIn="fadeIn"
+          animationOut="fadeOut"
+          style={styles.optionsMenu}
+        >
+          <OptionsMenu items={menuItems}></OptionsMenu>
+          <Modal
+            isVisible={modalVisibility}
+            backdropOpacity={0.2}
+            onBackdropPress={() => {
+              setModalVisibility(false);
+            }}
+            style={{ justifyContent: "flex-end", margin: 0 }}
+          >
+            <View
+              style={[
+                styles.modal,
+                screen == "Archived" && { paddingBottom: "10%" },
+              ]}
+            >
+              <Text style={[styles.buttonText2, { padding: "3%" }]}>
+                Delete Listing Permanently?
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  deletePost();
+                }}
+              >
+                <View style={styles.button}>
+                  <Text style={styles.buttonText}> Delete</Text>
+                </View>
+              </TouchableOpacity>
+              {screen != "Archived" && (
+                <TouchableOpacity
+                  onPress={() => {
+                    archivePost();
+                  }}
+                >
+                  <View style={styles.button1}>
+                    <Text style={[styles.buttonText, { color: "#000000" }]}>
+                      Archive Only
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          </Modal>
+        </Modal>
+      </View>
       <View
         style={{
           height: Dimensions.get("window").width * maxImgRatio,
           width: Dimensions.get("window").width,
         }}
       >
-        <Gallery imagePaths={item.images} />
+        <Gallery imagePaths={item.images}></Gallery>
       </View>
+      <TouchableOpacity
+        onPress={() => {
+          isSaved ? unsave() : save();
+        }}
+        style={[styles.bookmarkButton, {
+          top: Dimensions.get("window").width * maxImgRatio - 138
+        }]}
+      >
+        {isSaved ? <BookmarkIconSaved /> : <BookmarkIcon />}
+      </TouchableOpacity>
       <SlidingUpPanel
         ref={(c) => {
           if (c !== null && sPanel !== null) {
@@ -483,7 +432,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
           />
         </View>
       </SlidingUpPanel>
-      {screen != "Profile" &&
+      {
+        screen != "Profile" &&
         screen != "Archived" &&
         sellerEmail != auth?.currentUser?.email && (
           <View style={styles.greyButton}>
@@ -523,56 +473,143 @@ export default function ProductDetailsScreen({ route, navigation }) {
               enabled={true}
             />
           </View>
-        )}
-      {screen != "Profile" &&
+        )
+      }
+      {
+        screen != "Profile" &&
         screen != "Archived" &&
         sellerEmail != auth?.currentUser?.email && (
           <LinearGradient
             colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
             style={styles.bottomGradient}
           />
-        )}
-      <Modal
-        isVisible={modalVisibility}
-        backdropOpacity={0.2}
-        onBackdropPress={() => {
-          setModalVisibility(false);
-        }}
-        style={{ justifyContent: "flex-end", margin: 0 }}
-      >
-        <View
-          style={[
-            styles.modal,
-            screen == "Archived" && { paddingBottom: "10%" },
-          ]}
-        >
-          <Text style={[styles.buttonText2, { padding: "3%" }]}>
-            Delete Listing Permanently?
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              deletePost();
-            }}
-          >
-            <View style={styles.button}>
-              <Text style={styles.buttonText}> Delete</Text>
-            </View>
-          </TouchableOpacity>
-          {screen != "Archived" && (
-            <TouchableOpacity
-              onPress={() => {
-                archivePost();
-              }}
-            >
-              <View style={styles.button1}>
-                <Text style={[styles.buttonText, { color: "#000000" }]}>
-                  Archive Only
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
-      </Modal>
-    </View>
+        )
+      }
+    </View >
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  topBar: {
+    height: Platform.OS === "ios" ? menuBarTop + 60 : 80,
+    width: "100%",
+    position: "absolute",
+    top: 0,
+    zIndex: 10,
+  },
+  backButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop : 20,
+    left: 10,
+    zIndex: 15,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
+  trashButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop - 2 : 18,
+    right: 110,
+    zIndex: 15,
+    width: 50,
+    alignItems: "center",
+    height: 50,
+  },
+  bookmarkButton: {
+    position: "absolute",
+    right: 24,
+    zIndex: 0,
+    alignItems: "center",
+  },
+  modal: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 200,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    zIndex: 200,
+  },
+  slideUp: {
+    flex: 1,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+  },
+  greyButton: {
+    position: "absolute",
+    bottom: 0,
+    alignItems: "center",
+    width: "100%",
+    zIndex: 10,
+    height: 80,
+    backgroundColor: "white",
+  },
+  bottomGradient: {
+    height: 60,
+    width: "100%",
+    position: "absolute",
+    bottom: 80,
+    zIndex: 10,
+  },
+  button: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 25,
+    backgroundColor: "#d52300",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "center",
+    fontFamily: "Rubik-Medium",
+  },
+  button1: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: "3%",
+    borderRadius: 25,
+  },
+  buttonText2: {
+    color: "black",
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "500",
+    fontFamily: "Rubik-Medium",
+  },
+  optionsContainer: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop + 5 : 20,
+    right: 0,
+    zIndex: 15,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
+  optionsButton: {
+    zIndex: 15,
+    width: 50,
+    height: 25,
+  },
+  optionsMenu: {
+    position: "absolute",
+    right: 0,
+    top: Platform.OS === "ios" ? menuBarTop + 20 : 35,
+    width: 254,
+    backgroundColor: "#EDEDEDEE",
+    zIndex: 100,
+    borderRadius: 12
+  }
+});
+
