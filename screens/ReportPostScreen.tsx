@@ -12,10 +12,20 @@ import BackButton from "../assets/svg-components/back_button";
 import Layout, { menuBarTop } from "../constants/Layout";
 
 export default function ReportPostScreen({ navigation, route }) {
+  const {
+    sellerName,
+    sellerId,
+    postId,
+    userId
+  } = route.params;
 
   const presentDetails = (label) => {
     navigation.navigate("ReportPostDetails", {
-      option: label
+      option: label,
+      sellerName: sellerName,
+      sellerId: sellerId,
+      postId: postId,
+      userId: userId
     });
   }
 

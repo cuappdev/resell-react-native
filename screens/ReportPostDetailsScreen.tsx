@@ -17,7 +17,11 @@ import PurpleButton from "../components/PurpleButton";
 
 export default function ReportPostDetailsScreen({ navigation, route }) {
   const {
-    option
+    option,
+    sellerName,
+    sellerId,
+    postId,
+    userId
   } = route.params;
 
   const [reportText, setReportText] = useState("")
@@ -55,7 +59,12 @@ export default function ReportPostDetailsScreen({ navigation, route }) {
           onPress={() => {
             if (reportText.length > 0) {
               submitReport();
-              navigation.goBack();
+              navigation.navigate("ReportPostConfirm", {
+                sellerName: sellerName,
+                sellerId: sellerId,
+                postId: postId,
+                userId: userId
+              });
             } else {
               Alert.alert("Warning", "Feedback cannot be empty!");
             }
@@ -73,14 +82,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     alignItems: "center",
-  },
-  options: {
-    flex: 1,
-    top: Platform.OS === "ios" ? menuBarTop : 20,
-    backgroundColor: "white",
-    alignItems: "flex-start",
-    marginTop: 16,
-    width: "100%",
   },
   backButton: {
     position: "absolute",

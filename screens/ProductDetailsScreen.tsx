@@ -59,6 +59,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
   }, [post]);
   const [similarItems, setSimilarItems] = useState([]);
   const [userId, setUserId] = useState("");
+  const [sellerId, setSellerId] = useState("");
+  const [sellerFirstName, setSellerFirstName] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
 
@@ -127,6 +129,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
       const userResult = await response.json();
 
+      setSellerId(userResult.user.id)
+      setSellerFirstName(userResult.user.givenName)
       setSellerName(
         userResult.user.givenName + " " + userResult.user.familyName
       );
@@ -231,7 +235,12 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const onReport = () => {
     setMenuVisible(false)
-    navigation.navigate("ReportPost");
+    navigation.navigate("ReportPost", {
+      sellerName: sellerFirstName,
+      sellerId: sellerId,
+      postId: post.id,
+      userId: userId
+    });
   }
 
   const sPanel = useRef<SlidingUpPanel | null>(null);

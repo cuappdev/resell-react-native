@@ -27,6 +27,7 @@ export type RootStackParamList = {
   ProfileOnboard: NavigatorScreenParams<OnboardStackParamList> | undefined;
   ReportPost: undefined;
   ReportPostDetails: undefined;
+  ReportPostConfirm: undefined;
   ChatWindow: undefined;
 };
 export type HomeStackParamList = {

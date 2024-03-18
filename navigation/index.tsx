@@ -69,6 +69,7 @@ import OnBoardScreen from "../screens/OnBoardScreen";
 import RequestMatches from "../screens/RequestMatches";
 import ReportPostScreen from "../screens/ReportPostScreen";
 import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
+import ReportPostConfirmScreen from "../screens/ReportPostConfirmScreen";
 
 export default function Navigation({
   colorScheme,
@@ -296,6 +297,15 @@ function RootNavigator({ onboard }) {
           <Stack.Screen
             name="ReportPostDetails"
             component={ReportPostDetailsScreen}
+            options={{
+              headerShown: false,
+              headerTitle: "",
+              headerTransparent: true,
+            }}
+          />
+          <Stack.Screen
+            name="ReportPostConfirm"
+            component={ReportPostConfirmScreen}
             options={{
               headerShown: false,
               headerTitle: "",
