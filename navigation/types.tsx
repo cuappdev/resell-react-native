@@ -44,6 +44,7 @@ export type ChatStackParamList = {
 };
 
 export type ProfileStackParamList = {
+  AccountSettings: undefined;
   Profile: undefined;
   ProductProfile: undefined;
   Settings: undefined;
