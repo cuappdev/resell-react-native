@@ -13,12 +13,30 @@ import BackButton from "../assets/svg-components/back_button";
 import Edit from "../assets/svg-components/edit";
 import { Feather } from "@expo/vector-icons";
 import { menuBarTop } from "../constants/Layout";
-import DeleteImage from "../assets/svg-components/deleteImage";
+import DeleteAccountPopupSheet from "../components/DeleteAccountPopupSheet";
 
 export default function AccountSettingsScreen({ navigation }) {
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("")
 
   getUserId(setUserId);
+
+  const getUsername = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        const user = json.user;
+        setUsername(user.username)
+        setDeleteModalVisible(true)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const getUser = async () => {
     try {
@@ -28,6 +46,7 @@ export default function AccountSettingsScreen({ navigation }) {
       if (response.ok) {
         const json = await response.json();
         const user = json.user;
+        setUsername(user.username)
         navigation.navigate("EditProfile", {
           initialRealname: user.givenName + " " + user.familyName,
           initialUsername: user.username,
@@ -65,7 +84,9 @@ export default function AccountSettingsScreen({ navigation }) {
           {
             icon: null,
             text: "Delete Account",
-            onPress: () => console.log("No Screen yet") // TODO: Implement this screen
+            onPress: () => {
+              getUsername()
+            }
           },
         ]}
         renderItem={({ item }) => (
@@ -85,6 +106,12 @@ export default function AccountSettingsScreen({ navigation }) {
             />
           </TouchableOpacity>
         )}
+      />
+      <DeleteAccountPopupSheet
+        isVisible={deleteModalVisible}
+        setIsVisible={setDeleteModalVisible}
+        deleteAction={() => console.log("No Screen yet")}
+        username={username}
       />
     </View>
   )

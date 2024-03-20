@@ -37,27 +37,6 @@ export default function SettingsScreen({ navigation }) {
 
   getUserId(setUserId);
 
-  const getUser = async () => {
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
-        navigation.navigate("EditProfile", {
-          initialRealname: user.givenName + " " + user.familyName,
-          initialUsername: user.username,
-          initialBio: user.bio,
-          initialNetId: user.netid,
-          initialVenmo: user.venmoHandle,
-          initialImage: user.photoUrl,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
   return (
     <View style={styles.container}>
       <TouchableOpacity

@@ -4,20 +4,20 @@ import React, { useEffect, useState } from "react";
 import {
   Alert,
   Image,
+  Keyboard,
   Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
   Dimensions
 } from "react-native";
 import { FAB } from "react-native-paper";
 import BackButton from "../assets/svg-components/back_button";
 import DeleteImage from "../assets/svg-components/deleteImage";
-import ExitIcon from "../assets/svg-components/exit";
 import { menuBarTop } from "../constants/Layout";
-import Modal from "react-native-modal";
 import PopupSheet from "../components/PopupSheet";
 
 const imageSize = (Dimensions.get('window').width - 68) / 3;
@@ -88,6 +88,10 @@ export default function SendFeedbackScreen({ navigation }) {
     }
   }
 
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
   const presentDeleteModal = (index) => {
     setDeleteModalVisibility(true)
     setDeleteimageIndex(index)
@@ -128,75 +132,78 @@ export default function SendFeedbackScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}
-      >
-        <BackButton color="black" />
-      </TouchableOpacity>
-      <View style={styles.title}>
-        <Text style={styles.titleText}>Send Feedback</Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => {
-          if (feedbackText.length > 0) {
-            submitFeedback();
-            navigation.goBack();
-          } else {
-            Alert.alert("Warning", "Feedback cannot be empty!");
-          }
-        }}
-        style={styles.headerButton}
-      >
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-      <Text style={styles.feedbackInstructions}>
-        Thanks for using Resell! We appreciate any feedback to improve your
-        experience.
-      </Text>
-      <TextInput
-        multiline={true}
-        style={styles.feedbackText}
-        onChangeText={handleChange}
-      />
-      <Text style={styles.sectionTitle}>Image Upload</Text>
-      <View style={styles.imageUploadWrapper}>
-        {images.map((imageURI, index) => (
-          <TouchableOpacity key={index} onPress={() => editImage(index)}>
-            <Image style={styles.chosenImage} source={{ uri: imageURI }} />
-            <TouchableOpacity style={styles.deleteImageButton} key={index} onPress={() => presentDeleteModal(index)}>
-              <DeleteImage></DeleteImage>
-            </TouchableOpacity>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <BackButton color="black" />
+        </TouchableOpacity>
+        <View style={styles.title}>
+          <Text style={styles.titleText}>Send Feedback</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            if (feedbackText.length > 0) {
+              submitFeedback();
+              navigation.goBack();
+            } else {
+              Alert.alert("Warning", "Feedback cannot be empty!");
+            }
+          }}
+          style={styles.headerButton}
+        >
+          <Text style={styles.buttonText}>Submit</Text>
+        </TouchableOpacity>
+        <Text style={styles.feedbackInstructions}>
+          Thanks for using Resell! We appreciate any feedback to improve your
+          experience.
+        </Text>
+        <TextInput
+          multiline={true}
+          style={styles.feedbackText}
+          onChangeText={handleChange}
+          onSubmitEditing={dismissKeyboard}
+        />
+        <Text style={styles.sectionTitle}>Image Upload</Text>
+        <View style={styles.imageUploadWrapper}>
+          {images.map((imageURI, index) => (
+            <TouchableOpacity key={index} onPress={() => editImage(index)}>
+              <Image style={styles.chosenImage} source={{ uri: imageURI }} />
+              <TouchableOpacity style={styles.deleteImageButton} key={index} onPress={() => presentDeleteModal(index)}>
+                <DeleteImage></DeleteImage>
+              </TouchableOpacity>
 
-          </TouchableOpacity>
-        ))}
-        {images.length < 3 && (
-          <TouchableOpacity
-            style={[
-              styles.chosenImage,
-              { backgroundColor: "#F4F4F4", alignItems: "center" },
-            ]}
-            onPress={pickImage}
-          >
-            <FAB
-              style={styles.fab}
-              icon="plus"
-              color={"#808080"}
-              theme={{ colors: { accent: "white" } }}
-            />
-          </TouchableOpacity>
-        )}
+            </TouchableOpacity>
+          ))}
+          {images.length < 3 && (
+            <TouchableOpacity
+              style={[
+                styles.chosenImage,
+                { backgroundColor: "#F4F4F4", alignItems: "center" },
+              ]}
+              onPress={pickImage}
+            >
+              <FAB
+                style={styles.fab}
+                icon="plus"
+                color={"#808080"}
+                theme={{ colors: { accent: "white" } }}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+        <PopupSheet
+          isVisible={deleteModalVisibility}
+          setIsVisible={setDeleteModalVisibility}
+          actionName={"Delete Image"}
+          submitAction={deleteImage}
+          buttonText={"Delete"}
+          description={"Are you sure you'd like to delete this image?"}
+        />
       </View>
-      <PopupSheet
-        isVisible={deleteModalVisibility}
-        setIsVisible={setDeleteModalVisibility}
-        actionName={"Delete Image"}
-        submitAction={deleteImage}
-        buttonText={"Delete"}
-        description={"Are you sure you'd like to delete this image?"}
-      />
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
