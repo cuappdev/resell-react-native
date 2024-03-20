@@ -57,7 +57,6 @@ import SellerSyncModal from "../components/chat/SellerSyncModal";
 import ProductCard from "../components/ProductCard";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
-import useKeyboardVisible from "../hooks/useKeyboardVisible";
 import { makeToast } from "../utils/Toast";
 
 Notifications.setNotificationHandler({
@@ -178,8 +177,6 @@ export default function ChatWindow({ navigation, route }) {
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
   const [uri, setUri] = useState("");
-
-  const keyboardVisible = useKeyboardVisible();
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
   const [messages, setMessages] = React.useState<any[]>([]);
