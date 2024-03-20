@@ -188,7 +188,7 @@ export default function ChatWindow({ navigation, route }) {
     proposedTime && !confirmedTime ? true : false
   );
   const [activateIcon, setActivateIcon] = useState<boolean>(
-    (confirmedTime && confirmedViewed) || (proposedTime && proposedViewed)
+    confirmedTime || proposedTime ? true : false
   );
   const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
   const [meetingProposeVisible, setMeetingProposeVisible] =
@@ -240,9 +240,7 @@ export default function ChatWindow({ navigation, route }) {
   }, [text, isSendingAvailability]);
 
   const onSend = useCallback((messages: any[] = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
+    //#region update histories
     const { _id, text, availability, image, product, createdAt, user } =
       messages[0];
     var recentMessage = "";
@@ -296,7 +294,9 @@ export default function ChatWindow({ navigation, route }) {
 
     setDoc(buyerHistoryRef, buyerData);
     setDoc(sellerHistoryRef, sellerData);
+    //#endregion
 
+    // Send new message to the db
     const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
     addDoc(messageRef, {
       _id,
@@ -459,12 +459,8 @@ export default function ChatWindow({ navigation, route }) {
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      // quality: 0.5,
-      // allowsEditing: true,
-      // aspect: [3, 4],
     });
     if (!result.canceled) {
-      // console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
     }
@@ -576,10 +572,9 @@ export default function ChatWindow({ navigation, route }) {
 
   useEffect(() => {
     // Get a reference to the current chat
-    const timeDescQuery = orderBy("createdAt", "desc");
     const currentChat = query(
       collection(doc(chatRef, buyerEmail), sellerEmail),
-      timeDescQuery
+      orderBy("createdAt", "desc")
     );
     /*
     When we call on snapshot we pass in a callback function that updates the 
@@ -913,25 +908,25 @@ export default function ChatWindow({ navigation, route }) {
       </View>
 
       <GiftedChat
-        {...{ messages, onSend }}
+        messages={messages}
+        onSend={onSend}
         user={{
           _id: auth.currentUser.email,
           name: auth.currentUser.displayName,
           avatar: auth.currentUser.photoURL,
         }}
-        showAvatarForEveryMessage={true}
         listViewProps={{
           keyboardDismissMode: "on-drag",
         }}
-        ref={(chat) => (ref.current = chat)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
         renderMessage={renderMessage}
-        scrollToBottom={true}
         minInputToolbarHeight={
           125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
         }
         renderAvatar={renderAvatar}
+        scrollToBottom
+        showAvatarForEveryMessage
         renderAvatarOnTop
       />
       {/* Modals below */}
