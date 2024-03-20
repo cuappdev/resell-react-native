@@ -55,6 +55,7 @@ export default function ChatScreen({ navigation }) {
             proposedTime: doc.data().proposedTime,
             proposedViewed: doc.data().proposedViewed,
             recentMessageTime: doc.data().recentMessageTime,
+            proposer: doc.data().proposer,
           });
         });
         setPurchase(tempt);
@@ -91,6 +92,7 @@ export default function ChatScreen({ navigation }) {
             confirmedTime: doc.data().confirmedTime,
             confirmedViewed: doc.data().confirmedViewed,
             recentMessageTime: doc.data().recentMessageTime,
+            proposer: doc.data().proposer,
           });
         });
         setOffer(tempt);
@@ -141,9 +143,9 @@ export default function ChatScreen({ navigation }) {
             isBuyer: isPurchase,
             confirmedTime: chatPreview.confirmedTime,
             confirmedViewed: chatPreview.confirmedViewed,
-            proposedTime: (chatPreview as ChatPreview).proposedTime,
-            proposedViewed: (chatPreview as ChatPreview).proposedViewed,
-            screen: "chat",
+            proposedTime: chatPreview.proposedTime,
+            proposedViewed: chatPreview.proposedViewed,
+            proposer: chatPreview.proposer,
           });
         }}
       >
@@ -169,7 +171,7 @@ export default function ChatScreen({ navigation }) {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text
                 numberOfLines={1}
-                style={[fonts.Title4, { color: "#707070", flex: 1 }]}
+                style={[fonts.Title4, { color: "#707070", maxWidth: 114 }]}
               >
                 {chatPreview.recentMessage}
               </Text>
@@ -182,7 +184,7 @@ export default function ChatScreen({ navigation }) {
                   marginHorizontal: 6,
                 }}
               />
-              <Text style={{ color: Colors.secondaryGray }}>
+              <Text style={[fonts.Title4, { color: Colors.secondaryGray }]}>
                 {format(chatPreview.recentMessageTime, "en_US")}
               </Text>
             </View>

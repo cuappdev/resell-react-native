@@ -1,7 +1,13 @@
 import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import { ImageEditor } from "expo-image-editor";
 import { Subscription } from "expo-modules-core";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Image,
   Platform,
@@ -12,7 +18,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Bubble, GiftedChat, Message } from "react-native-gifted-chat";
+import {
+  AvatarProps,
+  Bubble,
+  GiftedChat,
+  IMessage,
+  Message,
+} from "react-native-gifted-chat";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
@@ -36,10 +48,10 @@ import {
 } from "firebase/firestore";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
-import BuyerProposeModal from "../components/chat/BuyerProposeModal";
-import BuyerSyncModal from "../components/chat/BuyerSyncModal";
+import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
+import ConfirmMeetingModal from "../components/chat/ConfirmMeetingModal";
 import MeetingDetailModal from "../components/chat/MeetingDetailModal";
-import SellerConfirmModal from "../components/chat/SellerConfirmModal";
+import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import ProductCard from "../components/ProductCard";
 import { auth, chatRef, historyRef } from "../config/firebase";
@@ -126,6 +138,7 @@ interface ChatWindowParams {
   isBuyer: string;
   screen: string;
   proposedTime: string;
+  proposer: string;
   confirmedTime: string;
   proposedViewed: string;
   confirmedViewed: string;
@@ -140,6 +153,7 @@ export default function ChatWindow({ navigation, route }) {
     isBuyer,
     screen,
     proposedTime,
+    proposer,
     confirmedTime,
     proposedViewed,
     confirmedViewed,
@@ -173,13 +187,14 @@ export default function ChatWindow({ navigation, route }) {
   const [showProposeNotice, setShowProposeNotice] = useState(
     proposedTime && !confirmedTime ? true : false
   );
-  const [activateIcon, setActivateIcon] = useState(
-    (confirmedTime != undefined && confirmedTime != "" && confirmedViewed) ||
-      (proposedTime != undefined && proposedTime != "" && proposedViewed)
+  const [activateIcon, setActivateIcon] = useState<boolean>(
+    (confirmedTime && confirmedViewed) || (proposedTime && proposedViewed)
   );
   const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
-  const [BuyerProposeVisible, setBuyerProposeVisible] = React.useState(false);
-  const [BuyerSyncVisible, setBuyerSyncVisible] = React.useState(false);
+  const [meetingProposeVisible, setMeetingProposeVisible] =
+    React.useState(false);
+  const [confirmedMeetingVisible, setConfirmedMeetingVisible] =
+    React.useState(false);
   const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
   const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
   interface notification {
@@ -430,6 +445,15 @@ export default function ChatWindow({ navigation, route }) {
     }
   }
 
+  function renderAvatar(props: AvatarProps<IMessage>): ReactNode {
+    return (
+      <Image
+        source={{ uri: String(props.currentMessage.user.avatar) }}
+        style={{ width: 32, height: 32, borderRadius: 16 }}
+      />
+    );
+  }
+
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
@@ -615,14 +639,14 @@ export default function ChatWindow({ navigation, route }) {
           <NoticeBanner
             name={name}
             onPress={() => {
-              setBuyerSyncVisible(true);
+              setConfirmedMeetingVisible(true);
             }}
             isProposed={false}
           />
         )}
         {showProposeNotice && (
           <NoticeBanner
-            name={name}
+            name={proposer === auth.currentUser.email ? "You" : name}
             onPress={() => {
               setSellerConfirmVisible(true);
             }}
@@ -907,6 +931,8 @@ export default function ChatWindow({ navigation, route }) {
         minInputToolbarHeight={
           125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
         }
+        renderAvatar={renderAvatar}
+        renderAvatarOnTop
       />
       {/* Modals below */}
       <>
@@ -931,10 +957,10 @@ export default function ChatWindow({ navigation, route }) {
           username={availabilityUsername}
           isBuyer={isBuyer}
           setSelectedTime={setSelectedTime}
-          setBuyerProposeVisible={setBuyerProposeVisible}
+          setBuyerProposeVisible={setMeetingProposeVisible}
           selectdate={selectTime}
         />
-        <SellerConfirmModal
+        <ConfirmMeetingModal
           visible={SellerConfirmVisible}
           setVisible={setSellerConfirmVisible}
           text={name + " has proposed the following meeting:"}
@@ -943,6 +969,7 @@ export default function ChatWindow({ navigation, route }) {
           email={email}
           setShowNotice={setShowProposeNotice}
           setActivateIcon={setActivateIcon}
+          proposer={proposer}
         />
 
         <SellerSyncModal
@@ -952,19 +979,20 @@ export default function ChatWindow({ navigation, route }) {
           startDate={proposedTime}
         />
 
-        <BuyerProposeModal
-          visible={BuyerProposeVisible}
-          setVisible={setBuyerProposeVisible}
+        <MeetingProposeModal
+          visible={meetingProposeVisible}
+          setVisible={setMeetingProposeVisible}
           setAvailabilityVisible={setAvailabilityVisible}
           startDate={selectTime}
           sellerEmail={sellerEmail}
+          buyerEmail={buyerEmail}
           post={post}
           setStartDate={setSelectedTime}
         />
 
-        <BuyerSyncModal
-          visible={BuyerSyncVisible}
-          setVisible={setBuyerSyncVisible}
+        <ConfirmedMeetingModal
+          visible={confirmedMeetingVisible}
+          setVisible={setConfirmedMeetingVisible}
           eventTitle={"Meet " + name + " for Resell"}
           text={name + " has confirmed the following meeting:"}
           startDate={confirmedTime}
@@ -979,6 +1007,7 @@ export default function ChatWindow({ navigation, route }) {
           otherEmail={email}
           name={name}
           post={post}
+          proposer={proposer}
           isBuyer={isBuyer}
           setActivateIcon={setActivateIcon}
         />

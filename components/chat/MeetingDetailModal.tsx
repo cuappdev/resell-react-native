@@ -6,15 +6,26 @@ import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import { auth, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
-export default function meetingDetailModal({
+export default function MeetingDetailModal({
   visible,
   setVisible,
   startDate,
   otherEmail,
+  proposer,
   name,
   post,
   isBuyer,
   setActivateIcon,
+}: {
+  visible: boolean;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  startDate: Date;
+  otherEmail: string;
+  proposer: string;
+  name: string;
+  post: any;
+  isBuyer: boolean;
+  setActivateIcon: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -65,12 +76,13 @@ export default function meetingDetailModal({
               {
                 proposedTime: "",
                 proposedViewed: false,
+                proposer: "",
               }
             );
             // buyer:
             updateDoc(
               doc(
-                collection(doc(historyRef, sellerEmail), "sellers"),
+                collection(doc(historyRef, buyerEmail), "sellers"),
                 sellerEmail
               ),
               {

@@ -56,6 +56,7 @@ export interface ChatPreview {
   viewed: boolean;
   proposedTime?: string;
   proposedViewed?: boolean;
+  proposer?: string;
   confirmedTime?: string;
   confirmedViewed?: boolean;
 }

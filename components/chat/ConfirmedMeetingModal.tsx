@@ -9,7 +9,11 @@ import { auth, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
 import PurpleButton from "../PurpleButton";
-export default function BuyerSyncModal({
+
+/**
+ * Modal that displays the details of a confirmed meeting
+ */
+export default function ConfirmedMeetingModal({
   visible,
   setVisible,
   eventTitle,

@@ -2,7 +2,15 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { fonts } from "../../globalStyle/globalFont";
-const NoticeBanner = ({ name, onPress, isProposed }) => {
+const NoticeBanner = ({
+  name,
+  onPress,
+  isProposed,
+}: {
+  name: string;
+  onPress: () => void;
+  isProposed: boolean;
+}) => {
   return (
     <View
       style={{
@@ -22,8 +30,8 @@ const NoticeBanner = ({ name, onPress, isProposed }) => {
         <Feather name="calendar" size={17} color="black" />
         <Text style={[fonts.Title4, { marginStart: 6 }]}>
           {isProposed
-            ? name + " has proposed a new meeting"
-            : name + " has confirmed the meeting"}
+            ? name + " proposed a meeting"
+            : name + " confirmed the meeting"}
         </Text>
       </View>
       <TouchableOpacity onPress={onPress}>

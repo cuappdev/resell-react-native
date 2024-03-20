@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -8,12 +8,13 @@ import { auth, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
 import PurpleButton from "../PurpleButton";
-export default function BuyerProposeModal({
+export default function MeetingProposeModal({
   visible,
   setVisible,
   setAvailabilityVisible,
   startDate,
   sellerEmail,
+  buyerEmail,
   post,
   setStartDate,
 }: {
@@ -22,6 +23,7 @@ export default function BuyerProposeModal({
   setAvailabilityVisible: React.Dispatch<React.SetStateAction<boolean>>;
   startDate: string;
   sellerEmail: string;
+  buyerEmail: string;
   post: any;
   setStartDate: React.Dispatch<React.SetStateAction<string>>;
 }) {
@@ -73,31 +75,35 @@ export default function BuyerProposeModal({
             onPress={async () => {
               setProposeLoading(true);
               // update the interaction history to include the time proposal
-              const interactionHistoryRef = doc(
+              // This stores the history of the seller's interactions with their buyers
+              const sellersInteractionHistory = doc(
                 collection(doc(historyRef, sellerEmail), "buyers"),
-                auth.currentUser.email
+                buyerEmail
               );
+              // this stores the history of the buyers interactions with thier sellers
+              const buyersInteractionHistory = doc(
+                collection(doc(historyRef, buyerEmail), "sellers"),
+                sellerEmail
+              );
+              // we also wish to update this data for the sellers
+
               const updateData = {
                 recentMessage: "Proposed a Time",
                 recentSender: auth.currentUser.email,
                 proposedTime: startDate,
+                proposer: auth.currentUser.email,
                 proposedViewed: false,
-                viewed: false,
               };
               try {
-                const interactionHistoryDoc = await getDoc(
-                  interactionHistoryRef
-                );
-                if (interactionHistoryDoc.exists()) {
-                  await updateDoc(interactionHistoryRef, updateData);
-                } else {
-                  await setDoc(interactionHistoryRef, {
-                    item: post,
-                    name: auth.currentUser.displayName,
-                    image: auth.currentUser.photoURL,
-                    ...updateData,
-                  });
-                }
+                await updateDoc(sellersInteractionHistory, {
+                  ...updateData,
+                  viewed: auth.currentUser.email === sellerEmail,
+                });
+                await updateDoc(buyersInteractionHistory, {
+                  ...updateData,
+                  viewed: auth.currentUser.email === buyerEmail,
+                });
+                setProposeLoading(false);
                 makeToast({
                   message:
                     "Sent meeting proposal! Chat will be updated if the seller accepts",
@@ -111,7 +117,6 @@ export default function BuyerProposeModal({
                   type: "ERROR",
                 });
               }
-
               setShouldOpenAvailability(false);
               setProposeLoading(false);
               setVisible(false);
