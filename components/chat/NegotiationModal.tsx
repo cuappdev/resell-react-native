@@ -60,7 +60,7 @@ export function NegotiationModal({
           >
             <NegotiationProductBubble
               product={post.title}
-              price={post.price}
+              price={post.original_price}
               image={post.images[0]}
             />
           </View>
@@ -157,8 +157,8 @@ export function NegotiationModal({
           </View>
         )}
         {(screen === "NewPost" ||
-          screen == "NewRequestMax" ||
-          screen == "NewRequestMin") && (
+          screen === "NewRequestMax" ||
+          screen === "NewRequestMin") && (
           <View style={styles.modalView}>
             {screen === "NewPost" && (
               <Text style={[styles.textStyle, { marginBottom: 24 }]}>
