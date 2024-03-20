@@ -74,6 +74,7 @@ export default function SignIn() {
         // we just need to log them in and we don't need to terminate sign in
         accountId = createAccountRes.user?.id;
       } else {
+        console.log(`create account res: ${JSON.stringify(createAccountRes)}`);
         makeToast({ message: "Error creating account", type: "ERROR" });
         return;
       }

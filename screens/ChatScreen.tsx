@@ -169,7 +169,7 @@ export default function ChatScreen({ navigation }) {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text
                 numberOfLines={1}
-                style={[fonts.Title4, { color: "#707070" }]}
+                style={[fonts.Title4, { color: "#707070", flex: 1 }]}
               >
                 {chatPreview.recentMessage}
               </Text>
