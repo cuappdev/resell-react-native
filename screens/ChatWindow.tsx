@@ -11,7 +11,9 @@ import React, {
 import {
   Clipboard,
   Image,
+  Modal,
   Platform,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -25,6 +27,7 @@ import {
   GiftedChat,
   IMessage,
   Message,
+  MessageProps,
 } from "react-native-gifted-chat";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
@@ -47,6 +50,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
@@ -169,6 +173,9 @@ export default function ChatWindow({ navigation, route }) {
   const sellerEmail = isBuyer ? email : auth.currentUser.email;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imageURL, setImageURL] = useState<string>("");
+
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
 
   const [isSendingAvailability, setIsSendingAvailability] = useState(false);
@@ -309,7 +316,25 @@ export default function ChatWindow({ navigation, route }) {
       user,
     });
   }, []);
-  function renderMessage(props) {
+  function renderMessage(props: MessageProps<IMessage>) {
+    if (props.currentMessage.image) {
+      return (
+        <>
+          <Pressable
+            onPress={() => {
+              setImageURL(props.currentMessage.image);
+            }}
+          >
+            <Message
+              {...props}
+              containerStyle={{
+                left: { marginVertical: 10 },
+              }}
+            />
+          </Pressable>
+        </>
+      );
+    }
     return (
       <Message
         {...props}
@@ -477,7 +502,13 @@ export default function ChatWindow({ navigation, route }) {
       }
     );
   };
-
+  const onPress = (_, message: IMessage): void => {
+    console.log(`pressed`);
+    if (message.image) {
+      console.log(`message image: ${message.image}`);
+      setImageURL(message.image);
+    }
+  };
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
@@ -633,6 +664,11 @@ export default function ChatWindow({ navigation, route }) {
     });
     return unsubscribeFromChat;
   }, []);
+
+  // Update image viewer modal as URL changes:
+  useEffect(() => {
+    setImageViewerVisible(Boolean(imageURL));
+  }, [imageURL]);
 
   function renderInputToolbar(props) {
     return (
@@ -1043,6 +1079,21 @@ export default function ChatWindow({ navigation, route }) {
           isBuyer={isBuyer}
           setActivateIcon={setActivateIcon}
         />
+        <Modal visible={imageViewerVisible}>
+          <ImageViewer
+            imageUrls={[
+              {
+                url: imageURL,
+              },
+            ]}
+            renderIndicator={() => <></>}
+            enableSwipeDown
+            onCancel={() => {
+              setImageViewerVisible(false);
+              setImageURL("");
+            }}
+          />
+        </Modal>
       </>
     </SafeAreaView>
   );
