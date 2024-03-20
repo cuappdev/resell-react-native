@@ -583,6 +583,7 @@ export default function ChatWindow({ navigation, route }) {
     the user from this chat. We call this on the dispose of the useEffect hook.
     */
     const unsubscribeFromChat = onSnapshot(currentChat, (snapshot) => {
+      // Set the messages to the most recent ones
       setMessages(
         snapshot.docs.map((doc) => ({
           _id: doc.data()._id,
@@ -594,18 +595,18 @@ export default function ChatWindow({ navigation, route }) {
           user: doc.data().user,
         }))
       );
-    });
-    // Update the chat as viewed
-    updateDoc(
-      doc(
-        collection(
-          doc(historyRef, auth.currentUser.email),
-          isBuyer ? "sellers" : "buyers"
+      // Update the chat as viewed
+      updateDoc(
+        doc(
+          collection(
+            doc(historyRef, auth.currentUser.email),
+            isBuyer ? "sellers" : "buyers"
+          ),
+          email
         ),
-        email
-      ),
-      { viewed: true }
-    );
+        { viewed: true }
+      );
+    });
     return unsubscribeFromChat;
   }, []);
 
