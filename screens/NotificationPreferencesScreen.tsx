@@ -120,7 +120,7 @@ export default function NotificationPreferencesScreen({ navigation }) {
           },
         ]}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => {}} style={styles.item}>
+          <TouchableOpacity onPress={() => { }} style={styles.item}>
             <Text style={styles.itemText}>{item.text}</Text>
             <Switch
               trackColor={{ false: "#FFFFFF", true: "#9E70F6" }}

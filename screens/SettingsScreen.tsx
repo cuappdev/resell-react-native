@@ -59,7 +59,7 @@ export default function SettingsScreen({ navigation }) {
           },
           {
             icon: Notifications,
-            text: "Notificaton Preferences",
+            text: "Notification Preferences",
             onPress: () => navigation.navigate("NotificationPreferences"),
           },
           {
