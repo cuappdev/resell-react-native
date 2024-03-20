@@ -198,7 +198,7 @@ export default function ChatScreen({ navigation }) {
   };
 
   return (
-    <View style={{ backgroundColor: "#ffffff", height: "100%" }}>
+    <View style={{ backgroundColor: "#ffffff", height: "100%", paddingTop: 8 }}>
       <ChatTabs
         isPurchase={isPurchase}
         setIsPurchase={setIsPurchase}
