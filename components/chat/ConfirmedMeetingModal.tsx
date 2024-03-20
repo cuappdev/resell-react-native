@@ -21,7 +21,6 @@ export default function ConfirmedMeetingModal({
   email,
   startDate,
   setShowNotice,
-  setActivateIcon,
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");

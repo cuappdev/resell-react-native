@@ -19,7 +19,7 @@ export default function MeetingDetailModal({
 }: {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  startDate: Date;
+  startDate: string;
   otherEmail: string;
   proposer: string;
   name: string;

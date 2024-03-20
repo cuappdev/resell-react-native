@@ -18,7 +18,6 @@ export default function ConfirmMeetingModal({
   setSyncMeetingVisible,
   email,
   setShowNotice,
-  setActivateIcon,
   proposer,
 }: {
   visible: boolean;
@@ -28,7 +27,6 @@ export default function ConfirmMeetingModal({
   setSyncMeetingVisible: React.Dispatch<React.SetStateAction<boolean>>;
   email: string;
   setShowNotice: React.Dispatch<React.SetStateAction<boolean>>;
-  setActivateIcon: React.Dispatch<React.SetStateAction<boolean>>;
   proposer: string;
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
@@ -101,7 +99,6 @@ export default function ConfirmMeetingModal({
                   });
                   setVisible(false);
                   setShowNotice(false);
-                  setActivateIcon(true);
                   setShowSyncCalendar(true);
                   makeToast({
                     message: "Meeting time confirmed.",

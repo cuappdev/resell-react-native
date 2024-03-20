@@ -140,7 +140,7 @@ interface ChatWindowParams {
   name: string;
   receiverImage: string;
   post: any;
-  isBuyer: string;
+  isBuyer: boolean;
   screen: string;
   proposedTime: string;
   proposer: string;
@@ -164,7 +164,6 @@ export default function ChatWindow({ navigation, route }) {
     confirmedViewed,
   }: ChatWindowParams = route.params;
 
-  console.log(`confirmedTime: ${confirmedTime}, proposedTime: ${proposedTime}`);
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -194,9 +193,6 @@ export default function ChatWindow({ navigation, route }) {
   );
   const [showProposeNotice, setShowProposeNotice] = useState(
     proposedTime && !confirmedTime ? true : false
-  );
-  const [activateIcon, setActivateIcon] = useState<boolean>(
-    confirmedTime || proposedTime ? true : false
   );
   const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
   const [meetingProposeVisible, setMeetingProposeVisible] =
@@ -950,19 +946,6 @@ export default function ChatWindow({ navigation, route }) {
             {name}
           </Text>
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            setMeetingDetailVisible(true);
-          }}
-          style={styles.scheduleButton}
-          disabled={!activateIcon}
-        >
-          <Feather
-            name="calendar"
-            size={24}
-            color={activateIcon ? "black" : "#BEBEBE"}
-          />
-        </TouchableOpacity>
       </View>
 
       <GiftedChat
@@ -1036,7 +1019,6 @@ export default function ChatWindow({ navigation, route }) {
           setSyncMeetingVisible={setSellerSyncVisible}
           email={email}
           setShowNotice={setShowProposeNotice}
-          setActivateIcon={setActivateIcon}
           proposer={proposer}
         />
 
@@ -1066,7 +1048,6 @@ export default function ChatWindow({ navigation, route }) {
           startDate={confirmedTime}
           email={email}
           setShowNotice={setShowConfirmNotice}
-          setActivateIcon={setActivateIcon}
         />
         <MeetingDetailModal
           visible={meetingDetailVisible}
@@ -1077,7 +1058,6 @@ export default function ChatWindow({ navigation, route }) {
           post={post}
           proposer={proposer}
           isBuyer={isBuyer}
-          setActivateIcon={setActivateIcon}
         />
         <Modal visible={imageViewerVisible}>
           <ImageViewer
