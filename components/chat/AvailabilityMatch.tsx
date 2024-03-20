@@ -31,20 +31,8 @@ export function AvailabilityModal({
 }) {
   const [schedule, setSchedule] = useState<Event[]>([]);
   const [largestIndex, setLargestIndex] = useState(30);
-  const [editingEventId, setEditingEventId] = useState<number | null>(null);
-
-  const EDITING_CONFIG = {
-    bottom: true,
-    top: true,
-    left: false,
-    right: false,
-  };
 
   const onClickGrid = (_, startHour: number, date: Date) => {
-    if (editingEventId) {
-      setEditingEventId(null);
-      return;
-    }
     if (!isBubble) {
       //Make sure it's not avaliability bubble mode, which is not editable
       let year = date.getFullYear();
@@ -63,10 +51,6 @@ export function AvailabilityModal({
 
       // If there is no previous event, create a 30 minute start event
       if (!duplicate) {
-        if (editingEventId) {
-          setEditingEventId(null);
-          return;
-        }
         setSchedule([
           ...schedule,
           {
@@ -116,27 +100,6 @@ export function AvailabilityModal({
       temptSchedule[i].id = i;
     }
   };
-  const onEditEvent = (
-    newEvent: WeekViewEvent,
-    newStartDate: Date,
-    newEndDate: Date
-  ) => {
-    setSchedule(
-      schedule.map((event: Event) =>
-        event.id !== newEvent.id
-          ? event
-          : {
-              id: newEvent.id,
-              startDate: newStartDate,
-              endDate: newEndDate,
-              color: Colors.resellPurple,
-            }
-      )
-    );
-  };
-  const onEventLongPress = (event: WeekViewEvent) => {
-    setEditingEventId(event.id);
-  };
 
   return (
     <Modal
@@ -182,10 +145,6 @@ export function AvailabilityModal({
             onEventPress={onEventPress}
             showNowLine={true}
             nowLineColor={"#9E70F6"}
-            onEditEvent={onEditEvent}
-            editEventConfig={EDITING_CONFIG}
-            onEventLongPress={onEventLongPress}
-            editingEvent={editingEventId}
             allowScrollByDay
           />
           {!isBubble && (
