@@ -11,9 +11,11 @@ import {
 
 import { useIsFocused } from "@react-navigation/native";
 import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
+import { format } from "timeago.js";
 import ChatTabs from "../components/chat/ChatTabs";
 import LoadingChat from "../components/chat/LoadingChat";
 import { auth, historyRef } from "../config/firebase";
+import Colors from "../constants/Colors";
 import { ChatPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 
@@ -52,6 +54,7 @@ export default function ChatScreen({ navigation }) {
             confirmedViewed: doc.data().confirmedViewed,
             proposedTime: doc.data().proposedTime,
             proposedViewed: doc.data().proposedViewed,
+            recentMessageTime: doc.data().recentMessageTime,
           });
         });
         setPurchase(tempt);
@@ -87,6 +90,7 @@ export default function ChatScreen({ navigation }) {
             proposedViewed: doc.data().proposedViewed,
             confirmedTime: doc.data().confirmedTime,
             confirmedViewed: doc.data().confirmedViewed,
+            recentMessageTime: doc.data().recentMessageTime,
           });
         });
         setOffer(tempt);
@@ -125,17 +129,10 @@ export default function ChatScreen({ navigation }) {
 
   const renderItem = ({ item: chatPreview }: { item: ChatPreview }) => {
     var products = " • " + chatPreview.recentItem.title;
-
-    var message =
-      chatPreview.recentSender == 1 ? "You: " : chatPreview.sellerName + ": ";
-
-    message = message + chatPreview.recentMessage;
-    console.log(`chatPreview: ${JSON.stringify(chatPreview)}`);
     return (
       <TouchableOpacity
         onPress={() => {
           //Changed viewed of data here.
-
           navigation.navigate("ChatWindow", {
             name: chatPreview.sellerName, // the one are you are talking to
             receiverImage: chatPreview.image,
@@ -168,12 +165,27 @@ export default function ChatScreen({ navigation }) {
               <Text style={styles.sellerName}>{chatPreview.sellerName}</Text>
               {products}
             </Text>
-            <Text
-              numberOfLines={1}
-              style={[fonts.Title4, { color: "#707070" }]}
-            >
-              {message}
-            </Text>
+            {/* Recent message region */}
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                numberOfLines={1}
+                style={[fonts.Title4, { color: "#707070" }]}
+              >
+                {chatPreview.recentMessage}
+              </Text>
+              <View
+                style={{
+                  borderRadius: 10,
+                  width: 2,
+                  height: 2,
+                  backgroundColor: Colors.secondaryGray,
+                  marginHorizontal: 6,
+                }}
+              />
+              <Text style={{ color: Colors.secondaryGray }}>
+                {format(chatPreview.recentMessageTime, "en_US")}
+              </Text>
+            </View>
           </View>
           <View style={{ marginHorizontal: 8 }}>
             <Feather name="chevron-right" size={24} color="#B3B3B3" />

@@ -260,6 +260,7 @@ export default function ChatWindow({ navigation, route }) {
     const commonData = {
       item: post,
       recentMessage: recentMessage,
+      recentMessageTime: new Date().toISOString(),
       recentSender: auth.currentUser.email,
       confirmedTime:
         confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,

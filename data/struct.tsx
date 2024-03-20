@@ -51,6 +51,7 @@ export interface ChatPreview {
   recentItem: IPostPreview;
   image: string;
   recentMessage: string;
+  recentMessageTime: string;
   recentSender: number;
   viewed: boolean;
   proposedTime?: string;

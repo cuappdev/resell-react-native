@@ -18,4 +18,5 @@ export default {
   errorState: "#F20000",
   toastBg: "#F6F1FF",
   venmo: "#3D8AF7",
+  secondaryGray: "#707070",
 };
