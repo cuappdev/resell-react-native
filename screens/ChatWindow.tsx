@@ -955,6 +955,19 @@ export default function ChatWindow({ navigation, route }) {
         renderAvatarOnTop
         onLongPress={onLongPress}
         bottomOffset={40}
+        scrollToBottomComponent={() => (
+          <View
+            style={{
+              width: 50,
+              height: 50,
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Feather name="chevron-down" size={20} />
+          </View>
+        )}
       />
       {/* Modals below */}
       <>
