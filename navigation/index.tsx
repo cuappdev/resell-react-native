@@ -620,7 +620,11 @@ export function BottomTabNavigator({ route }) {
             <Text
               style={[
                 fonts.pageHeading1,
-                { marginStart: 24, marginTop: 8, marginEnd: -24 },
+                {
+                  marginStart: 24,
+                  marginTop: 8,
+                  marginEnd: -24,
+                },
               ]}
             >
               Messages

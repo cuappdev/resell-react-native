@@ -1,18 +1,6 @@
 import React from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { FlatList, SafeAreaView, StyleSheet, View } from "react-native";
 import Button from "../components/Button";
-
-import { LinearGradient } from "expo-linear-gradient";
-import { useState, useEffect } from "react";
-import Venmo from "../assets/svg-components/venmo";
 
 export function ButtonBanner(props) {
   /**
@@ -22,25 +10,25 @@ export function ButtonBanner(props) {
    * @param {list} data - a list of button names
    * @returns a horizontally scrollable button banner
    */
-  const renderButton = ({ item }) => {
-    if (item.title !== "Send Availablity" || !props.isBuyer) {
-      return (
-        <Button
-          title={item.title}
-          id={item.id}
-          count={props.count}
-          setCount={props.setCount}
-          modalVisible={props.modalVisible}
-          setModalVisible={props.setModalVisible}
-          availabilityVisible={props.availabilityVisible}
-          setAvailabilityVisible={props.setAvailabilityVisible}
-          setIsBubble={props.setIsBubble}
-          alwaysColor={props.alwaysColor}
-          OthersEmail={props.OthersEmail}
-        />
-      );
-    }
-  };
+  const renderButton = ({ item, index }: { item: any; index: number }) => (
+    <>
+      {index === 0 && <View style={{ width: 8 }} />}
+      <Button
+        title={item.title}
+        id={item.id}
+        count={props.count}
+        setCount={props.setCount}
+        modalVisible={props.modalVisible}
+        setModalVisible={props.setModalVisible}
+        availabilityVisible={props.availabilityVisible}
+        setAvailabilityVisible={props.setAvailabilityVisible}
+        setIsBubble={props.setIsBubble}
+        alwaysColor={props.alwaysColor}
+        otherEmail={props.otherEmail}
+      />
+      {index === props.data.length - 1 && <View style={{ width: 8 }} />}
+    </>
+  );
 
   return (
     <SafeAreaView style={styles.filter}>
@@ -56,7 +44,7 @@ export function ButtonBanner(props) {
   );
 }
 const styles = StyleSheet.create({
-  filter: { marginStart: 12, marginTop: 9, marginBottom: 6 },
+  filter: { paddingHorizontal: 0, marginTop: 9, marginBottom: 6 },
 });
 
 export default ButtonBanner;

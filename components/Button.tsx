@@ -1,16 +1,13 @@
-import React from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Linking,
-  Alert,
-} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import { userRef } from "../config/firebase";
 
 /**
@@ -36,14 +33,11 @@ function Button(props) {
       props.setIsBubble(false);
     }
     if (props.title == "Pay with Venmo") {
-      console.log("here", props.otherEmail);
-
-      const myUserRef = await userRef.doc(props.OthersEmail);
-      const doc = await myUserRef.get();
+      const myUserRef = doc(userRef, props.otherEmail);
+      const myUserDoc = await getDoc(myUserRef);
       var venmo = "";
-      if (doc.exists) {
-        console.log("ww", doc.data());
-        venmo = doc.data().venmo;
+      if (myUserDoc.exists()) {
+        venmo = myUserDoc.data().venmo;
       }
       if (venmo !== "") {
         Linking.openURL("https://account.venmo.com/u/" + venmo);

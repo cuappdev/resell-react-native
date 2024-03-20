@@ -1,10 +1,19 @@
 import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import { ImageEditor } from "expo-image-editor";
 import { Subscription } from "expo-modules-core";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
+  Clipboard,
   Image,
+  Modal,
   Platform,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -12,27 +21,47 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Bubble, GiftedChat, Message } from "react-native-gifted-chat";
-import { AvailabilityBubble } from "../components/AvailabilityBubble";
-import { AvailabilityModal } from "../components/AvailabilityMatch";
+import {
+  AvatarProps,
+  Bubble,
+  GiftedChat,
+  IMessage,
+  Message,
+  MessageProps,
+} from "react-native-gifted-chat";
 import { ButtonBanner } from "../components/ButtonBanner";
-import { NegotiationModal } from "../components/NegotiationModal";
-import NoticeBanner from "../components/NoticeBanner";
+import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
+import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
+import { NegotiationModal } from "../components/chat/NegotiationModal";
+import NoticeBanner from "../components/chat/NoticeBanner";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import ImageViewer from "react-native-image-zoom-viewer";
+import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
-import BuyerProposeModal from "../components/BuyerProposeModal";
-import BuyerSyncModal from "../components/BuyerSyncModal";
-import MeetingDetailModal from "../components/MeetingDetailModal";
+import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
+import ConfirmMeetingModal from "../components/chat/ConfirmMeetingModal";
+import MeetingDetailModal from "../components/chat/MeetingDetailModal";
+import MeetingProposeModal from "../components/chat/MeetingProposeModal";
+import SellerSyncModal from "../components/chat/SellerSyncModal";
 import ProductCard from "../components/ProductCard";
-import SellerConfirmModal from "../components/SellerConfirmModal";
-import SellerSyncModal from "../components/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -89,7 +118,10 @@ async function registerForPushNotificationsAsync() {
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log(token);
   } else {
-    alert("Must use physical device for Push Notifications");
+    makeToast({
+      message: "Must use physical device for Push Notifications",
+      type: "ERROR",
+    });
   }
 
   if (Platform.OS === "android") {
@@ -103,6 +135,20 @@ async function registerForPushNotificationsAsync() {
 
   return token;
 }
+interface ChatWindowParams {
+  email: string;
+  name: string;
+  receiverImage: string;
+  post: any;
+  isBuyer: boolean;
+  screen: string;
+  proposedTime: string;
+  proposer: string;
+  confirmedTime: string;
+  proposedViewed: string;
+  confirmedViewed: string;
+}
+
 export default function ChatWindow({ navigation, route }) {
   const {
     email,
@@ -112,15 +158,23 @@ export default function ChatWindow({ navigation, route }) {
     isBuyer,
     screen,
     proposedTime,
+    proposer,
     confirmedTime,
     proposedViewed,
     confirmedViewed,
-  } = route.params;
+  }: ChatWindowParams = route.params;
+
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
 
+  const buyerEmail = isBuyer ? auth.currentUser.email : email;
+  const sellerEmail = isBuyer ? email : auth.currentUser.email;
+
   const [modalVisible, setModalVisible] = useState(false);
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imageURL, setImageURL] = useState<string>("");
+
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
 
   const [isSendingAvailability, setIsSendingAvailability] = useState(false);
@@ -135,25 +189,23 @@ export default function ChatWindow({ navigation, route }) {
 
   const [selectTime, setSelectedTime] = useState("");
   const [showConfirmNotice, setShowConfirmNotice] = useState(
-    confirmedTime != undefined && confirmedTime != "" && !confirmedViewed
+    confirmedTime ? true : false
   );
   const [showProposeNotice, setShowProposeNotice] = useState(
-    proposedTime != undefined && proposedTime != "" && !proposedViewed
-  );
-
-  const [activateIcon, setActivateIcon] = useState(
-    (confirmedTime != undefined && confirmedTime != "" && confirmedViewed) ||
-      (proposedTime != undefined && proposedTime != "" && proposedViewed)
+    proposedTime && !confirmedTime ? true : false
   );
   const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
-  const [BuyerProposeVisible, setBuyerProposeVisible] = React.useState(false);
-  const [BuyerSyncVisible, setBuyerSyncVisible] = React.useState(false);
+  const [meetingProposeVisible, setMeetingProposeVisible] =
+    React.useState(false);
+  const [confirmedMeetingVisible, setConfirmedMeetingVisible] =
+    React.useState(false);
   const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
   const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
-
   interface notification {
     request;
   }
+
+  const apiClient = useApiClient();
 
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] =
@@ -192,9 +244,7 @@ export default function ChatWindow({ navigation, route }) {
   }, [text, isSendingAvailability]);
 
   const onSend = useCallback((messages: any[] = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
+    //#region update histories
     const { _id, text, availability, image, product, createdAt, user } =
       messages[0];
     var recentMessage = "";
@@ -207,44 +257,52 @@ export default function ChatWindow({ navigation, route }) {
     } else if (image != "") {
       recentMessage = "[Image]";
     }
+    // In the buyer's history, track a new seller
+    const buyerHistoryRef = doc(
+      collection(doc(historyRef, buyerEmail), "sellers"),
+      sellerEmail
+    );
+    // In the seller's history, track a new buyer
+    const sellerHistoryRef = doc(
+      collection(doc(historyRef, sellerEmail), "buyers"),
+      buyerEmail
+    );
+    // the names for buyer and seller
+    const buyersName = isBuyer ? auth.currentUser.displayName : name;
+    const sellersName = isBuyer ? name : auth.currentUser.displayName;
+    // images for buyer and seller
+    const buyersImage = isBuyer ? auth.currentUser.photoURL : receiverImage;
+    const sellersImage = isBuyer ? receiverImage : auth.currentUser.photoURL;
 
-    historyRef
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .collection("sellers")
-      .doc(isBuyer ? email : auth?.currentUser?.email)
-      .set({
-        item: post,
-        recentMessage: recentMessage,
-        recentSender: auth?.currentUser?.email,
-        name: isBuyer ? name : auth?.currentUser?.displayName,
-        image: isBuyer ? receiverImage : auth?.currentUser?.photoURL,
-        viewed: isBuyer,
-        confirmedTime:
-          confirmedTime == "" || confirmedTime == undefined
-            ? ""
-            : confirmedTime,
-        confirmedViewed: confirmedViewed || false,
-      });
-    historyRef
-      .doc(isBuyer ? email : auth?.currentUser?.email)
-      .collection("buyers")
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .set({
-        item: post,
-        recentMessage: recentMessage,
-        recentSender: auth?.currentUser?.email,
-        name: isBuyer ? auth?.currentUser?.displayName : name,
-        image: isBuyer ? auth?.currentUser?.photoURL : receiverImage,
-        viewed: !isBuyer,
-        proposedTime:
-          proposedTime == "" || proposedTime == undefined ? "" : proposedTime,
-        proposedViewed: proposedViewed || false,
-      });
-    const messageRef = chatRef
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .collection(isBuyer ? email : auth?.currentUser?.email);
+    const commonData = {
+      item: post,
+      recentMessage: recentMessage,
+      recentMessageTime: new Date().toISOString(),
+      recentSender: auth.currentUser.email,
+      confirmedTime:
+        confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,
+      confirmedViewed: confirmedViewed || false,
+    };
+    const buyerData = {
+      ...commonData,
+      name: sellersName,
+      image: sellersImage,
+      viewed: isBuyer,
+    };
+    const sellerData = {
+      ...commonData,
+      name: buyersName,
+      image: buyersImage,
+      viewed: !isBuyer,
+    };
 
-    messageRef.add({
+    setDoc(buyerHistoryRef, buyerData);
+    setDoc(sellerHistoryRef, sellerData);
+    //#endregion
+
+    // Send new message to the db
+    const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
+    addDoc(messageRef, {
       _id,
       text,
       availability,
@@ -254,10 +312,25 @@ export default function ChatWindow({ navigation, route }) {
       user,
     });
   }, []);
-  function renderMessage(props) {
-    const {
-      currentMessage: { text: currText },
-    } = props;
+  function renderMessage(props: MessageProps<IMessage>) {
+    if (props.currentMessage.image) {
+      return (
+        <>
+          <Pressable
+            onPress={() => {
+              setImageURL(props.currentMessage.image);
+            }}
+          >
+            <Message
+              {...props}
+              containerStyle={{
+                left: { marginVertical: 10 },
+              }}
+            />
+          </Pressable>
+        </>
+      );
+    }
     return (
       <Message
         {...props}
@@ -347,8 +420,25 @@ export default function ChatWindow({ navigation, route }) {
         <View style={{ width: "50%", marginVertical: 5 }}>
           <ProductCard
             title={currPost.title}
-            price={currPost.price}
+            price={currPost.altered_price}
             image={currPost.images ? post.images[0] : null}
+            onPress={async () => {
+              const res = await apiClient.get(
+                `/post/isSaved/postId/${currPost.id}`
+              );
+              if (res.isSaved !== undefined) {
+                navigation.navigate("ProductHome", {
+                  post: currPost,
+                  screen: screen,
+                  savedInitial: res.isSaved,
+                });
+              } else {
+                makeToast({
+                  message: "Failed to open item details",
+                  type: "ERROR",
+                });
+              }
+            }}
           />
         </View>
       );
@@ -369,6 +459,7 @@ export default function ChatWindow({ navigation, route }) {
               minHeight: 200,
               resizeMode: "cover",
               marginHorizontal: 10,
+              borderRadius: 8,
             }}
           />
         </View>
@@ -376,17 +467,51 @@ export default function ChatWindow({ navigation, route }) {
     }
   }
 
+  function renderAvatar(props: AvatarProps<IMessage>): ReactNode {
+    return (
+      <Image
+        source={{ uri: String(props.currentMessage.user.avatar) }}
+        style={{ width: 32, height: 32, borderRadius: 16 }}
+      />
+    );
+  }
+
+  // the type provided by the gifted chat library for context is `any` sadly
+  const onLongPress = (context: any, message: IMessage): void => {
+    const options: string[] = ["Copy Text", "Report Message", "Cancel"];
+    const cancelButtonIndex = options.length - 1;
+    context.actionSheet().showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+      },
+      (buttonIndex: number) => {
+        switch (buttonIndex) {
+          case 0:
+            Clipboard.setString(message.text); // TODO replace with community clipboard
+            break;
+          case 1:
+            console.log(`report sent`);
+            // TODO send a report
+            break;
+        }
+      }
+    );
+  };
+  const onPress = (_, message: IMessage): void => {
+    console.log(`pressed`);
+    if (message.image) {
+      console.log(`message image: ${message.image}`);
+      setImageURL(message.image);
+    }
+  };
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      // quality: 0.5,
-      // allowsEditing: true,
-      // aspect: [3, 4],
     });
     if (!result.canceled) {
-      // console.log(result);
       setUri(result["uri"]);
       setModalVisibility(true);
     }
@@ -497,43 +622,54 @@ export default function ChatWindow({ navigation, route }) {
   const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
-    const unsubscribe = chatRef
-      .doc(isBuyer ? auth?.currentUser?.email : email)
-      .collection(isBuyer ? email : auth?.currentUser.email)
-      .orderBy("createdAt", "desc")
-      .onSnapshot((snapshot) => {
-        setMessages(
-          snapshot.docs.map((doc) => ({
-            _id: doc.data()._id,
-            text: doc.data().text,
-            availability: doc.data().availability,
-            product: doc.data().product,
-            image: doc.data().image,
-            createdAt: doc.data().createdAt.toDate(),
-            user: doc.data().user,
-          }))
-        );
-      });
-    if (isBuyer) {
-      historyRef
-        .doc(auth?.currentUser?.email)
-        .collection("sellers")
-        .doc(email)
-        .update({ viewed: true });
-    } else {
-      historyRef
-        .doc(auth?.currentUser?.email)
-        .collection("buyers")
-        .doc(email)
-        .update({ viewed: true });
-    }
-    return () => unsubscribe();
+    // Get a reference to the current chat
+    const currentChat = query(
+      collection(doc(chatRef, buyerEmail), sellerEmail),
+      orderBy("createdAt", "desc")
+    );
+    /*
+    When we call on snapshot we pass in a callback function that updates the 
+    state of the chat whenever it changes according to Firebase. The call to
+    onSnapshot returns a reference to a function that, when called, unsubscribes 
+    the user from this chat. We call this on the dispose of the useEffect hook.
+    */
+    const unsubscribeFromChat = onSnapshot(currentChat, (snapshot) => {
+      // Set the messages to the most recent ones
+      setMessages(
+        snapshot.docs.map((doc) => ({
+          _id: doc.data()._id,
+          text: doc.data().text,
+          availability: doc.data().availability,
+          product: doc.data().product,
+          image: doc.data().image,
+          createdAt: doc.data().createdAt.toDate(),
+          user: doc.data().user,
+        }))
+      );
+      // Update the chat as viewed
+      updateDoc(
+        doc(
+          collection(
+            doc(historyRef, auth.currentUser.email),
+            isBuyer ? "sellers" : "buyers"
+          ),
+          email
+        ),
+        { viewed: true }
+      );
+    });
+    return unsubscribeFromChat;
   }, []);
+
+  // Update image viewer modal as URL changes:
+  useEffect(() => {
+    setImageViewerVisible(Boolean(imageURL));
+  }, [imageURL]);
 
   function renderInputToolbar(props) {
     return (
       <SafeAreaView>
-        {uri != "" && (
+        {uri && (
           <ImageEditor
             visible={modalVisibility}
             onCloseEditor={() => {
@@ -555,14 +691,14 @@ export default function ChatWindow({ navigation, route }) {
           <NoticeBanner
             name={name}
             onPress={() => {
-              setBuyerSyncVisible(true);
+              setConfirmedMeetingVisible(true);
             }}
             isProposed={false}
           />
         )}
         {showProposeNotice && (
           <NoticeBanner
-            name={name}
+            name={proposer === auth.currentUser.email ? "You" : name}
             onPress={() => {
               setSellerConfirmVisible(true);
             }}
@@ -580,9 +716,10 @@ export default function ChatWindow({ navigation, route }) {
           setAvailabilityVisible={setAvailabilityVisible}
           setIsBubble={setIsBubble}
           alwaysColor={true}
-          OthersEmail={email}
+          otherEmail={email}
         />
-        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+        <View style={styles.mainSendContainer}>
+          {/* Image input */}
           <TouchableOpacity
             style={{
               marginLeft: 15,
@@ -610,17 +747,17 @@ export default function ChatWindow({ navigation, route }) {
                 style={[
                   {
                     width: "90%",
-                    paddingHorizontal: 10,
                     height: "100%",
-                    lineHeight: 20,
+                    paddingTop: 10,
+                    paddingLeft: 15,
                     minHeight: 20,
                     color: "#000000",
-                    paddingTop: 10,
-                    paddingBottom: 10,
                     textAlignVertical: "top",
+                    maxHeight: 60,
                   },
                   fonts.body2,
                 ]}
+                numberOfLines={3}
                 onChangeText={(t) => {
                   if (!isSendingAvailability) {
                     setText(t);
@@ -631,6 +768,7 @@ export default function ChatWindow({ navigation, route }) {
                   setHeight(event.nativeEvent.contentSize.height);
                 }}
                 multiline={true}
+                placeholder="Message"
               />
             )}
             {isSendingAvailability && (
@@ -684,9 +822,10 @@ export default function ChatWindow({ navigation, route }) {
                 />
               </View>
             )}
-
             <View />
-            {(text.trim().length != 0 || isSendingAvailability) && (
+
+            {/* Send button */}
+            {(text.trim().length !== 0 || isSendingAvailability) && (
               <TouchableOpacity
                 style={{
                   marginRight: 10,
@@ -764,10 +903,9 @@ export default function ChatWindow({ navigation, route }) {
       </SafeAreaView>
     );
   }
-
-  const ref = useRef<GiftedChat<any> | null>(null);
+  const ref = useRef<any>();
   return (
-    <View
+    <SafeAreaView
       style={{
         backgroundColor: "#FFFFFF",
         padding: 0,
@@ -778,8 +916,6 @@ export default function ChatWindow({ navigation, route }) {
       <View
         style={{
           width: "100%",
-          paddingTop: Platform.OS === "ios" ? 35 : 0,
-          paddingBottom: Platform.OS === "ios" ? 10 : 0,
           height: Platform.OS === "ios" ? 90 : 70,
           borderBottomWidth: 1,
           borderColor: "#D6D6D6",
@@ -810,46 +946,46 @@ export default function ChatWindow({ navigation, route }) {
             {name}
           </Text>
         </View>
-        <TouchableOpacity
-          onPress={async () => {
-            setMeetingDetailVisible(true);
-          }}
-          style={styles.scheduleButton}
-          disabled={!activateIcon}
-        >
-          <Feather
-            name="calendar"
-            size={24}
-            color={activateIcon ? "black" : "#BEBEBE"}
-          />
-        </TouchableOpacity>
       </View>
 
       <GiftedChat
-        {...{ messages, onSend }}
+        messages={messages}
+        onSend={onSend}
         user={{
-          _id: auth?.currentUser?.email,
-          name: auth?.currentUser?.displayName,
-          avatar: auth?.currentUser?.photoURL,
+          _id: auth.currentUser.email,
+          name: auth.currentUser.displayName,
+          avatar: auth.currentUser.photoURL,
         }}
-        showAvatarForEveryMessage={true}
         listViewProps={{
           keyboardDismissMode: "on-drag",
         }}
-        ref={(chat) => (ref.current = chat)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        minInputToolbarHeight={
-          showProposeNotice || showConfirmNotice
-            ? 137 + Math.min(Math.max(40, height), 140)
-            : 80 + Math.min(Math.max(40, height), 140)
-        }
         renderMessage={renderMessage}
-        scrollToBottom={true}
+        minInputToolbarHeight={
+          125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
+        }
+        renderAvatar={renderAvatar}
+        scrollToBottom
+        showAvatarForEveryMessage
+        renderAvatarOnTop
+        onLongPress={onLongPress}
+        bottomOffset={40}
+        scrollToBottomComponent={() => (
+          <View
+            style={{
+              width: 50,
+              height: 50,
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Feather name="chevron-down" size={20} />
+          </View>
+        )}
       />
-
-      {/*TODO: SEND NAME AND PROPOSED DATE */}
-      {/* seller modal */}
+      {/* Modals below */}
       <>
         <NegotiationModal
           modalVisible={modalVisible}
@@ -872,10 +1008,10 @@ export default function ChatWindow({ navigation, route }) {
           username={availabilityUsername}
           isBuyer={isBuyer}
           setSelectedTime={setSelectedTime}
-          setBuyerProposeVisible={setBuyerProposeVisible}
+          setBuyerProposeVisible={setMeetingProposeVisible}
           selectdate={selectTime}
         />
-        <SellerConfirmModal
+        <ConfirmMeetingModal
           visible={SellerConfirmVisible}
           setVisible={setSellerConfirmVisible}
           text={name + " has proposed the following meeting:"}
@@ -883,7 +1019,7 @@ export default function ChatWindow({ navigation, route }) {
           setSyncMeetingVisible={setSellerSyncVisible}
           email={email}
           setShowNotice={setShowProposeNotice}
-          setActivateIcon={setActivateIcon}
+          proposer={proposer}
         />
 
         <SellerSyncModal
@@ -893,38 +1029,53 @@ export default function ChatWindow({ navigation, route }) {
           startDate={proposedTime}
         />
 
-        <BuyerProposeModal
-          visible={BuyerProposeVisible}
-          setVisible={setBuyerProposeVisible}
+        <MeetingProposeModal
+          visible={meetingProposeVisible}
+          setVisible={setMeetingProposeVisible}
           setAvailabilityVisible={setAvailabilityVisible}
           startDate={selectTime}
-          sellerEmail={isBuyer ? email : auth?.currentUser?.email}
+          sellerEmail={sellerEmail}
+          buyerEmail={buyerEmail}
           post={post}
           setStartDate={setSelectedTime}
         />
 
-        <BuyerSyncModal
-          visible={BuyerSyncVisible}
-          setVisible={setBuyerSyncVisible}
+        <ConfirmedMeetingModal
+          visible={confirmedMeetingVisible}
+          setVisible={setConfirmedMeetingVisible}
           eventTitle={"Meet " + name + " for Resell"}
           text={name + " has confirmed the following meeting:"}
           startDate={confirmedTime}
           email={email}
           setShowNotice={setShowConfirmNotice}
-          setActivateIcon={setActivateIcon}
         />
         <MeetingDetailModal
           visible={meetingDetailVisible}
           setVisible={setMeetingDetailVisible}
           startDate={isBuyer ? confirmedTime : proposedTime}
-          sellerEmail={email}
+          otherEmail={email}
           name={name}
           post={post}
+          proposer={proposer}
           isBuyer={isBuyer}
-          setActivateIcon={setActivateIcon}
         />
+        <Modal visible={imageViewerVisible}>
+          <ImageViewer
+            imageUrls={[
+              {
+                url: imageURL,
+              },
+            ]}
+            renderIndicator={() => <></>}
+            enableSwipeDown
+            onCancel={() => {
+              setImageViewerVisible(false);
+              setImageURL("");
+            }}
+          />
+        </Modal>
       </>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -935,6 +1086,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4F4F4",
     borderRadius: 15,
     marginTop: 0,
+    maxHeight: 60,
+    padding: 20,
+  },
+  mainSendContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   backButton: {
@@ -980,5 +1137,4 @@ const FILTER = [
     title: "Send Availablity",
   },
   { id: 2, title: "Pay with Venmo" },
-  // { id: 3, title: "Ask For Refund" },
 ];

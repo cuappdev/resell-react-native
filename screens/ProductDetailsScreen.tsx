@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -27,6 +28,7 @@ import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
 import { pressedOpacity } from "../constants/Values";
+import { makeToast } from "../utils/Toast";
 
 const styles = StyleSheet.create({
   container: {
@@ -179,6 +181,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const [profileImage, setProfileImage] = useState("");
   const [modalVisibility, setModalVisibility] = useState(false);
   const [accessToken, setAccessToken] = useState("");
+
+  const [contactSellerLoading, setContactSellerLoading] = useState(false);
   AsyncStorage.getItem("accessToken", (errs, result) => {
     if (!errs) {
       if (result !== null && result != undefined) {
@@ -489,38 +493,46 @@ export default function ProductDetailsScreen({ route, navigation }) {
           <View style={styles.greyButton}>
             <PurpleButton
               onPress={async () => {
-                var confirmedTime = "";
-                var confirmedViewed = false;
+                try {
+                  setContactSellerLoading(true);
+                  var confirmedTime = "";
+                  var confirmedViewed = false;
 
-                const myHistoryRef = await historyRef
-                  .doc(auth?.currentUser?.email)
-                  .collection("sellers")
-                  .doc(sellerEmail);
-                const doc = await myHistoryRef.get();
-                if (doc.exists) {
-                  console.log(doc.data());
-                  historyRef
-                    .doc(auth?.currentUser?.email)
-                    .collection("sellers")
-                    .doc(sellerEmail)
-                    .update({ viewed: true });
-                  confirmedTime = doc.data().confirmedTime;
-                  confirmedViewed = doc.data().confirmedViewed;
+                  const myHistoryRef = doc(
+                    collection(
+                      doc(historyRef, auth.currentUser.email),
+                      "sellers"
+                    ),
+                    sellerEmail
+                  );
+                  const myDoc = await getDoc(myHistoryRef);
+                  if (myDoc.exists()) {
+                    updateDoc(myHistoryRef, { viewed: true });
+                    confirmedTime = myDoc.data().confirmedTime;
+                    confirmedViewed = myDoc.data().confirmedViewed;
+                  }
+                  navigation.navigate("ChatWindow", {
+                    name: sellerName,
+                    receiverImage: profileImage,
+                    email: sellerEmail,
+                    post: post,
+                    isBuyer: true,
+                    confirmedTime: confirmedTime,
+                    confirmedViewed: confirmedViewed,
+                    screen: "chat",
+                  });
+                  setContactSellerLoading(false);
+                } catch (error) {
+                  setContactSellerLoading(false);
+                  makeToast({
+                    message: "Problem contacting seller",
+                    type: "ERROR",
+                  });
                 }
-
-                navigation.navigate("ChatWindow", {
-                  name: sellerName,
-                  receiverImage: profileImage,
-                  email: sellerEmail,
-                  post: post,
-                  isBuyer: true,
-                  confirmedTime: confirmedTime,
-                  confirmedViewed: confirmedViewed,
-                  screen: "product",
-                });
               }}
               text={"Contact Seller"}
               enabled={true}
+              isLoading={contactSellerLoading}
             />
           </View>
         )}

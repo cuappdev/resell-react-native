@@ -1,37 +1,45 @@
+import { Feather } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   FlatList,
   Image,
-  View,
+  StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
 
-import ChatTbas from "../components/ChatTabs";
-import { auth, historyRef } from "../config/firebase";
-import { fonts } from "../globalStyle/globalFont";
-import { IBuyerPreview, ISellerPreview } from "../data/struct";
 import { useIsFocused } from "@react-navigation/native";
+import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
+import { format } from "timeago.js";
+import ChatTabs from "../components/chat/ChatTabs";
+import LoadingChat from "../components/chat/LoadingChat";
+import { auth, historyRef } from "../config/firebase";
+import Colors from "../constants/Colors";
+import { ChatPreview } from "../data/struct";
+import { fonts } from "../globalStyle/globalFont";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
-  var temptPuchrase = 0; //for the number of unread on the top
-  var temptOrder = 0; //for the number of unread on the top
-  const [purchase, setPurchase] = useState<IBuyerPreview[]>([]);
-  const [offer, setOffer] = useState<ISellerPreview[]>([]);
+  const [purchase, setPurchase] = useState<ChatPreview[]>([]);
+  const [offer, setOffer] = useState<ChatPreview[]>([]);
+  const [purchaseUnread, setPurchaseUnread] = useState(0);
+  const [offerUnread, setOfferUnread] = useState(0);
   const isFocused = useIsFocused();
+  const [isLoadingPurchase, setIsLoadingPurchase] = useState(true);
+  const [isLoadingOffers, setIsLoadingOffers] = useState(true);
 
-  const getPurchase = async () => {
+  const getPurchase = (): Unsubscribe => {
     setPurchase([]);
-    const query = historyRef
-      .doc(auth?.currentUser?.email) //my email and I have a bunches of chats with sellers in the purchase list
-      .collection("sellers");
+    setIsLoadingPurchase(true);
+    const sellersQuery = collection(
+      doc(historyRef, auth.currentUser?.email),
+      "sellers"
+    );
 
     try {
-      query.onSnapshot((querySnapshot) => {
-        var tempt: IBuyerPreview[] = [];
+      return onSnapshot(sellersQuery, (querySnapshot) => {
+        const tempt: ChatPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name,
@@ -44,23 +52,31 @@ export default function ChatScreen({ navigation }) {
             viewed: doc.data().viewed,
             confirmedTime: doc.data().confirmedTime,
             confirmedViewed: doc.data().confirmedViewed,
+            proposedTime: doc.data().proposedTime,
+            proposedViewed: doc.data().proposedViewed,
+            recentMessageTime: doc.data().recentMessageTime,
+            proposer: doc.data().proposer,
           });
         });
         setPurchase(tempt);
+        setIsLoadingPurchase(false);
       });
     } catch (e) {
       console.log("Error getting user: ", e);
     }
   };
-  const getOffer = async () => {
+  const getOffer = (): Unsubscribe => {
     setOffer([]);
+    setIsLoadingOffers(true);
 
-    const query = historyRef.doc(auth?.currentUser?.email).collection("buyers");
+    const buyersQuery = collection(
+      doc(historyRef, auth.currentUser.email),
+      "buyers"
+    );
 
     try {
-      query.onSnapshot((querySnapshot) => {
-        var tempt: ISellerPreview[] = [];
-
+      return onSnapshot(buyersQuery, (querySnapshot) => {
+        const tempt: ChatPreview[] = [];
         querySnapshot.docs.forEach((doc) => {
           tempt.push({
             sellerName: doc.data().name, //buyername
@@ -73,81 +89,68 @@ export default function ChatScreen({ navigation }) {
             viewed: doc.data().viewed,
             proposedTime: doc.data().proposedTime,
             proposedViewed: doc.data().proposedViewed,
+            confirmedTime: doc.data().confirmedTime,
+            confirmedViewed: doc.data().confirmedViewed,
+            recentMessageTime: doc.data().recentMessageTime,
+            proposer: doc.data().proposer,
           });
         });
         setOffer(tempt);
+        setIsLoadingOffers(false);
       });
     } catch (e) {
       console.log("Error getting user: ", e);
     }
   };
   useEffect(() => {
-    getPurchase();
-    getOffer();
+    const unsubFromPurchase = getPurchase();
+    const unsubFromOffers = getOffer();
+
+    return () => {
+      unsubFromPurchase();
+      unsubFromOffers();
+    };
   }, [isFocused]);
-  purchase.forEach((element) => {
-    if (!element.viewed) {
-      temptPuchrase = temptPuchrase + 1;
-    }
-  });
 
-  offer.forEach((element) => {
-    if (!element.viewed) {
-      temptOrder = temptOrder + 1;
-    }
-  });
-  const [purchaseUnread, setPurchaseUnread] = useState(0);
+  const countNotViewed = (chatPreviews: ChatPreview[]): number => {
+    let notViewed = 0;
+    chatPreviews.forEach((element) => {
+      if (!element.viewed) {
+        notViewed++;
+      }
+    });
+    return notViewed;
+  };
   useEffect(() => {
-    setPurchaseUnread(temptPuchrase);
-  }, [temptPuchrase]);
+    setPurchaseUnread(countNotViewed(purchase));
+  }, [purchase]);
 
-  const [offerUnread, setOfferUnread] = useState(temptOrder);
   useEffect(() => {
-    setOfferUnread(temptOrder);
-  }, [temptOrder]);
+    setOfferUnread(countNotViewed(offer));
+  }, [offer]);
 
-  const renderItem = ({ item }: { item: IBuyerPreview | ISellerPreview }) => {
-    var products = " • " + item.recentItem.title;
-
-    var message = item.recentSender == 1 ? "You: " : item.sellerName + ": ";
-
-    message = message + item.recentMessage;
-
+  const renderItem = ({ item: chatPreview }: { item: ChatPreview }) => {
+    var products = " • " + chatPreview.recentItem.title;
     return (
       <TouchableOpacity
         onPress={() => {
           //Changed viewed of data here.
-
-          navigation.navigate(
-            "ChatWindow",
-            isPurchase
-              ? {
-                  name: item.sellerName, // the one are you are talking to
-                  receiverImage: item.image, // the one you are talking to
-                  email: item.email, // the one you are talking to
-                  post: item.recentItem,
-                  isBuyer: isPurchase,
-                  confirmedTime: (item as IBuyerPreview).confirmedTime,
-                  confirmedViewed: (item as IBuyerPreview).confirmedViewed,
-
-                  screen: "chat",
-                }
-              : {
-                  name: item.sellerName, // the one are you are talking to
-                  receiverImage: item.image, // the one you are talking to
-                  email: item.email, // the one you are talking to
-                  post: item.recentItem,
-                  isBuyer: isPurchase,
-                  proposedTime: (item as ISellerPreview).proposedTime,
-                  proposedViewed: (item as ISellerPreview).proposedViewed,
-
-                  screen: "chat",
-                }
-          );
+          navigation.navigate("ChatWindow", {
+            name: chatPreview.sellerName, // the one are you are talking to
+            receiverImage: chatPreview.image,
+            email: chatPreview.email,
+            post: chatPreview.recentItem,
+            isBuyer: isPurchase,
+            confirmedTime: chatPreview.confirmedTime,
+            confirmedViewed: chatPreview.confirmedViewed,
+            proposedTime: chatPreview.proposedTime,
+            proposedViewed: chatPreview.proposedViewed,
+            proposer: chatPreview.proposer,
+          });
         }}
       >
         <View style={styles.outer}>
-          {!item.viewed && <View style={styles.viewedDot} />}
+          {!chatPreview.viewed && <View style={styles.viewedDot} />}
           <Image
             style={[
               styles.image,
@@ -156,20 +159,35 @@ export default function ChatScreen({ navigation }) {
                 ? { marginStart: 24 }
                 : { marginStart: 12 },
             ]}
-            source={{ uri: item.image }}
+            source={{ uri: chatPreview.image }}
             resizeMode={"cover"}
           />
           <View style={styles.inner}>
             <Text numberOfLines={1} style={styles.items}>
-              <Text style={styles.sellerName}>{item.sellerName}</Text>
+              <Text style={styles.sellerName}>{chatPreview.sellerName}</Text>
               {products}
             </Text>
-            <Text
-              numberOfLines={1}
-              style={[fonts.Title4, { color: "#707070" }]}
-            >
-              {message}
-            </Text>
+            {/* Recent message region */}
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                numberOfLines={1}
+                style={[fonts.Title4, { color: "#707070", maxWidth: 114 }]}
+              >
+                {chatPreview.recentMessage}
+              </Text>
+              <View
+                style={{
+                  borderRadius: 10,
+                  width: 2,
+                  height: 2,
+                  backgroundColor: Colors.secondaryGray,
+                  marginHorizontal: 6,
+                }}
+              />
+              <Text style={[fonts.Title4, { color: Colors.secondaryGray }]}>
+                {format(chatPreview.recentMessageTime, "en_US")}
+              </Text>
+            </View>
           </View>
           <View style={{ marginHorizontal: 8 }}>
             <Feather name="chevron-right" size={24} color="#B3B3B3" />
@@ -180,57 +198,66 @@ export default function ChatScreen({ navigation }) {
   };
 
   return (
-    <View style={{ backgroundColor: "#ffffff", height: "100%" }}>
-      <ChatTbas
+    <View style={{ backgroundColor: "#ffffff", height: "100%", paddingTop: 8 }}>
+      <ChatTabs
         isPurchase={isPurchase}
         setIsPurchase={setIsPurchase}
         purchaseUnread={purchaseUnread}
         offerUnread={offerUnread}
       />
-      {purchase.length != 0 && isPurchase && (
-        <FlatList
-          data={purchase}
-          renderItem={renderItem}
-          keyboardShouldPersistTaps="always"
-        />
-      )}
-      {offer.length != 0 && !isPurchase && (
-        <FlatList
-          data={offer}
-          renderItem={renderItem}
-          keyboardShouldPersistTaps="always"
-        />
-      )}
-      {purchase.length == 0 && isPurchase && (
-        <View style={styles.noResultView}>
-          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-            No messages with sellers yet
-          </Text>
-          <Text
-            style={[
-              fonts.body1,
-              { color: "#707070", width: "80%", textAlign: "center" },
-            ]}
-          >
-            When you contact a seller, you’ll see your messages here
-          </Text>
+      {(isLoadingPurchase || isLoadingOffers) && (
+        <View style={{ flexDirection: "column", gap: 24, paddingTop: 24 }}>
+          <LoadingChat />
+          <LoadingChat />
         </View>
       )}
-      {offer.length == 0 && !isPurchase && (
-        <View style={styles.noResultView}>
-          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-            No messages with buyers yet
-          </Text>
-          <Text
-            style={[
-              fonts.body1,
-              { color: "#707070", width: "80%", textAlign: "center" },
-            ]}
-          >
-            When a buyer contacts you, you’ll see their messages here
-          </Text>
-        </View>
-      )}
+      {isPurchase &&
+        !isLoadingPurchase &&
+        (purchase.length !== 0 ? (
+          <FlatList
+            data={purchase}
+            renderItem={renderItem}
+            keyboardShouldPersistTaps="always"
+          />
+        ) : (
+          <View style={styles.noResultView}>
+            <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+              No messages with sellers yet
+            </Text>
+            <Text
+              style={[
+                fonts.body1,
+                { color: "#707070", width: "80%", textAlign: "center" },
+              ]}
+            >
+              When you contact a seller, you’ll see your messages here
+            </Text>
+          </View>
+        ))}
+
+      {!isPurchase &&
+        !isLoadingOffers &&
+        (offer.length !== 0 ? (
+          <FlatList
+            data={offer}
+            renderItem={renderItem}
+            keyboardShouldPersistTaps="always"
+          />
+        ) : (
+          <View style={styles.noResultView}>
+            <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+              No messages with buyers yet
+            </Text>
+            <Text
+              style={[
+                fonts.body1,
+                { color: "#707070", width: "80%", textAlign: "center" },
+              ]}
+            >
+              When a buyer contacts you, you’ll see their messages here
+            </Text>
+          </View>
+        ))}
     </View>
   );
 }
