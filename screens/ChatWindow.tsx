@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import {
+  Clipboard,
   Image,
   Platform,
   SafeAreaView,
@@ -56,6 +57,7 @@ import SellerSyncModal from "../components/chat/SellerSyncModal";
 import ProductCard from "../components/ProductCard";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
+import useKeyboardVisible from "../hooks/useKeyboardVisible";
 import { makeToast } from "../utils/Toast";
 
 Notifications.setNotificationHandler({
@@ -176,6 +178,8 @@ export default function ChatWindow({ navigation, route }) {
   const [isBubble, setIsBubble] = useState(false);
   const [count, setCount] = useState(0);
   const [uri, setUri] = useState("");
+
+  const keyboardVisible = useKeyboardVisible();
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
   const [messages, setMessages] = React.useState<any[]>([]);
@@ -454,6 +458,29 @@ export default function ChatWindow({ navigation, route }) {
     );
   }
 
+  // the type provided by the gifted chat library for context is `any` sadly
+  const onLongPress = (context: any, message: IMessage): void => {
+    const options: string[] = ["Copy Text", "Report Message", "Cancel"];
+    const cancelButtonIndex = options.length - 1;
+    context.actionSheet().showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+      },
+      (buttonIndex: number) => {
+        switch (buttonIndex) {
+          case 0:
+            Clipboard.setString(message.text); // TODO replace with community clipboard
+            break;
+          case 1:
+            console.log(`report sent`);
+            // TODO send a report
+            break;
+        }
+      }
+    );
+  };
+
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
@@ -691,13 +718,11 @@ export default function ChatWindow({ navigation, route }) {
                 style={[
                   {
                     width: "90%",
-                    paddingHorizontal: 10,
                     height: "100%",
-                    lineHeight: 20,
+                    paddingTop: 10,
+                    paddingLeft: 15,
                     minHeight: 20,
                     color: "#000000",
-                    paddingTop: 10,
-                    paddingBottom: 10,
                     textAlignVertical: "top",
                     maxHeight: 60,
                   },
@@ -849,7 +874,6 @@ export default function ChatWindow({ navigation, route }) {
       </SafeAreaView>
     );
   }
-
   const ref = useRef<any>();
   return (
     <SafeAreaView
@@ -929,6 +953,8 @@ export default function ChatWindow({ navigation, route }) {
         scrollToBottom
         showAvatarForEveryMessage
         renderAvatarOnTop
+        onLongPress={onLongPress}
+        bottomOffset={40}
       />
       {/* Modals below */}
       <>
