@@ -593,7 +593,7 @@ export default function ChatWindow({ navigation, route }) {
   function renderInputToolbar(props) {
     return (
       <SafeAreaView>
-        {uri != "" && (
+        {uri && (
           <ImageEditor
             visible={modalVisibility}
             onCloseEditor={() => {
@@ -694,6 +694,7 @@ export default function ChatWindow({ navigation, route }) {
                   setHeight(event.nativeEvent.contentSize.height);
                 }}
                 multiline={true}
+                placeholder="Message"
               />
             )}
             {isSendingAvailability && (
@@ -901,9 +902,11 @@ export default function ChatWindow({ navigation, route }) {
         ref={(chat) => (ref.current = chat)}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        minInputToolbarHeight={150}
         renderMessage={renderMessage}
         scrollToBottom={true}
+        minInputToolbarHeight={
+          125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
+        }
       />
       {/* Modals below */}
       <>
@@ -992,6 +995,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 0,
     maxHeight: 60,
+    padding: 20,
   },
   mainSendContainer: {
     flexDirection: "row",
