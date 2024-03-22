@@ -49,7 +49,6 @@ export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
       <PagerView
         style={styles.pagerView}
         initialPage={0}
-        showPageIndicator={true}
         onPageSelected={onPageSelected}
       >
         {images}
