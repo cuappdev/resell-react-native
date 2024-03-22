@@ -116,7 +116,6 @@ export default function SearchScreen({ navigation, route }) {
           </View>
           <TouchableOpacity
             style={{
-              marginStart: 15,
               width: 50,
               height: 50,
               justifyContent: "center",
