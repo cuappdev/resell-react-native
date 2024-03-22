@@ -426,8 +426,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-start",
-    paddingTop: 10,
-    marginTop: Platform.OS === "ios" ? 35 : 0,
+    paddingTop: 5,
+    marginTop: Platform.OS === "ios" ? 64 : 0,
   },
 
   upperContainer: {
