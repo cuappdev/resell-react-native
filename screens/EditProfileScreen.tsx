@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { auth, userRef } from "../config/firebase";
+import Colors from "../constants/Colors";
 import { menuBarTop } from "../constants/Layout";
 import { pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
@@ -101,7 +102,8 @@ export default function EditProfileScreen({ navigation, route }) {
   const [accessToken, setAccessToken] = useState("");
 
   getAccessToken(setAccessToken);
-  const [invalidName, setInvalidName] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const maxNameLength = 25;
 
   const submit = async () => {
     var Json;
@@ -184,8 +186,20 @@ export default function EditProfileScreen({ navigation, route }) {
               }
             }}
             style={styles.headerButton}
+            disabled={Boolean(usernameError)}
           >
-            <Text style={[fonts.Title1, { color: "#9E70F6" }]}>Save</Text>
+            <Text
+              style={[
+                fonts.Title1,
+                {
+                  color: usernameError
+                    ? Colors.iconInactive
+                    : Colors.resellPurple,
+                },
+              ]}
+            >
+              Save
+            </Text>
           </TouchableOpacity>
         </View>
         <KeyboardAvoidingView
@@ -249,24 +263,6 @@ export default function EditProfileScreen({ navigation, route }) {
                     <Text style={[fonts.Title1, { marginStart: 24 }]}>
                       Username
                     </Text>
-                    {invalidName && (
-                      <View
-                        style={{
-                          width: 16,
-                          height: 16,
-                          backgroundColor: "#FF0000",
-                          borderRadius: 8,
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginTop: 3,
-                          marginLeft: 4,
-                        }}
-                      >
-                        <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
-                          !
-                        </Text>
-                      </View>
-                    )}
                   </View>
                   <View
                     style={{
@@ -293,7 +289,15 @@ export default function EditProfileScreen({ navigation, route }) {
                       value={username}
                       onChangeText={(text) => {
                         setUsername(text);
-                        setInvalidName(false);
+                        if (text.length > maxNameLength) {
+                          setUsernameError(
+                            `Must be ${maxNameLength} characters or fewer`
+                          );
+                        } else if (text.trim().length === 0) {
+                          setUsernameError("Username must not be empty");
+                        } else {
+                          setUsernameError("");
+                        }
                         if (scroll.current !== null) {
                           scroll.current.scrollToEnd({
                             animated: true,
@@ -301,7 +305,7 @@ export default function EditProfileScreen({ navigation, route }) {
                         }
                       }}
                     />
-                    {invalidName && (
+                    {usernameError && (
                       <Text
                         style={{
                           fontSize: 12,
@@ -310,7 +314,7 @@ export default function EditProfileScreen({ navigation, route }) {
                           marginTop: 4,
                         }}
                       >
-                        Name Unavailable
+                        {usernameError}
                       </Text>
                     )}
                   </View>
