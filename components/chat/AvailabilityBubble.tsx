@@ -1,7 +1,7 @@
 import React from "react";
 
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export function AvailabilityBubble({
   userName,
