@@ -55,7 +55,7 @@ export function NewRequestScreen({ navigation, route }) {
       } else {
         makeToast({ message: "Error posting request", type: "ERROR" });
       }
-    } catch (e: unknown) {}
+    } catch (e: unknown) { }
   };
 
   return (
@@ -77,25 +77,34 @@ export function NewRequestScreen({ navigation, route }) {
           >
             Title
           </Text>
-          <TextInput
-            style={[
-              fonts.body2,
-              {
-                paddingTop: 10,
-                paddingBottom: 10,
-                paddingHorizontal: 15,
-                backgroundColor: "#F4F4F4",
-                borderRadius: 10,
-                height: 40,
-                marginHorizontal: 24,
-                marginBottom: 32,
-              },
-            ]}
-            value={title}
-            onChangeText={(text) => {
-              setTitle(text);
-            }}
-          />
+          <View>
+            <TextInput
+              style={[
+                fonts.body2,
+                {
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  paddingHorizontal: 15,
+                  backgroundColor: "#F4F4F4",
+                  borderRadius: 10,
+                  height: 40,
+                  marginHorizontal: 24,
+                  marginBottom: 32,
+                },
+              ]}
+              value={title}
+              onChangeText={(text) => {
+                setTitle(text);
+              }}
+            />
+            {title.length > 0 && (
+              <Text
+                style={styles.lengthLimit}
+              >
+                {title.length}/50
+              </Text>
+            )}
+          </View>
           <Text
             style={[
               fonts.Title1,
@@ -257,7 +266,16 @@ export function NewRequestScreen({ navigation, route }) {
               setDescription(text);
             }}
             multiline={true}
+            numberOfLines={2}
+            maxLength={500}
           />
+          {description.length > 0 && (
+            <Text
+              style={styles.lengthLimit}
+            >
+              {description.length}/500
+            </Text>
+          )}
         </View>
         <View style={styles.purpleButton}>
           <PurpleButton
@@ -289,7 +307,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: Layout.window.height * 0.05,
   },
-
   buttonContinue: {
     backgroundColor: "#9E70F6",
     paddingHorizontal: 60,
@@ -298,10 +315,17 @@ const styles = StyleSheet.create({
     elevation: 2,
     width: "60%",
   },
-
   item: {
     width: screenWidth - 60,
     height: screenWidth - 60,
     margin: 0,
   },
+  lengthLimit: {
+    alignSelf: "flex-end",
+    top: -20,
+    right: 24,
+    fontSize: 12,
+    fontFamily: "Rubik-Regular",
+    color: "#707070",
+  }
 });
