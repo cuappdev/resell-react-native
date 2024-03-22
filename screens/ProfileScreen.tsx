@@ -267,6 +267,7 @@ export default function ProfileScreen({ navigation }) {
       const data = await api.get(`/request/userId/${userId}`);
       if (data && data.requests) {
         setRequests(data.requests);
+        setFetchRequestFailed(false);
       }
     } catch (error) {
       setFetchRequestFailed(true);
