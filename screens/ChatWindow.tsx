@@ -83,7 +83,8 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
+      // TODO: Potential Future Alert to Send User to Settings Screen
+      // alert("Failed to get push token for push notification!");
       return;
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
@@ -143,7 +144,7 @@ export default function ChatWindow({ navigation, route }) {
 
   const [activateIcon, setActivateIcon] = useState(
     (confirmedTime != undefined && confirmedTime != "" && confirmedViewed) ||
-      (proposedTime != undefined && proposedTime != "" && proposedViewed)
+    (proposedTime != undefined && proposedTime != "" && proposedViewed)
   );
   const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
   const [BuyerProposeVisible, setBuyerProposeVisible] = React.useState(false);
