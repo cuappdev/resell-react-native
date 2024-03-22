@@ -18,6 +18,7 @@ import DeleteImage from "../assets/svg-components/deleteImage";
 import ExitIcon from "../assets/svg-components/exit";
 import { menuBarTop } from "../constants/Layout";
 import Modal from "react-native-modal";
+import PopupSheet from "../components/PopupSheet";
 
 const imageSize = (Dimensions.get('window').width - 68) / 3;
 
@@ -187,43 +188,14 @@ export default function SendFeedbackScreen({ navigation }) {
           </TouchableOpacity>
         )}
       </View>
-      <Modal
+      <PopupSheet
         isVisible={deleteModalVisibility}
-        backdropOpacity={0.2}
-        onBackdropPress={() => {
-          setDeleteModalVisibility(false);
-        }}
-      >
-        <View style={styles.deleteModal}>
-          <Text style={styles.titleText}>
-            Delete Image
-          </Text>
-          <Text style={styles.modalText}>
-            Are you sure you'd like to delete this image?
-          </Text>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => {
-              deleteImage()
-            }}
-          >
-            <Text style={styles.deleteButtonText}>Delete</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => {
-              setDeleteModalVisibility(false);
-            }}
-          >
-            <View>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.exitButton} onPress={() => setDeleteModalVisibility(false)}>
-            <ExitIcon></ExitIcon>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+        setIsVisible={setDeleteModalVisibility}
+        actionName={"Delete Image"}
+        submitAction={deleteImage}
+        buttonText={"Delete"}
+        description={"Are you sure you'd like to delete this image?"}
+      />
     </View>
   );
 }

@@ -9448,7 +9448,6 @@ react-native-week-view@^0.30.0:
   version "0.30.0"
   resolved "https://registry.yarnpkg.com/react-native-week-view/-/react-native-week-view-0.30.0.tgz#89180f60ef45611eb331dfd2017c3a849f9a8546"
   integrity sha512-6BwkvtK6H7Ik6iHIrKxA+3gUnd0siSSafVfL8BPEg8AiCl5cbZuzk54EhJAyS5+uYoFzx+a8hNM9ZhjDWFmUcQ==
-  dependencies:
     memoize-one "^5.1.1"
     moment "^2.19.3"
     prop-types "^15.7.2"
