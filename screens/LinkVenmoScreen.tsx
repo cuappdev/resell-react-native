@@ -6,13 +6,13 @@ import {
   Keyboard,
   StyleSheet,
   Text,
-  TextInput,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { useApiClient } from "../api/ApiClientProvider";
 import PurpleButton from "../components/PurpleButton";
 import SkipButton from "../components/SkipButton";
+import VenmoInput from "../components/VenmoInput";
 import { auth, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
@@ -68,23 +68,14 @@ export default function LinkVenmoScreen({ navigation, route }) {
         </Text>
         <View style={{ flexDirection: "column", width: "100%" }}>
           <Text style={styles.handle}>Venmo Handle</Text>
-          <View style={styles.textInputContainer}>
-            <Text style={[fonts.body2]}>@</Text>
-            <View style={{ width: 16 }} />
-            <TextInput
-              style={[fonts.body2, styles.textInput]}
-              placeholderTextColor={"#707070"}
-              value={venmo}
-              onChangeText={(text) => setVenmo(text)}
-            />
-          </View>
+          <VenmoInput venmo={venmo} onChangeVenmo={setVenmo} />
         </View>
 
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
             onPress={updateProfileOnBackend}
-            enabled={venmo.length > 0}
+            enabled={venmo.trim().length > 0}
             isLoading={isLoading}
           />
         </View>
@@ -144,8 +135,7 @@ const styles = StyleSheet.create({
     bottom: "2%",
   },
   textInputContainer: {
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingVertical: 10,
     paddingHorizontal: 15,
     backgroundColor: "#F4F4F4",
     borderRadius: 10,

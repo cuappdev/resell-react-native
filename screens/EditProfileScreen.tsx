@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
+import VenmoInput from "../components/VenmoInput";
 import { auth, userRef } from "../config/firebase";
 import Colors from "../constants/Colors";
 import { menuBarTop } from "../constants/Layout";
@@ -326,7 +327,7 @@ export default function EditProfileScreen({ navigation, route }) {
                   }}
                 >
                   <Text style={[fonts.Title1, { marginStart: 24 }]}>
-                    Venmo Link
+                    Venmo Handle
                   </Text>
                   <View
                     style={{
@@ -335,22 +336,9 @@ export default function EditProfileScreen({ navigation, route }) {
                       marginEnd: 24,
                     }}
                   >
-                    <TextInput
-                      style={[
-                        fonts.body1,
-                        {
-                          paddingTop: 10,
-                          paddingBottom: 10,
-                          paddingHorizontal: 15,
-                          backgroundColor: "#F4F4F4",
-                          borderRadius: 10,
-                          minHeight: 40,
-                          width: "100%",
-                          textAlign: "right",
-                        },
-                      ]}
-                      value={venmo}
-                      onChangeText={(text) => {
+                    <VenmoInput
+                      venmo={venmo}
+                      onChangeVenmo={(text) => {
                         setVenmo(text);
                         if (scroll.current !== null) {
                           scroll.current.scrollToEnd({
