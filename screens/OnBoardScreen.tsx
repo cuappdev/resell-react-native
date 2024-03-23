@@ -205,8 +205,8 @@ export default function OnBoardScreen({ navigation }) {
                     maxHeight: 160,
                     width: "100%",
                     paddingVertical: 10,
-                    height: 40,
                     fontSize: 18,
+                    marginBottom: 24,
                   },
                 ]}
                 placeholderTextColor={"#707070"}
@@ -237,11 +237,34 @@ export default function OnBoardScreen({ navigation }) {
               )}
             </View>
           </KeyboardAvoidingView>
-          <View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginStart: 24,
+            }}
+          >
             <ToggleButton
               isToggled={agreedToEula}
               setIsToggled={setAgreedToEula}
             />
+            <View style={{ width: 16 }} />
+            <Text style={fonts.Title4}>I agree to Resell’s </Text>
+            <TouchableOpacity
+              onPress={() => {
+                // TODO
+                console.log("Open EULA");
+              }}
+            >
+              <Text
+                style={[
+                  fonts.Title4,
+                  { color: Colors.linkBlue, textDecorationLine: "underline" },
+                ]}
+              >
+                End User License Agreement
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
 
@@ -256,7 +279,11 @@ export default function OnBoardScreen({ navigation }) {
                   bio: bio,
                 });
               }}
-              enabled={!Boolean(usernameError) && username.trim().length > 0}
+              enabled={
+                !Boolean(usernameError) &&
+                username.trim().length > 0 &&
+                agreedToEula
+              }
             />
           </View>
         )}
@@ -289,7 +316,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    minHeight: 500,
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
