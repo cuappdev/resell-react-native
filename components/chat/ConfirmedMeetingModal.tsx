@@ -1,14 +1,19 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Calendar from "expo-calendar";
+import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Alert, Platform, StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
-import { auth, historyRef } from "../config/firebase";
-import { fonts } from "../globalStyle/globalFont";
-import { makeToast } from "../utils/Toast";
-import PurpleButton from "./PurpleButton";
-export default function BuyerSyncModal({
+import { auth, historyRef } from "../../config/firebase";
+import { fonts } from "../../globalStyle/globalFont";
+import { makeToast } from "../../utils/Toast";
+import PurpleButton from "../PurpleButton";
+
+/**
+ * Modal that displays the details of a confirmed meeting
+ */
+export default function ConfirmedMeetingModal({
   visible,
   setVisible,
   eventTitle,
@@ -16,7 +21,6 @@ export default function BuyerSyncModal({
   email,
   startDate,
   setShowNotice,
-  setActivateIcon,
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -42,8 +46,6 @@ export default function BuyerSyncModal({
         const calendars = await Calendar.getCalendarsAsync(
           Calendar.EntityTypes.EVENT
         );
-        console.log("Here are all your calendars:");
-        console.log({ calendars });
       }
     })();
   }, []);
@@ -97,6 +99,16 @@ export default function BuyerSyncModal({
       console.log(e);
     }
   };
+  const updateViewed = () => {
+    updateDoc(
+      doc(
+        collection(doc(historyRef, auth.currentUser.email), "sellers"),
+        email
+      ),
+      { confirmedView: true }
+    );
+  };
+
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
@@ -104,14 +116,8 @@ export default function BuyerSyncModal({
       onBackdropPress={() => {
         setActivateIcon(true);
         setVisible(false);
-        setShowNotice(false);
-        historyRef
-          .doc(auth?.currentUser?.email)
-          .collection("sellers")
-          .doc(email)
-          .update({
-            confirmedViewed: true,
-          });
+        // setShowNotice(false);
+        updateViewed();
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
@@ -133,15 +139,9 @@ export default function BuyerSyncModal({
           <PurpleButton
             text={"Sync to Calendar"}
             onPress={async () => {
-              historyRef
-                .doc(auth?.currentUser?.email)
-                .collection("sellers")
-                .doc(email)
-                .update({
-                  confirmedViewed: true,
-                });
+              updateViewed();
               setVisible(false);
-              setShowNotice(false);
+              // setShowNotice(false);
               setActivateIcon(true);
               console.log("here");
               const { status } =
@@ -165,14 +165,8 @@ export default function BuyerSyncModal({
           onPress={() => {
             setActivateIcon(true);
             setVisible(false);
-            setShowNotice(false);
-            historyRef
-              .doc(auth?.currentUser?.email)
-              .collection("sellers")
-              .doc(email)
-              .update({
-                confirmedViewed: true,
-              });
+            // setShowNotice(false);
+            updateViewed();
           }}
         >
           Cancel

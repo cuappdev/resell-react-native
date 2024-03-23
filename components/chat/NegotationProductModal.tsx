@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import Modal from "react-native-modal";
+import React from "react";
 
-import { StyleSheet, Text, Pressable, View, Alert, Image } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 export function NegotiationProductBubble({ product, price, image }) {
   return (
     <View style={styles.outer}>

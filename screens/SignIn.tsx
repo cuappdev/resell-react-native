@@ -75,6 +75,7 @@ export default function SignIn() {
         accountId = createAccountRes.user?.id;
       } else {
         alert("Google user is not a Cornell student. You must use a Cornell email for Resell");
+        console.log(`create account res: ${JSON.stringify(createAccountRes)}`);
         makeToast({ message: "Error creating account", type: "ERROR" });
         return;
       }

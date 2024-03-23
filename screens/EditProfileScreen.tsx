@@ -1,6 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
+import { updateProfile } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
@@ -135,11 +137,11 @@ export default function EditProfileScreen({ navigation, route }) {
 
     if (response.ok) {
       const data = await response.json();
-      auth.currentUser.updateProfile({
+      updateProfile(auth.currentUser, {
         displayName: data.user.givenName + " " + data.user.familyName,
         photoURL: data.user.photoUrl,
       });
-      userRef.doc(data.user.email).update({ venmo: venmo });
+      updateDoc(doc(userRef, data.user.email), { venmo: venmo });
       navigation.goBack();
     }
   };

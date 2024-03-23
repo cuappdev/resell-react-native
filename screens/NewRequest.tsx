@@ -15,7 +15,7 @@ import {
 const { width: screenWidth } = Dimensions.get("window");
 
 import { useApiClient } from "../api/ApiClientProvider";
-import { NegotiationModal } from "../components/NegotiationModal";
+import { NegotiationModal } from "../components/chat/NegotiationModal";
 import PurpleButton from "../components/PurpleButton";
 import Layout from "../constants/Layout";
 import { fonts } from "../globalStyle/globalFont";

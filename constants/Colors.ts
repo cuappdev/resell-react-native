@@ -19,4 +19,6 @@ export default {
   inactiveErrorState: "#F2000066",
   secondaryGray: "#707070",
   toastBg: "#F6F1FF",
+  venmo: "#3D8AF7",
+  secondaryGray: "#707070",
 };

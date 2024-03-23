@@ -14,7 +14,7 @@ import {
 
 import { useApiClient } from "../api/ApiClientProvider";
 import ButtonBanner from "../components/ButtonBanner";
-import { NegotiationModal } from "../components/NegotiationModal";
+import { NegotiationModal } from "../components/chat/NegotiationModal";
 import PurpleButton from "../components/PurpleButton";
 import Layout from "../constants/Layout";
 import { FILTER1 } from "../data/filter";

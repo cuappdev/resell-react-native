@@ -3,11 +3,11 @@ import * as Calendar from "expo-calendar";
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
-import PurpleButton from "../components/PurpleButton";
+import PurpleButton from "../PurpleButton";
 
 import moment from "moment";
-import { fonts } from "../globalStyle/globalFont";
-import { makeToast } from "../utils/Toast";
+import { fonts } from "../../globalStyle/globalFont";
+import { makeToast } from "../../utils/Toast";
 export default function SellerSyncModal({
   visible,
   setVisible,
@@ -26,8 +26,6 @@ export default function SellerSyncModal({
         const calendars = await Calendar.getCalendarsAsync(
           Calendar.EntityTypes.EVENT
         );
-        console.log("Here are all your calendars:");
-        console.log({ calendars });
       }
     })();
   }, []);

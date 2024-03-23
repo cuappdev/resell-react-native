@@ -1,13 +1,10 @@
 import React from "react";
 import Modal from "react-native-modal";
 
-import { Dimensions, StyleSheet, Text, View } from "react-native";
-import { NumberPad } from "./CustomizedNumKeyBoard";
+import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import { NumberPad } from "../CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
-import { TouchableOpacity } from "react-native-gesture-handler";
 const windowHeight = Dimensions.get("window").height;
-import { Platform, NativeModules } from "react-native";
-const { StatusBarManager } = NativeModules;
 const modalHeight =
   Platform.OS === "ios" ? windowHeight - 212 - 35 : windowHeight - 212;
 export function NegotiationModal({
@@ -63,7 +60,7 @@ export function NegotiationModal({
           >
             <NegotiationProductBubble
               product={post.title}
-              price={post.price}
+              price={post.original_price}
               image={post.images[0]}
             />
           </View>
@@ -160,8 +157,8 @@ export function NegotiationModal({
           </View>
         )}
         {(screen === "NewPost" ||
-          screen == "NewRequestMax" ||
-          screen == "NewRequestMin") && (
+          screen === "NewRequestMax" ||
+          screen === "NewRequestMin") && (
           <View style={styles.modalView}>
             {screen === "NewPost" && (
               <Text style={[styles.textStyle, { marginBottom: 24 }]}>
