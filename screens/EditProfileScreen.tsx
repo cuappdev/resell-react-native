@@ -21,7 +21,7 @@ import BackButton from "../assets/svg-components/back_button";
 import { auth, userRef } from "../config/firebase";
 import Colors from "../constants/Colors";
 import { menuBarTop } from "../constants/Layout";
-import { pressedOpacity } from "../constants/Values";
+import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 import { getAccessToken } from "../utils/asychStorageFunctions";
@@ -103,7 +103,6 @@ export default function EditProfileScreen({ navigation, route }) {
 
   getAccessToken(setAccessToken);
   const [usernameError, setUsernameError] = useState("");
-  const maxNameLength = 25;
 
   const submit = async () => {
     var Json;
@@ -289,9 +288,9 @@ export default function EditProfileScreen({ navigation, route }) {
                       value={username}
                       onChangeText={(text) => {
                         setUsername(text);
-                        if (text.length > maxNameLength) {
+                        if (text.length > maxUsernameLength) {
                           setUsernameError(
-                            `Must be ${maxNameLength} characters or fewer`
+                            `Must be ${maxUsernameLength} characters or fewer`
                           );
                         } else if (text.trim().length === 0) {
                           setUsernameError("Username must not be empty");

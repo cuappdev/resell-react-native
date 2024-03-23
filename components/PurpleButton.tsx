@@ -28,7 +28,7 @@ export default function PurpleButton({
   isLoading?: boolean;
 }) {
   return (
-    <TouchableOpacity onPress={enabled && !isLoading ? onPress : undefined}>
+    <TouchableOpacity onPress={onPress} disabled={!enabled || isLoading}>
       <View
         style={[
           styles.button,

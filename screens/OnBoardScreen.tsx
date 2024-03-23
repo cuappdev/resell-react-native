@@ -1,23 +1,25 @@
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import {
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  Image,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
-import { pressedOpacity } from "../constants/Values";
+import ToggleButton from "../components/ToggleButton";
+import Colors from "../constants/Colors";
+import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 
 export default function OnBoardScreen({ navigation }) {
@@ -39,6 +41,8 @@ export default function OnBoardScreen({ navigation }) {
     }
   };
   const [isEditing, setIsEditing] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [agreedToEula, setAgreedToEula] = useState(false);
   const storePermission = async () => {
     try {
       await AsyncStorage.setItem("PhotoPermission", "true");
@@ -84,6 +88,18 @@ export default function OnBoardScreen({ navigation }) {
       keyboardDidShowListener.remove();
     };
   }, []);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  // Check if username is valid
+  useEffect(() => {
+    if (username.trim().length === 0 && !isFirstRender) {
+      setUsernameError("Username cannot be empty.");
+    } else if (username.length > maxUsernameLength) {
+      setUsernameError(`Must be ${maxUsernameLength} characters or fewer`);
+    } else {
+      setUsernameError("");
+    }
+    setIsFirstRender(false);
+  }, [username]);
   const scroll = useRef<ScrollView | null>(null);
 
   return (
@@ -127,35 +143,44 @@ export default function OnBoardScreen({ navigation }) {
                 }}
               >
                 <Text style={styles.username}>Username</Text>
-                {username.length <= 0 && (
-                  <Text style={[styles.username, { color: "#9E70F6" }]}>*</Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                }}
+              >
+                <TextInput
+                  value={username}
+                  onChangeText={(text) => {
+                    setUsername(text);
+                    if (scroll.current != null) {
+                      scroll.current.scrollToEnd({
+                        animated: true,
+                      });
+                    }
+                  }}
+                  style={[
+                    fonts.body2,
+                    {
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                      paddingHorizontal: 15,
+                      backgroundColor: "#F4F4F4",
+                      borderRadius: 10,
+                      marginBottom: 8,
+                      width: "100%",
+                      height: 40,
+                    },
+                  ]}
+                  placeholderTextColor={"#707070"}
+                />
+                {usernameError && (
+                  <Text style={[fonts.subtitle, { color: Colors.errorState }]}>
+                    {usernameError}
+                  </Text>
                 )}
               </View>
-              <TextInput
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  if (scroll.current != null) {
-                    scroll.current.scrollToEnd({
-                      animated: true,
-                    });
-                  }
-                }}
-                style={[
-                  fonts.body2,
-                  {
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    paddingHorizontal: 15,
-                    backgroundColor: "#F4F4F4",
-                    borderRadius: 10,
-                    marginBottom: 32,
-                    width: "100%",
-                    height: 40,
-                  },
-                ]}
-                placeholderTextColor={"#707070"}
-              />
               <Text style={styles.bio}>Bio</Text>
               <TextInput
                 value={bio}
@@ -212,7 +237,14 @@ export default function OnBoardScreen({ navigation }) {
               )}
             </View>
           </KeyboardAvoidingView>
+          <View>
+            <ToggleButton
+              isToggled={agreedToEula}
+              setIsToggled={setAgreedToEula}
+            />
+          </View>
         </ScrollView>
+
         {!isEditing && (
           <View style={styles.purpleButton}>
             <PurpleButton
@@ -224,7 +256,7 @@ export default function OnBoardScreen({ navigation }) {
                   bio: bio,
                 });
               }}
-              enabled={username.length > 0}
+              enabled={!Boolean(usernameError) && username.trim().length > 0}
             />
           </View>
         )}
