@@ -10,7 +10,6 @@ import {
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
 import Logout from "../assets/svg-components/logout";
-import Edit from "../assets/svg-components/edit";
 import Notifications from "../assets/svg-components/notifications";
 import Feedback from "../assets/svg-components/feedback";
 import { Feather } from "@expo/vector-icons";
@@ -25,6 +24,127 @@ import {
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Blocked from "../assets/svg-components/blocked";
+import Terms from "../assets/svg-components/terms";
+import ProfileBlack from "../assets/svg-components/profileBlack";
+
+export default function SettingsScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const log_out = () => dispatch(logout());
+
+  const [modalVisibility, setModalVisibility] = useState(false);
+  const [userId, setUserId] = useState("");
+
+  getUserId(setUserId);
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <BackButton color="black" />
+      </TouchableOpacity>
+      <View style={styles.title}>
+        <Text style={styles.titleText}>Settings</Text>
+      </View>
+      <FlatList
+        scrollEnabled={false}
+        style={styles.list}
+        data={[
+          {
+            icon: ProfileBlack,
+            text: "Account Settings",
+            onPress: () => navigation.navigate("AccountSettings"),
+          },
+          {
+            icon: Notifications,
+            text: "Notification Preferences",
+            onPress: () => navigation.navigate("NotificationPreferences"),
+          },
+          {
+            icon: Feedback,
+            text: "Send Feedback",
+            onPress: () => navigation.navigate("SendFeedback"),
+          },
+          {
+            icon: Blocked,
+            text: "Blocked Users",
+            onPress: () => console.log("No Screen yet") // TODO: Implement this screen
+          },
+          {
+            icon: Terms,
+            text: "Terms and Conditions",
+            onPress: () => console.log("No Screen yet") // TODO: Implement this screen
+          },
+          {
+            icon: Logout,
+            text: "Log Out",
+            onPress: () => {
+              setModalVisibility(true);
+            },
+          },
+        ]}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={item.onPress ? item.onPress : () => { }}
+            style={styles.item}
+          >
+            <item.icon />
+            <Text style={styles.itemText}>{item.text}</Text>
+            <Feather
+              name="chevron-right"
+              size={22}
+              color="black"
+              style={styles.itemChevron}
+            />
+          </TouchableOpacity>
+        )}
+      />
+      <Modal
+        isVisible={modalVisibility}
+        backdropOpacity={0.2}
+        onBackdropPress={() => {
+          setModalVisibility(false);
+        }}
+        style={{ justifyContent: "flex-end", margin: 0 }}
+      >
+        <View style={styles.slideUp}>
+          <Text style={[styles.buttonText2, { padding: "3%" }]}>
+            Log out of Resell?
+          </Text>
+          <TouchableOpacity
+            onPress={async () => {
+              storeSignedIn("false");
+              storeEmail("");
+              AsyncStorage.clear();
+
+              log_out();
+
+              auth
+                .signOut()
+                .then(() => { })
+                .catch((error) => { });
+            }}
+          >
+            <View style={styles.button}>
+              <Text style={styles.buttonText}> Logout</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisibility(false);
+            }}
+          >
+            <View style={styles.button1}>
+              <Text style={styles.buttonText2}> Cancel</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -115,132 +235,3 @@ const styles = StyleSheet.create({
     fontFamily: "Rubik-Medium",
   },
 });
-
-export default function SettingsScreen({ navigation }) {
-  const dispatch = useDispatch();
-  const log_out = () => dispatch(logout());
-
-  const [modalVisibility, setModalVisibility] = useState(false);
-  const [userId, setUserId] = useState("");
-
-  getUserId(setUserId);
-
-  const getUser = async () => {
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
-        navigation.navigate("EditProfile", {
-          initialRealname: user.givenName + " " + user.familyName,
-          initialUsername: user.username,
-          initialBio: user.bio,
-          initialNetId: user.netid,
-          initialVenmo: user.venmoHandle,
-          initialImage: user.photoUrl,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}
-      >
-        <BackButton color="black" />
-      </TouchableOpacity>
-      <View style={styles.title}>
-        <Text style={styles.titleText}>Settings</Text>
-      </View>
-      <FlatList
-        scrollEnabled={false}
-        style={styles.list}
-        data={[
-          {
-            icon: Edit,
-            text: "Edit Profile",
-            onPress: () => getUser(),
-          },
-          {
-            icon: Notifications,
-            text: "Notificaton Preferences",
-            onPress: () => navigation.navigate("NotificationPreferences"),
-          },
-          {
-            icon: Feedback,
-            text: "Send Feedback",
-            onPress: () => navigation.navigate("SendFeedback"),
-          },
-          {
-            icon: Logout,
-            text: "Log Out",
-            onPress: () => {
-              setModalVisibility(true);
-            },
-          },
-        ]}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => {}}
-            style={styles.item}
-          >
-            <item.icon />
-            <Text style={styles.itemText}>{item.text}</Text>
-            <Feather
-              name="chevron-right"
-              size={22}
-              color="black"
-              style={styles.itemChevron}
-            />
-          </TouchableOpacity>
-        )}
-      />
-      <Modal
-        isVisible={modalVisibility}
-        backdropOpacity={0.2}
-        onBackdropPress={() => {
-          setModalVisibility(false);
-        }}
-        style={{ justifyContent: "flex-end", margin: 0 }}
-      >
-        <View style={styles.slideUp}>
-          <Text style={[styles.buttonText2, { padding: "3%" }]}>
-            Log out of Resell?
-          </Text>
-          <TouchableOpacity
-            onPress={async () => {
-              storeSignedIn("false");
-              storeEmail("");
-              AsyncStorage.clear();
-
-              log_out();
-
-              auth
-                .signOut()
-                .then(() => {})
-                .catch((error) => {});
-            }}
-          >
-            <View style={styles.button}>
-              <Text style={styles.buttonText}> Logout</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisibility(false);
-            }}
-          >
-            <View style={styles.button1}>
-              <Text style={styles.buttonText2}> Cancel</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </View>
-  );
-}

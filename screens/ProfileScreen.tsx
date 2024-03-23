@@ -267,6 +267,7 @@ export default function ProfileScreen({ navigation }) {
       const data = await api.get(`/request/userId/${userId}`);
       if (data && data.requests) {
         setRequests(data.requests);
+        setFetchRequestFailed(false);
       }
     } catch (error) {
       setFetchRequestFailed(true);
@@ -425,8 +426,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-start",
-    paddingTop: 10,
-    marginTop: Platform.OS === "ios" ? 35 : 0,
+    paddingTop: 5,
+    marginTop: Platform.OS === "ios" ? 64 : 0,
   },
 
   upperContainer: {

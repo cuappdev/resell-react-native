@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
-
 import {
   StyleSheet,
   Text,
   Pressable,
   View,
-  Button,
   TextInput,
   Keyboard,
 } from "react-native";
 import PurpleButton from "./PurpleButton";
+
 export function NumberPad({
   modalVisible,
   setModalVisible,
@@ -27,6 +26,7 @@ export function NumberPad({
       ? originalText.slice(1)
       : ""
   );
+
   useEffect(() => {
     if (
       screen === "NewPost" ||
@@ -36,57 +36,57 @@ export function NumberPad({
       setOriginalText(input);
     }
   }, [input]);
+
   const changeInput = (text) => {
-    if (text == "<" && input != "") {
+    if (text === "<" && input !== "") {
       setInput(input.slice(0, -1));
     } else if (
-      text != "<" &&
-      (!input.includes(".") || text != ".") &&
-      (input != "" || text != ".") &&
-      input.length < 7
+      text !== "<" &&
+      (!input.includes(".") || text !== ".") &&
+      (input !== "" || text !== ".") &&
+      input.length < 7 // Max 7 characters including decimal point
     ) {
-      setInput(input.concat(text));
+      // Check if adding the next number would exceed $1000.00
+      const newInput = input + text;
+      const newPrice = parseFloat(newInput);
+      if (!isNaN(newPrice) && newPrice <= 1000) {
+        setInput(newInput);
+      }
     }
   };
-  const onContinueClicked = (original: string) => {
+
+  const onContinueClicked = () => {
     setModalVisible(!modalVisible);
-    if (input != "") {
-      const regex = new RegExp("^0+$");
-      var tempt = "";
-      if (regex.test(input)) {
-        tempt = "0";
-      } else if (input.endsWith(".")) {
-        tempt = input.slice(0, -1);
-      } else {
-        tempt = input.replace(/^0+/, "");
-      }
-      if (screen == "ChatBuyer") {
+    if (input !== "") {
+      let tempt = parseFloat(input).toFixed(2); // Limit to two decimal places
+      if (screen === "ChatBuyer") {
         setOriginalText(
-          original.concat(
+          originalText.concat(
             "Hi! I'm interested in buying your " +
-              productName +
-              ", but would you be open to selling it for $" +
-              tempt +
-              "?"
+            productName +
+            ", but would you be open to selling it for $" +
+            tempt +
+            "?"
           )
         );
         setHeight(120);
-      } else if (screen == "ChatSeller") {
+      } else if (screen === "ChatSeller") {
         setOriginalText(
-          original.concat(
+          originalText.concat(
             "The lowest I can accept for this item would be $" + tempt + "."
           )
         );
         setHeight(80);
       } else if (
         screen === "NewPost" ||
-        screen == "NewRequestMax" ||
-        screen == "NewRequestMin"
+        screen === "NewRequestMax" ||
+        screen === "NewRequestMin"
       ) {
         setOriginalText("$" + tempt);
       }
     }
   };
+
   return (
     <View style={styles.outer}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -162,15 +162,14 @@ export function NumberPad({
       >
         <PurpleButton
           text={"Continue"}
-          onPress={() => {
-            onContinueClicked(originalText);
-          }}
+          onPress={onContinueClicked}
           enabled={true}
         />
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   outer: {
     width: "100%",
@@ -182,7 +181,6 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     width: "85%",
-
     backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -198,11 +196,6 @@ const styles = StyleSheet.create({
     color: "black",
     textAlign: "center",
     fontWeight: "700",
-  },
-
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
   },
   input: {
     width: 150,

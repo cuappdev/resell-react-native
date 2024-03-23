@@ -70,6 +70,7 @@ import RequestMatches from "../screens/RequestMatches";
 import ReportPostScreen from "../screens/ReportPostScreen";
 import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
 import ReportPostConfirmScreen from "../screens/ReportPostConfirmScreen";
+import AccountSettingsScreen from "../screens/AccountSettingsScreen";
 
 export default function Navigation({
   colorScheme,
@@ -445,6 +446,13 @@ function ProfileNavigator({ navigation }) {
       <ProfileStack.Screen
         name="Settings"
         component={SettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileStack.Screen
+        name="AccountSettings"
+        component={AccountSettingsScreen}
         options={{
           headerShown: false,
         }}

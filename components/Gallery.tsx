@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { Children, ReactElement } from "react";
+import React, { Children, ReactElement, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import PagerView from "react-native-pager-view";
 
@@ -17,6 +17,8 @@ function Background({ children }: { children: JSX.Element }) {
 }
 
 export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
+  const [currentPage, setCurrentPage] = useState(0);
+
   var images: JSX.Element[] = [];
   for (let i = 0; i < imagePaths.length; i++) {
     images.push(
@@ -37,15 +39,31 @@ export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
       </View>
     );
   }
+
+  const onPageSelected = (event: any) => {
+    setCurrentPage(event.nativeEvent.position);
+  };
+
   return (
     <View style={styles.container}>
       <PagerView
         style={styles.pagerView}
         initialPage={0}
-        showPageIndicator={true}
+        onPageSelected={onPageSelected}
       >
         {images}
       </PagerView>
+      <View style={styles.indicatorContainer}>
+        {imagePaths.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.indicator,
+              { backgroundColor: index === currentPage ? "#333" : "#ccc" },
+            ]}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -79,5 +97,19 @@ const styles = StyleSheet.create({
   gradientBackground: {
     width: "100%",
     height: "100%",
+  },
+  indicatorContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
   },
 });
