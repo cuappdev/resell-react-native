@@ -163,8 +163,7 @@ export default function OnBoardScreen({ navigation }) {
                   style={[
                     fonts.body2,
                     {
-                      paddingTop: 10,
-                      paddingBottom: 10,
+                      paddingVertical: 10,
                       paddingHorizontal: 15,
                       backgroundColor: "#F4F4F4",
                       borderRadius: 10,
@@ -175,66 +174,57 @@ export default function OnBoardScreen({ navigation }) {
                   ]}
                   placeholderTextColor={"#707070"}
                 />
-                {usernameError && (
-                  <Text style={[fonts.subtitle, { color: Colors.errorState }]}>
-                    {usernameError}
-                  </Text>
-                )}
+                <View style={{ height: 24 }}>
+                  {usernameError && (
+                    <Text
+                      style={[fonts.subtitle, { color: Colors.errorState }]}
+                    >
+                      {usernameError}
+                    </Text>
+                  )}
+                </View>
               </View>
               <Text style={styles.bio}>Bio</Text>
-              <TextInput
-                value={bio}
-                onChangeText={(text) => {
-                  setBio(text);
-                  if (scroll.current != null) {
-                    scroll.current.scrollToEnd({
-                      animated: true,
-                    });
-                  }
-                }}
-                style={[
-                  fonts.body2,
-                  {
-                    paddingTop: 12,
-                    paddingBottom: 12,
-                    paddingHorizontal: 15,
-                    backgroundColor: "#F4F4F4",
-                    borderRadius: 10,
-                    minHeight: 100,
-                    textAlignVertical: "top",
-                    maxHeight: 160,
-                    width: "100%",
-                    paddingVertical: 10,
-                    fontSize: 18,
-                    marginBottom: 24,
-                  },
-                ]}
-                placeholderTextColor={"#707070"}
-                numberOfLines={4}
-                multiline={true}
-                maxLength={200}
-              />
-              {bio.length > 0 && (
+              <View>
+                <TextInput
+                  value={bio}
+                  onChangeText={(text) => {
+                    setBio(text);
+                    if (scroll.current != null) {
+                      scroll.current.scrollToEnd({
+                        animated: true,
+                      });
+                    }
+                  }}
+                  style={[fonts.body2, styles.textInput]}
+                  placeholderTextColor={"#707070"}
+                  numberOfLines={4}
+                  multiline={true}
+                  maxLength={200}
+                />
                 <View
                   style={{
                     width: "100%",
                     flexDirection: "row",
                     justifyContent: "flex-end",
+                    height: 24,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontFamily: "Rubik-Regular",
-                      color: "#707070",
-                      marginTop: 4,
-                      marginRight: 10,
-                    }}
-                  >
-                    {bio.length}/200
-                  </Text>
+                  {bio.length > 0 && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontFamily: "Rubik-Regular",
+                        color: "#707070",
+                        marginTop: 4,
+                        marginRight: 10,
+                      }}
+                    >
+                      {bio.length}/200
+                    </Text>
+                  )}
                 </View>
-              )}
+              </View>
             </View>
           </KeyboardAvoidingView>
           <View
@@ -336,7 +326,7 @@ const styles = StyleSheet.create({
 
   bio: {
     marginBottom: 10,
-    marginTop: 30,
+    marginTop: 8,
     fontSize: 18,
     fontFamily: "Rubik-Medium",
   },
@@ -348,5 +338,19 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     position: "absolute",
     bottom: "5%",
+  },
+  textInput: {
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingHorizontal: 15,
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
+    minHeight: 100,
+    textAlignVertical: "top",
+    maxHeight: 160,
+    width: "100%",
+    paddingVertical: 10,
+    fontSize: 18,
+    marginBottom: 8,
   },
 });

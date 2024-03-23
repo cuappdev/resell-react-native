@@ -68,24 +68,16 @@ export default function LinkVenmoScreen({ navigation, route }) {
         </Text>
         <View style={{ flexDirection: "column", width: "100%" }}>
           <Text style={styles.handle}>Venmo Handle</Text>
-          <TextInput
-            style={[
-              fonts.body2,
-              {
-                paddingTop: 10,
-                paddingBottom: 10,
-                paddingHorizontal: 15,
-                backgroundColor: "#F4F4F4",
-                borderRadius: 10,
-                marginBottom: 32,
-                width: "100%",
-                height: 40,
-              },
-            ]}
-            placeholderTextColor={"#707070"}
-            value={venmo}
-            onChangeText={(text) => setVenmo(text)}
-          />
+          <View style={styles.textInputContainer}>
+            <Text style={[fonts.body2]}>@</Text>
+            <View style={{ width: 16 }} />
+            <TextInput
+              style={[fonts.body2, styles.textInput]}
+              placeholderTextColor={"#707070"}
+              value={venmo}
+              onChangeText={(text) => setVenmo(text)}
+            />
+          </View>
         </View>
 
         <View style={styles.purpleButton}>
@@ -150,5 +142,19 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "white",
     bottom: "2%",
+  },
+  textInputContainer: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
+    marginBottom: 32,
+    width: "100%",
+    height: 40,
+    flexDirection: "row",
+  },
+  textInput: {
+    width: "100%",
   },
 });
