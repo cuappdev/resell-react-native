@@ -37,39 +37,44 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
     }
   });
   const isSaved = async (item) => {
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/isSaved/postId/" +
-          item.id,
-        {
-          method: "GET",
-          headers: {
-            Authorization: accessToken,
-          },
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        if (json != null) {
-          navigation.navigate("ProductHome", {
-            post: item,
-            screen: screen,
-            savedInitial: json.isSaved,
-          });
-        }
-        console.log("ok");
-      } else {
-        const json = await response.json();
-        console.log("NoProduct");
+    navigation.navigate("ProductHome", {
+      post: item,
+      // screen: screen,
+      savedInitial: true,
+    });
+    // try {
+    //   const response = await fetch(
+    //     "https://resell-dev.cornellappdev.com/api/post/isSaved/postId/" +
+    //       item.id,
+    //     {
+    //       method: "GET",
+    //       headers: {
+    //         Authorization: accessToken,
+    //       },
+    //     }
+    //   );
+    //   if (response.ok) {
+    //     const json = await response.json();
+    //     if (json != null) {
+    //       navigation.navigate("ProductHome", {
+    //         post: item,
+    //         screen: screen,
+    //         savedInitial: json.isSaved,
+    //       });
+    //     }
+    //     console.log("ok");
+    //   } else {
+    //     const json = await response.json();
+    //     console.log("NoProduct");
 
-        console.log(accessToken);
-      }
-    } catch (error) {
-      console.log(error);
-      console.log(accessToken);
-      console.log(item.id);
-      console.log(userId);
-    }
+    //     console.log(accessToken);
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   console.log(accessToken);
+    //   console.log(item.id);
+    //   console.log(userId);
+    // }
   };
   const renderItem = ({ item }) => {
     return (
@@ -77,7 +82,9 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
         title={item.title}
         price={item.altered_price}
         image={item.images ? item.images[0] : null}
-        onPress={() => isSaved(item)}
+        onPress={() => {
+          isSaved(item);
+        }}
       />
     );
   };
