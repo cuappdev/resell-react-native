@@ -79,25 +79,34 @@ export function NewPostDetail({ navigation, route }) {
           >
             Title
           </Text>
-          <TextInput
-            style={[
-              fonts.body2,
-              {
-                paddingVertical: 10,
-                paddingHorizontal: 10,
-                backgroundColor: "#F4F4F4",
-                borderRadius: 10,
-                height: 40,
-                marginHorizontal: 24,
-                marginBottom: 32,
-              },
-            ]}
-            value={title}
-            onChangeText={(text) => {
-              setTitle(text);
-            }}
-          />
-
+          <View>
+            <TextInput
+              style={[
+                fonts.body2,
+                {
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
+                  backgroundColor: "#F4F4F4",
+                  borderRadius: 10,
+                  height: 40,
+                  marginHorizontal: 24,
+                  marginBottom: 32,
+                },
+              ]}
+              maxLength={50}
+              value={title}
+              onChangeText={(text) => {
+                setTitle(text);
+              }}
+            />
+            {title.length > 0 && (
+              <Text
+                style={styles.lengthLimit}
+              >
+                {title.length}/50
+              </Text>
+            )}
+          </View>
           <Text
             style={[
               fonts.Title1,
@@ -151,35 +160,46 @@ export function NewPostDetail({ navigation, route }) {
           >
             Item Description
           </Text>
-          <TextInput
-            style={[
-              fonts.body2,
-              {
-                paddingVertical: 10,
-                paddingHorizontal: 10,
-                backgroundColor: "#F4F4F4",
-                borderRadius: 10,
-                marginHorizontal: 24,
-                marginBottom: 32,
-                minHeight: 100,
-                textAlignVertical: "top",
-                maxHeight: 160,
-              },
-            ]}
-            placeholder={
-              "enter item details..." +
-              "\n" +
-              "• Condition" +
-              "\n" +
-              "• Dimensions"
-            }
-            value={description}
-            placeholderTextColor={"#707070"}
-            onChangeText={(text) => {
-              setDescription(text);
-            }}
-            multiline={true}
-          />
+          <View>
+            <TextInput
+              style={[
+                fonts.body2,
+                {
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
+                  backgroundColor: "#F4F4F4",
+                  borderRadius: 10,
+                  marginHorizontal: 24,
+                  marginBottom: 32,
+                  minHeight: 100,
+                  textAlignVertical: "top",
+                  maxHeight: 160,
+                },
+              ]}
+              placeholder={
+                "enter item details..." +
+                "\n" +
+                "• Condition" +
+                "\n" +
+                "• Dimensions"
+              }
+              value={description}
+              placeholderTextColor={"#707070"}
+              onChangeText={(text) => {
+                setDescription(text);
+              }}
+              multiline={true}
+              numberOfLines={10}
+              maxLength={500}
+            />
+            {description.length > 0 && (
+              <Text
+                style={styles.lengthLimit}
+              >
+                {description.length}/500
+              </Text>
+            )}
+          </View>
           <Text
             style={[
               fonts.Title1,
@@ -216,4 +236,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: Layout.window.height * 0.05,
   },
+  lengthLimit: {
+    alignSelf: "flex-end",
+    top: -20,
+    right: 24,
+    fontSize: 12,
+    fontFamily: "Rubik-Regular",
+    color: "#707070",
+  }
 });

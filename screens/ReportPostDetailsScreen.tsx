@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import {
   Alert,
   Dimensions,
+  Keyboard,
   Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -38,42 +40,48 @@ export default function ReportPostDetailsScreen({ navigation, route }) {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}
-      >
-        <BackButton color="black" />
-      </TouchableOpacity>
-      <Text style={styles.navHeader}>Report Post</Text>
-      <Text style={styles.header}>{option}</Text>
-      <Text style={styles.description}>Please provide more details about the account</Text>
-      <TextInput
-        multiline={true}
-        style={styles.feedbackText}
-        onChangeText={handleChange}
-      />
-      <View style={styles.submitButton}>
-        <PurpleButton
-          onPress={() => {
-            if (reportText.length > 0) {
-              submitReport();
-              navigation.navigate("ReportPostConfirm", {
-                sellerName: sellerName,
-                sellerId: sellerId,
-                postId: postId,
-                userId: userId
-              });
-            } else {
-              Alert.alert("Warning", "Feedback cannot be empty!");
-            }
-          }}
-          text={"Submit"}
-          enabled={reportText.length > 0} />
-      </View>
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
 
-    </View>
+  return (
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <BackButton color="black" />
+        </TouchableOpacity>
+        <Text style={styles.navHeader}>Report Post</Text>
+        <Text style={styles.header}>{option}</Text>
+        <Text style={styles.description}>Please provide more details about the account</Text>
+        <TextInput
+          multiline={true}
+          style={styles.feedbackText}
+          onChangeText={handleChange}
+        />
+        <View style={styles.submitButton}>
+          <PurpleButton
+            onPress={() => {
+              if (reportText.length > 0) {
+                submitReport();
+                navigation.navigate("ReportPostConfirm", {
+                  sellerName: sellerName,
+                  sellerId: sellerId,
+                  postId: postId,
+                  userId: userId
+                });
+              } else {
+                Alert.alert("Warning", "Feedback cannot be empty!");
+              }
+            }}
+            text={"Submit"}
+            enabled={reportText.length > 0} />
+        </View>
+
+      </View>
+    </TouchableWithoutFeedback>
   )
 }
 
