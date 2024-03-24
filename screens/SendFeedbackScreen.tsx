@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
+  Dimensions,
   Image,
   Keyboard,
   Platform,
@@ -12,15 +12,17 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  Dimensions
 } from "react-native";
 import { FAB } from "react-native-paper";
+import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import DeleteImage from "../assets/svg-components/deleteImage";
-import { menuBarTop } from "../constants/Layout";
 import PopupSheet from "../components/PopupSheet";
+import Colors from "../constants/Colors";
+import { menuBarTop } from "../constants/Layout";
+import { makeToast } from "../utils/Toast";
 
-const imageSize = (Dimensions.get('window').width - 68) / 3;
+const imageSize = (Dimensions.get("window").width - 68) / 3;
 
 export default function SendFeedbackScreen({ navigation }) {
   const [images, setImages] = useState([]);
@@ -28,6 +30,7 @@ export default function SendFeedbackScreen({ navigation }) {
   const [userId, setUserId] = useState("");
   const [deleteModalVisibility, setDeleteModalVisibility] = useState(false);
   const [deleteImageIndex, setDeleteimageIndex] = useState(0);
+  const api = useApiClient();
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
@@ -86,19 +89,19 @@ export default function SendFeedbackScreen({ navigation }) {
       updatedImages[index] = "data:image/jpeg;base64," + result["base64"];
       setImages(updatedImages);
     }
-  }
+  };
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
 
   const presentDeleteModal = (index) => {
-    setDeleteModalVisibility(true)
-    setDeleteimageIndex(index)
-  }
+    setDeleteModalVisibility(true);
+    setDeleteimageIndex(index);
+  };
 
   const deleteImage = () => {
-    setDeleteModalVisibility(false)
+    setDeleteModalVisibility(false);
     let updatedImages = [...images];
     updatedImages.splice(deleteImageIndex, 1);
     setImages(updatedImages);
@@ -106,24 +109,20 @@ export default function SendFeedbackScreen({ navigation }) {
 
   const submitFeedback = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/feedback/",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            description: feedbackText,
-            images: images,
-            userId: userId, //TODO: replace this with actual userID
-          }),
-        }
-      );
-      const json = await response.json();
+      const result = await api.post("/feedback/", {
+        description: feedbackText,
+        images: images,
+        userId: userId, //TODO: replace this with actual userID
+      });
+
+      if (result.feedback) {
+        makeToast({ message: "Feedback submitted successfully", type: "INFO" });
+        navigation.goBack();
+      } else {
+        makeToast({ message: "Error submitting feedback", type: "ERROR" });
+      }
     } catch (error) {
-      console.error(error);
+      makeToast({ message: "Error submitting feedback", type: "ERROR" });
     }
   };
 
@@ -145,16 +144,24 @@ export default function SendFeedbackScreen({ navigation }) {
         </View>
         <TouchableOpacity
           onPress={() => {
-            if (feedbackText.length > 0) {
-              submitFeedback();
-              navigation.goBack();
-            } else {
-              Alert.alert("Warning", "Feedback cannot be empty!");
-            }
+            submitFeedback();
           }}
           style={styles.headerButton}
+          disabled={feedbackText.trim().length === 0}
         >
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text
+            style={[
+              styles.buttonText,
+              {
+                color:
+                  feedbackText.trim().length === 0
+                    ? Colors.inactivePurple
+                    : Colors.resellPurple,
+              },
+            ]}
+          >
+            Submit
+          </Text>
         </TouchableOpacity>
         <Text style={styles.feedbackInstructions}>
           Thanks for using Resell! We appreciate any feedback to improve your
@@ -171,10 +178,13 @@ export default function SendFeedbackScreen({ navigation }) {
           {images.map((imageURI, index) => (
             <TouchableOpacity key={index} onPress={() => editImage(index)}>
               <Image style={styles.chosenImage} source={{ uri: imageURI }} />
-              <TouchableOpacity style={styles.deleteImageButton} key={index} onPress={() => presentDeleteModal(index)}>
+              <TouchableOpacity
+                style={styles.deleteImageButton}
+                key={index}
+                onPress={() => presentDeleteModal(index)}
+              >
                 <DeleteImage></DeleteImage>
               </TouchableOpacity>
-
             </TouchableOpacity>
           ))}
           {images.length < 3 && (
@@ -240,7 +250,7 @@ const styles = StyleSheet.create({
     color: "#9E70F6",
     fontFamily: "Rubik-Medium",
     fontSize: 18,
-    textAlign: "center"
+    textAlign: "center",
   },
   feedbackInstructions: {
     fontFamily: "Rubik-Regular",
@@ -281,7 +291,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     flex: 3,
-    gap: 10
+    gap: 10,
   },
   deleteImageButton: {
     position: "absolute",
@@ -307,8 +317,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     borderRadius: 50,
-    overflow: 'hidden',
-    width: Dimensions.get('window').width - 138,
+    overflow: "hidden",
+    width: Dimensions.get("window").width - 138,
     marginHorizontal: 24,
     marginBottom: 10,
   },
@@ -324,12 +334,11 @@ const styles = StyleSheet.create({
     color: "#707070",
     fontFamily: "Rubik-Medium",
     fontSize: 18,
-    textAlign: "center"
+    textAlign: "center",
   },
   exitButton: {
     position: "absolute",
     top: 24,
     right: 24,
-  }
-
+  },
 });
