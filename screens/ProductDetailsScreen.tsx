@@ -408,16 +408,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <Gallery imagePaths={item.images}></Gallery>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          isSaved ? unsave() : save();
-        }}
-        style={[styles.bookmarkButton, {
-          top: Dimensions.get("window").width * maxImgRatio - 138
-        }]}
-      >
-        {isSaved ? <BookmarkIconSaved /> : <BookmarkIcon />}
-      </TouchableOpacity>
       <SlidingUpPanel
         ref={(c) => {
           if (c !== null && sPanel !== null) {
@@ -425,10 +415,10 @@ export default function ProductDetailsScreen({ route, navigation }) {
           }
         }}
         draggableRange={{
-          top: Dimensions.get("window").height - 100,
+          top: Dimensions.get("window").height - 150,
           bottom:
             Dimensions.get("window").height -
-            Math.max(100, Dimensions.get("window").width * maxImgRatio),
+            Math.max(150, Dimensions.get("window").width * maxImgRatio),
         }} // 100 is used to avoid overlapping with top bar
       >
         <View style={styles.slideUp}>
@@ -436,6 +426,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
             item={item}
             sellerName={sellerName}
             sellerProfile={profileImage}
+            isSaved={isSaved}
+            save={save}
+            unsave={unsave}
           />
           <DetailPullUpBody
             sellerName={sellerName}
@@ -540,12 +533,6 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: "center",
     height: 50,
-  },
-  bookmarkButton: {
-    position: "absolute",
-    right: 24,
-    zIndex: 0,
-    alignItems: "center",
   },
   modal: {
     borderTopLeftRadius: 40,
