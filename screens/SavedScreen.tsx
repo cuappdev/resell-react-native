@@ -1,121 +1,44 @@
+import { useIsFocused } from "@react-navigation/native";
 import * as React from "react";
-import { StyleSheet, FlatList, SafeAreaView, Text, View } from "react-native";
-import { LogBox } from "react-native";
+import { useEffect, useState } from "react";
+import { LogBox, StyleSheet, Text, View } from "react-native";
+import { useApiClient } from "../api/ApiClientProvider";
 import { ProductList } from "../components/ProductList";
+import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
+import LoadingScreen from "./LoadingScreen";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import LoadingScreen from "./LoadingScreen";
-import { useIsFocused } from "@react-navigation/native";
-import { fonts } from "../globalStyle/globalFont";
-import { getAccessToken } from "../utils/asychStorageFunctions";
 
 export default function SavedScreen({ navigation }) {
-  const [userId, setUserId] = useState("");
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
+  const api = useApiClient();
   const isFocused = useIsFocused();
-  const [accessToken, setAccessToken] = useState("");
-  getAccessToken(setAccessToken);
-
-  useEffect(() => {
-    getPosts();
-  }, [userId]);
 
   const getPosts = async () => {
     try {
-      setLoading(true);
-
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/save/",
-        {
-          method: "GET",
-          headers: {
-            Authorization: accessToken,
-
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        // console.log(json);
-        setPosts(json.posts);
+      if (posts === null) {
+        setLoading(true);
+      }
+      const response = await api.get("/post/save/");
+      if (response.posts) {
+        setPosts(response.posts);
+        setLoading(false);
+      } else {
+        makeToast({ message: "Failed to load saved posts", type: "ERROR" });
       }
     } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
-    } finally {
-      setLoading(false);
+      makeToast({ message: "Failed to load saved posts", type: "ERROR" });
     }
   };
 
   useEffect(() => {
     // update posts when home screen is entered again
-    getPostsIngress();
+    getPosts();
   }, [isFocused]);
-  console.log(userId);
-  const getPostsIngress = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/save/",
-        {
-          method: "GET",
-          headers: {
-            Authorization: accessToken,
-
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        // console.log(json);
-        setPosts(json.posts);
-      }
-    } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getSavedRefreshed = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/save/",
-        {
-          method: "GET",
-          headers: {
-            Authorization: accessToken,
-
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        // console.log(json);
-        setPosts(json.posts);
-      }
-    } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500); //display loading animation
-    }
-  };
 
   return (
     <View style={[styles.outer]}>
@@ -144,7 +67,7 @@ export default function SavedScreen({ navigation }) {
           data={posts}
           navigation={navigation}
           screen={"Saved"}
-          onRefresh={getSavedRefreshed}
+          onRefresh={getPosts}
         />
       )}
     </View>
