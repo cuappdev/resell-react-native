@@ -20,6 +20,7 @@ import DeleteImage from "../assets/svg-components/deleteImage";
 import PopupSheet from "../components/PopupSheet";
 import Colors from "../constants/Colors";
 import { menuBarTop } from "../constants/Layout";
+import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 
 const imageSize = (Dimensions.get("window").width - 68) / 3;
@@ -151,7 +152,7 @@ export default function SendFeedbackScreen({ navigation }) {
         >
           <Text
             style={[
-              styles.buttonText,
+              fonts.Title1,
               {
                 color:
                   feedbackText.trim().length === 0
