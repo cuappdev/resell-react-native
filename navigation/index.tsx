@@ -56,9 +56,11 @@ const { StatusBarManager } = NativeModules;
 
 import { bottomTabsHeight } from "../constants/Layout";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ApiClientProvider from "../api/ApiClientProvider";
 import Venmo from "../assets/svg-components/venmo";
 import { fonts } from "../globalStyle/globalFont";
+import AccountSettingsScreen from "../screens/AccountSettingsScreen";
 import ChatWindow from "../screens/ChatWindow";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import LinkVenmoScreen from "../screens/LinkVenmoScreen";
@@ -66,11 +68,10 @@ import { NewPostDetail } from "../screens/NewPostDetail";
 import { NewPostImage } from "../screens/NewPostImage";
 import { NewRequestScreen } from "../screens/NewRequest";
 import OnBoardScreen from "../screens/OnBoardScreen";
-import RequestMatches from "../screens/RequestMatches";
-import ReportPostScreen from "../screens/ReportPostScreen";
-import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
 import ReportPostConfirmScreen from "../screens/ReportPostConfirmScreen";
-import AccountSettingsScreen from "../screens/AccountSettingsScreen";
+import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
+import ReportPostScreen from "../screens/ReportPostScreen";
+import RequestMatches from "../screens/RequestMatches";
 
 export default function Navigation({
   colorScheme,
@@ -82,7 +83,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-    // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
       <RootNavigator onboard={onboard} />
     </NavigationContainer>
@@ -397,13 +398,14 @@ function ProfileNavigator({ navigation }) {
           headerTitleAlign: "center",
 
           header: () => {
+            const insets = useSafeAreaInsets();
             return (
               <View
                 style={{
-                  height: 70,
+                  backgroundColor: "#ffffff",
                   justifyContent: "center",
                   alignItems: "center",
-                  marginTop: Platform.OS === "ios" ? 35 : 0,
+                  paddingTop: insets.top,
                 }}
               >
                 <View
@@ -412,23 +414,14 @@ function ProfileNavigator({ navigation }) {
                     flexDirection: "row",
                     justifyContent: "space-between",
                     paddingHorizontal: 24,
-                    marginBottom: 24,
                   }}
                 >
-                  <Text
-                    style={[
-                      fonts.pageHeading2,
-                      { width: 170, height: 52, marginTop: 8 },
-                    ]}
-                  >
-                    {(route.params as any).title + " Request Matches"}
+                  <Text style={[fonts.pageHeading2, { marginTop: 8 }]}>
+                    {(route.params as any).title + "\nRequest Matches"}
                   </Text>
-
                   <TouchableOpacity
                     style={{
-                      width: 50,
                       alignItems: "center",
-                      height: 50,
                       justifyContent: "center",
                     }}
                     onPress={navigation.goBack}
