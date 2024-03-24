@@ -3,7 +3,7 @@ import { TouchableOpacity } from "react-native";
 import FilledCircle from "./svg/FilledCircle";
 import OutlinedCircle from "./svg/OutlinedCircle";
 
-export default function ToggleButton({
+export default function RadioButton({
   isToggled,
   setIsToggled,
 }: {

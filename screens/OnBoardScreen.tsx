@@ -17,7 +17,7 @@ import {
   View,
 } from "react-native";
 import PurpleButton from "../components/PurpleButton";
-import ToggleButton from "../components/ToggleButton";
+import RadioButton from "../components/RadioButton";
 import Colors from "../constants/Colors";
 import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
@@ -234,7 +234,7 @@ export default function OnBoardScreen({ navigation }) {
               marginStart: 24,
             }}
           >
-            <ToggleButton
+            <RadioButton
               isToggled={agreedToEula}
               setIsToggled={setAgreedToEula}
             />
