@@ -14,7 +14,6 @@ LogBox.ignoreAllLogs();
 export default function SavedScreen({ navigation }) {
   const [posts, setPosts] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const [fetchFailed, setFetchFailed] = useState(false);
   const api = useApiClient();
   const isFocused = useIsFocused();
 
@@ -43,8 +42,6 @@ export default function SavedScreen({ navigation }) {
   return (
     <View style={[styles.outer]}>
       {isLoading ? (
-        <LoadingScreen screen={"Saved"} />
-      ) : fetchFailed ? (
         <LoadingScreen screen={"Saved"} />
       ) : posts.length == 0 ? (
         <View style={styles.noResultView}>
