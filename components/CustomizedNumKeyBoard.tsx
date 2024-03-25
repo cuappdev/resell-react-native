@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
+  Keyboard,
   StyleSheet,
   Text,
-  Pressable,
-  View,
   TextInput,
-  Keyboard,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import PurpleButton from "./PurpleButton";
 
@@ -18,7 +18,7 @@ export function NumberPad({
   setHeight,
   productName,
 }) {
-  const [input, setInput] = useState(
+  const [input, setInput] = useState<string>(
     (screen === "NewPost" ||
       screen == "NewRequestMax" ||
       screen == "NewRequestMin") &&
@@ -39,7 +39,7 @@ export function NumberPad({
 
   const changeInput = (text) => {
     if (text === "<" && input !== "") {
-      setInput(input.slice(0, -1));
+      setInput((input: string) => input.slice(0, -1));
     } else if (
       text !== "<" &&
       (!input.includes(".") || text !== ".") &&
@@ -63,10 +63,10 @@ export function NumberPad({
         setOriginalText(
           originalText.concat(
             "Hi! I'm interested in buying your " +
-            productName +
-            ", but would you be open to selling it for $" +
-            tempt +
-            "?"
+              productName +
+              ", but would you be open to selling it for $" +
+              tempt +
+              "?"
           )
         );
         setHeight(120);
@@ -109,48 +109,84 @@ export function NumberPad({
         />
       </View>
       <View style={styles.inner}>
-        <Pressable style={styles.button} onPress={() => changeInput("1")}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("1")}
+        >
           <Text style={styles.textStyle}>1 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("2")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("2")}
+        >
           <Text style={styles.textStyle}>2 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("3")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("3")}
+        >
           <Text style={styles.textStyle}>3 </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View style={styles.inner}>
-        <Pressable style={styles.button} onPress={() => changeInput("4")}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("4")}
+        >
           <Text style={styles.textStyle}>4 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("5")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("5")}
+        >
           <Text style={styles.textStyle}>5 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("6")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("6")}
+        >
           <Text style={styles.textStyle}>6 </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View style={styles.inner}>
-        <Pressable style={styles.button} onPress={() => changeInput("7")}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("7")}
+        >
           <Text style={styles.textStyle}>7 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("8")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("8")}
+        >
           <Text style={styles.textStyle}>8 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("9")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("9")}
+        >
           <Text style={styles.textStyle}>9 </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View style={styles.inner}>
-        <Pressable style={styles.button} onPress={() => changeInput(".")}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput(".")}
+        >
           <Text style={styles.textStyle}>. </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("0")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("0")}
+        >
           <Text style={styles.textStyle}>0 </Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => changeInput("<")}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => changeInput("<")}
+        >
           <Text style={styles.textStyle}>&#60;</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View
         style={{
@@ -189,6 +225,9 @@ const styles = StyleSheet.create({
     width: "30%",
     backgroundColor: "transparent",
     alignSelf: "center",
+    height: "100%",
+    justifyContent: "center",
+    flex: 1,
   },
   textStyle: {
     fontFamily: "Rubik-Regular",
