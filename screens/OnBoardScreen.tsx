@@ -7,6 +7,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -242,8 +243,7 @@ export default function OnBoardScreen({ navigation }) {
             <Text style={fonts.Title4}>I agree to Resell’s </Text>
             <TouchableOpacity
               onPress={() => {
-                // TODO
-                console.log("Open EULA");
+                Linking.openURL("https://www.cornellappdev.com/license/resell");
               }}
             >
               <Text
