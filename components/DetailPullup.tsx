@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
   ScrollView,
@@ -11,10 +12,20 @@ import {
 } from "react-native";
 import ModalBar from "../assets/svg-components/modal_bar";
 import { auth } from "../config/firebase";
+import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
+import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 
-export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
+export function DetailPullUpHeader({ item, sellerName, sellerProfile, isSaved, save, unsave, }) {
   return (
     <View style={[styles.container_header, styles.roundCorner]}>
+      <TouchableOpacity
+        onPress={() => {
+          isSaved ? unsave() : save();
+        }}
+        style={styles.bookmarkButton}
+      >
+        {isSaved ? <BookmarkIconSaved /> : <BookmarkIcon />}
+      </TouchableOpacity>
       <View style={styles.modalBar}>
         <ModalBar />
       </View>
@@ -66,9 +77,9 @@ export function DetailPullUpBody({
               onPress={() => {
                 fetch(
                   "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-                    userId +
-                    "/postId/" +
-                    item.id
+                  userId +
+                  "/postId/" +
+                  item.id
                 )
                   .then((response) => {
                     if (response.ok) {
@@ -180,5 +191,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 15,
     paddingLeft: 20,
+  },
+  bookmarkButton: {
+    position: "absolute",
+    top: -96,
+    right: 30,
+    zIndex: 100,
   },
 });

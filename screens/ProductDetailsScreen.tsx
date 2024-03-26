@@ -15,8 +15,6 @@ import {
 import Modal from "react-native-modal";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import BackButton from "../assets/svg-components/back_button";
-import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
-import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import {
   DetailPullUpBody,
@@ -27,7 +25,6 @@ import Gallery from "../components/Gallery";
 import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
-import { pressedOpacity } from "../constants/Values";
 import { makeToast } from "../utils/Toast";
 
 export default function ProductDetailsScreen({ route, navigation }) {
@@ -325,9 +322,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const menuItems = [
     { label: 'Share', iconName: 'share', onPress: onShare },
     { label: 'Report', iconName: 'flag', onPress: onReport },
-    (screen === "Profile" || screen === "Archived") &&
-    { label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } },
   ];
+
+  if (screen === "Profile" || screen === "Archived") {
+    menuItems.push({ label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } })
+  }
 
   return (
     <View style={styles.container}>
@@ -408,16 +407,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <Gallery imagePaths={item.images}></Gallery>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          isSaved ? unsave() : save();
-        }}
-        style={[styles.bookmarkButton, {
-          top: Dimensions.get("window").width * maxImgRatio - 138
-        }]}
-      >
-        {isSaved ? <BookmarkIconSaved /> : <BookmarkIcon />}
-      </TouchableOpacity>
       <SlidingUpPanel
         ref={(c) => {
           if (c !== null && sPanel !== null) {
@@ -425,10 +414,10 @@ export default function ProductDetailsScreen({ route, navigation }) {
           }
         }}
         draggableRange={{
-          top: Dimensions.get("window").height - 100,
+          top: Dimensions.get("window").height - 150,
           bottom:
             Dimensions.get("window").height -
-            Math.max(100, Dimensions.get("window").width * maxImgRatio),
+            Math.max(150, Dimensions.get("window").width * maxImgRatio),
         }} // 100 is used to avoid overlapping with top bar
       >
         <View style={styles.slideUp}>
@@ -436,6 +425,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
             item={item}
             sellerName={sellerName}
             sellerProfile={profileImage}
+            isSaved={isSaved}
+            save={save}
+            unsave={unsave}
           />
           <DetailPullUpBody
             sellerName={sellerName}
@@ -540,12 +532,6 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: "center",
     height: 50,
-  },
-  bookmarkButton: {
-    position: "absolute",
-    right: 24,
-    zIndex: 0,
-    alignItems: "center",
   },
   modal: {
     borderTopLeftRadius: 40,

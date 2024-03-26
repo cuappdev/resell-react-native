@@ -14,6 +14,7 @@ import Notifications from "../assets/svg-components/notifications";
 import Feedback from "../assets/svg-components/feedback";
 import { Feather } from "@expo/vector-icons";
 import Modal from "react-native-modal";
+import { WebView } from "react-native-webview";
 
 import { useDispatch, useSelector } from "react-redux";
 import { auth } from "../config/firebase";
@@ -27,15 +28,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Blocked from "../assets/svg-components/blocked";
 import Terms from "../assets/svg-components/terms";
 import ProfileBlack from "../assets/svg-components/profileBlack";
+import Colors from "../constants/Colors";
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
   const log_out = () => dispatch(logout());
 
   const [modalVisibility, setModalVisibility] = useState(false);
+  const [showEULA, setShowEULA] = useState(false);
   const [userId, setUserId] = useState("");
 
   getUserId(setUserId);
+
+  const presentEULA = () => {
+    setShowEULA(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -75,7 +82,7 @@ export default function SettingsScreen({ navigation }) {
           {
             icon: Terms,
             text: "Terms and Conditions",
-            onPress: () => console.log("No Screen yet") // TODO: Implement this screen
+            onPress: presentEULA // TODO: Implement this screen
           },
           {
             icon: Logout,
@@ -139,6 +146,24 @@ export default function SettingsScreen({ navigation }) {
             <View style={styles.button1}>
               <Text style={styles.buttonText2}> Cancel</Text>
             </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={showEULA}
+        backdropOpacity={0.2}
+        style={styles.EULAModal}
+      >
+        <View style={styles.EULAView}>
+          <WebView
+            originWhitelist={["*"]}
+            source={{ uri: "https://www.cornellappdev.com/license/resell" }}
+          />
+          <TouchableOpacity
+            onPress={() => setShowEULA(false)}
+            style={styles.doneButton}
+          >
+            <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -210,7 +235,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: "#d52300",
   },
-
   buttonText: {
     color: "white",
     fontSize: 18,
@@ -226,7 +250,6 @@ const styles = StyleSheet.create({
     padding: "3%",
     borderRadius: 25,
   },
-
   buttonText2: {
     color: "black",
     fontSize: 16,
@@ -234,4 +257,27 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Rubik-Medium",
   },
+  doneButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: Colors.resellPurple,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 50,
+  },
+  doneButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+    fontFamily: "Rubik-Regular",
+  },
+  EULAModal: {
+    top: Platform.OS === "ios" ? menuBarTop : 30,
+    margin: 0
+  },
+  EULAView: {
+    flex: 1,
+  }
 });
