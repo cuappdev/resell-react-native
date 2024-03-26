@@ -15,8 +15,6 @@ import {
 import Modal from "react-native-modal";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import BackButton from "../assets/svg-components/back_button";
-import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
-import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import {
   DetailPullUpBody,
@@ -27,7 +25,6 @@ import Gallery from "../components/Gallery";
 import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
-import { pressedOpacity } from "../constants/Values";
 import { makeToast } from "../utils/Toast";
 
 export default function ProductDetailsScreen({ route, navigation }) {
@@ -325,9 +322,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const menuItems = [
     { label: 'Share', iconName: 'share', onPress: onShare },
     { label: 'Report', iconName: 'flag', onPress: onReport },
-    (screen === "Profile" || screen === "Archived") &&
-    { label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } },
   ];
+
+  if (screen === "Profile" || screen === "Archived") {
+    menuItems.push({ label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } })
+  }
 
   return (
     <View style={styles.container}>
