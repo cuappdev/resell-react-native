@@ -25,6 +25,7 @@ const RequestCard = ({
   prevOpenedRow,
   setPrevOpenedRow,
   navigation,
+  updateScreen,
 }) => {
   function closeRow(index) {
     if (prevOpenedRow && prevOpenedRow !== row[index]) {
@@ -42,6 +43,7 @@ const RequestCard = ({
         throw error;
       } else {
         makeToast({ message: "Request Deleted" });
+        updateScreen()
         return response.json();
       }
     });
