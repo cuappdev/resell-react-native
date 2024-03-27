@@ -1,23 +1,26 @@
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import {
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  Image,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import PurpleButton from "../components/PurpleButton";
-import { pressedOpacity } from "../constants/Values";
+import RadioButton from "../components/RadioButton";
+import Colors from "../constants/Colors";
+import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 
 export default function OnBoardScreen({ navigation }) {
@@ -39,6 +42,8 @@ export default function OnBoardScreen({ navigation }) {
     }
   };
   const [isEditing, setIsEditing] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [agreedToEula, setAgreedToEula] = useState(false);
   const storePermission = async () => {
     try {
       await AsyncStorage.setItem("PhotoPermission", "true");
@@ -84,6 +89,18 @@ export default function OnBoardScreen({ navigation }) {
       keyboardDidShowListener.remove();
     };
   }, []);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  // Check if username is valid
+  useEffect(() => {
+    if (username.trim().length === 0 && !isFirstRender) {
+      setUsernameError("Username cannot be empty.");
+    } else if (username.length > maxUsernameLength) {
+      setUsernameError(`Must be ${maxUsernameLength} characters or fewer`);
+    } else {
+      setUsernameError("");
+    }
+    setIsFirstRender(false);
+  }, [username]);
   const scroll = useRef<ScrollView | null>(null);
 
   return (
@@ -127,92 +144,120 @@ export default function OnBoardScreen({ navigation }) {
                 }}
               >
                 <Text style={styles.username}>Username</Text>
-                {username.length <= 0 && (
-                  <Text style={[styles.username, { color: "#9E70F6" }]}>*</Text>
-                )}
               </View>
-              <TextInput
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  if (scroll.current != null) {
-                    scroll.current.scrollToEnd({
-                      animated: true,
-                    });
-                  }
+              <View
+                style={{
+                  flexDirection: "column",
+                  alignItems: "flex-end",
                 }}
-                style={[
-                  fonts.body2,
-                  {
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    paddingHorizontal: 15,
-                    backgroundColor: "#F4F4F4",
-                    borderRadius: 10,
-                    marginBottom: 32,
-                    width: "100%",
-                    height: 40,
-                  },
-                ]}
-                placeholderTextColor={"#707070"}
-              />
+              >
+                <TextInput
+                  value={username}
+                  onChangeText={(text) => {
+                    setUsername(text);
+                    if (scroll.current != null) {
+                      scroll.current.scrollToEnd({
+                        animated: true,
+                      });
+                    }
+                  }}
+                  style={[
+                    fonts.body2,
+                    {
+                      paddingVertical: 10,
+                      paddingHorizontal: 15,
+                      backgroundColor: "#F4F4F4",
+                      borderRadius: 10,
+                      marginBottom: 8,
+                      width: "100%",
+                      height: 40,
+                    },
+                  ]}
+                  placeholderTextColor={"#707070"}
+                />
+                <View style={{ height: 24 }}>
+                  {usernameError && (
+                    <Text
+                      style={[fonts.subtitle, { color: Colors.errorState }]}
+                    >
+                      {usernameError}
+                    </Text>
+                  )}
+                </View>
+              </View>
               <Text style={styles.bio}>Bio</Text>
-              <TextInput
-                value={bio}
-                onChangeText={(text) => {
-                  setBio(text);
-                  if (scroll.current != null) {
-                    scroll.current.scrollToEnd({
-                      animated: true,
-                    });
-                  }
-                }}
-                style={[
-                  fonts.body2,
-                  {
-                    paddingTop: 12,
-                    paddingBottom: 12,
-                    paddingHorizontal: 15,
-                    backgroundColor: "#F4F4F4",
-                    borderRadius: 10,
-                    minHeight: 100,
-                    textAlignVertical: "top",
-                    maxHeight: 160,
-                    width: "100%",
-                    paddingVertical: 10,
-                    height: 40,
-                    fontSize: 18,
-                  },
-                ]}
-                placeholderTextColor={"#707070"}
-                numberOfLines={4}
-                multiline={true}
-                maxLength={200}
-              />
-              {bio.length > 0 && (
+              <View>
+                <TextInput
+                  value={bio}
+                  onChangeText={(text) => {
+                    setBio(text);
+                    if (scroll.current != null) {
+                      scroll.current.scrollToEnd({
+                        animated: true,
+                      });
+                    }
+                  }}
+                  style={[fonts.body2, styles.textInput]}
+                  placeholderTextColor={"#707070"}
+                  numberOfLines={4}
+                  multiline={true}
+                  maxLength={200}
+                />
                 <View
                   style={{
                     width: "100%",
                     flexDirection: "row",
                     justifyContent: "flex-end",
+                    height: 24,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      fontFamily: "Rubik-Regular",
-                      color: "#707070",
-                      marginTop: 4,
-                      marginRight: 10,
-                    }}
-                  >
-                    {bio.length}/200
-                  </Text>
+                  {bio.length > 0 && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontFamily: "Rubik-Regular",
+                        color: "#707070",
+                        marginTop: 4,
+                        marginRight: 10,
+                      }}
+                    >
+                      {bio.length}/200
+                    </Text>
+                  )}
                 </View>
-              )}
+              </View>
             </View>
           </KeyboardAvoidingView>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginStart: 24,
+            }}
+          >
+            <RadioButton
+              isToggled={agreedToEula}
+              setIsToggled={setAgreedToEula}
+            />
+            <View style={{ width: 16 }} />
+            <Text style={fonts.Title4}>I agree to Resell’s </Text>
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL("https://www.cornellappdev.com/license/resell");
+              }}
+            >
+              <Text
+                style={[
+                  fonts.Title4,
+                  { color: Colors.linkBlue, textDecorationLine: "underline" },
+                ]}
+              >
+                End User License Agreement
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
+
         {!isEditing && (
           <View style={styles.purpleButton}>
             <PurpleButton
@@ -224,7 +269,11 @@ export default function OnBoardScreen({ navigation }) {
                   bio: bio,
                 });
               }}
-              enabled={username.length > 0}
+              enabled={
+                !Boolean(usernameError) &&
+                username.trim().length > 0 &&
+                agreedToEula
+              }
             />
           </View>
         )}
@@ -257,7 +306,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    minHeight: 500,
     width: "100%",
     alignItems: "center",
     flexDirection: "column",
@@ -278,7 +326,7 @@ const styles = StyleSheet.create({
 
   bio: {
     marginBottom: 10,
-    marginTop: 30,
+    marginTop: 8,
     fontSize: 18,
     fontFamily: "Rubik-Medium",
   },
@@ -290,5 +338,19 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     position: "absolute",
     bottom: "5%",
+  },
+  textInput: {
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingHorizontal: 15,
+    backgroundColor: "#F4F4F4",
+    borderRadius: 10,
+    minHeight: 100,
+    textAlignVertical: "top",
+    maxHeight: 160,
+    width: "100%",
+    paddingVertical: 10,
+    fontSize: 18,
+    marginBottom: 8,
   },
 });

@@ -55,7 +55,6 @@ export default function RequestMatches({ navigation, route }) {
       );
       if (response.ok) {
         const json = await response.json();
-        // console.log(json);
         setPosts(json.posts);
       }
     } catch (error) {
