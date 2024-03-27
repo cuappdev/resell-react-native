@@ -126,17 +126,12 @@ export default function SavedScreen({ navigation }) {
       ) : posts.length == 0 ? (
         <View style={styles.noResultView}>
           <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-            No results
+            No saved posts
           </Text>
           <Text
-            style={[
-              fonts.body1,
-              {
-                color: "#707070",
-              },
-            ]}
+            style={[fonts.body1, styles.bodyText]}
           >
-            Go and explore some posts
+            Posts you have bookmarked will be displayed here
           </Text>
         </View>
       ) : (
@@ -165,4 +160,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 15,
   },
+  bodyText: {
+    color: "#707070",
+    marginHorizontal: 48,
+    textAlign: "center"
+  }
 });

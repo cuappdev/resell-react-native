@@ -36,10 +36,10 @@ export const OwnPostRoute = ({
         ]}
       >
         <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-          No Posts Found
+          No listings posted
         </Text>
-        <Text style={[fonts.body1, { color: "#707070" }]}>
-          Go and make your first post
+        <Text style={[fonts.body1, styles.bodyText]}>
+          When you post a listing, it will be displayed here
         </Text>
       </View>
     )}
@@ -52,4 +52,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  bodyText: {
+    color: "#707070",
+    marginHorizontal: 48,
+    textAlign: "center",
+  }
 });

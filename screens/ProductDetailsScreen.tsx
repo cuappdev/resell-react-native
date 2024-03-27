@@ -210,15 +210,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
       const result = await Share.share({
         title: "Check out this " + post.title + "on Resell",
         message:
-          "Check out this " +
-          post.title +
-          " posted by " +
-          sellerName +
-          ". It's only for $" +
-          item.price +
-          ". Following the link if you have Resell already downloaded:/n" +
-          "resell://product/" +
-          post.id,
+          `
+        Check out this ${post.title} posted by ${sellerName}. It's only for $${item.price}.
+        Click the following link if you have Resell already downloaded:
+        ${<a href="resell://product/${post.id}">Open in Resell</a>}
+        `
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
