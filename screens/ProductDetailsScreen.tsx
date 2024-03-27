@@ -320,7 +320,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     { label: 'Report', iconName: 'flag', onPress: onReport },
   ];
 
-  if (screen === "Profile" || screen === "Archived") {
+  if (userId === sellerId) {
     menuItems.push({ label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } })
   }
 
