@@ -11,9 +11,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ImageEditor } from "expo-image-editor";
 import * as ImagePicker from "expo-image-picker";
 import {
+  Alert,
   Animated,
   Dimensions,
   FlatList,
+  Linking,
   NativeScrollEvent,
   Platform,
   StyleSheet,
@@ -46,61 +48,66 @@ export function NewPostImage({ navigation }) {
     photo: image,
   }));
 
-  const storePermission = async () => {
-    try {
-      await AsyncStorage.setItem("PhotoPermission", "true");
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  useEffect(() => {
-    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
-      if (!errs) {
-        if (result == null) {
-          (async () => {
-            if (Platform.OS !== "web") {
-              const { status } =
-                await ImagePicker.requestMediaLibraryPermissionsAsync();
-              if (status !== "granted") {
-                alert("Sorry, we need gallary permissions to make this work!");
-              } else {
-                storePermission();
-              }
-            }
-          })();
-        }
-      }
-    });
-  }, []);
-
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const flatListRef: MutableRefObject<FlatList<any> | undefined> = useRef();
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-    if (!result.canceled) {
-      console.log(result);
-      setUri(result["uri"]);
-      setModalVisibility(true);
+    const permission = await checkPhotoPermission();
+    if (!permission) {
+      Alert.alert(
+        "Permission Required",
+        "Please enable gallery permissions to use this feature.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Settings",
+            onPress: openAppSettings,
+          },
+        ]
+      );
+      return;
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+      if (!result.canceled) {
+        console.log(result);
+        setUri(result["uri"]);
+        setModalVisibility(true);
+      }
     }
   };
+
+  const checkPhotoPermission = async () => {
+    if (Platform.OS !== "web") {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      return status === "granted";
+    }
+    return false;
+  };
+
+  const openAppSettings = () => {
+    Linking.openSettings();
+  };
+
   const saveandcompress = async (uri, r, w, h) => {
     const manipResult = await manipulateAsync(
       uri,
       [
         r
           ? {
-              crop: {
-                height: (w * 4) / 3,
-                originX: 0,
-                originY: (h - (w * 4) / 3) / 2,
-                width: w,
-              },
-            }
+            crop: {
+              height: (w * 4) / 3,
+              originX: 0,
+              originY: (h - (w * 4) / 3) / 2,
+              width: w,
+            },
+          }
           : { crop: { height: h, originX: 0, originY: 0, width: w } },
       ],
       {

@@ -13,6 +13,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Linking,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -26,18 +28,50 @@ export default function OnBoardScreen({ navigation }) {
   const [bio, setBio] = useState("");
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      base64: true,
-      aspect: [1, 1],
-      quality: 0.5,
-    });
-    if (!result.canceled) {
-      console.log(result);
-      setImage("data:image/jpeg;base64," + result["base64"]);
+    const permission = await checkPhotoPermission();
+    if (!permission) {
+      Alert.alert(
+        "Permission Required",
+        "Please enable gallery permissions to use this feature.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Settings",
+            onPress: openAppSettings,
+          },
+        ]
+      );
+      return;
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        base64: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+      if (!result.canceled) {
+        console.log(result);
+        setImage("data:image/jpeg;base64," + result["base64"]);
+      }
     }
   };
+
+  const checkPhotoPermission = async () => {
+    if (Platform.OS !== "web") {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      return status === "granted";
+    }
+    return false;
+  };
+
+  const openAppSettings = () => {
+    Linking.openSettings();
+  };
+
   const [isEditing, setIsEditing] = useState(false);
   const storePermission = async () => {
     try {
@@ -46,25 +80,7 @@ export default function OnBoardScreen({ navigation }) {
       console.log(e);
     }
   };
-  useEffect(() => {
-    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
-      if (!errs) {
-        if (result == null) {
-          (async () => {
-            if (Platform.OS !== "web") {
-              const { status } =
-                await ImagePicker.requestMediaLibraryPermissionsAsync();
-              if (status !== "granted") {
-                alert("Sorry, we need gallary permissions to make this work!");
-              } else {
-                storePermission();
-              }
-            }
-          })();
-        }
-      }
-    });
-  }, []);
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",

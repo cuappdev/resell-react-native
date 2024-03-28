@@ -5,9 +5,11 @@ import { updateProfile } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -42,45 +44,49 @@ export default function EditProfileScreen({ navigation, route }) {
   const [venmo, setVenmo] = useState(initialVenmo);
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      base64: true,
-      aspect: [1, 1],
-      quality: 0.5,
-    });
-    if (!result.canceled) {
-      console.log(result);
-      setImage("data:image/jpeg;base64," + result["base64"]);
+    const permission = await checkPhotoPermission();
+    if (!permission) {
+      Alert.alert(
+        "Permission Required",
+        "Please enable gallery permissions to use this feature.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Settings",
+            onPress: openAppSettings,
+          },
+        ]
+      );
+      return;
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        base64: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+      if (!result.canceled) {
+        console.log(result);
+        setImage("data:image/jpeg;base64," + result["base64"]);
+      }
     }
   };
 
-  const storePermission = async () => {
-    try {
-      await AsyncStorage.setItem("PhotoPermission", "true");
-    } catch (e) {
-      console.log(e);
+  const checkPhotoPermission = async () => {
+    if (Platform.OS !== "web") {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      return status === "granted";
     }
+    return false;
   };
-  useEffect(() => {
-    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
-      if (!errs) {
-        if (result == null) {
-          (async () => {
-            if (Platform.OS !== "web") {
-              const { status } =
-                await ImagePicker.requestMediaLibraryPermissionsAsync();
-              if (status !== "granted") {
-                alert("Sorry, we need gallary permissions to make this work!");
-              } else {
-                storePermission();
-              }
-            }
-          })();
-        }
-      }
-    });
-  }, []);
+
+  const openAppSettings = () => {
+    Linking.openSettings();
+  };
 
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
@@ -203,9 +209,7 @@ export default function EditProfileScreen({ navigation, route }) {
                 <TouchableOpacity
                   activeOpacity={pressedOpacity}
                   style={styles.roundButton1}
-                  onPress={() => {
-                    pickImage();
-                  }}
+                  onPress={pickImage}
                 >
                   <Feather name="edit-2" size={18} color="black" />
                 </TouchableOpacity>
