@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FILTER } from "../data/filter";
 
 import { useIsFocused } from "@react-navigation/native";
-import { useApiClient } from "../api/ApiClientProvider";
+import ApiClient from "../api/ApiClient";
 import Header from "../assets/svg-components/header";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductList } from "../components/ProductList";
@@ -27,12 +27,15 @@ LogBox.ignoreAllLogs();
 export default function HomeScreen({ navigation, route }) {
   const [accessToken, setAccessToken] = useState("");
   getUserId(setAccessToken);
-  console.log(accessToken);
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [posts, setPosts] = useState(null);
-  const api = useApiClient();
   const isFocused = useIsFocused();
+  /* WARNING: unable to use API client provider on the home page
+     there was an issue where the API client was not loading in time
+     since the API does not use any methods that require authentication on this
+     screen it is fine for now. */
+  const api = new ApiClient();
 
   // When they change the filter or navigate back to the screen, refresh posts
   useEffect(() => {
@@ -56,20 +59,20 @@ export default function HomeScreen({ navigation, route }) {
       }
       const response = await api.get("/post");
       if (response.posts) {
-        if (posts !== response.posts) {
-          setPosts(
-            response.posts.toSorted(
-              (post1, post2) =>
-                new Date(post1.created).getTime() -
-                new Date(post2.created).getTime()
-            )
-          );
-        }
+        setPosts(
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post1.created).getTime() -
+              new Date(post2.created).getTime()
+          )
+        );
       } else {
         makeError();
+        console.log(`response: ${JSON.stringify(response)}`);
       }
     } catch (error) {
       makeError();
+      console.log(`error: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -99,7 +102,6 @@ export default function HomeScreen({ navigation, route }) {
     setLoading(true);
     setTimeout(async () => {
       await getPosts();
-      setLoading(false);
     }, 500);
   };
   const { showPanel } = route.params;
@@ -137,7 +139,7 @@ export default function HomeScreen({ navigation, route }) {
       <View style={{ height: "100%", flex: 1 }}>
         {isLoading ? (
           <LoadingScreen screen={"Home"} />
-        ) : posts.length == 0 ? (
+        ) : posts && posts.length == 0 ? (
           <View style={styles.noResultView}>
             <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
               No Posts Found

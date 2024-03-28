@@ -1,7 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
-  Image,
   LogBox,
   Platform,
   StyleSheet,
@@ -22,6 +21,7 @@ LogBox.ignoreAllLogs();
 
 // State imports
 import { useIsFocused } from "@react-navigation/native";
+import FastImage from "react-native-fast-image";
 import { useApiClient } from "../api/ApiClientProvider";
 import { getUserId } from "../utils/asychStorageFunctions";
 import { ArchivedPost } from "./ArchivedRoute";
@@ -199,7 +199,7 @@ export default function ProfileScreen({ navigation }) {
       setArchivedLoading(true);
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
-        userId,
+          userId,
         {
           method: "GET",
           headers: {
@@ -225,7 +225,7 @@ export default function ProfileScreen({ navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
-        userId,
+          userId,
         {
           method: "GET",
           headers: {
@@ -330,7 +330,7 @@ export default function ProfileScreen({ navigation }) {
             marginTop: 10,
           }}
         >
-          <Image style={styles.profileBubble} source={{ uri: image }} />
+          <FastImage style={styles.profileBubble} source={{ uri: image }} />
         </View>
         <TouchableOpacity
           style={{

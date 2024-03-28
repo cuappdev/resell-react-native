@@ -127,8 +127,4 @@ export default class ApiClient {
   ) {
     return this.request("POST", route, body, headers, options);
   }
-
-  hasAccessToken(): boolean {
-    return this.accessToken ? true : false;
-  }
 }
