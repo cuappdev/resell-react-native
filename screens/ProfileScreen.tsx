@@ -83,7 +83,7 @@ export default function ProfileScreen({ navigation }) {
         isLoading={isRequestLoading}
         fetchFailed={fetchRequestFailed}
         requests={requests}
-        onRefresh={null}
+        onRefresh={getRequest}
       />
     );
   };

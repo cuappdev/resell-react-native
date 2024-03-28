@@ -9,8 +9,10 @@ import React, {
   useState,
 } from "react";
 import {
+  Alert,
   Clipboard,
   Image,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -492,7 +494,12 @@ export default function ChatWindow({ navigation, route }) {
             break;
           case 1:
             console.log(`report sent`);
-            // TODO send a report
+            navigation.navigate("ReportPost", {
+              sellerName: name,
+              sellerId: "sellerId", // TODO: Add when Implementing Reporting Backend
+              postId: post.id,
+              userId: auth.currentUser.uid
+            });
             break;
         }
       }
@@ -508,14 +515,46 @@ export default function ChatWindow({ navigation, route }) {
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    });
-    if (!result.canceled) {
-      setUri(result["uri"]);
-      setModalVisibility(true);
+    const permission = await checkPhotoPermission();
+    if (!permission) {
+      Alert.alert(
+        "Permission Required",
+        "Please enable gallery permissions to use this feature.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Settings",
+            onPress: openAppSettings,
+          },
+        ]
+      );
+      return;
+    } else {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      });
+      if (!result.canceled) {
+        setUri(result["uri"]);
+        setModalVisibility(true);
+      }
     }
   };
+
+  const checkPhotoPermission = async () => {
+    if (Platform.OS !== "web") {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      return status === "granted";
+    }
+    return false;
+  };
+
+  const openAppSettings = () => {
+    Linking.openSettings();
+  };
+
   const saveandcompress = async (uri, props) => {
     const manipResult = await manipulateAsync(uri, [], {
       compress: 0.5,
@@ -541,32 +580,6 @@ export default function ChatWindow({ navigation, route }) {
       },
     });
   };
-  const storePermission = async () => {
-    try {
-      await AsyncStorage.setItem("PhotoPermission", "true");
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  useEffect(() => {
-    AsyncStorage.getItem("PhotoPermission", (errs, result) => {
-      if (!errs) {
-        if (result == null) {
-          (async () => {
-            if (Platform.OS !== "web") {
-              const { status } =
-                await ImagePicker.requestMediaLibraryPermissionsAsync();
-              if (status !== "granted") {
-                alert("Sorry, we need gallary permissions to make this work!");
-              } else {
-                storePermission();
-              }
-            }
-          })();
-        }
-      }
-    });
-  }, []);
 
   const postImage = (image, props) => {
     const Json = JSON.stringify({

@@ -42,6 +42,7 @@ export const RequestRoute = ({
           prevOpenedRow={prevOpenedRow}
           setPrevOpenedRow={setPrevOpenedRow}
           navigation={navigation}
+          updateScreen={onRefresh}
         />
         {index === requests.length - 1 && (
           <View style={{ height: bottomTabsHeight }} />
@@ -91,8 +92,7 @@ export const RequestRoute = ({
                 },
               ]}
             >
-              Looking for something that isn't listed? Submit a request, and we
-              will notify you when someone lists something similar.
+              Submit a request and get notified when someone lists something similar
             </Text>
           </View>
         ) : (

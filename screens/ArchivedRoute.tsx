@@ -24,7 +24,19 @@ export const ArchivedPost = ({
         ]}
       >
         <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-          No Archived Item Found
+          No items archived
+        </Text>
+        <Text
+          style={[
+            fonts.body1,
+            {
+              color: "#707070",
+              textAlign: "center",
+              paddingHorizontal: "10%",
+            },
+          ]}
+        >
+          When a listing is sold or archived, it will be displayed here
         </Text>
       </View>
     ) : (

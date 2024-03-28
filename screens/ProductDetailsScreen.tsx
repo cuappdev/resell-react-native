@@ -16,8 +16,6 @@ import {
 import Modal from "react-native-modal";
 import SlidingUpPanel from "rn-sliding-up-panel";
 import BackButton from "../assets/svg-components/back_button";
-import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
-import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import {
   DetailPullUpBody,
@@ -151,15 +149,15 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-          userId +
-          "/postId/" +
-          post.id
+        userId +
+        "/postId/" +
+        post.id
       );
       if (response.ok) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
   useEffect(() => {
     fetchIsSaved();
@@ -188,7 +186,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/unsave/postId/" +
-          post.id,
+        post.id,
         {
           method: "POST",
           headers: {
@@ -213,15 +211,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
       const result = await Share.share({
         title: "Check out this " + post.title + "on Resell",
         message:
-          "Check out this " +
-          post.title +
-          " posted by " +
-          sellerName +
-          ". It's only for $" +
-          item.price +
-          ". Following the link if you have Resell already downloaded:/n" +
-          "resell://product/" +
-          post.id,
+          `
+        Check out this ${post.title} posted by ${sellerName}. It's only for $${item.price}.
+        Click the following link if you have Resell already downloaded:
+        ${<a href="resell://product/${post.id}">Open in Resell</a>}
+        `
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -312,16 +306,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
   };
 
   const menuItems = [
-    { label: "Share", iconName: "share", onPress: onShare },
-    { label: "Report", iconName: "flag", onPress: onReport },
-    (screen === "Profile" || screen === "Archived") && {
-      label: "Delete",
-      iconName: "trash",
-      onPress: () => {
-        setModalVisibility(true);
-      },
-    },
+    { label: 'Share', iconName: 'share', onPress: onShare },
+    { label: 'Report', iconName: 'flag', onPress: onReport },
   ];
+
+  if (userId === sellerId) {
+    menuItems.push({ label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } })
+  }
 
   return (
     <View style={styles.container}>
@@ -402,30 +393,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
       >
         <Gallery imagePaths={item.images}></Gallery>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          isSaved ? unsave() : save();
-        }}
-        style={[
-          styles.bookmarkButton,
-          {
-            top: Dimensions.get("window").width * maxImgRatio - 138,
-          },
-        ]}
-      >
-        {isSaved ? <BookmarkIconSaved /> : <BookmarkIcon />}
-      </TouchableOpacity>
       <SlidingUpPanel
         draggableRange={{
-          top: Dimensions.get("window").height - 100,
+          top: Dimensions.get("window").height - 150,
           bottom:
             Dimensions.get("window").height -
-            Math.max(100, Dimensions.get("window").width * maxImgRatio),
+            Math.max(150, Dimensions.get("window").width * maxImgRatio),
         }} // 100 is used to avoid overlapping with top bar
         animatedValue={
           new Animated.Value(
             Dimensions.get("window").height -
-              Math.min(400, Layout.window.width * maxImgRatio - 40)
+            Math.min(400, Layout.window.width * maxImgRatio - 40)
           )
         }
       >
@@ -434,10 +412,14 @@ export default function ProductDetailsScreen({ route, navigation }) {
             item={item}
             sellerName={sellerName}
             sellerProfile={profileImage}
+            isSaved={isSaved}
+            save={save}
+            unsave={unsave}
           />
           <DetailPullUpBody
+            postId={post.id}
             sellerName={sellerName}
-            item={item}
+            sellerItem={item}
             similarItems={similarItems}
             navigation={navigation}
             screen={screen}
@@ -445,7 +427,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
         </View>
       </SlidingUpPanel>
 
-      {screen != "Profile" &&
+      {
+        screen != "Profile" &&
         screen != "Archived" &&
         sellerEmail != auth?.currentUser?.email && (
           <View style={styles.greyButton}>
@@ -493,16 +476,19 @@ export default function ProductDetailsScreen({ route, navigation }) {
               isLoading={contactSellerLoading}
             />
           </View>
-        )}
-      {screen != "Profile" &&
+        )
+      }
+      {
+        screen != "Profile" &&
         screen != "Archived" &&
         sellerEmail != auth?.currentUser?.email && (
           <LinearGradient
             colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
             style={styles.bottomGradient}
           />
-        )}
-    </View>
+        )
+      }
+    </View >
   );
 }
 
@@ -535,12 +521,6 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: "center",
     height: 50,
-  },
-  bookmarkButton: {
-    position: "absolute",
-    right: 24,
-    zIndex: 0,
-    alignItems: "center",
   },
   modal: {
     borderTopLeftRadius: 40,

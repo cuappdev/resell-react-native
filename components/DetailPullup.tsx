@@ -11,10 +11,20 @@ import {
 } from "react-native";
 import ModalBar from "../assets/svg-components/modal_bar";
 import { auth } from "../config/firebase";
+import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
+import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 
-export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
+export function DetailPullUpHeader({ item, sellerName, sellerProfile, isSaved, save, unsave, }) {
   return (
     <View style={[styles.container_header, styles.roundCorner]}>
+      <TouchableOpacity
+        onPress={() => {
+          isSaved ? unsave() : save();
+        }}
+        style={styles.bookmarkButton}
+      >
+        {isSaved ? <BookmarkIconSaved /> : <BookmarkIcon />}
+      </TouchableOpacity>
       <View style={styles.modalBar}>
         <ModalBar />
       </View>
@@ -31,7 +41,8 @@ export function DetailPullUpHeader({ item, sellerName, sellerProfile }) {
 }
 
 export function DetailPullUpBody({
-  item,
+  postId,
+  sellerItem,
   sellerName,
   similarItems,
   navigation,
@@ -45,6 +56,18 @@ export function DetailPullUpBody({
       }
     }
   });
+
+  similarItems.filter((item, index, arr) => {
+    if (item.id === postId) {
+      arr.splice(index, 1);
+      return true;
+    }
+    console.log(item.id)
+    console.log(postId)
+    return false;
+  })
+
+  console.log(similarItems)
   return (
     <ScrollView
       style={[
@@ -53,8 +76,9 @@ export function DetailPullUpBody({
           ? { marginBottom: 0 }
           : { marginBottom: 150 },
       ]}
+      contentContainerStyle={{ paddingBottom: 20 }}
     >
-      <Text style={styles.details}>{item.description}</Text>
+      <Text style={styles.details}>{sellerItem.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
         data={similarItems}
@@ -66,9 +90,9 @@ export function DetailPullUpBody({
               onPress={() => {
                 fetch(
                   "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-                    userId +
-                    "/postId/" +
-                    item.id
+                  userId +
+                  "/postId/" +
+                  item.id
                 )
                   .then((response) => {
                     if (response.ok) {
@@ -86,16 +110,17 @@ export function DetailPullUpBody({
                     }
                   });
               }}
+              style={{ pointerEvents: "box-none" }}
             >
               <Image
                 source={{ uri: item.images[0] }}
                 style={styles.similarItem}
-              ></Image>
+              />
             </TouchableOpacity>
           );
         }}
         keyExtractor={(item, index) => index.toString()}
-      ></FlatList>
+      />
     </ScrollView>
   );
 }
@@ -180,5 +205,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 15,
     paddingLeft: 20,
+  },
+  bookmarkButton: {
+    position: "absolute",
+    top: -96,
+    right: 30,
+    zIndex: 100,
   },
 });
