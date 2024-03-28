@@ -426,8 +426,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
             unsave={unsave}
           />
           <DetailPullUpBody
+            postId={post.id}
             sellerName={sellerName}
-            item={item}
+            sellerItem={item}
             similarItems={similarItems}
             navigation={navigation}
             screen={screen}

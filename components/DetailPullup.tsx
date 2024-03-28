@@ -42,7 +42,8 @@ export function DetailPullUpHeader({ item, sellerName, sellerProfile, isSaved, s
 }
 
 export function DetailPullUpBody({
-  item,
+  postId,
+  sellerItem,
   sellerName,
   similarItems,
   navigation,
@@ -56,6 +57,18 @@ export function DetailPullUpBody({
       }
     }
   });
+
+  similarItems.filter((item, index, arr) => {
+    if (item.id === postId) {
+      arr.splice(index, 1);
+      return true;
+    }
+    console.log(item.id)
+    console.log(postId)
+    return false;
+  })
+
+  console.log(similarItems)
   return (
     <ScrollView
       style={[
@@ -66,7 +79,7 @@ export function DetailPullUpBody({
       ]}
       contentContainerStyle={{ paddingBottom: 20 }}
     >
-      <Text style={styles.details}>{item.description}</Text>
+      <Text style={styles.details}>{sellerItem.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
       <FlatList
         data={similarItems}
