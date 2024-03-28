@@ -64,6 +64,7 @@ export function DetailPullUpBody({
           ? { marginBottom: 0 }
           : { marginBottom: 150 },
       ]}
+      contentContainerStyle={{ paddingBottom: 20 }}
     >
       <Text style={styles.details}>{item.description}</Text>
       <Text style={styles.itemsHeader}>Similar Items</Text>
@@ -97,16 +98,17 @@ export function DetailPullUpBody({
                     }
                   });
               }}
+              style={{ pointerEvents: "box-none" }}
             >
               <Image
                 source={{ uri: item.images[0] }}
                 style={styles.similarItem}
-              ></Image>
+              />
             </TouchableOpacity>
           );
         }}
         keyExtractor={(item, index) => index.toString()}
-      ></FlatList>
+      />
     </ScrollView>
   );
 }
