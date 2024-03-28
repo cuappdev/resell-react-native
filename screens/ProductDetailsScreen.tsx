@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Animated,
   Dimensions,
   Image,
   Platform,
@@ -20,8 +21,8 @@ import {
   DetailPullUpBody,
   DetailPullUpHeader,
 } from "../components/DetailPullup";
-import OptionsMenu from "../components/OptionsMenu";
 import Gallery from "../components/Gallery";
+import OptionsMenu from "../components/OptionsMenu";
 import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
@@ -51,38 +52,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
       similarItems: [],
     });
   }, [post]);
-
-  useEffect(() => {
-    getPost();
-    fetchPost();
-  }, [post]);
-  const [similarItems, setSimilarItems] = useState([]);
-  const [userId, setUserId] = useState("");
-  const [sellerId, setSellerId] = useState("");
-  const [sellerFirstName, setSellerFirstName] = useState("");
-  const [sellerName, setSellerName] = useState("");
-  const [sellerEmail, setSellerEmail] = useState("");
-
-  const [profileImage, setProfileImage] = useState("");
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [modalVisibility, setModalVisibility] = useState(false);
-  const [accessToken, setAccessToken] = useState("");
-
-  const [contactSellerLoading, setContactSellerLoading] = useState(false);
-  AsyncStorage.getItem("accessToken", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result != undefined) {
-        setAccessToken(result);
-      }
-    }
-  });
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
   const getPost = async () => {
     try {
       let response;
@@ -130,8 +99,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
       const userResult = await response.json();
 
-      setSellerId(userResult.user.id)
-      setSellerFirstName(userResult.user.givenName)
+      setSellerId(userResult.user.id);
+      setSellerFirstName(userResult.user.givenName);
       setSellerName(
         userResult.user.givenName + " " + userResult.user.familyName
       );
@@ -143,6 +112,38 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    getPost();
+    fetchPost();
+  }, [post]);
+
+  const [similarItems, setSimilarItems] = useState([]);
+  const [userId, setUserId] = useState("");
+  const [sellerId, setSellerId] = useState("");
+  const [sellerFirstName, setSellerFirstName] = useState("");
+  const [sellerName, setSellerName] = useState("");
+  const [sellerEmail, setSellerEmail] = useState("");
+
+  const [profileImage, setProfileImage] = useState("");
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [modalVisibility, setModalVisibility] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
+
+  const [contactSellerLoading, setContactSellerLoading] = useState(false);
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result != undefined) {
+        setAccessToken(result);
+      }
+    }
+  });
+  AsyncStorage.getItem("userId", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result !== undefined) {
+        setUserId(result);
+      }
+    }
+  });
 
   const fetchIsSaved = async () => {
     try {
@@ -231,25 +232,14 @@ export default function ProductDetailsScreen({ route, navigation }) {
   };
 
   const onReport = () => {
-    setMenuVisible(false)
+    setMenuVisible(false);
     navigation.navigate("ReportPost", {
       sellerName: sellerFirstName,
       sellerId: sellerId,
       postId: post.id,
-      userId: userId
+      userId: userId,
     });
-  }
-
-  const sPanel = useRef<SlidingUpPanel | null>(null);
-  useEffect(() => {
-    if (sPanel.current !== null) {
-      sPanel.current.show(
-        Dimensions.get("window").height -
-        Math.min(400, Layout.window.width * maxImgRatio - 40)
-      );
-    }
-    // makes the slide up cover the very bottom of images if they are wide, or a larger portion of the image if the image is long
-  });
+  };
 
   useEffect(() => {
     for (let i = 0; i < post.images.length; i++) {
@@ -330,17 +320,16 @@ export default function ProductDetailsScreen({ route, navigation }) {
         colors={["rgba(0,0,0,0.8)", "transparent"]}
         style={styles.topBar}
       />
+      {/* Back button */}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
       >
         <BackButton />
       </TouchableOpacity>
+      {/* Top bar options */}
       <View style={styles.optionsContainer}>
-        <TouchableOpacity
-          onPress={toggleMenu}
-          style={styles.optionsButton}
-        >
+        <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
           <EllipsesIcon />
         </TouchableOpacity>
         <Modal
@@ -395,6 +384,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
           </Modal>
         </Modal>
       </View>
+
       <View
         style={{
           height: Dimensions.get("window").width * maxImgRatio,
@@ -404,17 +394,18 @@ export default function ProductDetailsScreen({ route, navigation }) {
         <Gallery imagePaths={item.images}></Gallery>
       </View>
       <SlidingUpPanel
-        ref={(c) => {
-          if (c !== null && sPanel !== null) {
-            sPanel.current = c;
-          }
-        }}
         draggableRange={{
           top: Dimensions.get("window").height - 150,
           bottom:
             Dimensions.get("window").height -
             Math.max(150, Dimensions.get("window").width * maxImgRatio),
         }} // 100 is used to avoid overlapping with top bar
+        animatedValue={
+          new Animated.Value(
+            Dimensions.get("window").height -
+            Math.min(400, Layout.window.width * maxImgRatio - 40)
+          )
+        }
       >
         <View style={styles.slideUp}>
           <DetailPullUpHeader
@@ -435,6 +426,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
           />
         </View>
       </SlidingUpPanel>
+
       {
         screen != "Profile" &&
         screen != "Archived" &&
@@ -614,7 +606,6 @@ const styles = StyleSheet.create({
     width: 254,
     backgroundColor: "#EDEDEDEE",
     zIndex: 100,
-    borderRadius: 12
-  }
+    borderRadius: 12,
+  },
 });
-

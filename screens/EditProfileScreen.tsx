@@ -20,9 +20,11 @@ import {
   View,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
+import VenmoInput from "../components/VenmoInput";
 import { auth, userRef } from "../config/firebase";
+import Colors from "../constants/Colors";
 import { menuBarTop } from "../constants/Layout";
-import { pressedOpacity } from "../constants/Values";
+import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 import { getAccessToken } from "../utils/asychStorageFunctions";
@@ -107,7 +109,7 @@ export default function EditProfileScreen({ navigation, route }) {
   const [accessToken, setAccessToken] = useState("");
 
   getAccessToken(setAccessToken);
-  const [invalidName, setInvalidName] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
 
   const submit = async () => {
     var Json;
@@ -190,8 +192,20 @@ export default function EditProfileScreen({ navigation, route }) {
               }
             }}
             style={styles.headerButton}
+            disabled={Boolean(usernameError)}
           >
-            <Text style={[fonts.Title1, { color: "#9E70F6" }]}>Save</Text>
+            <Text
+              style={[
+                fonts.Title1,
+                {
+                  color: usernameError
+                    ? Colors.iconInactive
+                    : Colors.resellPurple,
+                },
+              ]}
+            >
+              Save
+            </Text>
           </TouchableOpacity>
         </View>
         <KeyboardAvoidingView
@@ -253,24 +267,6 @@ export default function EditProfileScreen({ navigation, route }) {
                     <Text style={[fonts.Title1, { marginStart: 24 }]}>
                       Username
                     </Text>
-                    {invalidName && (
-                      <View
-                        style={{
-                          width: 16,
-                          height: 16,
-                          backgroundColor: "#FF0000",
-                          borderRadius: 8,
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginTop: 3,
-                          marginLeft: 4,
-                        }}
-                      >
-                        <Text style={{ color: "#FFFFFF", fontWeight: "500" }}>
-                          !
-                        </Text>
-                      </View>
-                    )}
                   </View>
                   <View
                     style={{
@@ -297,7 +293,15 @@ export default function EditProfileScreen({ navigation, route }) {
                       value={username}
                       onChangeText={(text) => {
                         setUsername(text);
-                        setInvalidName(false);
+                        if (text.length > maxUsernameLength) {
+                          setUsernameError(
+                            `Must be ${maxUsernameLength} characters or fewer`
+                          );
+                        } else if (text.trim().length === 0) {
+                          setUsernameError("Username must not be empty");
+                        } else {
+                          setUsernameError("");
+                        }
                         if (scroll.current !== null) {
                           scroll.current.scrollToEnd({
                             animated: true,
@@ -305,7 +309,7 @@ export default function EditProfileScreen({ navigation, route }) {
                         }
                       }}
                     />
-                    {invalidName && (
+                    {usernameError && (
                       <Text
                         style={{
                           fontSize: 12,
@@ -314,7 +318,7 @@ export default function EditProfileScreen({ navigation, route }) {
                           marginTop: 4,
                         }}
                       >
-                        Name Unavailable
+                        {usernameError}
                       </Text>
                     )}
                   </View>
@@ -327,7 +331,7 @@ export default function EditProfileScreen({ navigation, route }) {
                   }}
                 >
                   <Text style={[fonts.Title1, { marginStart: 24 }]}>
-                    Venmo Link
+                    Venmo Handle
                   </Text>
                   <View
                     style={{
@@ -336,22 +340,9 @@ export default function EditProfileScreen({ navigation, route }) {
                       marginEnd: 24,
                     }}
                   >
-                    <TextInput
-                      style={[
-                        fonts.body1,
-                        {
-                          paddingTop: 10,
-                          paddingBottom: 10,
-                          paddingHorizontal: 15,
-                          backgroundColor: "#F4F4F4",
-                          borderRadius: 10,
-                          minHeight: 40,
-                          width: "100%",
-                          textAlign: "right",
-                        },
-                      ]}
-                      value={venmo}
-                      onChangeText={(text) => {
+                    <VenmoInput
+                      venmo={venmo}
+                      onChangeVenmo={(text) => {
                         setVenmo(text);
                         if (scroll.current !== null) {
                           scroll.current.scrollToEnd({

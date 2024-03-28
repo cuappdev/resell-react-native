@@ -166,7 +166,6 @@ export default function ChatWindow({ navigation, route }) {
     proposedViewed,
     confirmedViewed,
   }: ChatWindowParams = route.params;
-
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
