@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { Children, ReactElement, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import FastImage from "react-native-fast-image";
 import PagerView from "react-native-pager-view";
 
 function Background({ children }: { children: JSX.Element }) {
@@ -22,16 +23,11 @@ export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
   var images: JSX.Element[] = [];
   for (let i = 0; i < imagePaths.length; i++) {
     images.push(
-      <View key={i.toString()} style={styles.page}>
+      <View key={i} style={styles.page}>
         <Background>
           <View>
-            <Image
+            <FastImage
               style={styles.itemImage}
-              source={{ uri: imagePaths[i] }}
-              blurRadius={5}
-            />
-            <Image
-              style={styles.itemImageTop}
               source={{ uri: imagePaths[i] }}
             />
           </View>
