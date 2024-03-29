@@ -18,6 +18,7 @@
     "@expo/prebuild-config": "~6.2.4",
     "@expo/vector-icons": "^13.0.0",
     "@firebase/firestore": "^3.4.15",
+    "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-google-signin/google-signin": "^10.0.1",

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import Modal from "react-native-modal";
 
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import WeekView, { WeekViewEvent } from "react-native-week-view";
 import Colors from "../../constants/Colors";
+// TODO https://ui.gorhom.dev/components/bottom-sheet/modal/usage
+import BottomSheetModal from "../BottomSheetModal";
 import PurpleButton from "../PurpleButton";
 const moment = require("moment");
 
@@ -100,24 +102,20 @@ export function AvailabilityModal({
       temptSchedule[i].id = i;
     }
   };
-
+  // TODO refactor to use bottom sheet props
   return (
-    <Modal
-      backdropColor="black"
-      backdropOpacity={0.2}
+    <BottomSheetModal
       isVisible={availabilityVisible}
-      onModalHide={() => {
+      setIsVisible={setAvailabilityVisible}
+      onHide={() => {
         if (isBubble && isBuyer && selectdate) {
           setBuyerProposeVisible(true);
         }
       }}
-      onBackdropPress={() => {
-        setAvailabilityVisible(false);
-        setSchedule([]);
-      }}
+      topSnapPoint={"75%"}
       style={{ margin: 0, justifyContent: "flex-end" }}
     >
-      <View style={styles.centeredView}>
+      <BottomSheetView style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={[styles.textStyle, { marginBottom: 30 }]}>
             {isBubble
@@ -170,8 +168,8 @@ export function AvailabilityModal({
             </View>
           )}
         </View>
-      </View>
-    </Modal>
+      </BottomSheetView>
+    </BottomSheetModal>
   );
 }
 
