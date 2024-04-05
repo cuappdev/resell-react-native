@@ -9,6 +9,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { useApiClient } from "../api/ApiClientProvider";
 import ProductCard from "./ProductCard";
 
 /**
@@ -28,6 +29,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       }
     }
   });
+  const api = useApiClient();
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
@@ -38,16 +40,9 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
   });
   const isSaved = async (item) => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/isSaved/postId/" +
-          item.id,
-        {
-          method: "GET",
-          headers: {
-            Authorization: accessToken,
-          },
-        }
-      );
+      const response = await api.get(`/post/isSaved/postId/${item.id}`);
+      console.log(`response: ${JSON.stringify(response)}`);
+
       if (response.ok) {
         const json = await response.json();
         if (json != null) {
@@ -61,8 +56,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       } else {
         const json = await response.json();
         console.log("NoProduct");
-
-        console.log(accessToken);
+        console.log(`json: ${JSON.stringify(json)}`);
       }
     } catch (error) {
       console.log(error);

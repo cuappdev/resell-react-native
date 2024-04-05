@@ -1,5 +1,6 @@
 import * as Linking from "expo-linking";
 import { useEffect, useState } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { Provider } from "react-redux";
 import ApiClientProvider from "./api/ApiClientProvider";
@@ -36,7 +37,9 @@ export default function App() {
       <RootSiblingParent>
         <ApiClientProvider>
           <Provider store={store}>
-            <SignIn />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <SignIn />
+            </GestureHandlerRootView>
           </Provider>
         </ApiClientProvider>
       </RootSiblingParent>

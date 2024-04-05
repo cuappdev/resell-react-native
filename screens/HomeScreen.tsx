@@ -19,14 +19,11 @@ import { fonts } from "../globalStyle/globalFont";
 import { HeaderIcon } from "../navigation/index";
 import LoadingScreen from "../screens/LoadingScreen";
 import { makeToast } from "../utils/Toast";
-import { getUserId } from "../utils/asychStorageFunctions";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 export default function HomeScreen({ navigation, route }) {
-  const [accessToken, setAccessToken] = useState("");
-  getUserId(setAccessToken);
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [posts, setPosts] = useState(null);

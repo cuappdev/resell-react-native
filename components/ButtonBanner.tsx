@@ -23,6 +23,7 @@ export function ButtonBanner(props) {
         setIsBubble={props.setIsBubble}
         alwaysColor={props.alwaysColor}
         otherEmail={props.otherEmail}
+        setAvailabilityVisible={props.setAvailabilityVisible}
       />
       {index === props.data.length - 1 && <View style={{ width: 8 }} />}
     </>
