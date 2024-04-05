@@ -20,8 +20,6 @@ export function ButtonBanner(props) {
         setCount={props.setCount}
         modalVisible={props.modalVisible}
         setModalVisible={props.setModalVisible}
-        availabilityVisible={props.availabilityVisible}
-        setAvailabilityVisible={props.setAvailabilityVisible}
         setIsBubble={props.setIsBubble}
         alwaysColor={props.alwaysColor}
         otherEmail={props.otherEmail}

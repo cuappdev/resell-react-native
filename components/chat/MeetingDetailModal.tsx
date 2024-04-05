@@ -15,7 +15,6 @@ export default function MeetingDetailModal({
   name,
   post,
   isBuyer,
-  setActivateIcon,
 }: {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -25,7 +24,6 @@ export default function MeetingDetailModal({
   name: string;
   post: any;
   isBuyer: boolean;
-  setActivateIcon: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -92,7 +90,6 @@ export default function MeetingDetailModal({
             );
 
             setVisible(false);
-            setActivateIcon(false);
           }}
         >
           <View style={styles.button}>

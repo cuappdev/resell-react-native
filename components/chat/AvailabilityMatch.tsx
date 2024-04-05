@@ -5,7 +5,6 @@ import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import WeekView, { WeekViewEvent } from "react-native-week-view";
 import Colors from "../../constants/Colors";
 // TODO https://ui.gorhom.dev/components/bottom-sheet/modal/usage
-import BottomSheetModal from "../BottomSheetModal";
 import PurpleButton from "../PurpleButton";
 const moment = require("moment");
 
@@ -17,7 +16,6 @@ interface Event {
 }
 
 export function AvailabilityModal({
-  availabilityVisible,
   setAvailabilityVisible,
   setIsSendingAvailability,
   setBuyerProposeVisible,
@@ -104,72 +102,60 @@ export function AvailabilityModal({
   };
   // TODO refactor to use bottom sheet props
   return (
-    <BottomSheetModal
-      isVisible={availabilityVisible}
-      setIsVisible={setAvailabilityVisible}
-      onHide={() => {
-        if (isBubble && isBuyer && selectdate) {
-          setBuyerProposeVisible(true);
-        }
-      }}
-      topSnapPoint={"75%"}
-      style={{ margin: 0, justifyContent: "flex-end" }}
-    >
-      <BottomSheetView style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={[styles.textStyle, { marginBottom: 30 }]}>
-            {isBubble
-              ? username + "'s Avaliability"
-              : "When are you free to meet?"}
-          </Text>
-          <WeekView
-            selectedDate={new Date()}
-            headerStyle={styles.headerStyle}
-            formatTimeLabel={"h:mm A"}
-            hourTextStyle={styles.hourTextStyle}
-            headerTextStyle={styles.headerTextStyle as StyleProp<ViewStyle>}
-            events={isBubble ? bubbleInput : schedule}
-            fixedHorizontally={false}
-            showTitle={false}
-            numberOfDays={3}
-            beginAgendaAt={9 * 60}
-            endAgendaAt={23 * 60}
-            hoursInDisplay={24}
-            startHour={8}
-            timesColumnWidth={0.28}
-            eventContainerStyle={{ marginLeft: 2 }}
-            onGridClick={onClickGrid}
-            formatDateHeader={"  ddd[\n]MMM D"}
-            onEventPress={onEventPress}
-            showNowLine={true}
-            nowLineColor={"#9E70F6"}
-            allowScrollByDay
-          />
-          {!isBubble && (
-            <View style={styles.greyButton}>
-              <PurpleButton
-                onPress={() => {
-                  setAvailabilityVisible(!availabilityVisible);
-                  if (!isBubble) {
-                    if (schedule.length > 0) {
-                      resetScheduleIndex(schedule);
-                      setIsSendingAvailability(true);
-                      setScheduleCallback(schedule);
-                      setSchedule([]);
-                      setHeight(120);
-                    }
-                  } else {
-                    setIsBubble(false);
+    <BottomSheetView style={styles.centeredView}>
+      <View style={styles.modalView}>
+        <Text style={[styles.textStyle, { marginBottom: 30 }]}>
+          {isBubble
+            ? username + "'s Avaliability"
+            : "When are you free to meet?"}
+        </Text>
+        <WeekView
+          selectedDate={new Date()}
+          headerStyle={styles.headerStyle}
+          formatTimeLabel={"h:mm A"}
+          hourTextStyle={styles.hourTextStyle}
+          headerTextStyle={styles.headerTextStyle as StyleProp<ViewStyle>}
+          events={isBubble ? bubbleInput : schedule}
+          fixedHorizontally={false}
+          showTitle={false}
+          numberOfDays={3}
+          beginAgendaAt={9 * 60}
+          endAgendaAt={23 * 60}
+          hoursInDisplay={24}
+          startHour={8}
+          timesColumnWidth={0.28}
+          eventContainerStyle={{ marginLeft: 2 }}
+          onGridClick={onClickGrid}
+          formatDateHeader={"  ddd[\n]MMM D"}
+          onEventPress={onEventPress}
+          showNowLine={true}
+          nowLineColor={"#9E70F6"}
+          allowScrollByDay
+        />
+        {!isBubble && (
+          <View style={styles.greyButton}>
+            <PurpleButton
+              onPress={() => {
+                setAvailabilityVisible(false);
+                if (!isBubble) {
+                  if (schedule.length > 0) {
+                    resetScheduleIndex(schedule);
+                    setIsSendingAvailability(true);
+                    setScheduleCallback(schedule);
+                    setSchedule([]);
+                    setHeight(120);
                   }
-                }}
-                text={"Continue"}
-                enabled={true}
-              />
-            </View>
-          )}
-        </View>
-      </BottomSheetView>
-    </BottomSheetModal>
+                } else {
+                  setIsBubble(false);
+                }
+              }}
+              text={"Continue"}
+              enabled={true}
+            />
+          </View>
+        )}
+      </View>
+    </BottomSheetView>
   );
 }
 
