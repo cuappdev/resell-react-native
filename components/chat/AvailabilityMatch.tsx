@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import Modal from "react-native-modal";
 
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import WeekView, { WeekViewEvent } from "react-native-week-view";
 import Colors from "../../constants/Colors";
+// TODO https://ui.gorhom.dev/components/bottom-sheet/modal/usage
 import PurpleButton from "../PurpleButton";
 const moment = require("moment");
 
@@ -15,7 +16,6 @@ interface Event {
 }
 
 export function AvailabilityModal({
-  availabilityVisible,
   setAvailabilityVisible,
   setIsSendingAvailability,
   setBuyerProposeVisible,
@@ -82,6 +82,7 @@ export function AvailabilityModal({
     }
   };
   const onEventPress = (event: WeekViewEvent) => {
+    console.log(`event pressed`);
     if (!isBubble) {
       if (schedule.length == 1) {
         setSchedule([]);
@@ -89,7 +90,7 @@ export function AvailabilityModal({
         var tempt = schedule.filter((e) => e.id !== event.id);
         setSchedule(tempt);
       }
-    } else if (isBuyer) {
+    } else {
       setAvailabilityVisible(false);
       setSelectedTime(moment(event.startDate).format("MMMM Do YYYY, h:mm a"));
     }
@@ -100,103 +101,80 @@ export function AvailabilityModal({
       temptSchedule[i].id = i;
     }
   };
-
   return (
-    <Modal
-      backdropColor="black"
-      backdropOpacity={0.2}
-      isVisible={availabilityVisible}
-      onModalHide={() => {
-        if (isBubble && isBuyer && selectdate) {
-          setBuyerProposeVisible(true);
-        }
-      }}
-      onBackdropPress={() => {
-        setAvailabilityVisible(false);
-        setSchedule([]);
-      }}
-      style={{ margin: 0, justifyContent: "flex-end" }}
-    >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={[styles.textStyle, { marginBottom: 30 }]}>
-            {isBubble
-              ? username + "'s Avaliability"
-              : "When are you free to meet?"}
+    <BottomSheetView style={styles.centeredView}>
+      <View style={styles.modalView}>
+        <Text style={[styles.textStyle, { marginBottom: isBubble ? 32 : 8 }]}>
+          {isBubble
+            ? username + "'s Avaliability"
+            : "When are you free to meet?"}
+        </Text>
+        {!isBubble && (
+          <Text style={{ color: Colors.secondaryGray, marginBottom: 24 }}>
+            Tap on a cell to add/remove availability
           </Text>
-          <WeekView
-            selectedDate={new Date()}
-            headerStyle={styles.headerStyle}
-            formatTimeLabel={"h:mm A"}
-            hourTextStyle={styles.hourTextStyle}
-            headerTextStyle={styles.headerTextStyle as StyleProp<ViewStyle>}
-            events={isBubble ? bubbleInput : schedule}
-            fixedHorizontally={false}
-            showTitle={false}
-            numberOfDays={3}
-            beginAgendaAt={9 * 60}
-            endAgendaAt={23 * 60}
-            hoursInDisplay={24}
-            startHour={8}
-            timesColumnWidth={0.28}
-            eventContainerStyle={{ marginLeft: 2 }}
-            onGridClick={onClickGrid}
-            formatDateHeader={"  ddd[\n]MMM D"}
-            onEventPress={onEventPress}
-            showNowLine={true}
-            nowLineColor={"#9E70F6"}
-            allowScrollByDay
-          />
-          {!isBubble && (
-            <View style={styles.greyButton}>
-              <PurpleButton
-                onPress={() => {
-                  setAvailabilityVisible(!availabilityVisible);
-                  if (!isBubble) {
-                    if (schedule.length > 0) {
-                      resetScheduleIndex(schedule);
-                      setIsSendingAvailability(true);
-                      setScheduleCallback(schedule);
-                      setSchedule([]);
-                      setHeight(120);
-                    }
-                  } else {
-                    setIsBubble(false);
+        )}
+        <WeekView
+          selectedDate={new Date()}
+          headerStyle={styles.headerStyle}
+          formatTimeLabel={"h:mm A"}
+          hourTextStyle={styles.hourTextStyle}
+          headerTextStyle={styles.headerTextStyle as StyleProp<ViewStyle>}
+          events={isBubble ? bubbleInput : schedule}
+          fixedHorizontally={false}
+          showTitle={false}
+          numberOfDays={3}
+          beginAgendaAt={9 * 60}
+          endAgendaAt={23 * 60}
+          hoursInDisplay={24}
+          startHour={8}
+          timesColumnWidth={0.28}
+          eventContainerStyle={{ marginLeft: 2 }}
+          onGridClick={onClickGrid}
+          formatDateHeader={"  ddd[\n]MMM D"}
+          onEventPress={onEventPress}
+          showNowLine={true}
+          nowLineColor={"#9E70F6"}
+          allowScrollByDay
+        />
+        {!isBubble && (
+          <View style={styles.greyButton}>
+            <PurpleButton
+              onPress={() => {
+                setAvailabilityVisible(false);
+                if (!isBubble) {
+                  if (schedule.length > 0) {
+                    resetScheduleIndex(schedule);
+                    setIsSendingAvailability(true);
+                    setScheduleCallback(schedule);
+                    setSchedule([]);
+                    setHeight(120);
                   }
-                }}
-                text={"Continue"}
-                enabled={true}
-              />
-            </View>
-          )}
-        </View>
+                } else {
+                  setIsBubble(false);
+                }
+              }}
+              text={"Continue"}
+              enabled={true}
+            />
+          </View>
+        )}
       </View>
-    </Modal>
+    </BottomSheetView>
   );
 }
 
 const styles = StyleSheet.create({
   centeredView: {
     alignItems: "center",
-    height: "90%",
+    height: "100%",
     width: "100%",
     paddingHorizontal: 30,
     backgroundColor: "white",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    borderTopLeftRadius: 50,
-    borderTopRightRadius: 50,
   },
   modalView: {
     height: "100%",
     width: "100%",
-    paddingVertical: 24,
     paddingHorizontal: 32,
     alignItems: "center",
   },

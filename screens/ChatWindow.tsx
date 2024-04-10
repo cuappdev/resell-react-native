@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -33,13 +34,18 @@ import {
 } from "react-native-gifted-chat";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
-import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
 import { NegotiationModal } from "../components/chat/NegotiationModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 
+import {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
-import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
 import {
@@ -55,12 +61,14 @@ import {
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
-import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
+import ProductCard from "../components/ProductCard";
+import BottomSheetHandle from "../components/bottomSheet/BottomSheetHandle";
+import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
 import ConfirmMeetingModal from "../components/chat/ConfirmMeetingModal";
+import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
 import MeetingDetailModal from "../components/chat/MeetingDetailModal";
 import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
-import ProductCard from "../components/ProductCard";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
@@ -177,8 +185,6 @@ export default function ChatWindow({ navigation, route }) {
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageURL, setImageURL] = useState<string>("");
 
-  const [availabilityVisible, setAvailabilityVisible] = useState(false);
-
   const [isSendingAvailability, setIsSendingAvailability] = useState(false);
   const [inputSchedule, setInputSchedule] = useState([]);
   const [scheduleCallback, setScheduleCallback] = useState([]);
@@ -189,7 +195,7 @@ export default function ChatWindow({ navigation, route }) {
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
   const [messages, setMessages] = React.useState<any[]>([]);
 
-  const [selectTime, setSelectedTime] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [showConfirmNotice, setShowConfirmNotice] = useState(
     confirmedTime ? true : false
   );
@@ -206,6 +212,23 @@ export default function ChatWindow({ navigation, route }) {
   interface notification {
     request;
   }
+
+  // Bottom sheet setup
+  // ref
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  // variables
+  const snapPoints = useMemo(() => ["85%"], []);
+  // callbacks
+  const setAvailabilityVisible = useCallback((visible: boolean) => {
+    console.log(`visible = ${visible}`);
+    if (visible) {
+      console.log(`presenting bottom sheet`);
+      bottomSheetModalRef.current?.present();
+    } else {
+      console.log(`closing sheet`);
+      bottomSheetModalRef.current?.close();
+    }
+  }, []);
 
   const apiClient = useApiClient();
 
@@ -725,7 +748,6 @@ export default function ChatWindow({ navigation, route }) {
           isBuyer={isBuyer}
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          availabilityVisible={availabilityVisible}
           setAvailabilityVisible={setAvailabilityVisible}
           setIsBubble={setIsBubble}
           alwaysColor={true}
@@ -916,179 +938,199 @@ export default function ChatWindow({ navigation, route }) {
       </SafeAreaView>
     );
   }
+
+  function renderAvailabilityBackdrop(props: BottomSheetBackdropProps) {
+    return <BottomSheetBackdrop {...props} appearsOnIndex={1} />;
+  }
+
   const ref = useRef<any>();
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: "#FFFFFF",
-        padding: 0,
-        flex: 1,
-        justifyContent: "flex-start",
-      }}
-    >
-      <View
+    <BottomSheetModalProvider>
+      <SafeAreaView
         style={{
+          backgroundColor: "#FFFFFF",
+          padding: 0,
+          flex: 1,
+          justifyContent: "flex-start",
           width: "100%",
-          height: Platform.OS === "ios" ? 90 : 70,
-          borderBottomWidth: 1,
-          borderColor: "#D6D6D6",
-          // elevation: 8,
-          justifyContent: "center",
+          height: "100%",
         }}
       >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <BackButton color="black" />
-        </TouchableOpacity>
         <View
           style={{
-            flexDirection: "column",
+            width: "100%",
+            height: Platform.OS === "ios" ? 90 : 70,
+            borderBottomWidth: 1,
+            borderColor: "#D6D6D6",
+            // elevation: 8,
             justifyContent: "center",
           }}
         >
-          <Text
-            style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
           >
-            {post.title}
-          </Text>
-          <Text
-            style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
-          >
-            {name}
-          </Text>
-        </View>
-      </View>
-
-      <GiftedChat
-        messages={messages}
-        onSend={onSend}
-        user={{
-          _id: auth.currentUser.email,
-          name: auth.currentUser.displayName,
-          avatar: auth.currentUser.photoURL,
-        }}
-        listViewProps={{
-          keyboardDismissMode: "on-drag",
-        }}
-        renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        renderMessage={renderMessage}
-        minInputToolbarHeight={
-          125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
-        }
-        renderAvatar={renderAvatar}
-        scrollToBottom
-        showAvatarForEveryMessage
-        renderAvatarOnTop
-        onLongPress={onLongPress}
-        bottomOffset={40}
-        scrollToBottomComponent={() => (
+            <BackButton color="black" />
+          </TouchableOpacity>
           <View
             style={{
-              width: 50,
-              height: 50,
               flexDirection: "column",
-              alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Feather name="chevron-down" size={20} />
+            <Text
+              style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
+            >
+              {post.title}
+            </Text>
+            <Text
+              style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
+            >
+              {name}
+            </Text>
           </View>
-        )}
-      />
-      {/* Modals below */}
-      <>
-        <NegotiationModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-          text={text}
-          setText={setText}
-          setHeight={setHeight}
-          screen={isBuyer ? "ChatBuyer" : "ChatSeller"}
-          post={post}
-        />
-        <AvailabilityModal
-          bubbleInput={inputSchedule}
-          setScheduleCallback={setScheduleCallback}
-          availabilityVisible={availabilityVisible}
-          setAvailabilityVisible={setAvailabilityVisible}
-          setIsSendingAvailability={setIsSendingAvailability}
-          isBubble={isBubble}
-          setIsBubble={setIsBubble}
-          setHeight={setHeight}
-          username={availabilityUsername}
-          isBuyer={isBuyer}
-          setSelectedTime={setSelectedTime}
-          setBuyerProposeVisible={setMeetingProposeVisible}
-          selectdate={selectTime}
-        />
-        <ConfirmMeetingModal
-          visible={SellerConfirmVisible}
-          setVisible={setSellerConfirmVisible}
-          text={name + " has proposed the following meeting:"}
-          startDate={proposedTime}
-          setSyncMeetingVisible={setSellerSyncVisible}
-          email={email}
-          setShowNotice={setShowProposeNotice}
-          proposer={proposer}
-        />
+        </View>
 
-        <SellerSyncModal
-          visible={SellerSyncVisible}
-          setVisible={setSellerSyncVisible}
-          eventTitle={"Meet " + name + " for Resell"}
-          startDate={proposedTime}
+        <GiftedChat
+          messages={messages}
+          onSend={onSend}
+          user={{
+            _id: auth.currentUser.email,
+            name: auth.currentUser.displayName,
+            avatar: auth.currentUser.photoURL,
+          }}
+          listViewProps={{
+            keyboardDismissMode: "on-drag",
+          }}
+          renderBubble={renderBubble}
+          renderInputToolbar={renderInputToolbar}
+          renderMessage={renderMessage}
+          minInputToolbarHeight={
+            125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
+          }
+          renderAvatar={renderAvatar}
+          scrollToBottom
+          showAvatarForEveryMessage
+          renderAvatarOnTop
+          onLongPress={onLongPress}
+          bottomOffset={40}
+          scrollToBottomComponent={() => (
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Feather name="chevron-down" size={20} />
+            </View>
+          )}
         />
-
-        <MeetingProposeModal
-          visible={meetingProposeVisible}
-          setVisible={setMeetingProposeVisible}
-          setAvailabilityVisible={setAvailabilityVisible}
-          startDate={selectTime}
-          sellerEmail={sellerEmail}
-          buyerEmail={buyerEmail}
-          post={post}
-          setStartDate={setSelectedTime}
-        />
-
-        <ConfirmedMeetingModal
-          visible={confirmedMeetingVisible}
-          setVisible={setConfirmedMeetingVisible}
-          eventTitle={"Meet " + name + " for Resell"}
-          text={name + " has confirmed the following meeting:"}
-          startDate={confirmedTime}
-          email={email}
-          setShowNotice={setShowConfirmNotice}
-        />
-        <MeetingDetailModal
-          visible={meetingDetailVisible}
-          setVisible={setMeetingDetailVisible}
-          startDate={isBuyer ? confirmedTime : proposedTime}
-          otherEmail={email}
-          name={name}
-          post={post}
-          proposer={proposer}
-          isBuyer={isBuyer}
-        />
-        <Modal visible={imageViewerVisible}>
-          <ImageViewer
-            imageUrls={[
-              {
-                url: imageURL,
-              },
-            ]}
-            renderIndicator={() => <></>}
-            enableSwipeDown
-            onCancel={() => {
-              setImageViewerVisible(false);
-              setImageURL("");
-            }}
+        {/* Modals below */}
+        <>
+          <NegotiationModal
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            text={text}
+            setText={setText}
+            setHeight={setHeight}
+            screen={isBuyer ? "ChatBuyer" : "ChatSeller"}
+            post={post}
           />
-        </Modal>
-      </>
-    </SafeAreaView>
+
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            index={0}
+            snapPoints={snapPoints}
+            style={styles.weekViewBottomSheet}
+            handleComponent={BottomSheetHandle}
+            onDismiss={() => {
+              if (selectedTime) {
+                setMeetingProposeVisible(true);
+              }
+            }}
+          >
+            <AvailabilityModal
+              bubbleInput={inputSchedule}
+              setAvailabilityVisible={setAvailabilityVisible}
+              setScheduleCallback={setScheduleCallback}
+              setIsSendingAvailability={setIsSendingAvailability}
+              isBubble={isBubble}
+              setIsBubble={setIsBubble}
+              setHeight={setHeight}
+              username={availabilityUsername}
+              isBuyer={isBuyer}
+              setSelectedTime={setSelectedTime}
+              setBuyerProposeVisible={setMeetingProposeVisible}
+              selectdate={selectedTime}
+            />
+          </BottomSheetModal>
+
+          <ConfirmMeetingModal
+            visible={SellerConfirmVisible}
+            setVisible={setSellerConfirmVisible}
+            text={name + " has proposed the following meeting:"}
+            startDate={proposedTime}
+            setSyncMeetingVisible={setSellerSyncVisible}
+            email={email}
+            setShowNotice={setShowProposeNotice}
+            proposer={proposer}
+          />
+          <SellerSyncModal
+            visible={SellerSyncVisible}
+            setVisible={setSellerSyncVisible}
+            eventTitle={"Meet " + name + " for Resell"}
+            startDate={proposedTime}
+          />
+          <MeetingProposeModal
+            visible={meetingProposeVisible}
+            setVisible={setMeetingProposeVisible}
+            setAvailabilityVisible={setAvailabilityVisible}
+            startDate={selectedTime}
+            sellerEmail={sellerEmail}
+            buyerEmail={buyerEmail}
+            post={post}
+            setStartDate={setSelectedTime}
+          />
+          <ConfirmedMeetingModal
+            visible={confirmedMeetingVisible}
+            setVisible={setConfirmedMeetingVisible}
+            eventTitle={"Meet " + name + " for Resell"}
+            text={name + " has confirmed the following meeting:"}
+            startDate={confirmedTime}
+            email={email}
+            setShowNotice={setShowConfirmNotice}
+          />
+          <MeetingDetailModal
+            visible={meetingDetailVisible}
+            setVisible={setMeetingDetailVisible}
+            startDate={isBuyer ? confirmedTime : proposedTime}
+            otherEmail={email}
+            name={name}
+            post={post}
+            proposer={proposer}
+            isBuyer={isBuyer}
+          />
+          <Modal visible={imageViewerVisible}>
+            <ImageViewer
+              imageUrls={[
+                {
+                  url: imageURL,
+                },
+              ]}
+              renderIndicator={() => <></>}
+              enableSwipeDown
+              onCancel={() => {
+                setImageViewerVisible(false);
+                setImageURL("");
+              }}
+            />
+          </Modal>
+        </>
+      </SafeAreaView>
+    </BottomSheetModalProvider>
   );
 }
 
@@ -1138,6 +1180,16 @@ const styles = StyleSheet.create({
     padding: 30,
     paddingLeft: 50,
     paddingRight: 50,
+  },
+  weekViewBottomSheet: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 const FILTER = [

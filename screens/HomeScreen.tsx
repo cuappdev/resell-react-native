@@ -1,165 +1,106 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, Text, Image, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DetailPullUpHeader } from "../components/GetStartedPullUp";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
+import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 // import { SafeAreaView, StatusBar } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { LogBox } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { FILTER } from "../data/filter";
 
+import { useIsFocused } from "@react-navigation/native";
+import ApiClient from "../api/ApiClient";
+import Header from "../assets/svg-components/header";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductList } from "../components/ProductList";
-import Header from "../assets/svg-components/header";
-import { HeaderIcon } from "../navigation/index";
-import { pressedOpacity } from "../constants/Values";
-import LoadingScreen from "../screens/LoadingScreen";
 import PurpleButton from "../components/PurpleButton";
-import { useIsFocused } from "@react-navigation/native";
+import { pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
-import { getAccessToken, getUserId } from "../utils/asychStorageFunctions";
-import { auth } from "../config/firebase";
+import { HeaderIcon } from "../navigation/index";
+import LoadingScreen from "../screens/LoadingScreen";
+import { makeToast } from "../utils/Toast";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 export default function HomeScreen({ navigation, route }) {
-  const [accessToken, setAccessToken] = useState("");
-  getUserId(setAccessToken);
-  console.log(accessToken);
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
-  const [fetchFailed, setFetchFailed] = useState(false);
-  const [posts, setPosts] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const [posts, setPosts] = useState(null);
   const isFocused = useIsFocused();
+  /* WARNING: unable to use API client provider on the home page
+     there was an issue where the API client was not loading in time
+     since the API does not use any methods that require authentication on this
+     screen it is fine for now. */
+  const api = new ApiClient();
+
+  // When they change the filter or navigate back to the screen, refresh posts
   useEffect(() => {
-    if (count == 0) {
-      getPostsIngress();
-    } else {
-      filterPostsIngress(FILTER[count].title);
-    }
-  }, [isFocused]);
-  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
-  useEffect(() => {
-    if (count == 0) {
+    if (count === 0) {
       getPosts();
     } else {
       filterPost(FILTER[count].title);
     }
-  }, [count]);
-  const filterPost = async (keyword) => {
-    const Json = JSON.stringify({
-      category: keyword,
-    });
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/filter/",
-
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setPosts(json.posts);
-      }
-    } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [count, isFocused]);
 
   const getPosts = async () => {
+    const makeError = () => {
+      makeToast({
+        message: "Failed to load posts, reload the app",
+        type: "ERROR",
+      });
+    };
     try {
-      setLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post"
-      );
-      const json = await response.json();
-      if (JSON.stringify(json.posts) != JSON.stringify(posts)) {
-        setPosts(json.posts);
+      if (!posts) {
+        setLoading(true);
+      }
+      const response = await api.get("/post");
+      if (response.posts) {
+        setPosts(
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post1.created).getTime() -
+              new Date(post2.created).getTime()
+          )
+        );
+      } else {
+        makeError();
+        console.log(`response: ${JSON.stringify(response)}`);
       }
     } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
+      makeError();
+      console.log(`error: ${error}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const getPostsRefresh = async () => {
+  const filterPost = async (keyword: string) => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post"
-      );
-      setLoading(true);
-      const json = await response.json();
-      setPosts(json.posts);
-    } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
-    } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 500); //display loading animation
-    }
-  };
-  const getPostsIngress = async () => {
-    // does not set isLoading to hide data fetch
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post"
-      );
-      const json = await response.json();
-      if (JSON.stringify(json.posts) != JSON.stringify(posts)) {
-        setPosts(json.posts);
+      const response = await api.post("/post/filter/", {
+        category: keyword,
+      });
+      if (response.posts) {
+        setPosts(
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post1.created).getTime() -
+              new Date(post2.created).getTime()
+          )
+        );
       }
     } catch (error) {
       console.error(error);
-      setFetchFailed(true);
     }
   };
 
-  const filterPostsIngress = async (keyword) => {
-    const Json = JSON.stringify({
-      category: keyword,
-    });
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/filter/",
-
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: Json,
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setPosts(json.posts);
-      }
-    } catch (error) {
-      console.error(error);
-      setFetchFailed(true);
-    }
+  // Displays loading animation for better feedback on refresh
+  const refreshPosts = () => {
+    setLoading(true);
+    setTimeout(async () => {
+      await getPosts();
+    }, 500);
   };
-
-  useEffect(() => {
-    getPosts();
-  }, []);
   const { showPanel } = route.params;
   const [welcomeState, setWelcomeState] = useState(showPanel);
 
@@ -195,9 +136,7 @@ export default function HomeScreen({ navigation, route }) {
       <View style={{ height: "100%", flex: 1 }}>
         {isLoading ? (
           <LoadingScreen screen={"Home"} />
-        ) : fetchFailed ? (
-          <LoadingScreen screen={"Home"} />
-        ) : posts.length == 0 ? (
+        ) : posts && posts.length == 0 ? (
           <View style={styles.noResultView}>
             <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
               No Posts Found
@@ -209,7 +148,7 @@ export default function HomeScreen({ navigation, route }) {
         ) : (
           <ProductList
             data={posts}
-            onRefresh={getPostsRefresh}
+            onRefresh={refreshPosts}
             navigation={navigation}
             screen={"Home"}
           />

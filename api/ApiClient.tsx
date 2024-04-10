@@ -45,6 +45,7 @@ export default class ApiClient {
     headers?: Record<string, string>,
     options?: any
   ) {
+    console.log(`accessToken1: ${this.accessToken}`);
     return fetch(process.env.BASE_API_URL + route, {
       method: type,
       body: body ? JSON.stringify(body) : "",
@@ -126,9 +127,5 @@ export default class ApiClient {
     options?: any
   ) {
     return this.request("POST", route, body, headers, options);
-  }
-
-  hasAccessToken(): boolean {
-    return this.accessToken ? true : false;
   }
 }

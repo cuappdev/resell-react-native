@@ -34,6 +34,13 @@ export default function SavedScreen({ navigation }) {
     }
   };
 
+  const refreshPosts = () => {
+    setLoading(true);
+    setTimeout(async () => {
+      await getPosts();
+    }, 500);
+  };
+
   useEffect(() => {
     // update posts when home screen is entered again
     getPosts();
@@ -59,7 +66,7 @@ export default function SavedScreen({ navigation }) {
           data={posts}
           navigation={navigation}
           screen={"Saved"}
-          onRefresh={getPosts}
+          onRefresh={refreshPosts}
         />
       )}
     </View>

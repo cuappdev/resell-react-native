@@ -28,7 +28,7 @@ PODS:
     - ExpoModulesCore
   - Expo (49.0.23):
     - ExpoModulesCore
-  - ExpoAdapterGoogleSignIn (10.1.1):
+  - ExpoAdapterGoogleSignIn (10.1.2):
     - ExpoModulesCore
     - GoogleSignIn (~> 7.0)
     - React-Core
@@ -488,8 +488,8 @@ PODS:
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNGestureHandler (2.12.1):
     - React-Core
-  - RNGoogleSignin (10.1.1):
-    - GoogleSignIn (~> 7.0)
+  - RNGoogleSignin (10.1.2):
+    - GoogleSignIn (~> 7.0.0)
     - React-Core
   - RNReanimated (3.3.0):
     - DoubleConversion
@@ -776,7 +776,7 @@ SPEC CHECKSUMS:
   EXNotifications: 09394cbd7165f9a4a00a53328aa09bf874bae717
   EXPermissions: 4f80cf527001aa408a22eddf076e61465ea71d5a
   Expo: ba9abdf444dc6d2c05a82c4c1b51a2400beb6167
-  ExpoAdapterGoogleSignIn: 6c55782832b7fbdc2c27dac05ef00445c103b8f3
+  ExpoAdapterGoogleSignIn: 6141872bcd2bc999fe7589b94a577d70cc4a3060
   ExpoCrypto: a382ab9a2fa91f0b511ce1fe4d6baecee40a1615
   ExpoDevice: 1c1b0c9cad96c292c1de73948649cfd654b2b3c0
   ExpoGL: 77f5c4f4c1efeebceabbbcb18540208c5ab67d12
@@ -835,7 +835,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
-  RNGoogleSignin: aac5c1ec73422109dec1da770247a1e410dcc620
+  RNGoogleSignin: 9d0ecc3bff939ccef83cb3a26b874130b06a6e81
   RNReanimated: 3ffa3d63576ecd26a4f8772d03029cccaf41b5d7
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315

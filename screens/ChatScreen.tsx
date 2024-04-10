@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,6 +10,7 @@ import {
 
 import { useIsFocused } from "@react-navigation/native";
 import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
+import FastImage from "react-native-fast-image";
 import { format } from "timeago.js";
 import ChatTabs from "../components/chat/ChatTabs";
 import LoadingChat from "../components/chat/LoadingChat";
@@ -21,8 +21,8 @@ import { fonts } from "../globalStyle/globalFont";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
-  const [purchase, setPurchase] = useState<ChatPreview[]>([]);
-  const [offer, setOffer] = useState<ChatPreview[]>([]);
+  const [purchase, setPurchase] = useState<ChatPreview[] | null>(null);
+  const [offer, setOffer] = useState<ChatPreview[] | null>(null);
   const [purchaseUnread, setPurchaseUnread] = useState(0);
   const [offerUnread, setOfferUnread] = useState(0);
   const isFocused = useIsFocused();
@@ -30,8 +30,10 @@ export default function ChatScreen({ navigation }) {
   const [isLoadingOffers, setIsLoadingOffers] = useState(true);
 
   const getPurchase = (): Unsubscribe => {
-    setPurchase([]);
-    setIsLoadingPurchase(true);
+    if (purchase === null) {
+      setIsLoadingPurchase(true);
+    }
+
     const sellersQuery = collection(
       doc(historyRef, auth.currentUser?.email),
       "sellers"
@@ -66,8 +68,9 @@ export default function ChatScreen({ navigation }) {
     }
   };
   const getOffer = (): Unsubscribe => {
-    setOffer([]);
-    setIsLoadingOffers(true);
+    if (offer === null) {
+      setIsLoadingOffers(true);
+    }
 
     const buyersQuery = collection(
       doc(historyRef, auth.currentUser.email),
@@ -122,11 +125,11 @@ export default function ChatScreen({ navigation }) {
     return notViewed;
   };
   useEffect(() => {
-    setPurchaseUnread(countNotViewed(purchase));
+    setPurchaseUnread(countNotViewed(purchase ?? []));
   }, [purchase]);
 
   useEffect(() => {
-    setOfferUnread(countNotViewed(offer));
+    setOfferUnread(countNotViewed(offer ?? []));
   }, [offer]);
 
   const renderItem = ({ item: chatPreview }: { item: ChatPreview }) => {
@@ -151,7 +154,7 @@ export default function ChatScreen({ navigation }) {
       >
         <View style={styles.outer}>
           {!chatPreview.viewed && <View style={styles.viewedDot} />}
-          <Image
+          <FastImage
             style={[
               styles.image,
               (isPurchase && purchaseUnread != 0) ||
