@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import Toast from "react-native-root-toast";
 import { auth, historyRef } from "../../config/firebase";
+import { MeetingInfo } from "../../data/struct";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
 import PurpleButton from "../PurpleButton";
@@ -86,7 +87,6 @@ export default function MeetingProposeModal({
                 sellerEmail
               );
               // we also wish to update this data for the sellers
-
               const updateData = {
                 recentMessage: "Proposed a Time",
                 recentSender: auth.currentUser.email,
@@ -94,6 +94,16 @@ export default function MeetingProposeModal({
                 proposer: auth.currentUser.email,
                 proposedViewed: false,
               };
+
+              // we also need to send the special meeting message in chat
+              const meetingData: MeetingInfo = {
+                proposer: auth.currentUser.email,
+                proposeTime: startDate,
+                isCanceled: false,
+                isConfirmed: false,
+              };
+              // TODO send the meeting as a chat message
+
               try {
                 await updateDoc(sellersInteractionHistory, {
                   ...updateData,

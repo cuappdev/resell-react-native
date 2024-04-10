@@ -73,3 +73,22 @@ export interface signInfo {
   userId: string;
   email: string;
 }
+
+export interface MeetingInfo {
+  /**
+   * The start time that the meeting was proposed for (all meetings are 30 minutes)
+   */
+  proposeTime: string;
+  /**
+   * Whether the meeting was canceled by either party
+   */
+  isCanceled: boolean;
+  /**
+   * Whether the meeting is confirmed by both parties
+   */
+  isConfirmed: boolean;
+  /**
+   * The email address of the proposer
+   */
+  proposer: string;
+}
