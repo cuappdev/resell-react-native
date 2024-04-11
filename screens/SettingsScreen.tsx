@@ -1,34 +1,34 @@
+import { Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-  Text,
-  View,
-  TouchableOpacity,
-  StyleSheet,
   FlatList,
   Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import BackButton from "../assets/svg-components/back_button";
-import { menuBarTop } from "../constants/Layout";
-import Logout from "../assets/svg-components/logout";
-import Notifications from "../assets/svg-components/notifications";
-import Feedback from "../assets/svg-components/feedback";
-import { Feather } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import { WebView } from "react-native-webview";
+import BackButton from "../assets/svg-components/back_button";
+import Feedback from "../assets/svg-components/feedback";
+import Logout from "../assets/svg-components/logout";
+import Notifications from "../assets/svg-components/notifications";
+import { menuBarTop } from "../constants/Layout";
 
-import { useDispatch, useSelector } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import Blocked from "../assets/svg-components/blocked";
+import ProfileBlack from "../assets/svg-components/profileBlack";
+import Terms from "../assets/svg-components/terms";
 import { auth } from "../config/firebase";
+import Colors from "../constants/Colors";
 import { logout } from "../state_manage/reducers/signInReducer";
 import {
   getUserId,
   storeEmail,
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Blocked from "../assets/svg-components/blocked";
-import Terms from "../assets/svg-components/terms";
-import ProfileBlack from "../assets/svg-components/profileBlack";
-import Colors from "../constants/Colors";
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -77,12 +77,12 @@ export default function SettingsScreen({ navigation }) {
           {
             icon: Blocked,
             text: "Blocked Users",
-            onPress: () => console.log("No Screen yet") // TODO: Implement this screen
+            onPress: () => console.log("No Screen yet"), // TODO: Implement this screen
           },
           {
             icon: Terms,
             text: "Terms and Conditions",
-            onPress: presentEULA // TODO: Implement this screen
+            onPress: presentEULA, // TODO: Implement this screen
           },
           {
             icon: Logout,
@@ -94,7 +94,7 @@ export default function SettingsScreen({ navigation }) {
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => { }}
+            onPress={item.onPress ? item.onPress : () => {}}
             style={styles.item}
           >
             <item.icon />
@@ -130,8 +130,8 @@ export default function SettingsScreen({ navigation }) {
 
               auth
                 .signOut()
-                .then(() => { })
-                .catch((error) => { });
+                .then(() => {})
+                .catch((error) => {});
             }}
           >
             <View style={styles.button}>
@@ -275,9 +275,9 @@ const styles = StyleSheet.create({
   },
   EULAModal: {
     top: Platform.OS === "ios" ? menuBarTop : 30,
-    margin: 0
+    margin: 0,
   },
   EULAView: {
     flex: 1,
-  }
+  },
 });

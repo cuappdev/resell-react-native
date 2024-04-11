@@ -106,13 +106,31 @@ export default function SignIn() {
 
       // Get an access token and login using it
       const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
-      const accessToken = accessTokenRes?.sessions?.[0]?.accessToken;
-      if (accessToken) {
-        await storeAccessToken(accessToken);
-        await api.loadAccessToken();
-        dispatch(login(accessToken));
-      } else {
-        makeToast({ message: "Failed to sign into account", type: "ERROR" });
+      const session = accessTokenRes.sessions?.[0];
+      if (session) {
+        const accessToken = session.accessToken;
+        const isActive = session.active;
+        if (isActive) {
+          await storeAccessToken(accessToken);
+          await api.loadAccessToken();
+          dispatch(login(accessToken));
+        } else {
+          // get a new session for the user
+          const newSession = await api.get(
+            `/auth/refresh/`,
+            {},
+            {
+              Authorization: session.refreshToken,
+            }
+          );
+          const newAccessToken = newSession.accessToken;
+          if (!newAccessToken) {
+            throw new Error("Unable to refresh login");
+          }
+          await storeAccessToken(newAccessToken);
+          await api.loadAccessToken();
+          dispatch(login(newAccessToken));
+        }
       }
     } catch (error) {
       switch (error.code) {

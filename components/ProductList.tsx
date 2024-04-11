@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { useApiClient } from "../api/ApiClientProvider";
+import { makeToast } from "../utils/Toast";
 import ProductCard from "./ProductCard";
 
 /**
@@ -43,26 +44,18 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       const response = await api.get(`/post/isSaved/postId/${item.id}`);
       console.log(`response: ${JSON.stringify(response)}`);
 
-      if (response.ok) {
-        const json = await response.json();
-        if (json != null) {
-          navigation.navigate("ProductHome", {
-            post: item,
-            screen: screen,
-            savedInitial: json.isSaved,
-          });
-        }
-        console.log("ok");
-      } else {
-        const json = await response.json();
-        console.log("NoProduct");
-        console.log(`json: ${JSON.stringify(json)}`);
+      if (response.isSaved !== undefined) {
+        navigation.navigate("ProductHome", {
+          post: item,
+          screen: screen,
+          savedInitial: response.isSaved,
+        });
       }
     } catch (error) {
-      console.log(error);
-      console.log(accessToken);
-      console.log(item.id);
-      console.log(userId);
+      makeToast({
+        message: "Failed to view product details, check internet connection",
+        type: "ERROR",
+      });
     }
   };
   const renderItem = ({ item }) => {
