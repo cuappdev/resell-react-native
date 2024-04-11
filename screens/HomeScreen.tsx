@@ -1,24 +1,30 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { LogBox, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
-import { DetailPullUpHeader } from "../components/GetStartedPullUp";
-// import { SafeAreaView, StatusBar } from "react-native";
-import { LogBox } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import { FILTER } from "../data/filter";
 
 import { useIsFocused } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
 import ApiClient from "../api/ApiClient";
 import Header from "../assets/svg-components/header";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ProductList } from "../components/ProductList";
 import PurpleButton from "../components/PurpleButton";
+import { auth } from "../config/firebase";
 import { pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 import { HeaderIcon } from "../navigation/index";
 import LoadingScreen from "../screens/LoadingScreen";
+import { logout } from "../state_manage/reducers/signInReducer";
 import { makeToast } from "../utils/Toast";
+import {
+  getUserId,
+  storeEmail,
+  storeSignedIn,
+} from "../utils/asychStorageFunctions";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -28,11 +34,45 @@ export default function HomeScreen({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const [posts, setPosts] = useState(null);
   const isFocused = useIsFocused();
-  /* WARNING: unable to use API client provider on the home page
-     there was an issue where the API client was not loading in time
-     since the API does not use any methods that require authentication on this
-     screen it is fine for now. */
+  const [userId, setUserId] = useState("");
+
+  const dispatch = useDispatch();
+  const log_out = () => {
+    dispatch(logout());
+  };
+
   const api = new ApiClient();
+
+  // At the start load the current user ID, we need to check if the session is valid
+  useEffect(() => {
+    getUserId(setUserId);
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      api.get(`/auth/sessions/${userId}`).then(async (res) => {
+        if (res.sessions) {
+          const currentSession = res.sessions[0];
+          if (!currentSession.active) {
+            storeSignedIn("false");
+            storeEmail("");
+            AsyncStorage.clear();
+
+            makeToast({
+              message: "Session expired, please login again",
+              type: "INFO",
+            });
+            log_out();
+
+            auth
+              .signOut()
+              .then(() => {})
+              .catch((error) => {});
+          }
+        }
+      });
+    }
+  }, [userId]);
 
   // When they change the filter or navigate back to the screen, refresh posts
   useEffect(() => {
