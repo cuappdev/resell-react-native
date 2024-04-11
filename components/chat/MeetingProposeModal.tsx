@@ -1,10 +1,10 @@
-import { collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import Toast from "react-native-root-toast";
-import { auth, historyRef } from "../../config/firebase";
+import { auth, chatRef, historyRef } from "../../config/firebase";
 import { MeetingInfo } from "../../data/struct";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
@@ -103,6 +103,21 @@ export default function MeetingProposeModal({
                 isConfirmed: false,
               };
               // TODO send the meeting as a chat message
+              const messageRef = collection(
+                doc(chatRef, buyerEmail),
+                sellerEmail
+              );
+              addDoc(messageRef, {
+                text: `Proposed a Time`,
+                createdAt: new Date(),
+                meetingInfo: meetingData,
+                _id: Math.random().toString(), // TODO eventually replace with better way to generate IDs
+                user: {
+                  _id: auth.currentUser.email,
+                  avatar: auth.currentUser.photoURL,
+                  name: auth.currentUser.displayName,
+                },
+              });
 
               try {
                 await updateDoc(sellersInteractionHistory, {

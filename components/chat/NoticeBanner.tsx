@@ -5,11 +5,11 @@ import { fonts } from "../../globalStyle/globalFont";
 const NoticeBanner = ({
   name,
   onPress,
-  isProposed,
+  isConfirmed,
 }: {
   name: string;
   onPress: () => void;
-  isProposed: boolean;
+  isConfirmed: boolean;
 }) => {
   return (
     <View
@@ -20,6 +20,7 @@ const NoticeBanner = ({
         alignContent: "center",
         alignItems: "center",
         justifyContent: "center",
+        marginBottom: 12,
       }}
     >
       <View
@@ -29,19 +30,19 @@ const NoticeBanner = ({
       >
         <Feather name="calendar" size={17} color="black" />
         <Text style={[fonts.Title4, { marginStart: 6 }]}>
-          {isProposed
-            ? name + " proposed a meeting"
-            : name + " confirmed the meeting"}
+          {isConfirmed
+            ? name + " confirmed the meeting"
+            : name + " proposed a meeting"}
         </Text>
       </View>
       <TouchableOpacity onPress={onPress}>
-        {isProposed ? (
+        {isConfirmed ? (
           <Text style={[fonts.Title3, { color: "#9E70F6", marginTop: 7 }]}>
-            View Proposal
+            View Details
           </Text>
         ) : (
           <Text style={[fonts.Title3, { color: "#9E70F6", marginTop: 7 }]}>
-            View Details
+            View Proposal
           </Text>
         )}
       </TouchableOpacity>

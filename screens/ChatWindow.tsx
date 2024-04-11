@@ -30,12 +30,10 @@ import {
   GiftedChat,
   IMessage,
   Message,
-  MessageProps,
 } from "react-native-gifted-chat";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
 import { NegotiationModal } from "../components/chat/NegotiationModal";
-import NoticeBanner from "../components/chat/NoticeBanner";
 
 import {
   BottomSheetBackdrop,
@@ -43,7 +41,6 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -68,8 +65,10 @@ import ConfirmMeetingModal from "../components/chat/ConfirmMeetingModal";
 import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
 import MeetingDetailModal from "../components/chat/MeetingDetailModal";
 import MeetingProposeModal from "../components/chat/MeetingProposeModal";
+import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
+import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 
@@ -147,10 +146,19 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 interface ChatWindowParams {
+  /**
+   * The email of the user you are chatting with
+   */
   email: string;
+  /**
+   * The name of the user you are chatting with
+   */
   name: string;
   receiverImage: string;
   post: any;
+  /**
+   * Indicates whether the current user is the buyer
+   */
   isBuyer: boolean;
   screen: string;
   proposedTime: string;
@@ -202,12 +210,13 @@ export default function ChatWindow({ navigation, route }) {
   const [showProposeNotice, setShowProposeNotice] = useState(
     proposedTime && !confirmedTime ? true : false
   );
-  const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
+  const [cancelMeetingVisible, setCancelMeetingVisible] = React.useState(false);
   const [meetingProposeVisible, setMeetingProposeVisible] =
     React.useState(false);
   const [confirmedMeetingVisible, setConfirmedMeetingVisible] =
     React.useState(false);
-  const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
+  const [confirmMeetingVisible, setConfirmMeetingVisible] =
+    React.useState(false);
   const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
   interface notification {
     request;
@@ -337,7 +346,21 @@ export default function ChatWindow({ navigation, route }) {
       user,
     });
   }, []);
-  function renderMessage(props: MessageProps<IMessage>) {
+  function renderMessage(props) {
+    if (props.currentMessage.meetingInfo) {
+      const meetingInfo: MeetingInfo = props.currentMessage.meetingInfo;
+      const isProposed = meetingInfo.proposer !== auth.currentUser.email;
+      const nameToShow = isProposed ? "You" : name;
+      return (
+        <NoticeBanner
+          name={nameToShow}
+          onPress={() => {
+            setConfirmMeetingVisible(true);
+          }}
+          isConfirmed={meetingInfo.isConfirmed}
+        />
+      );
+    }
     if (props.currentMessage.image) {
       return (
         <>
@@ -368,6 +391,8 @@ export default function ChatWindow({ navigation, route }) {
   const [availabilityUsername, setAvailabilityUserName] = useState("");
 
   function renderBubble(props) {
+    console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
+
     const { currentMessage } = props;
     const { text: currText } = currentMessage;
     const { availability: currAvailability } = currentMessage;
@@ -423,7 +448,8 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else if (currAvailability[0] != undefined) {
+    }
+    if (currAvailability[0] != undefined) {
       return (
         <View style={{ width: "70%", marginVertical: 5 }}>
           <AvailabilityBubble
@@ -440,7 +466,8 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else if (currPost.title != undefined) {
+    }
+    if (currPost.title != undefined) {
       return (
         <View style={{ width: "50%", marginVertical: 5 }}>
           <ProductCard
@@ -467,7 +494,8 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else if (currImage != "") {
+    }
+    if (currImage != "") {
       return (
         <View
           style={[
@@ -521,7 +549,7 @@ export default function ChatWindow({ navigation, route }) {
               sellerName: name,
               sellerId: "sellerId", // TODO: Add when Implementing Reporting Backend
               postId: post.id,
-              userId: auth.currentUser.uid
+              userId: auth.currentUser.uid,
             });
             break;
         }
@@ -568,7 +596,8 @@ export default function ChatWindow({ navigation, route }) {
 
   const checkPhotoPermission = async () => {
     if (Platform.OS !== "web") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       return status === "granted";
     }
     return false;
@@ -676,6 +705,7 @@ export default function ChatWindow({ navigation, route }) {
           _id: doc.data()._id,
           text: doc.data().text,
           availability: doc.data().availability,
+          meetingInfo: doc.data().meetingInfo,
           product: doc.data().product,
           image: doc.data().image,
           createdAt: doc.data().createdAt.toDate(),
@@ -721,24 +751,6 @@ export default function ChatWindow({ navigation, route }) {
               saveandcompress(result.uri, props);
             }}
             mode="full"
-          />
-        )}
-        {showConfirmNotice && (
-          <NoticeBanner
-            name={name}
-            onPress={() => {
-              setConfirmedMeetingVisible(true);
-            }}
-            isProposed={false}
-          />
-        )}
-        {showProposeNotice && (
-          <NoticeBanner
-            name={proposer === auth.currentUser.email ? "You" : name}
-            onPress={() => {
-              setSellerConfirmVisible(true);
-            }}
-            isProposed={true}
           />
         )}
         <ButtonBanner
@@ -1069,8 +1081,8 @@ export default function ChatWindow({ navigation, route }) {
           </BottomSheetModal>
 
           <ConfirmMeetingModal
-            visible={SellerConfirmVisible}
-            setVisible={setSellerConfirmVisible}
+            visible={confirmMeetingVisible}
+            setVisible={setConfirmMeetingVisible}
             text={name + " has proposed the following meeting:"}
             startDate={proposedTime}
             setSyncMeetingVisible={setSellerSyncVisible}
@@ -1104,8 +1116,8 @@ export default function ChatWindow({ navigation, route }) {
             setShowNotice={setShowConfirmNotice}
           />
           <MeetingDetailModal
-            visible={meetingDetailVisible}
-            setVisible={setMeetingDetailVisible}
+            visible={cancelMeetingVisible}
+            setVisible={setCancelMeetingVisible}
             startDate={isBuyer ? confirmedTime : proposedTime}
             otherEmail={email}
             name={name}
