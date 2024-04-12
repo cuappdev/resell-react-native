@@ -80,15 +80,19 @@ export interface MeetingInfo {
    */
   proposeTime: string;
   /**
-   * Whether the meeting was canceled by either party
+   * The state of the meeting request
    */
-  isCanceled: boolean;
-  /**
-   * Whether the meeting is confirmed by both parties
-   */
-  isConfirmed: boolean;
+  // TODO finish this refactor
+  state: MeetingStatus;
   /**
    * The email address of the proposer
    */
   proposer: string;
 }
+
+export type MeetingStatus = "confirmed" | "declined" | "proposed" | "canceled";
+
+export const MEETING_CONFIRMED: MeetingStatus = "confirmed";
+export const MEETING_DECLINED: MeetingStatus = "declined";
+export const MEETING_PROPOSED: MeetingStatus = "proposed";
+export const MEETING_CANCELED: MeetingStatus = "canceled";

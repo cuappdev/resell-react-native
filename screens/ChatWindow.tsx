@@ -162,9 +162,7 @@ interface ChatWindowParams {
   isBuyer: boolean;
   screen: string;
   proposedTime: string;
-  proposer: string;
   confirmedTime: string;
-  proposedViewed: string;
   confirmedViewed: string;
 }
 
@@ -176,9 +174,7 @@ export default function ChatWindow({ navigation, route }) {
     post,
     isBuyer,
     screen,
-    proposer,
     confirmedTime,
-    proposedViewed,
     confirmedViewed,
   }: ChatWindowParams = route.params;
   const [text, setText] = useState("");
@@ -215,6 +211,8 @@ export default function ChatWindow({ navigation, route }) {
   }
 
   const [proposedTime, setProposedTime] = useState("");
+  const [proposedText, setProposedText] = useState("");
+  const [proposer, setProposer] = useState("");
 
   // Bottom sheet setup
   // ref
@@ -344,22 +342,21 @@ export default function ChatWindow({ navigation, route }) {
   function renderMessage(props) {
     if (props.currentMessage.meetingInfo) {
       const meetingInfo: MeetingInfo = props.currentMessage.meetingInfo;
-      const proposerName =
-        meetingInfo.proposer === auth.currentUser.email ? "You" : name;
-      const responderName =
-        meetingInfo.proposer === auth.currentUser.email ? name : "You";
 
-      // if the meeting is confirmed, then the person who is not the proposer confirmed the meeting
-      const nameToShow = meetingInfo.isConfirmed ? responderName : proposerName;
-      // otherwise the proposer is the one who is shown
       return (
         <NoticeBanner
-          name={nameToShow}
           onPress={() => {
             setProposedTime(meetingInfo.proposeTime);
+            setProposedText(
+              (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
+                " proposed the following meeting:"
+            );
+            setProposer(meetingInfo.proposer);
+
             setEditMeetingVisible(true);
           }}
-          isConfirmed={meetingInfo.isConfirmed}
+          meetingInfo={meetingInfo}
+          otherName={name}
         />
       );
     }
@@ -1084,10 +1081,7 @@ export default function ChatWindow({ navigation, route }) {
             isBuyer={isBuyer}
             visible={editMeetingVisible}
             setVisible={setEditMeetingVisible}
-            text={
-              (proposer === auth.currentUser.email ? "You" : name) +
-              " proposed the following meeting:"
-            }
+            text={proposedText}
             editAvailability={() => {
               // messages are already sorted reverse chronologically
               messages.forEach((msg) => {

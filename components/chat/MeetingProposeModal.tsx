@@ -99,8 +99,7 @@ export default function MeetingProposeModal({
               const meetingData: MeetingInfo = {
                 proposer: auth.currentUser.email,
                 proposeTime: startDate,
-                isCanceled: false,
-                isConfirmed: false,
+                state: "proposed",
               };
               // send the message as a chat message
               const messageRef = doc(

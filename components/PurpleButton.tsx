@@ -1,8 +1,13 @@
 // this is the general layout for the button that allows users to continue
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import { ActivityIndicator } from "react-native-paper";
-import Colors from "../constants/Colors";
 import { fonts } from "../globalStyle/globalFont";
 
 /**
@@ -17,28 +22,29 @@ import { fonts } from "../globalStyle/globalFont";
  * @returns
  */
 export default function PurpleButton({
-  enabled,
+  enabled = true,
   onPress,
   text,
   isLoading = false,
+  style,
 }: {
-  enabled: boolean;
+  enabled?: boolean;
   onPress: () => void;
   text: string;
   isLoading?: boolean;
+  style?: ViewStyle;
 }) {
   return (
     <TouchableOpacity onPress={onPress} disabled={!enabled || isLoading}>
       <View
         style={[
           styles.button,
-          enabled && !isLoading
-            ? { backgroundColor: Colors.resellPurple }
-            : { backgroundColor: Colors.inactivePurple },
+          isLoading || !enabled ? { opacity: 0.4 } : undefined,
+          style,
         ]}
       >
         {isLoading && <ActivityIndicator color="white" size="small" />}
-        <Text style={[{ color: "white", textAlign: "center" }, fonts.Title2]}>
+        <Text style={[{ color: "white", textAlign: "center" }, fonts.Title1]}>
           {text}
         </Text>
       </View>
