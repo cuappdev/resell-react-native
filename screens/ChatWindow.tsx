@@ -61,8 +61,8 @@ import BackButton from "../assets/svg-components/back_button";
 import ProductCard from "../components/ProductCard";
 import BottomSheetHandle from "../components/bottomSheet/BottomSheetHandle";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
-import ConfirmMeetingModal from "../components/chat/ConfirmMeetingModal";
 import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
+import EditMeetingModal from "../components/chat/EditMeetingModal";
 import MeetingDetailModal from "../components/chat/MeetingDetailModal";
 import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
@@ -176,7 +176,6 @@ export default function ChatWindow({ navigation, route }) {
     post,
     isBuyer,
     screen,
-    proposedTime,
     proposer,
     confirmedTime,
     proposedViewed,
@@ -204,23 +203,18 @@ export default function ChatWindow({ navigation, route }) {
   const [messages, setMessages] = React.useState<any[]>([]);
 
   const [selectedTime, setSelectedTime] = useState("");
-  const [showConfirmNotice, setShowConfirmNotice] = useState(
-    confirmedTime ? true : false
-  );
-  const [showProposeNotice, setShowProposeNotice] = useState(
-    proposedTime && !confirmedTime ? true : false
-  );
   const [cancelMeetingVisible, setCancelMeetingVisible] = React.useState(false);
   const [meetingProposeVisible, setMeetingProposeVisible] =
     React.useState(false);
   const [confirmedMeetingVisible, setConfirmedMeetingVisible] =
     React.useState(false);
-  const [confirmMeetingVisible, setConfirmMeetingVisible] =
-    React.useState(false);
+  const [editMeetingVisible, setEditMeetingVisible] = React.useState(false);
   const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
   interface notification {
     request;
   }
+
+  const [proposedTime, setProposedTime] = useState("");
 
   // Bottom sheet setup
   // ref
@@ -270,6 +264,7 @@ export default function ChatWindow({ navigation, route }) {
     };
   }, []);
 
+  // TODO proposer time is not being tracked for some reason?
   useEffect(() => {
     if (isSendingAvailability && text.length > 0) {
       setPlaceholder(text);
@@ -349,13 +344,20 @@ export default function ChatWindow({ navigation, route }) {
   function renderMessage(props) {
     if (props.currentMessage.meetingInfo) {
       const meetingInfo: MeetingInfo = props.currentMessage.meetingInfo;
-      const isProposed = meetingInfo.proposer !== auth.currentUser.email;
-      const nameToShow = isProposed ? "You" : name;
+      const proposerName =
+        meetingInfo.proposer === auth.currentUser.email ? "You" : name;
+      const responderName =
+        meetingInfo.proposer === auth.currentUser.email ? name : "You";
+
+      // if the meeting is confirmed, then the person who is not the proposer confirmed the meeting
+      const nameToShow = meetingInfo.isConfirmed ? responderName : proposerName;
+      // otherwise the proposer is the one who is shown
       return (
         <NoticeBanner
           name={nameToShow}
           onPress={() => {
-            setConfirmMeetingVisible(true);
+            setProposedTime(meetingInfo.proposeTime);
+            setEditMeetingVisible(true);
           }}
           isConfirmed={meetingInfo.isConfirmed}
         />
@@ -683,7 +685,7 @@ export default function ChatWindow({ navigation, route }) {
     if (ref.current != null) {
       ref.current.resetInputToolbar();
     }
-  }, [height, showConfirmNotice, showProposeNotice]);
+  }, [height]);
   const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
@@ -1017,9 +1019,7 @@ export default function ChatWindow({ navigation, route }) {
           renderBubble={renderBubble}
           renderInputToolbar={renderInputToolbar}
           renderMessage={renderMessage}
-          minInputToolbarHeight={
-            125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
-          }
+          minInputToolbarHeight={125}
           renderAvatar={renderAvatar}
           scrollToBottom
           showAvatarForEveryMessage
@@ -1080,14 +1080,46 @@ export default function ChatWindow({ navigation, route }) {
             />
           </BottomSheetModal>
 
-          <ConfirmMeetingModal
-            visible={confirmMeetingVisible}
-            setVisible={setConfirmMeetingVisible}
-            text={name + " has proposed the following meeting:"}
+          <EditMeetingModal
+            isBuyer={isBuyer}
+            visible={editMeetingVisible}
+            setVisible={setEditMeetingVisible}
+            text={
+              (proposer === auth.currentUser.email ? "You" : name) +
+              " proposed the following meeting:"
+            }
+            editAvailability={() => {
+              // messages are already sorted reverse chronologically
+              messages.forEach((msg) => {
+                if (
+                  msg.user._id !== auth.currentUser.email &&
+                  msg.availability &&
+                  msg.availability[0]
+                ) {
+                  const userName =
+                    msg.user._id === auth?.currentUser?.email
+                      ? auth?.currentUser?.displayName
+                      : name;
+                  const schedule = msg.availability;
+                  if (!(schedule[0].endDate instanceof Date)) {
+                    schedule.forEach((element, index) => {
+                      const endDate = element.endDate.toDate();
+                      const startDate = element.startDate.toDate();
+                      schedule[index].endDate = endDate;
+                      schedule[index].startDate = startDate;
+                    });
+                  }
+                  setInputSchedule(schedule);
+                  setAvailabilityUserName(userName);
+                  console.log(schedule);
+                  setAvailabilityVisible(true);
+                  setIsBubble(true);
+                }
+              });
+            }}
             startDate={proposedTime}
             setSyncMeetingVisible={setSellerSyncVisible}
             email={email}
-            setShowNotice={setShowProposeNotice}
             proposer={proposer}
           />
           <SellerSyncModal
@@ -1113,7 +1145,6 @@ export default function ChatWindow({ navigation, route }) {
             text={name + " has confirmed the following meeting:"}
             startDate={confirmedTime}
             email={email}
-            setShowNotice={setShowConfirmNotice}
           />
           <MeetingDetailModal
             visible={cancelMeetingVisible}
