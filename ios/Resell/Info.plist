@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.6</string>
+	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -34,7 +34,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>2.0.2</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -50,20 +50,20 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Allow Resell to access your calendar</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Allow Resell to read and write to your calendar</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Allow Resell to access your calendar</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow Resell to access your camera.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your microphone</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow Resell to access your photos to let you share them.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Allow Resell to create a reminder for your meeting</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow Resell to access your reminders</string>
-	<key>NSRemindersFullAccessUsageDescription</key> 
-	<string>Allow Resell to create a reminder for your meeting</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
