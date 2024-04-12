@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -102,12 +102,13 @@ export default function MeetingProposeModal({
                 isCanceled: false,
                 isConfirmed: false,
               };
-              // TODO send the meeting as a chat message
-              const messageRef = collection(
-                doc(chatRef, buyerEmail),
-                sellerEmail
+              // send the message as a chat message
+              const messageRef = doc(
+                collection(doc(chatRef, buyerEmail), sellerEmail),
+                `proposer_${auth.currentUser.email}`
               );
-              addDoc(messageRef, {
+
+              setDoc(messageRef, {
                 text: `Proposed a Time`,
                 createdAt: new Date(),
                 meetingInfo: meetingData,

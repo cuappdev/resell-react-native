@@ -3,22 +3,23 @@ import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
-import { auth, historyRef } from "../../config/firebase";
+import { auth, chatRef, historyRef } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
 import PurpleButton from "../PurpleButton";
 /**
- * Modal that allows the user to confirm a meeting
+ * Modal that allows the user to edit a proposal that they have made
  */
-export default function ConfirmMeetingModal({
+export default function EditMeetingModal({
   visible,
   setVisible,
   text,
   startDate,
   setSyncMeetingVisible,
-  email,
-  setShowNotice,
+  email: otherEmail,
   proposer,
+  editAvailability,
+  isBuyer,
 }: {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,8 +27,12 @@ export default function ConfirmMeetingModal({
   startDate: string;
   setSyncMeetingVisible: React.Dispatch<React.SetStateAction<boolean>>;
   email: string;
-  setShowNotice: React.Dispatch<React.SetStateAction<boolean>>;
   proposer: string;
+  editAvailability: () => void;
+  /**
+   * Whether the current user is the buyer
+   */
+  isBuyer: boolean;
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -35,7 +40,10 @@ export default function ConfirmMeetingModal({
   const dateText = startText + "-" + endDate;
   const [isLoading, setIsLoading] = useState(false);
   const [showSyncCalendar, setShowSyncCalendar] = useState(false);
+  const [showAvailability, setShowAvailability] = useState(false);
 
+  const buyerEmail = isBuyer ? auth.currentUser.email : otherEmail;
+  const sellerEmail = isBuyer ? otherEmail : auth.currentUser.email;
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
@@ -43,6 +51,10 @@ export default function ConfirmMeetingModal({
       onModalHide={() => {
         if (showSyncCalendar) {
           setSyncMeetingVisible(true);
+        }
+        if (showAvailability) {
+          editAvailability();
+          setShowAvailability(false);
         }
       }}
       onBackdropPress={() => {
@@ -64,20 +76,17 @@ export default function ConfirmMeetingModal({
           </Text>
           <Text style={fonts.body1}>{dateText}</Text>
         </View>
-        {proposer !== auth.currentUser.email && (
+        {proposer !== auth.currentUser.email ? (
           <View style={styles.purpleButton}>
             <PurpleButton
               text={"Confirm"}
               onPress={async () => {
                 setIsLoading(true);
                 try {
-                  // update sellers and buyers docs:
+                  // update sellers and buyers history docs:
                   const sellerDoc = doc(
-                    collection(
-                      doc(historyRef, auth.currentUser.email),
-                      "buyers"
-                    ),
-                    email
+                    collection(doc(historyRef, sellerEmail), "buyers"),
+                    buyerEmail
                   );
                   updateDoc(sellerDoc, {
                     proposedView: true,
@@ -86,24 +95,41 @@ export default function ConfirmMeetingModal({
                   });
 
                   const buyerDoc = doc(
-                    collection(doc(historyRef, email), "sellers"),
-                    auth.currentUser.email
+                    collection(doc(historyRef, buyerEmail), "sellers"),
+                    sellerEmail
                   );
                   await updateDoc(buyerDoc, {
-                    recentMessage: "Seller Confirmed",
+                    recentMessage: "Confirmed",
                     recentSender: auth?.currentUser?.email,
                     confirmedTime: startDate,
                     confirmedViewed: false,
                     viewed: false,
                     proposedTime: "",
                   });
+
+                  // update state of chat message
+                  // if the user just confirmed the meeting then that means they did not propose it
+                  // so email references the email of the proposer
+                  // chats are stored by buyer emails
+                  // doc(doc(chatRef, buyerEmail), sellerEmail);
+                  const messageRef = doc(
+                    collection(doc(chatRef, buyerEmail), sellerEmail),
+                    `proposer_${otherEmail}`
+                  );
+                  // don't need to check if doc exists because we want an error to happen if it doesn't
+                  // this error will be caught and show the user the meeting confirmation failed
+                  updateDoc(messageRef, {
+                    "meetingInfo.isConfirmed": true,
+                  });
+
                   setVisible(false);
-                  setShowNotice(false);
                   setShowSyncCalendar(true);
                   makeToast({
                     message: "Meeting time confirmed.",
                   });
-                } catch (_) {
+                } catch (error) {
+                  console.log(`error: ${error}`);
+                  console.log(`error json: ${JSON.stringify(error)}`);
                   makeToast({
                     message: "Error confirming meeting time",
                     type: "ERROR",
@@ -113,6 +139,17 @@ export default function ConfirmMeetingModal({
               }}
               isLoading={isLoading}
               enabled
+            />
+          </View>
+        ) : (
+          <View style={styles.purpleButton}>
+            <PurpleButton
+              text="Edit Proposal"
+              enabled
+              onPress={() => {
+                setVisible(false);
+                setShowAvailability(true);
+              }}
             />
           </View>
         )}
