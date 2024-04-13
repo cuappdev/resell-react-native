@@ -28,12 +28,12 @@ const NoticeBanner = ({
       noticeText = `${responderName} confirmed the meeting`;
       break;
     case "canceled":
-      // TODO we need to explicitly track who canceled the meeting
-      noticeText = `${responderName} canceled the meeting`;
+      const cancelerName =
+        meetingInfo.canceler === auth.currentUser.email ? "You" : otherName;
+      noticeText = `${cancelerName} canceled the meeting`;
       previousMeetingProposalText = `${responderName} confirmed the meeting`;
       break;
     case "declined":
-      // TODO we may also want to explicitly track who declines a proposal
       noticeText = `${responderName} declined the proposal`;
       previousMeetingProposalText = `${proposerName} proposed a meeting`;
       break;

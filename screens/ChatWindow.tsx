@@ -68,6 +68,7 @@ import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
+import Colors from "../constants/Colors";
 import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
@@ -210,9 +211,11 @@ export default function ChatWindow({ navigation, route }) {
     request;
   }
 
+  // meeting state for opening details of a proposal
   const [proposedTime, setProposedTime] = useState("");
-  const [proposedText, setProposedText] = useState("");
+  const [meetingDetailText, setMeetingDetailText] = useState("");
   const [proposer, setProposer] = useState("");
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   // Bottom sheet setup
   // ref
@@ -342,17 +345,22 @@ export default function ChatWindow({ navigation, route }) {
   function renderMessage(props) {
     if (props.currentMessage.meetingInfo) {
       const meetingInfo: MeetingInfo = props.currentMessage.meetingInfo;
+      const proposer =
+        meetingInfo.proposer === auth.currentUser.email ? "You" : name;
+      const responder =
+        meetingInfo.proposer === auth.currentUser.email ? name : "You";
+      const detailText =
+        (meetingInfo.state === "confirmed"
+          ? `${responder} confirmed`
+          : `${proposer} proposed`) + ` the following meeting:`;
 
       return (
         <NoticeBanner
           onPress={() => {
             setProposedTime(meetingInfo.proposeTime);
-            setProposedText(
-              (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
-                " proposed the following meeting:"
-            );
+            setMeetingDetailText(detailText);
             setProposer(meetingInfo.proposer);
-
+            setIsConfirmed(meetingInfo.state === "confirmed");
             setEditMeetingVisible(true);
           }}
           meetingInfo={meetingInfo}
@@ -555,14 +563,6 @@ export default function ChatWindow({ navigation, route }) {
       }
     );
   };
-  const onPress = (_, message: IMessage): void => {
-    console.log(`pressed`);
-    if (message.image) {
-      console.log(`message image: ${message.image}`);
-      setImageURL(message.image);
-    }
-  };
-  const [image, setImage] = useState(null);
 
   const pickImage = async () => {
     const permission = await checkPhotoPermission();
@@ -1001,6 +1001,20 @@ export default function ChatWindow({ navigation, route }) {
             </Text>
           </View>
         </View>
+        <View style={styles.confirmedNotice}>
+          <Feather name="calendar" color={Colors.white} size={24} />
+          <View style={{ width: 16 }} />
+          <View style={{ flexDirection: "column", flex: 1 }}>
+            <Text style={styles.meetingConfirmedText}>Meeting Confirmed</Text>
+            <Text style={[fonts.body2, { color: Colors.white }]}>
+              DATE HERE
+            </Text>
+          </View>
+          <View style={{ width: 10 }} />
+          <TouchableOpacity>
+            <Text style={styles.meetingConfirmedText}>View</Text>
+          </TouchableOpacity>
+        </View>
 
         <GiftedChat
           messages={messages}
@@ -1057,7 +1071,11 @@ export default function ChatWindow({ navigation, route }) {
             handleComponent={BottomSheetHandle}
             onDismiss={() => {
               if (selectedTime) {
-                setMeetingProposeVisible(true);
+                if (!isConfirmed) {
+                  setMeetingProposeVisible(true);
+                } else {
+                  // TODO show notice for meeting is already confirmed
+                }
               }
             }}
           >
@@ -1081,7 +1099,7 @@ export default function ChatWindow({ navigation, route }) {
             isBuyer={isBuyer}
             visible={editMeetingVisible}
             setVisible={setEditMeetingVisible}
-            text={proposedText}
+            text={meetingDetailText}
             editAvailability={() => {
               // messages are already sorted reverse chronologically
               messages.forEach((msg) => {
@@ -1114,6 +1132,7 @@ export default function ChatWindow({ navigation, route }) {
             startDate={proposedTime}
             setSyncMeetingVisible={setSellerSyncVisible}
             email={email}
+            isConfirmed={isConfirmed}
             proposer={proposer}
           />
           <SellerSyncModal
@@ -1227,6 +1246,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  confirmedNotice: {
+    width: "100%",
+    backgroundColor: Colors.resellPurple,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  meetingConfirmedText: {
+    fontFamily: "Rubik-Medium",
+    fontWeight: "600",
+    fontSize: 16,
+    color: Colors.white,
   },
 });
 const FILTER = [

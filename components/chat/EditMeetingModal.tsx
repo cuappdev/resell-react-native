@@ -6,7 +6,11 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Modal from "react-native-modal";
 import { auth, chatRef, historyRef } from "../../config/firebase";
 import Colors from "../../constants/Colors";
-import { MEETING_CONFIRMED, MEETING_DECLINED } from "../../data/struct";
+import {
+  MEETING_CANCELED,
+  MEETING_CONFIRMED,
+  MEETING_DECLINED,
+} from "../../data/struct";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
 import OutlinedButton from "../OutlinedButton";
@@ -44,15 +48,18 @@ export default function EditMeetingModal({
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
-  const [isLoading, setIsLoading] = useState(false);
   const [showSyncCalendar, setShowSyncCalendar] = useState(false);
   const [showAvailability, setShowAvailability] = useState(false);
 
   const buyerEmail = isBuyer ? auth.currentUser.email : otherEmail;
   const sellerEmail = isBuyer ? otherEmail : auth.currentUser.email;
 
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [declineLoading, setDeclineLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+
   const onConfirmPress = async () => {
-    setIsLoading(true);
+    setConfirmLoading(true);
     try {
       // update sellers and buyers history docs:
       const sellerDoc = doc(
@@ -112,13 +119,13 @@ export default function EditMeetingModal({
         type: "ERROR",
       });
     } finally {
-      setIsLoading(false);
+      setConfirmLoading(false);
       setVisible(false);
     }
   };
 
   const onDeclinePress = async () => {
-    setIsLoading(true);
+    setDeclineLoading(true);
     try {
       // update sellers and buyers history docs:
       const sellerDoc = doc(
@@ -161,12 +168,56 @@ export default function EditMeetingModal({
         type: "ERROR",
       });
     } finally {
-      setIsLoading(false);
+      setDeclineLoading(false);
       setVisible(false);
     }
   };
 
-  const onCancelMeetingPress = async () => {};
+  const onCancelMeetingPress = async () => {
+    setCancelLoading(true);
+    try {
+      //#region update sellers and buyers history docs:
+      const sellerDoc = doc(
+        collection(doc(historyRef, sellerEmail), "buyers"),
+        buyerEmail
+      );
+      const commonData = {
+        recentMessage: "Canceled",
+        recentSender: auth.currentUser.email,
+        recentMessageTime: new Date().toISOString(),
+      };
+      await updateDoc(sellerDoc, {
+        ...commonData,
+        viewed: auth.currentUser.email === sellerEmail,
+      });
+
+      const buyerDoc = doc(
+        collection(doc(historyRef, buyerEmail), "sellers"),
+        sellerEmail
+      );
+      await updateDoc(buyerDoc, {
+        ...commonData,
+        viewed: auth.currentUser.email === buyerEmail,
+      });
+      //#endregion
+
+      //#region update chat message
+      const chatCollection = collection(doc(chatRef, buyerEmail), sellerEmail);
+      // the message that the user is confirming
+      const messageRef = doc(chatCollection, `proposer_${proposer}`);
+
+      await updateDoc(messageRef, {
+        "meetingInfo.state": MEETING_CANCELED,
+        "meetingInfo.canceler": auth.currentUser.email,
+      });
+      setShowSyncCalendar(false);
+    } catch (_) {
+      makeToast({ message: "Error canceling meeting", type: "ERROR" });
+    } finally {
+      setCancelLoading(false);
+      setVisible(false);
+    }
+  };
   return (
     <Modal //Confirm Meeting details
       isVisible={visible}
@@ -192,7 +243,6 @@ export default function EditMeetingModal({
         {/* Time text */}
         <View style={{ marginTop: 24 }}>
           <Text style={fonts.body1}>{text}</Text>
-
           <Text
             style={[fonts.pageHeading3, { marginTop: 24, marginBottom: 4 }]}
           >
@@ -203,13 +253,12 @@ export default function EditMeetingModal({
 
         {/* Cancelable view */}
         {isConfirmed && (
-          <View style={styles.buttonContainer}>
+          <View style={styles.buttonAndCancelContainer}>
             <PurpleButton
               style={{ backgroundColor: Colors.errorState }}
               text="Cancel Meeting"
               onPress={onCancelMeetingPress}
-              isLoading={isLoading}
-              enabled
+              isLoading={cancelLoading}
             />
             <View style={{ height: 24 }} />
             <TouchableOpacity
@@ -230,43 +279,41 @@ export default function EditMeetingModal({
             <PurpleButton
               text={"Confirm"}
               onPress={onConfirmPress}
-              isLoading={isLoading}
+              isLoading={confirmLoading}
+              enabled={!confirmLoading && !declineLoading}
             />
             <View style={{ height: 12 }} />
             <OutlinedButton
               text="Decline"
               onPress={onDeclinePress}
-              isLoading={isLoading}
+              isLoading={declineLoading}
+              enabled={!confirmLoading && !declineLoading}
             />
           </View>
         ) : (
-          // Decline view
-          <View
-            style={{
-              flexDirection: "column",
-              alignItems: "center",
-              marginTop: 48,
-            }}
-          >
-            <PurpleButton
-              text="Edit Proposal"
-              enabled
-              onPress={() => {
-                setVisible(false);
-                setShowAvailability(true);
-              }}
-            />
-            <View style={{ height: 24 }} />
-            <TouchableOpacity
-              onPress={() => {
-                setVisible(false);
-              }}
-            >
-              <Text style={[fonts.Title1, { color: Colors.secondaryGray }]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          </View>
+          !isConfirmed && (
+            // Editable view
+            <View style={styles.buttonAndCancelContainer}>
+              <PurpleButton
+                text="Edit Proposal"
+                enabled
+                onPress={() => {
+                  setVisible(false);
+                  setShowAvailability(true);
+                }}
+              />
+              <View style={{ height: 24 }} />
+              <TouchableOpacity
+                onPress={() => {
+                  setVisible(false);
+                }}
+              >
+                <Text style={[fonts.Title1, { color: Colors.secondaryGray }]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )
         )}
       </View>
     </Modal>
@@ -289,5 +336,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     position: "absolute",
     bottom: "14%",
+  },
+  buttonAndCancelContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    marginTop: 48,
   },
 });

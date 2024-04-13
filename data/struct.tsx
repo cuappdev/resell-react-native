@@ -88,6 +88,10 @@ export interface MeetingInfo {
    * The email address of the proposer
    */
   proposer: string;
+  /**
+   * The one who canceled the meeting (if applicable)
+   */
+  canceler?: string;
 }
 
 export type MeetingStatus = "confirmed" | "declined" | "proposed" | "canceled";

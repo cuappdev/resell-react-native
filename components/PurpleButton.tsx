@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import Colors from "../constants/Colors";
 import { fonts } from "../globalStyle/globalFont";
 
 /**
@@ -39,7 +40,7 @@ export default function PurpleButton({
       <View
         style={[
           styles.button,
-          isLoading || !enabled ? { opacity: 0.4 } : undefined,
+          isLoading || !enabled ? { opacity: 0.4 } : { opacity: 1 },
           style,
         ]}
       >
@@ -62,6 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     minHeight: 45,
     gap: 12,
+    backgroundColor: Colors.resellPurple,
   },
 
   buttonText: {
