@@ -223,7 +223,7 @@ export default function EditMeetingModal({
       isVisible={visible}
       backdropOpacity={0.2}
       onModalHide={() => {
-        if (showSyncCalendar) {
+        if (showSyncCalendar && !isConfirmed) {
           setSyncMeetingVisible(true);
         }
         if (showAvailability) {

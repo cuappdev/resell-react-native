@@ -31,6 +31,7 @@ import {
   IMessage,
   Message,
 } from "react-native-gifted-chat";
+import { ReactNativeModal } from "react-native-modal";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
 import { NegotiationModal } from "../components/chat/NegotiationModal";
@@ -58,6 +59,8 @@ import {
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
+import EllipsesIcon from "../assets/svg-components/ellipses";
+import OptionsMenu from "../components/OptionsMenu";
 import ProductCard from "../components/ProductCard";
 import BottomSheetHandle from "../components/bottomSheet/BottomSheetHandle";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
@@ -69,6 +72,7 @@ import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import Colors from "../constants/Colors";
+import { menuBarTop } from "../constants/Layout";
 import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
@@ -216,6 +220,8 @@ export default function ChatWindow({ navigation, route }) {
   const [meetingDetailText, setMeetingDetailText] = useState("");
   const [proposer, setProposer] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [showMeetingNotice, setShowMeetingNotice] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   // Bottom sheet setup
   // ref
@@ -564,6 +570,11 @@ export default function ChatWindow({ navigation, route }) {
     );
   };
 
+  // if the user wants to report the chat
+  const onReport = () => {
+    // TODO file a report
+  };
+
   const pickImage = async () => {
     const permission = await checkPhotoPermission();
     if (!permission) {
@@ -736,15 +747,14 @@ export default function ChatWindow({ navigation, route }) {
     messages.forEach((msg) => {
       const meetingInfo: MeetingInfo | undefined = msg.meetingInfo;
       if (meetingInfo?.state === "confirmed") {
-        setIsConfirmed(true);
+        setShowMeetingNotice(true);
         foundConfirmedMeeting = true;
         setProposedTime(meetingInfo.proposeTime);
         setProposer(meetingInfo.proposer);
-        setIsConfirmed(meetingInfo.state === "confirmed");
       }
     });
     // set it to false if there are no confirmed meetings anymore
-    setIsConfirmed(foundConfirmedMeeting);
+    setShowMeetingNotice(foundConfirmedMeeting);
   }, [messages]);
 
   function renderInputToolbar(props) {
@@ -989,13 +999,14 @@ export default function ChatWindow({ navigation, route }) {
             height: Platform.OS === "ios" ? 90 : 70,
             borderBottomWidth: 1,
             borderColor: "#D6D6D6",
-            // elevation: 8,
-            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
           <TouchableOpacity
+            style={{ marginLeft: 24 }}
             onPress={() => navigation.goBack()}
-            style={styles.backButton}
           >
             <BackButton color="black" />
           </TouchableOpacity>
@@ -1016,8 +1027,33 @@ export default function ChatWindow({ navigation, route }) {
               {name}
             </Text>
           </View>
+          <View>
+            <TouchableOpacity
+              style={{ marginRight: 24 }}
+              hitSlop={20}
+              onPress={() => {
+                setMenuVisible(true);
+              }}
+            >
+              <EllipsesIcon color={"black"} />
+            </TouchableOpacity>
+            <ReactNativeModal
+              isVisible={menuVisible}
+              onBackdropPress={() => setMenuVisible(false)}
+              backdropOpacity={0.2}
+              animationIn="fadeIn"
+              animationOut="fadeOut"
+              style={styles.optionsMenu}
+            >
+              <OptionsMenu
+                items={[
+                  { label: "Report", iconName: "flag", onPress: onReport },
+                ]}
+              />
+            </ReactNativeModal>
+          </View>
         </View>
-        {isConfirmed && (
+        {showMeetingNotice && (
           <View style={styles.confirmedNotice}>
             <Feather name="calendar" color={Colors.white} size={24} />
             <View style={{ width: 16 }} />
@@ -1114,6 +1150,7 @@ export default function ChatWindow({ navigation, route }) {
               setSelectedTime={setSelectedTime}
               setBuyerProposeVisible={setMeetingProposeVisible}
               selectdate={selectedTime}
+              isViewOnly={isConfirmed}
             />
           </BottomSheetModal>
 
@@ -1227,16 +1264,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  backButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? 35 : 0,
-    left: 10,
-    zIndex: 1,
-    width: 50,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   scheduleButton: {
     position: "absolute",
     top: Platform.OS === "ios" ? 35 : 0,
@@ -1282,6 +1309,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
     color: Colors.white,
+  },
+  optionsMenu: {
+    position: "absolute",
+    right: 0,
+    top: (Platform.OS === "ios" ? menuBarTop + 20 : 35) + 12,
+    width: 254,
+    backgroundColor: "#EDEDEDEE",
+    zIndex: 100,
+    borderRadius: 12,
   },
 });
 const FILTER = [
