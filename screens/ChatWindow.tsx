@@ -731,6 +731,22 @@ export default function ChatWindow({ navigation, route }) {
     setImageViewerVisible(Boolean(imageURL));
   }, [imageURL]);
 
+  useEffect(() => {
+    let foundConfirmedMeeting = false;
+    messages.forEach((msg) => {
+      const meetingInfo: MeetingInfo | undefined = msg.meetingInfo;
+      if (meetingInfo?.state === "confirmed") {
+        setIsConfirmed(true);
+        foundConfirmedMeeting = true;
+        setProposedTime(meetingInfo.proposeTime);
+        setProposer(meetingInfo.proposer);
+        setIsConfirmed(meetingInfo.state === "confirmed");
+      }
+    });
+    // set it to false if there are no confirmed meetings anymore
+    setIsConfirmed(foundConfirmedMeeting);
+  }, [messages]);
+
   function renderInputToolbar(props) {
     return (
       <SafeAreaView>
@@ -1001,20 +1017,26 @@ export default function ChatWindow({ navigation, route }) {
             </Text>
           </View>
         </View>
-        <View style={styles.confirmedNotice}>
-          <Feather name="calendar" color={Colors.white} size={24} />
-          <View style={{ width: 16 }} />
-          <View style={{ flexDirection: "column", flex: 1 }}>
-            <Text style={styles.meetingConfirmedText}>Meeting Confirmed</Text>
-            <Text style={[fonts.body2, { color: Colors.white }]}>
-              DATE HERE
-            </Text>
+        {isConfirmed && (
+          <View style={styles.confirmedNotice}>
+            <Feather name="calendar" color={Colors.white} size={24} />
+            <View style={{ width: 16 }} />
+            <View style={{ flexDirection: "column", flex: 1 }}>
+              <Text style={styles.meetingConfirmedText}>Meeting Confirmed</Text>
+              <Text style={[fonts.body2, { color: Colors.white }]}>
+                {proposedTime}
+              </Text>
+            </View>
+            <View style={{ width: 10 }} />
+            <TouchableOpacity
+              onPress={() => {
+                setEditMeetingVisible(true);
+              }}
+            >
+              <Text style={styles.meetingConfirmedText}>View</Text>
+            </TouchableOpacity>
           </View>
-          <View style={{ width: 10 }} />
-          <TouchableOpacity>
-            <Text style={styles.meetingConfirmedText}>View</Text>
-          </TouchableOpacity>
-        </View>
+        )}
 
         <GiftedChat
           messages={messages}
