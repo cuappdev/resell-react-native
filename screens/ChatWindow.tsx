@@ -1248,7 +1248,7 @@ export default function ChatWindow({ navigation, route }) {
             proposer={proposer}
           />
           <SellerSyncModal
-            visible={true}
+            visible={SellerSyncVisible}
             setVisible={setSellerSyncVisible}
             eventTitle={"Meet " + name + " for Resell"}
             startDate={proposedTime}
