@@ -30,12 +30,11 @@ import {
   GiftedChat,
   IMessage,
   Message,
-  MessageProps,
 } from "react-native-gifted-chat";
+import { ReactNativeModal } from "react-native-modal";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { AvailabilityBubble } from "../components/chat/AvailabilityBubble";
 import { NegotiationModal } from "../components/chat/NegotiationModal";
-import NoticeBanner from "../components/chat/NoticeBanner";
 
 import {
   BottomSheetBackdrop,
@@ -43,7 +42,6 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -61,15 +59,21 @@ import {
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
+import EllipsesIcon from "../assets/svg-components/ellipses";
+import OptionsMenu from "../components/OptionsMenu";
 import ProductCard from "../components/ProductCard";
 import BottomSheetHandle from "../components/bottomSheet/BottomSheetHandle";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
-import ConfirmMeetingModal from "../components/chat/ConfirmMeetingModal";
 import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
+import EditMeetingModal from "../components/chat/EditMeetingModal";
 import MeetingDetailModal from "../components/chat/MeetingDetailModal";
 import MeetingProposeModal from "../components/chat/MeetingProposeModal";
+import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
+import Colors from "../constants/Colors";
+import { menuBarTop } from "../constants/Layout";
+import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 
@@ -147,17 +151,27 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 interface ChatWindowParams {
+  /**
+   * The email of the user you are chatting with
+   */
   email: string;
+  /**
+   * The name of the user you are chatting with
+   */
   name: string;
   receiverImage: string;
   post: any;
+  /**
+   * Indicates whether the current user is the buyer
+   */
   isBuyer: boolean;
   screen: string;
   proposedTime: string;
-  proposer: string;
   confirmedTime: string;
-  proposedViewed: string;
-  confirmedViewed: string;
+  /**
+   * Indicates whether confirmation has been viewed previously
+   */
+  confirmedViewed?: boolean;
 }
 
 export default function ChatWindow({ navigation, route }) {
@@ -168,10 +182,7 @@ export default function ChatWindow({ navigation, route }) {
     post,
     isBuyer,
     screen,
-    proposedTime,
-    proposer,
     confirmedTime,
-    proposedViewed,
     confirmedViewed,
   }: ChatWindowParams = route.params;
   const [text, setText] = useState("");
@@ -193,25 +204,43 @@ export default function ChatWindow({ navigation, route }) {
   const [uri, setUri] = useState("");
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
-  const [messages, setMessages] = React.useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
 
   const [selectedTime, setSelectedTime] = useState("");
-  const [showConfirmNotice, setShowConfirmNotice] = useState(
-    confirmedTime ? true : false
-  );
-  const [showProposeNotice, setShowProposeNotice] = useState(
-    proposedTime && !confirmedTime ? true : false
-  );
-  const [meetingDetailVisible, setMeetingDetailVisible] = React.useState(false);
-  const [meetingProposeVisible, setMeetingProposeVisible] =
-    React.useState(false);
-  const [confirmedMeetingVisible, setConfirmedMeetingVisible] =
-    React.useState(false);
-  const [SellerConfirmVisible, setSellerConfirmVisible] = React.useState(false);
-  const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
+  const [cancelMeetingVisible, setCancelMeetingVisible] = useState(false);
+  const [meetingProposeVisible, setMeetingProposeVisible] = useState(false);
+  const [confirmedMeetingVisible, setConfirmedMeetingVisible] = useState(false);
+  const [editMeetingVisible, setEditMeetingVisible] = useState(false);
+  const [sellerSyncVisible, setSellerSyncVisible] = useState(false);
   interface notification {
     request;
   }
+
+  const [actionButtons, setActionButtons] = useState([
+    {
+      id: 0,
+      title: "Negotiate",
+    },
+    {
+      id: 1,
+      title: "Send Availablity",
+    },
+    { id: 2, title: "Pay with Venmo" },
+  ]);
+
+  // meeting state for opening details of a proposal
+  const [proposedTime, setProposedTime] = useState("");
+  const [meetingDetailText, setMeetingDetailText] = useState("");
+  const [proposer, setProposer] = useState("");
+  // the show confirm details variable is needed so the modal doesn't
+  // swap its contents before it finishes closing after pressing confirm
+  const [showConfirmDetails, setShowConfirmDetails] = useState(false);
+  // the isConfirmed variable will always hold the accurate meeting state
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  // if you have proposed a meeting
+  const [hasProposed, setHasProposed] = useState(false);
+
+  const [menuVisible, setMenuVisible] = useState(false);
 
   // Bottom sheet setup
   // ref
@@ -239,6 +268,14 @@ export default function ChatWindow({ navigation, route }) {
   const responseListener = useRef<Subscription>();
 
   useEffect(() => {
+    // specify we need false and we don't want undefined
+    if (confirmedViewed === false) {
+      setTimeout(() => {
+        setSellerSyncVisible(true);
+      }, 500);
+    }
+
+    // Notifications
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
@@ -261,6 +298,7 @@ export default function ChatWindow({ navigation, route }) {
     };
   }, []);
 
+  // TODO proposer time is not being tracked for some reason?
   useEffect(() => {
     if (isSendingAvailability && text.length > 0) {
       setPlaceholder(text);
@@ -337,7 +375,32 @@ export default function ChatWindow({ navigation, route }) {
       user,
     });
   }, []);
-  function renderMessage(props: MessageProps<IMessage>) {
+  function renderMessage(props) {
+    if (props.currentMessage.meetingInfo) {
+      const meetingInfo: MeetingInfo = props.currentMessage.meetingInfo;
+      const proposer =
+        meetingInfo.proposer === auth.currentUser.email ? "You" : name;
+      const responder =
+        meetingInfo.proposer === auth.currentUser.email ? name : "You";
+      const detailText =
+        (meetingInfo.state === "confirmed"
+          ? `${responder} confirmed`
+          : `${proposer} proposed`) + ` the following meeting:`;
+
+      return (
+        <NoticeBanner
+          onPress={() => {
+            setProposedTime(meetingInfo.proposeTime);
+            setMeetingDetailText(detailText);
+            setProposer(meetingInfo.proposer);
+            setShowConfirmDetails(meetingInfo.state === "confirmed");
+            setEditMeetingVisible(true);
+          }}
+          meetingInfo={meetingInfo}
+          otherName={name}
+        />
+      );
+    }
     if (props.currentMessage.image) {
       return (
         <>
@@ -368,6 +431,8 @@ export default function ChatWindow({ navigation, route }) {
   const [availabilityUsername, setAvailabilityUserName] = useState("");
 
   function renderBubble(props) {
+    console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
+
     const { currentMessage } = props;
     const { text: currText } = currentMessage;
     const { availability: currAvailability } = currentMessage;
@@ -423,7 +488,8 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else if (currAvailability[0] != undefined) {
+    }
+    if (currAvailability[0] != undefined) {
       return (
         <View style={{ width: "70%", marginVertical: 5 }}>
           <AvailabilityBubble
@@ -440,7 +506,8 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else if (currPost.title != undefined) {
+    }
+    if (currPost.title != undefined) {
       return (
         <View style={{ width: "50%", marginVertical: 5 }}>
           <ProductCard
@@ -467,7 +534,8 @@ export default function ChatWindow({ navigation, route }) {
           />
         </View>
       );
-    } else if (currImage != "") {
+    }
+    if (currImage != "") {
       return (
         <View
           style={[
@@ -521,21 +589,49 @@ export default function ChatWindow({ navigation, route }) {
               sellerName: name,
               sellerId: "sellerId", // TODO: Add when Implementing Reporting Backend
               postId: post.id,
-              userId: auth.currentUser.uid
+              userId: auth.currentUser.uid,
             });
             break;
         }
       }
     );
   };
-  const onPress = (_, message: IMessage): void => {
-    console.log(`pressed`);
-    if (message.image) {
-      console.log(`message image: ${message.image}`);
-      setImageURL(message.image);
-    }
+
+  const openMostRecentAvailability = () => {
+    // messages need to be sorted by most recent first
+    messages
+      .toSorted((m1, m2) => (m1.createdAt <= m2.createdAt ? -1 : 1))
+      .forEach((msg) => {
+        if (
+          msg.user._id !== auth.currentUser.email &&
+          msg.availability &&
+          msg.availability[0]
+        ) {
+          const userName =
+            msg.user._id === auth?.currentUser?.email
+              ? auth?.currentUser?.displayName
+              : name;
+          const schedule = msg.availability;
+          if (!(schedule[0].endDate instanceof Date)) {
+            schedule.forEach((element, index) => {
+              const endDate = element.endDate.toDate();
+              const startDate = element.startDate.toDate();
+              schedule[index].endDate = endDate;
+              schedule[index].startDate = startDate;
+            });
+          }
+          setInputSchedule(schedule);
+          setAvailabilityUserName(userName);
+          console.log(schedule);
+          setAvailabilityVisible(true);
+          setIsBubble(true);
+        }
+      });
   };
-  const [image, setImage] = useState(null);
+  // if the user wants to report the chat
+  const onReport = () => {
+    // TODO file a report
+  };
 
   const pickImage = async () => {
     const permission = await checkPhotoPermission();
@@ -568,7 +664,8 @@ export default function ChatWindow({ navigation, route }) {
 
   const checkPhotoPermission = async () => {
     if (Platform.OS !== "web") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       return status === "granted";
     }
     return false;
@@ -654,7 +751,7 @@ export default function ChatWindow({ navigation, route }) {
     if (ref.current != null) {
       ref.current.resetInputToolbar();
     }
-  }, [height, showConfirmNotice, showProposeNotice]);
+  }, [height]);
   const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
@@ -676,6 +773,7 @@ export default function ChatWindow({ navigation, route }) {
           _id: doc.data()._id,
           text: doc.data().text,
           availability: doc.data().availability,
+          meetingInfo: doc.data().meetingInfo,
           product: doc.data().product,
           image: doc.data().image,
           createdAt: doc.data().createdAt.toDate(),
@@ -691,7 +789,7 @@ export default function ChatWindow({ navigation, route }) {
           ),
           email
         ),
-        { viewed: true }
+        { viewed: true, confirmedViewed: true }
       );
     });
     return unsubscribeFromChat;
@@ -701,6 +799,44 @@ export default function ChatWindow({ navigation, route }) {
   useEffect(() => {
     setImageViewerVisible(Boolean(imageURL));
   }, [imageURL]);
+
+  useEffect(() => {
+    let foundConfirmedMeeting: boolean = false;
+    let foundProposal: boolean = false;
+    messages.forEach((msg) => {
+      const meetingInfo: MeetingInfo | undefined = msg.meetingInfo;
+      if (meetingInfo?.state === "confirmed") {
+        foundConfirmedMeeting = true;
+        setProposedTime(meetingInfo.proposeTime);
+        setProposer(meetingInfo.proposer);
+        setMeetingDetailText(
+          (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
+            " confirmed the following meeting:"
+        );
+      }
+      if (
+        meetingInfo?.state === "proposed" &&
+        msg.user._id === auth.currentUser.email
+      ) {
+        foundProposal = true;
+        setProposedTime(meetingInfo.proposeTime);
+      }
+      // if a message from the other user has availability
+      if (msg.availability && msg.user._id !== auth.currentUser) {
+        setActionButtons((buttons) =>
+          buttons.filter((b) => b.title.includes("View")).length === 0
+            ? [
+                ...buttons,
+                { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
+              ]
+            : buttons
+        );
+      }
+    });
+    // set it to false if there are no confirmed meetings anymore
+    setIsConfirmed(foundConfirmedMeeting);
+    setHasProposed(foundProposal);
+  }, [messages]);
 
   function renderInputToolbar(props) {
     return (
@@ -723,28 +859,10 @@ export default function ChatWindow({ navigation, route }) {
             mode="full"
           />
         )}
-        {showConfirmNotice && (
-          <NoticeBanner
-            name={name}
-            onPress={() => {
-              setConfirmedMeetingVisible(true);
-            }}
-            isProposed={false}
-          />
-        )}
-        {showProposeNotice && (
-          <NoticeBanner
-            name={proposer === auth.currentUser.email ? "You" : name}
-            onPress={() => {
-              setSellerConfirmVisible(true);
-            }}
-            isProposed={true}
-          />
-        )}
         <ButtonBanner
           count={count}
           setCount={setCount}
-          data={FILTER}
+          data={actionButtons}
           isBuyer={isBuyer}
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
@@ -752,6 +870,7 @@ export default function ChatWindow({ navigation, route }) {
           setIsBubble={setIsBubble}
           alwaysColor={true}
           otherEmail={email}
+          openMostRecentAvailability={openMostRecentAvailability}
         />
         <View style={styles.mainSendContainer}>
           {/* Image input */}
@@ -962,13 +1081,15 @@ export default function ChatWindow({ navigation, route }) {
             height: Platform.OS === "ios" ? 90 : 70,
             borderBottomWidth: 1,
             borderColor: "#D6D6D6",
-            // elevation: 8,
-            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
           <TouchableOpacity
+            style={{ marginLeft: 24 }}
+            hitSlop={20}
             onPress={() => navigation.goBack()}
-            style={styles.backButton}
           >
             <BackButton color="black" />
           </TouchableOpacity>
@@ -989,7 +1110,52 @@ export default function ChatWindow({ navigation, route }) {
               {name}
             </Text>
           </View>
+          <View>
+            <TouchableOpacity
+              style={{ marginRight: 24 }}
+              hitSlop={20}
+              onPress={() => {
+                setMenuVisible(true);
+              }}
+            >
+              <EllipsesIcon color={"black"} />
+            </TouchableOpacity>
+            <ReactNativeModal
+              isVisible={menuVisible}
+              onBackdropPress={() => setMenuVisible(false)}
+              backdropOpacity={0.2}
+              animationIn="fadeIn"
+              animationOut="fadeOut"
+              style={styles.optionsMenu}
+            >
+              <OptionsMenu
+                items={[
+                  { label: "Report", iconName: "flag", onPress: onReport },
+                ]}
+              />
+            </ReactNativeModal>
+          </View>
         </View>
+        {isConfirmed && (
+          <View style={styles.confirmedNotice}>
+            <Feather name="calendar" color={Colors.white} size={24} />
+            <View style={{ width: 16 }} />
+            <View style={{ flexDirection: "column", flex: 1 }}>
+              <Text style={styles.meetingConfirmedText}>Meeting Confirmed</Text>
+              <Text style={[fonts.body2, { color: Colors.white }]}>
+                {proposedTime}
+              </Text>
+            </View>
+            <View style={{ width: 10 }} />
+            <TouchableOpacity
+              onPress={() => {
+                setEditMeetingVisible(true);
+              }}
+            >
+              <Text style={styles.meetingConfirmedText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <GiftedChat
           messages={messages}
@@ -1005,9 +1171,7 @@ export default function ChatWindow({ navigation, route }) {
           renderBubble={renderBubble}
           renderInputToolbar={renderInputToolbar}
           renderMessage={renderMessage}
-          minInputToolbarHeight={
-            125 + (showProposeNotice || showConfirmNotice ? 60 : 0)
-          }
+          minInputToolbarHeight={125}
           renderAvatar={renderAvatar}
           scrollToBottom
           showAvatarForEveryMessage
@@ -1048,7 +1212,11 @@ export default function ChatWindow({ navigation, route }) {
             handleComponent={BottomSheetHandle}
             onDismiss={() => {
               if (selectedTime) {
-                setMeetingProposeVisible(true);
+                if (!isConfirmed) {
+                  setMeetingProposeVisible(true);
+                } else {
+                  // TODO show notice for meeting is already confirmed
+                }
               }
             }}
           >
@@ -1065,21 +1233,24 @@ export default function ChatWindow({ navigation, route }) {
               setSelectedTime={setSelectedTime}
               setBuyerProposeVisible={setMeetingProposeVisible}
               selectdate={selectedTime}
+              isViewOnly={isConfirmed}
             />
           </BottomSheetModal>
 
-          <ConfirmMeetingModal
-            visible={SellerConfirmVisible}
-            setVisible={setSellerConfirmVisible}
-            text={name + " has proposed the following meeting:"}
+          <EditMeetingModal
+            isBuyer={isBuyer}
+            visible={editMeetingVisible}
+            setVisible={setEditMeetingVisible}
+            text={meetingDetailText}
+            editAvailability={openMostRecentAvailability}
             startDate={proposedTime}
             setSyncMeetingVisible={setSellerSyncVisible}
             email={email}
-            setShowNotice={setShowProposeNotice}
+            isConfirmed={isConfirmed}
             proposer={proposer}
           />
           <SellerSyncModal
-            visible={SellerSyncVisible}
+            visible={sellerSyncVisible}
             setVisible={setSellerSyncVisible}
             eventTitle={"Meet " + name + " for Resell"}
             startDate={proposedTime}
@@ -1093,6 +1264,8 @@ export default function ChatWindow({ navigation, route }) {
             buyerEmail={buyerEmail}
             post={post}
             setStartDate={setSelectedTime}
+            hasProposed={hasProposed}
+            originalTime={proposedTime}
           />
           <ConfirmedMeetingModal
             visible={confirmedMeetingVisible}
@@ -1101,11 +1274,10 @@ export default function ChatWindow({ navigation, route }) {
             text={name + " has confirmed the following meeting:"}
             startDate={confirmedTime}
             email={email}
-            setShowNotice={setShowConfirmNotice}
           />
           <MeetingDetailModal
-            visible={meetingDetailVisible}
-            setVisible={setMeetingDetailVisible}
+            visible={cancelMeetingVisible}
+            setVisible={setCancelMeetingVisible}
             startDate={isBuyer ? confirmedTime : proposedTime}
             otherEmail={email}
             name={name}
@@ -1149,16 +1321,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  backButton: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? 35 : 0,
-    left: 10,
-    zIndex: 1,
-    width: 50,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   scheduleButton: {
     position: "absolute",
     top: Platform.OS === "ios" ? 35 : 0,
@@ -1191,15 +1353,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  confirmedNotice: {
+    width: "100%",
+    backgroundColor: Colors.resellPurple,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  meetingConfirmedText: {
+    fontFamily: "Rubik-Medium",
+    fontWeight: "600",
+    fontSize: 16,
+    color: Colors.white,
+  },
+  optionsMenu: {
+    position: "absolute",
+    right: 0,
+    top: Platform.OS === "ios" ? menuBarTop + 20 : 35,
+    width: 254,
+    backgroundColor: "#EDEDEDEE",
+    zIndex: 100,
+    borderRadius: 12,
+  },
 });
-const FILTER = [
-  {
-    id: 0,
-    title: "Negotiate",
-  },
-  {
-    id: 1,
-    title: "Send Availablity",
-  },
-  { id: 2, title: "Pay with Venmo" },
-];

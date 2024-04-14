@@ -24,6 +24,7 @@ export function ButtonBanner(props) {
         alwaysColor={props.alwaysColor}
         otherEmail={props.otherEmail}
         setAvailabilityVisible={props.setAvailabilityVisible}
+        openMostRecentAvailability={props.openMostRecentAvailability}
       />
       {index === props.data.length - 1 && <View style={{ width: 8 }} />}
     </>
