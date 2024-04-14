@@ -18,6 +18,8 @@ export default function MeetingProposeModal({
   buyerEmail,
   post,
   setStartDate,
+  hasProposed,
+  originalTime,
 }: {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,6 +29,14 @@ export default function MeetingProposeModal({
   buyerEmail: string;
   post: any;
   setStartDate: React.Dispatch<React.SetStateAction<string>>;
+  /**
+   * Whether the user has proposed a meeting prior to this proposition
+   */
+  hasProposed: boolean;
+  /**
+   * Time of user's previous proposition
+   */
+  originalTime: string;
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -123,24 +133,30 @@ export default function MeetingProposeModal({
     >
       <View style={styles.slideUp}>
         <Text style={[fonts.pageHeading3, { marginTop: "14%" }]}>
-          Meeting Details
+          {hasProposed ? "New Proposal" : "Meeting Details"}
         </Text>
         <View style={{ marginTop: 24 }}>
           <Text style={fonts.body1}>
-            You are proposing the following meeting:
+            {hasProposed
+              ? `This proposal replaces your previous one scheduled for ${originalTime}. Are you sure you want to reschedule?`
+              : "You are proposing the following meeting:"}
           </Text>
 
-          <Text
-            style={[fonts.pageHeading3, { marginTop: 24, marginBottom: 4 }]}
-          >
-            Time
-          </Text>
-          <Text style={fonts.body1}>{dateText}</Text>
+          {!hasProposed && (
+            <>
+              <Text
+                style={[fonts.pageHeading3, { marginTop: 24, marginBottom: 4 }]}
+              >
+                Time
+              </Text>
+              <Text style={fonts.body1}>{dateText}</Text>
+            </>
+          )}
         </View>
         <View style={styles.buttonContainer}>
           <PurpleButton
             isLoading={proposeLoading}
-            text={"Propose Meeting"}
+            text={hasProposed ? "Reschedule" : "Propose Meeting"}
             onPress={onMeetingPropose}
             enabled={true}
           />

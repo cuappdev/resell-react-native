@@ -215,12 +215,30 @@ export default function ChatWindow({ navigation, route }) {
     request;
   }
 
+  const [actionButtons, setActionButtons] = useState([
+    {
+      id: 0,
+      title: "Negotiate",
+    },
+    {
+      id: 1,
+      title: "Send Availablity",
+    },
+    { id: 2, title: "Pay with Venmo" },
+  ]);
+
   // meeting state for opening details of a proposal
   const [proposedTime, setProposedTime] = useState("");
   const [meetingDetailText, setMeetingDetailText] = useState("");
   const [proposer, setProposer] = useState("");
+  // the show confirm details variable is needed so the modal doesn't
+  // swap its contents before it finishes closing after pressing confirm
+  const [showConfirmDetails, setShowConfirmDetails] = useState(false);
+  // the isConfirmed variable will always hold the accurate meeting state
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [showMeetingNotice, setShowMeetingNotice] = useState(false);
+  // if you have proposed a meeting
+  const [hasProposed, setHasProposed] = useState(false);
+
   const [menuVisible, setMenuVisible] = useState(false);
 
   // Bottom sheet setup
@@ -366,7 +384,7 @@ export default function ChatWindow({ navigation, route }) {
             setProposedTime(meetingInfo.proposeTime);
             setMeetingDetailText(detailText);
             setProposer(meetingInfo.proposer);
-            setIsConfirmed(meetingInfo.state === "confirmed");
+            setShowConfirmDetails(meetingInfo.state === "confirmed");
             setEditMeetingVisible(true);
           }}
           meetingInfo={meetingInfo}
@@ -570,6 +588,37 @@ export default function ChatWindow({ navigation, route }) {
     );
   };
 
+  const openMostRecentAvailability = () => {
+    // messages need to be sorted by most recent first
+    messages
+      .toSorted((m1, m2) => (m1.createdAt <= m2.createdAt ? -1 : 1))
+      .forEach((msg) => {
+        if (
+          msg.user._id !== auth.currentUser.email &&
+          msg.availability &&
+          msg.availability[0]
+        ) {
+          const userName =
+            msg.user._id === auth?.currentUser?.email
+              ? auth?.currentUser?.displayName
+              : name;
+          const schedule = msg.availability;
+          if (!(schedule[0].endDate instanceof Date)) {
+            schedule.forEach((element, index) => {
+              const endDate = element.endDate.toDate();
+              const startDate = element.startDate.toDate();
+              schedule[index].endDate = endDate;
+              schedule[index].startDate = startDate;
+            });
+          }
+          setInputSchedule(schedule);
+          setAvailabilityUserName(userName);
+          console.log(schedule);
+          setAvailabilityVisible(true);
+          setIsBubble(true);
+        }
+      });
+  };
   // if the user wants to report the chat
   const onReport = () => {
     // TODO file a report
@@ -743,18 +792,37 @@ export default function ChatWindow({ navigation, route }) {
   }, [imageURL]);
 
   useEffect(() => {
-    let foundConfirmedMeeting = false;
+    let foundConfirmedMeeting: boolean = false;
+    let foundProposal: boolean = false;
     messages.forEach((msg) => {
       const meetingInfo: MeetingInfo | undefined = msg.meetingInfo;
       if (meetingInfo?.state === "confirmed") {
-        setShowMeetingNotice(true);
         foundConfirmedMeeting = true;
         setProposedTime(meetingInfo.proposeTime);
         setProposer(meetingInfo.proposer);
       }
+      if (
+        meetingInfo?.state === "proposed" &&
+        msg.user._id === auth.currentUser.email
+      ) {
+        foundProposal = true;
+        setProposedTime(meetingInfo.proposeTime);
+      }
+      // if a message from the other user has availability
+      if (msg.availability && msg.user._id !== auth.currentUser) {
+        setActionButtons((buttons) =>
+          buttons.filter((b) => b.title.includes("View")).length === 0
+            ? [
+                ...buttons,
+                { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
+              ]
+            : buttons
+        );
+      }
     });
     // set it to false if there are no confirmed meetings anymore
-    setShowMeetingNotice(foundConfirmedMeeting);
+    setIsConfirmed(foundConfirmedMeeting);
+    setHasProposed(foundProposal);
   }, [messages]);
 
   function renderInputToolbar(props) {
@@ -781,7 +849,7 @@ export default function ChatWindow({ navigation, route }) {
         <ButtonBanner
           count={count}
           setCount={setCount}
-          data={FILTER}
+          data={actionButtons}
           isBuyer={isBuyer}
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
@@ -789,6 +857,7 @@ export default function ChatWindow({ navigation, route }) {
           setIsBubble={setIsBubble}
           alwaysColor={true}
           otherEmail={email}
+          openMostRecentAvailability={openMostRecentAvailability}
         />
         <View style={styles.mainSendContainer}>
           {/* Image input */}
@@ -1053,7 +1122,7 @@ export default function ChatWindow({ navigation, route }) {
             </ReactNativeModal>
           </View>
         </View>
-        {showMeetingNotice && (
+        {isConfirmed && (
           <View style={styles.confirmedNotice}>
             <Feather name="calendar" color={Colors.white} size={24} />
             <View style={{ width: 16 }} />
@@ -1159,39 +1228,11 @@ export default function ChatWindow({ navigation, route }) {
             visible={editMeetingVisible}
             setVisible={setEditMeetingVisible}
             text={meetingDetailText}
-            editAvailability={() => {
-              // messages are already sorted reverse chronologically
-              messages.forEach((msg) => {
-                if (
-                  msg.user._id !== auth.currentUser.email &&
-                  msg.availability &&
-                  msg.availability[0]
-                ) {
-                  const userName =
-                    msg.user._id === auth?.currentUser?.email
-                      ? auth?.currentUser?.displayName
-                      : name;
-                  const schedule = msg.availability;
-                  if (!(schedule[0].endDate instanceof Date)) {
-                    schedule.forEach((element, index) => {
-                      const endDate = element.endDate.toDate();
-                      const startDate = element.startDate.toDate();
-                      schedule[index].endDate = endDate;
-                      schedule[index].startDate = startDate;
-                    });
-                  }
-                  setInputSchedule(schedule);
-                  setAvailabilityUserName(userName);
-                  console.log(schedule);
-                  setAvailabilityVisible(true);
-                  setIsBubble(true);
-                }
-              });
-            }}
+            editAvailability={openMostRecentAvailability}
             startDate={proposedTime}
             setSyncMeetingVisible={setSellerSyncVisible}
             email={email}
-            isConfirmed={isConfirmed}
+            isConfirmed={showConfirmDetails}
             proposer={proposer}
           />
           <SellerSyncModal
@@ -1209,6 +1250,8 @@ export default function ChatWindow({ navigation, route }) {
             buyerEmail={buyerEmail}
             post={post}
             setStartDate={setSelectedTime}
+            hasProposed={hasProposed}
+            originalTime={proposedTime}
           />
           <ConfirmedMeetingModal
             visible={confirmedMeetingVisible}
@@ -1313,21 +1356,10 @@ const styles = StyleSheet.create({
   optionsMenu: {
     position: "absolute",
     right: 0,
-    top: (Platform.OS === "ios" ? menuBarTop + 20 : 35) + 12,
+    top: Platform.OS === "ios" ? menuBarTop + 20 : 35,
     width: 254,
     backgroundColor: "#EDEDEDEE",
     zIndex: 100,
     borderRadius: 12,
   },
 });
-const FILTER = [
-  {
-    id: 0,
-    title: "Negotiate",
-  },
-  {
-    id: 1,
-    title: "Send Availablity",
-  },
-  { id: 2, title: "Pay with Venmo" },
-];

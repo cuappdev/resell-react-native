@@ -21,7 +21,6 @@ export const RequestRoute = ({
 }) => {
   let row: Array<any> = [];
   const [prevOpenedRow, setPrevOpenedRow] = useState<any>(null);
-  const [refreshing, setRefreshing] = React.useState(false);
 
   const renderItem = ({ item, index }) => {
     let length = 0;
@@ -92,7 +91,8 @@ export const RequestRoute = ({
                 },
               ]}
             >
-              Submit a request and get notified when someone lists something similar
+              Submit a request and get notified when someone lists something
+              similar
             </Text>
           </View>
         ) : (
