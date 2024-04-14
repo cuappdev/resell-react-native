@@ -168,7 +168,10 @@ interface ChatWindowParams {
   screen: string;
   proposedTime: string;
   confirmedTime: string;
-  confirmedViewed: string;
+  /**
+   * Indicates whether confirmation has been viewed previously
+   */
+  confirmedViewed?: boolean;
 }
 
 export default function ChatWindow({ navigation, route }) {
@@ -267,6 +270,14 @@ export default function ChatWindow({ navigation, route }) {
   const responseListener = useRef<Subscription>();
 
   useEffect(() => {
+    // specify we need false and we don't want undefined
+    if (confirmedViewed === false) {
+      setTimeout(() => {
+        setSellerSyncVisible(true);
+      }, 500);
+    }
+
+    // Notifications
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
@@ -780,7 +791,7 @@ export default function ChatWindow({ navigation, route }) {
           ),
           email
         ),
-        { viewed: true }
+        { viewed: true, confirmedViewed: true }
       );
     });
     return unsubscribeFromChat;
@@ -1075,6 +1086,7 @@ export default function ChatWindow({ navigation, route }) {
         >
           <TouchableOpacity
             style={{ marginLeft: 24 }}
+            hitSlop={20}
             onPress={() => navigation.goBack()}
           >
             <BackButton color="black" />
@@ -1236,7 +1248,7 @@ export default function ChatWindow({ navigation, route }) {
             proposer={proposer}
           />
           <SellerSyncModal
-            visible={SellerSyncVisible}
+            visible={true}
             setVisible={setSellerSyncVisible}
             eventTitle={"Meet " + name + " for Resell"}
             startDate={proposedTime}

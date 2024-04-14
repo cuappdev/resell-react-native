@@ -71,6 +71,7 @@ export default function EditMeetingModal({
         recentMessage: "Confirmed",
         recentSender: auth?.currentUser?.email,
         recentMessageTime: new Date().toISOString(),
+        confirmedViewed: auth.currentUser.email === sellerEmail,
         viewed: auth.currentUser.email === sellerEmail,
       });
 
@@ -82,7 +83,7 @@ export default function EditMeetingModal({
         recentMessage: "Confirmed",
         recentSender: auth?.currentUser?.email,
         confirmedTime: startDate,
-        confirmedViewed: false,
+        confirmedViewed: auth.currentUser.email === buyerEmail,
         viewed: auth.currentUser.email === buyerEmail,
         recentMessageTime: new Date().toISOString(),
         proposedTime: "",

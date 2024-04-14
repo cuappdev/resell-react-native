@@ -1,13 +1,17 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Calendar from "expo-calendar";
 import React, { useEffect, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, StyleSheet, Text, View } from "react-native";
 import Modal from "react-native-modal";
 import PurpleButton from "../PurpleButton";
 
 import moment from "moment";
+import Colors from "../../constants/Colors";
 import { fonts } from "../../globalStyle/globalFont";
 import { makeToast } from "../../utils/Toast";
+import {
+  getCalendarID,
+  storeCalendarID,
+} from "../../utils/asychStorageFunctions";
 export default function SellerSyncModal({
   visible,
   setVisible,
@@ -18,37 +22,11 @@ export default function SellerSyncModal({
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m");
   const dateText = startText + "-" + endDate.format("h:mm a");
-  const [calendarID, setCalendarID] = useState("");
+  const [calendarID, setCalendarID] = useState<string | null>(null);
   useEffect(() => {
-    (async () => {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status === "granted") {
-        const calendars = await Calendar.getCalendarsAsync(
-          Calendar.EntityTypes.EVENT
-        );
-      }
-    })();
+    Calendar.requestCalendarPermissionsAsync();
+    getCalendarID(setCalendarID);
   }, []);
-
-  useEffect(() => {
-    AsyncStorage.getItem("calendarID", (errs, result) => {
-      if (!errs) {
-        if (result !== null && result !== undefined) {
-          setCalendarID(result);
-        } else {
-          createCalendar();
-        }
-      }
-    });
-  }, []);
-
-  const storeCalendarID = async (calendarID) => {
-    try {
-      await AsyncStorage.setItem("calendarID", calendarID);
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   async function getDefaultCalendarSource() {
     const defaultCalendar = await Calendar.getDefaultCalendarAsync();
@@ -62,7 +40,7 @@ export default function SellerSyncModal({
         : { isLocalAccount: true, name: "Resell Appointments", type: "LOCAL" };
     const newCalendarID = await Calendar.createCalendarAsync({
       title: "Resell Appointments",
-      color: "#9E70F6",
+      color: Colors.resellPurple,
       entityType: Calendar.EntityTypes.EVENT,
       sourceId: defaultCalendarSource.id,
       source: defaultCalendarSource,
@@ -70,8 +48,7 @@ export default function SellerSyncModal({
       ownerAccount: "personal",
       accessLevel: Calendar.CalendarAccessLevel.OWNER,
     });
-    console.log(`Your new calendar ID is: ${newCalendarID}`);
-    storeCalendarID(newCalendarID);
+    await storeCalendarID(newCalendarID);
     setCalendarID(newCalendarID);
     return newCalendarID;
   }
@@ -93,6 +70,53 @@ export default function SellerSyncModal({
       console.log(e);
     }
   };
+  const onSyncPress = async () => {
+    const event = {
+      title: "Meeting for Resell",
+      startDate: momentDate.toDate(),
+      endDate: endDate.toDate(),
+      location: "",
+      details: "",
+    };
+
+    const formattedStartDate = event.startDate
+      .toISOString()
+      .replace(/-|:|\.\d\d\d/g, "");
+    const formattedEndDate = event.endDate
+      .toISOString()
+      .replace(/-|:|\.\d\d\d/g, "");
+
+    const googleCalendarURL = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+      event.title
+    )}&dates=${formattedStartDate}/${formattedEndDate}&location=${encodeURIComponent(
+      event.location
+    )}&details=${encodeURIComponent(event.details)}`;
+    console.log(`Event URL: ${googleCalendarURL}`);
+
+    Linking.openURL(googleCalendarURL);
+    // try {
+    //   const { status } = await Calendar.requestCalendarPermissionsAsync();
+    //   if (status === "granted") {
+    //     let targetCalendarID = calendarID;
+    //     if (targetCalendarID === null) {
+    //       targetCalendarID = await createCalendar();
+    //     }
+    //     await addNewEvent();
+    //     makeToast({ message: "Added event to your calendar!" });
+
+    //     console.log("CalendarID: ", calendarID);
+    //   } else {
+    //     throw new Error("No calendar permissions");
+    //   }
+    // } catch (_) {
+    //   console.log("permission not granted");
+    //   makeToast({
+    //     message: "Calendar Permission not Granted",
+    //     type: "ERROR",
+    //   });
+    // }
+    // setVisible(false);
+  };
 
   return (
     <Modal //Confirm Meeting details
@@ -108,29 +132,7 @@ export default function SellerSyncModal({
           Sync meeting to Google Calendar?
         </Text>
         <View>
-          <PurpleButton
-            text={"Sync"}
-            onPress={() => {
-              async () => {
-                const { status } =
-                  await Calendar.requestCalendarPermissionsAsync();
-                if (status === "granted") {
-                  addNewEvent();
-                  makeToast({ message: "Added event to your calendar!" });
-
-                  console.log("CalendarID: ", calendarID);
-                } else {
-                  console.log("permission not granted");
-                  makeToast({
-                    message: "Calendar Permission not Granted",
-                    type: "ERROR",
-                  });
-                }
-              };
-              setVisible(false);
-            }}
-            enabled={true}
-          />
+          <PurpleButton text={"Sync"} onPress={onSyncPress} enabled={true} />
         </View>
 
         <Text
