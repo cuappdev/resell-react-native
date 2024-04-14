@@ -204,16 +204,14 @@ export default function ChatWindow({ navigation, route }) {
   const [uri, setUri] = useState("");
 
   const [mCount, setmCount] = useState(screen === "product" ? 0 : 1);
-  const [messages, setMessages] = React.useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
 
   const [selectedTime, setSelectedTime] = useState("");
-  const [cancelMeetingVisible, setCancelMeetingVisible] = React.useState(false);
-  const [meetingProposeVisible, setMeetingProposeVisible] =
-    React.useState(false);
-  const [confirmedMeetingVisible, setConfirmedMeetingVisible] =
-    React.useState(false);
-  const [editMeetingVisible, setEditMeetingVisible] = React.useState(false);
-  const [SellerSyncVisible, setSellerSyncVisible] = React.useState(false);
+  const [cancelMeetingVisible, setCancelMeetingVisible] = useState(false);
+  const [meetingProposeVisible, setMeetingProposeVisible] = useState(false);
+  const [confirmedMeetingVisible, setConfirmedMeetingVisible] = useState(false);
+  const [editMeetingVisible, setEditMeetingVisible] = useState(false);
+  const [sellerSyncVisible, setSellerSyncVisible] = useState(false);
   interface notification {
     request;
   }
@@ -811,6 +809,10 @@ export default function ChatWindow({ navigation, route }) {
         foundConfirmedMeeting = true;
         setProposedTime(meetingInfo.proposeTime);
         setProposer(meetingInfo.proposer);
+        setMeetingDetailText(
+          (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
+            " confirmed the following meeting:"
+        );
       }
       if (
         meetingInfo?.state === "proposed" &&
@@ -1244,11 +1246,11 @@ export default function ChatWindow({ navigation, route }) {
             startDate={proposedTime}
             setSyncMeetingVisible={setSellerSyncVisible}
             email={email}
-            isConfirmed={showConfirmDetails}
+            isConfirmed={isConfirmed}
             proposer={proposer}
           />
           <SellerSyncModal
-            visible={SellerSyncVisible}
+            visible={sellerSyncVisible}
             setVisible={setSellerSyncVisible}
             eventTitle={"Meet " + name + " for Resell"}
             startDate={proposedTime}
