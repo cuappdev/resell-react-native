@@ -41,7 +41,6 @@ export function NegotiationModal({
             {
               width: "100%",
               alignItems: "center",
-              marginVertical: 10,
             },
             styles.shadow,
           ]}
@@ -99,7 +98,7 @@ export function NegotiationModal({
           <>
             {negotiationBubbles.length > 1 && (
               <View style={[styles.dotNavContainer, styles.shadow]}>
-                {items.map((_, index) => (
+                {negotiationBubbles.map((_, index) => (
                   <View
                     style={[
                       styles.circle,
@@ -125,6 +124,22 @@ export function NegotiationModal({
                 style={[styles.pagerView]}
                 initialPage={0}
               >
+                {negotiationBubbles.length > 0 ? (
+                  negotiationBubbles
+                ) : (
+                  <View
+                    style={[
+                      { width: "100%", alignItems: "center" },
+                      styles.shadow,
+                    ]}
+                  >
+                    <NegotiationProductBubble
+                      product={post.title}
+                      price={post.original_price}
+                      image={post.images[0]}
+                    />
+                  </View>
+                )}
                 {negotiationBubbles}
               </PagerView>
             </View>
