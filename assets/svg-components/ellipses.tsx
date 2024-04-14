@@ -3,7 +3,7 @@ import Svg, {
   Circle,
 } from "react-native-svg";
 
-function EllipsesIcon(props) {
+function EllipsesIcon({ color, props }) {
   return (
     <Svg
       width={24}
@@ -13,9 +13,9 @@ function EllipsesIcon(props) {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <Circle cx={3} cy={3} r={3} fill={"white"}></Circle>
-      <Circle cx={12} cy={3} r={3} fill={"white"}></Circle>
-      <Circle cx={21} cy={3} r={3} fill={"white"}></Circle>
+      <Circle cx={3} cy={3} r={3} fill={color}></Circle>
+      <Circle cx={12} cy={3} r={3} fill={color}></Circle>
+      <Circle cx={21} cy={3} r={3} fill={color}></Circle>
     </Svg>
   );
 }

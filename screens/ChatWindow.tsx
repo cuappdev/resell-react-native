@@ -72,6 +72,11 @@ import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import OptionsMenu from "../components/OptionsMenu";
+import EllipsesIcon from "../assets/svg-components/ellipses";
+import Modal2 from "react-native-modal";
+import Layout, { menuBarTop } from "../constants/Layout";
+import PopupSheet from "../components/PopupSheet";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -174,6 +179,7 @@ export default function ChatWindow({ navigation, route }) {
     proposedViewed,
     confirmedViewed,
   }: ChatWindowParams = route.params;
+  const [accessToken, setAccessToken] = useState("");
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -182,6 +188,8 @@ export default function ChatWindow({ navigation, route }) {
   const sellerEmail = isBuyer ? email : auth.currentUser.email;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [blockModalVisibility, setBlockModalVisibility] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageURL, setImageURL] = useState<string>("");
 
@@ -229,6 +237,18 @@ export default function ChatWindow({ navigation, route }) {
       bottomSheetModalRef.current?.close();
     }
   }, []);
+
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result != undefined) {
+        setAccessToken(result);
+      }
+    }
+  });
+
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
 
   const apiClient = useApiClient();
 
@@ -366,6 +386,45 @@ export default function ChatWindow({ navigation, route }) {
     );
   }
   const [availabilityUsername, setAvailabilityUserName] = useState("");
+
+  const onReport = () => {
+    setMenuVisible(false);
+    navigation.navigate("ReportPost", {
+      sellerName: name,
+      sellerId: post.user.id,
+      postId: post.id,
+      userId: "userId",
+    });
+  };
+
+  const onBlock = () => {
+    setBlockModalVisibility(true)
+  }
+
+  const blockUser = async () => {
+    const blocked = JSON.stringify({
+      blocked: post.user.id,
+    });
+    try {
+      const response = await apiClient.post("/user/block/", {
+        blocked: "8f07199c-f61a-4a37-b590-3d5fbabd2886"
+      });
+      if (response.user) {
+        console.log(`blocked user: ${JSON.stringify(response.user)}`);
+        makeToast({ message: `Blocked ${name}` });
+        setBlockModalVisibility(false)
+        setMenuVisible(false)
+        navigation.goBack()
+      } else {
+        makeToast({ message: "Error blocking user", type: "ERROR" });
+      }
+    } catch (e: unknown) { }
+  }
+
+  const menuItems = [
+    { label: 'Report', iconName: 'flag', onPress: onReport },
+    { label: 'Block', iconName: 'slash', onPress: onBlock },
+  ];
 
   function renderBubble(props) {
     const { currentMessage } = props;
@@ -956,6 +1015,37 @@ export default function ChatWindow({ navigation, route }) {
           height: "100%",
         }}
       >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <BackButton color="black" />
+        </TouchableOpacity>
+
+        <View style={styles.optionsContainer}>
+          <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
+            <EllipsesIcon color={"black"} props />
+          </TouchableOpacity>
+          <Modal2
+            isVisible={menuVisible}
+            onBackdropPress={() => setMenuVisible(false)}
+            backdropOpacity={0.2}
+            animationIn="fadeIn"
+            animationOut="fadeOut"
+            style={styles.optionsMenu}
+          >
+
+            <OptionsMenu items={menuItems}></OptionsMenu>
+            <PopupSheet
+              isVisible={blockModalVisibility}
+              setIsVisible={setBlockModalVisibility}
+              actionName={"Block User"}
+              submitAction={blockUser}
+              buttonText={"Block"}
+              description={"Are you sure you’d like to block this user?"}
+            />
+          </Modal2>
+        </View>
         <View
           style={{
             width: "100%",
@@ -1190,6 +1280,72 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  buttonText2: {
+    color: "black",
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "500",
+    fontFamily: "Rubik-Medium",
+  },
+  optionsContainer: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop - 10 : 20,
+    right: 12,
+    zIndex: 15,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
+  optionsButton: {
+    zIndex: 15,
+    width: 30,
+    height: 25,
+    paddingVertical: 10,
+  },
+  optionsMenu: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop + 55 : 70,
+    right: 0,
+    width: 254,
+    backgroundColor: "#EDEDEDEE",
+    zIndex: 100,
+    borderRadius: 12,
+  },
+  button: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 25,
+    backgroundColor: "#d52300",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "center",
+    fontFamily: "Rubik-Medium",
+  },
+  button1: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: "3%",
+    borderRadius: 25,
+  },
+  modal: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 200,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    zIndex: 200,
   },
 });
 const FILTER = [

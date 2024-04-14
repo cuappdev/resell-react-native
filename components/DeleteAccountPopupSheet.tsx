@@ -58,7 +58,9 @@ export default function DeleteAccountPopupSheet({
           <TouchableOpacity
             style={styles.submitButton}
             onPress={() => {
-              deleteAction()
+              if (deleteText != "" && deleteText == username) {
+                deleteAction()
+              }
             }}
           >
             <Text style={[styles.submitButtonText, (deleteText != "" && deleteText == username)

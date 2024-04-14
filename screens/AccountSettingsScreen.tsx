@@ -14,11 +14,19 @@ import Edit from "../assets/svg-components/edit";
 import { Feather } from "@expo/vector-icons";
 import { menuBarTop } from "../constants/Layout";
 import DeleteAccountPopupSheet from "../components/DeleteAccountPopupSheet";
+import { useApiClient } from "../api/ApiClientProvider";
+import { makeToast } from "../utils/Toast";
+import { useDispatch } from "react-redux";
+import { logout } from "../state_manage/reducers/signInReducer";
 
 export default function AccountSettingsScreen({ navigation }) {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [userId, setUserId] = useState("");
   const [username, setUsername] = useState("")
+
+  const apiClient = useApiClient()
+  const dispatch = useDispatch();
+  const log_out = () => dispatch(logout());
 
   getUserId(setUserId);
 
@@ -60,6 +68,18 @@ export default function AccountSettingsScreen({ navigation }) {
       console.error(error);
     }
   };
+
+  const deleteAccount = async () => {
+    try {
+      const response = await apiClient.delete(`/user/id/${userId}/`);
+      if (response) {
+        console.log("Successfully Deleted Account")
+        log_out()
+      } else {
+        makeToast({ message: "Error deleting account", type: "ERROR" });
+      }
+    } catch (e: unknown) { }
+  }
 
   return (
     <View style={styles.container}>
@@ -110,7 +130,7 @@ export default function AccountSettingsScreen({ navigation }) {
       <DeleteAccountPopupSheet
         isVisible={deleteModalVisible}
         setIsVisible={setDeleteModalVisible}
-        deleteAction={() => console.log("No Screen yet")}
+        deleteAction={deleteAccount}
         username={username}
       />
     </View>

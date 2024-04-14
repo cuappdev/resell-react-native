@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Platform,
   StyleSheet,
@@ -29,19 +30,46 @@ import {
   storeEmail,
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
+import Privacy from "../assets/svg-components/privacy";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
   const log_out = () => dispatch(logout());
 
+  const [loading, setLoading] = useState(false);
   const [modalVisibility, setModalVisibility] = useState(false);
   const [showEULA, setShowEULA] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [userId, setUserId] = useState("");
 
   getUserId(setUserId);
 
+  const getUser = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        const user = json.user;
+        setUserId(user.id)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getUser()
+  });
+
   const presentEULA = () => {
     setShowEULA(true);
+  };
+
+  const presentPrivacyPolicy = () => {
+    setShowPrivacyPolicy(true);
   };
 
   return (
@@ -77,12 +105,19 @@ export default function SettingsScreen({ navigation }) {
           {
             icon: Blocked,
             text: "Blocked Users",
-            onPress: () => console.log("No Screen yet"), // TODO: Implement this screen
+            onPress: () => navigation.navigate("BlockedUsers", {
+              userID: userId,
+            }),
           },
           {
             icon: Terms,
             text: "Terms and Conditions",
-            onPress: presentEULA, // TODO: Implement this screen
+            onPress: presentEULA,
+          },
+          {
+            icon: Privacy,
+            text: "Privacy Policy",
+            onPress: presentPrivacyPolicy,
           },
           {
             icon: Logout,
@@ -94,7 +129,7 @@ export default function SettingsScreen({ navigation }) {
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => {}}
+            onPress={item.onPress ? item.onPress : () => { }}
             style={styles.item}
           >
             <item.icon />
@@ -130,8 +165,8 @@ export default function SettingsScreen({ navigation }) {
 
               auth
                 .signOut()
-                .then(() => {})
-                .catch((error) => {});
+                .then(() => { })
+                .catch((error) => { });
             }}
           >
             <View style={styles.button}>
@@ -158,9 +193,41 @@ export default function SettingsScreen({ navigation }) {
           <WebView
             originWhitelist={["*"]}
             source={{ uri: "https://www.cornellappdev.com/license/resell" }}
+            onLoadStart={() => setLoading(true)}
+            onLoadEnd={() => setLoading(false)}
           />
+          {loading && ( // Show activity indicator when loading is true
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={Colors.resellPurple} />
+            </View>
+          )}
           <TouchableOpacity
             onPress={() => setShowEULA(false)}
+            style={styles.doneButton}
+          >
+            <Text style={styles.doneButtonText}>Done</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={showPrivacyPolicy}
+        backdropOpacity={0.2}
+        style={styles.EULAModal}
+      >
+        <View style={styles.EULAView}>
+          <WebView
+            originWhitelist={["*"]}
+            source={{ uri: "https://www.cornellappdev.com/privacy" }}
+            onLoadStart={() => setLoading(true)}
+            onLoadEnd={() => setLoading(false)}
+          />
+          {loading && ( // Show activity indicator when loading is true
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={Colors.resellPurple} />
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={() => setShowPrivacyPolicy(false)}
             style={styles.doneButton}
           >
             <Text style={styles.doneButtonText}>Done</Text>
@@ -279,5 +346,11 @@ const styles = StyleSheet.create({
   },
   EULAView: {
     flex: 1,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: Dimensions.get('window').height / 3,
+    left: (Dimensions.get('window').width - 100) / 2,
+    width: 100
   },
 });

@@ -330,7 +330,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       {/* Top bar options */}
       <View style={styles.optionsContainer}>
         <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
-          <EllipsesIcon />
+          <EllipsesIcon color={"white"} props />
         </TouchableOpacity>
         <Modal
           isVisible={menuVisible}
