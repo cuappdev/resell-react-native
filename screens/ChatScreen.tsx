@@ -1,13 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
 import { useIsFocused } from "@react-navigation/native";
 import {
   Unsubscribe,
@@ -17,6 +8,14 @@ import {
   onSnapshot,
   query,
 } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import FastImage from "react-native-fast-image";
 import { format } from "timeago.js";
 import ChatTabs from "../components/chat/ChatTabs";
@@ -49,9 +48,9 @@ export default function ChatScreen({ navigation }) {
     );
 
     try {
-      return onSnapshot(sellersQuery, (querySnapshot) => {
+      return onSnapshot(sellersQuery, async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
-        querySnapshot.docs.forEach(async (document) => {
+        for (const document of querySnapshot.docs) {
           // get the items for the chat
           const sellerHistoryRef = doc(
             collection(doc(historyRef, document.id), "buyers"),
@@ -81,14 +80,15 @@ export default function ChatScreen({ navigation }) {
               proposer: document.data().proposer,
               items: items,
             });
-            setPurchase(tempt);
           } catch (error) {
             makeToast({
               message: "Error loading chat previews",
               type: "ERROR",
             });
           }
-        });
+        }
+
+        setPurchase(tempt);
         setIsLoadingPurchase(false);
       });
     } catch (e) {
@@ -106,9 +106,9 @@ export default function ChatScreen({ navigation }) {
     );
 
     try {
-      return onSnapshot(buyersQuery, (querySnapshot) => {
+      return onSnapshot(buyersQuery, async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
-        querySnapshot.docs.forEach(async (document) => {
+        for (const document of querySnapshot.docs) {
           // get the items for the chat
           const buyerHistoryRef = doc(
             collection(doc(historyRef, document.id), "sellers"),
@@ -118,32 +118,32 @@ export default function ChatScreen({ navigation }) {
             const items = (
               await getDocs(query(collection(buyerHistoryRef, "items")))
             ).docs.map((d) => d.data());
-            console.log(`\n\n\nitems: ${items}\n\n\n`);
+            tempt.push({
+              sellerName: document.data().name, //buyername
+              recentItem: document.data().item,
+              email: document.id, // buyeremail
+              image: document.data().image, // buyer image
+              recentMessage: document.data().recentMessage,
+              recentSender:
+                document.data().recentSender == auth?.currentUser?.email
+                  ? 1
+                  : 0,
+              viewed: document.data().viewed,
+              proposedTime: document.data().proposedTime,
+              proposedViewed: document.data().proposedViewed,
+              confirmedTime: document.data().confirmedTime,
+              confirmedViewed: document.data().confirmedViewed,
+              recentMessageTime: document.data().recentMessageTime,
+              proposer: document.data().proposer,
+              items: items,
+            });
           } catch (error) {
             console.log(`id token: ${await auth.currentUser.getIdToken()}`);
 
             console.log(`error: ${error}`);
             console.log(`erorr: ${JSON.stringify(error)}`);
           }
-
-          tempt.push({
-            sellerName: document.data().name, //buyername
-            recentItem: document.data().item,
-            email: document.id, // buyeremail
-            image: document.data().image, // buyer image
-            recentMessage: document.data().recentMessage,
-            recentSender:
-              document.data().recentSender == auth?.currentUser?.email ? 1 : 0,
-            viewed: document.data().viewed,
-            proposedTime: document.data().proposedTime,
-            proposedViewed: document.data().proposedViewed,
-            confirmedTime: document.data().confirmedTime,
-            confirmedViewed: document.data().confirmedViewed,
-            recentMessageTime: document.data().recentMessageTime,
-            proposer: document.data().proposer,
-            items: [],
-          });
-        });
+        }
         setOffer(tempt);
         setIsLoadingOffers(false);
       });
