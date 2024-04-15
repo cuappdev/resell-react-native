@@ -1265,7 +1265,10 @@ export default function ChatWindow({ navigation, route }) {
               setSelectedTime={setSelectedTime}
               setBuyerProposeVisible={setMeetingProposeVisible}
               selectdate={selectedTime}
-              isViewOnly={isConfirmed}
+              isViewOnly={
+                isConfirmed ||
+                availabilityUsername === auth.currentUser.displayName
+              }
             />
           </BottomSheetModal>
 
