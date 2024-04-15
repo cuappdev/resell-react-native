@@ -9,7 +9,14 @@ import {
 } from "react-native";
 
 import { useIsFocused } from "@react-navigation/native";
-import { Unsubscribe, collection, doc, onSnapshot } from "firebase/firestore";
+import {
+  Unsubscribe,
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import FastImage from "react-native-fast-image";
 import { format } from "timeago.js";
 import ChatTabs from "../components/chat/ChatTabs";
@@ -18,6 +25,8 @@ import { auth, historyRef } from "../config/firebase";
 import Colors from "../constants/Colors";
 import { ChatPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
+import { makeToast } from "../utils/Toast";
+import { formatSingleItem } from "../utils/general";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
@@ -42,25 +51,44 @@ export default function ChatScreen({ navigation }) {
     try {
       return onSnapshot(sellersQuery, (querySnapshot) => {
         const tempt: ChatPreview[] = [];
-        querySnapshot.docs.forEach((doc) => {
-          tempt.push({
-            sellerName: doc.data().name,
-            email: doc.id, //seller
-            recentItem: doc.data().item, // you can buy multiple items from a seller
-            image: doc.data().image, // image of the seller
-            recentMessage: doc.data().recentMessage,
-            recentSender:
-              doc.data().recentSender == auth?.currentUser?.email ? 1 : 0, //1 means buyer, means seller
-            viewed: doc.data().viewed,
-            confirmedTime: doc.data().confirmedTime,
-            confirmedViewed: doc.data().confirmedViewed,
-            proposedTime: doc.data().proposedTime,
-            proposedViewed: doc.data().proposedViewed,
-            recentMessageTime: doc.data().recentMessageTime,
-            proposer: doc.data().proposer,
-          });
+        querySnapshot.docs.forEach(async (document) => {
+          // get the items for the chat
+          const sellerHistoryRef = doc(
+            collection(doc(historyRef, document.id), "buyers"),
+            auth.currentUser.email
+          );
+          try {
+            const items = (
+              await getDocs(query(collection(sellerHistoryRef, "items")))
+            ).docs.map((d) => d.data());
+
+            tempt.push({
+              sellerName: document.data().name,
+              email: document.id,
+              recentItem: document.data().item, // you can buy multiple items from a seller
+              image: document.data().image, // image of the seller
+              recentMessage: document.data().recentMessage,
+              recentSender:
+                document.data().recentSender == auth?.currentUser?.email
+                  ? 1
+                  : 0, //1 means buyer, means seller
+              viewed: document.data().viewed,
+              confirmedTime: document.data().confirmedTime,
+              confirmedViewed: document.data().confirmedViewed,
+              proposedTime: document.data().proposedTime,
+              proposedViewed: document.data().proposedViewed,
+              recentMessageTime: document.data().recentMessageTime,
+              proposer: document.data().proposer,
+              items: items,
+            });
+            setPurchase(tempt);
+          } catch (error) {
+            makeToast({
+              message: "Error loading chat previews",
+              type: "ERROR",
+            });
+          }
         });
-        setPurchase(tempt);
         setIsLoadingPurchase(false);
       });
     } catch (e) {
@@ -80,22 +108,40 @@ export default function ChatScreen({ navigation }) {
     try {
       return onSnapshot(buyersQuery, (querySnapshot) => {
         const tempt: ChatPreview[] = [];
-        querySnapshot.docs.forEach((doc) => {
+        querySnapshot.docs.forEach(async (document) => {
+          // get the items for the chat
+          const buyerHistoryRef = doc(
+            collection(doc(historyRef, document.id), "sellers"),
+            auth.currentUser.email
+          );
+          try {
+            const items = (
+              await getDocs(query(collection(buyerHistoryRef, "items")))
+            ).docs.map((d) => d.data());
+            console.log(`\n\n\nitems: ${items}\n\n\n`);
+          } catch (error) {
+            console.log(`id token: ${await auth.currentUser.getIdToken()}`);
+
+            console.log(`error: ${error}`);
+            console.log(`erorr: ${JSON.stringify(error)}`);
+          }
+
           tempt.push({
-            sellerName: doc.data().name, //buyername
-            recentItem: doc.data().item,
-            email: doc.id, // buyeremail
-            image: doc.data().image, // buyer image
-            recentMessage: doc.data().recentMessage,
+            sellerName: document.data().name, //buyername
+            recentItem: document.data().item,
+            email: document.id, // buyeremail
+            image: document.data().image, // buyer image
+            recentMessage: document.data().recentMessage,
             recentSender:
-              doc.data().recentSender == auth?.currentUser?.email ? 1 : 0,
-            viewed: doc.data().viewed,
-            proposedTime: doc.data().proposedTime,
-            proposedViewed: doc.data().proposedViewed,
-            confirmedTime: doc.data().confirmedTime,
-            confirmedViewed: doc.data().confirmedViewed,
-            recentMessageTime: doc.data().recentMessageTime,
-            proposer: doc.data().proposer,
+              document.data().recentSender == auth?.currentUser?.email ? 1 : 0,
+            viewed: document.data().viewed,
+            proposedTime: document.data().proposedTime,
+            proposedViewed: document.data().proposedViewed,
+            confirmedTime: document.data().confirmedTime,
+            confirmedViewed: document.data().confirmedViewed,
+            recentMessageTime: document.data().recentMessageTime,
+            proposer: document.data().proposer,
+            items: [],
           });
         });
         setOffer(tempt);
@@ -166,10 +212,25 @@ export default function ChatScreen({ navigation }) {
             resizeMode={"cover"}
           />
           <View style={styles.inner}>
-            <Text numberOfLines={1} style={styles.items}>
-              <Text style={styles.sellerName}>{chatPreview.sellerName}</Text>
-              {products}
-            </Text>
+            <View style={styles.chatHeaderContainer}>
+              <Text numberOfLines={1} style={styles.sellerName}>
+                {chatPreview.sellerName}
+              </Text>
+              <View style={{ width: 12 }} />
+              <View style={styles.itemContainer}>
+                <Text
+                  style={[fonts.Title4, { color: Colors.secondaryGray }]}
+                >{`${formatSingleItem(chatPreview.items[0].title)}`}</Text>
+              </View>
+              {chatPreview.items.length > 1 && (
+                <>
+                  <View style={{ width: 4 }} />
+                  <Text
+                    style={[fonts.subtitle, { color: Colors.secondaryGray }]}
+                  >{`+ ${chatPreview.items.length - 1} more`}</Text>
+                </>
+              )}
+            </View>
             {/* Recent message region */}
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text
@@ -216,7 +277,7 @@ export default function ChatScreen({ navigation }) {
       )}
       {isPurchase &&
         !isLoadingPurchase &&
-        (purchase.length !== 0 ? (
+        (purchase && purchase.length !== 0 ? (
           <FlatList
             data={purchase}
             renderItem={renderItem}
@@ -305,5 +366,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  itemContainer: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderColor: Colors.stroke,
+    borderWidth: 1,
+    borderRadius: 75,
+  },
+  chatHeaderContainer: {
+    alignItems: "center",
+    flexDirection: "row",
   },
 });

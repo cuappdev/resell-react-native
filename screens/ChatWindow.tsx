@@ -74,6 +74,7 @@ import { menuBarTop } from "../constants/Layout";
 import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import { itemsAsString } from "../utils/general";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -213,26 +214,6 @@ export default function ChatWindow({ navigation, route }) {
 
   // keep track of multiple items
   const [items, setItems] = useState<DocumentData[]>([]);
-  const itemsAsString = (): string => {
-    let shownItems: string[] = [];
-    let numItems = 0;
-    while (
-      // offset by 2 so imagine if the comma is already there
-      shownItems.toString().replace(/,/g, ", ").length + 2 < 20 &&
-      items.length > numItems
-    ) {
-      shownItems.push(items[numItems].title);
-      numItems++;
-    }
-    let commaSeparatedItems = shownItems.toString().replace(/,/g, ", ");
-    if (commaSeparatedItems.length > 20) {
-      commaSeparatedItems =
-        commaSeparatedItems.substring(0, 20) +
-        `... +${Math.max(items.length - shownItems.length, 1)} more`;
-    }
-
-    return commaSeparatedItems;
-  };
 
   interface notification {
     request;
@@ -459,7 +440,7 @@ export default function ChatWindow({ navigation, route }) {
   const [availabilityUsername, setAvailabilityUserName] = useState("");
 
   function renderBubble(props) {
-    console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
+    // console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
 
     const { currentMessage } = props;
     const { text: currText } = currentMessage;
@@ -1156,7 +1137,7 @@ export default function ChatWindow({ navigation, route }) {
             <Text
               style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
             >
-              {items.length > 0 ? itemsAsString() : post.title}
+              {items.length > 0 ? itemsAsString(items) : post.title}
             </Text>
           </View>
           <View>
