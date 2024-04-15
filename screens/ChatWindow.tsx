@@ -47,6 +47,7 @@ import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
 import {
+  DocumentData,
   addDoc,
   collection,
   doc,
@@ -64,10 +65,7 @@ import OptionsMenu from "../components/OptionsMenu";
 import ProductCard from "../components/ProductCard";
 import BottomSheetHandle from "../components/bottomSheet/BottomSheetHandle";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
-import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
 import EditMeetingModal from "../components/chat/EditMeetingModal";
-import MeetingDetailModal from "../components/chat/MeetingDetailModal";
-import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
@@ -76,6 +74,7 @@ import { menuBarTop } from "../constants/Layout";
 import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import { itemsAsString } from "../utils/general";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -212,6 +211,10 @@ export default function ChatWindow({ navigation, route }) {
   const [confirmedMeetingVisible, setConfirmedMeetingVisible] = useState(false);
   const [editMeetingVisible, setEditMeetingVisible] = useState(false);
   const [sellerSyncVisible, setSellerSyncVisible] = useState(false);
+
+  // keep track of multiple items
+  const [items, setItems] = useState<DocumentData[]>([]);
+
   interface notification {
     request;
   }
@@ -344,7 +347,6 @@ export default function ChatWindow({ navigation, route }) {
       recentSender: auth.currentUser.email,
       confirmedTime:
         confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,
-      confirmedViewed: confirmedViewed || false,
     };
     const buyerData = {
       ...commonData,
@@ -361,6 +363,13 @@ export default function ChatWindow({ navigation, route }) {
 
     setDoc(buyerHistoryRef, buyerData);
     setDoc(sellerHistoryRef, sellerData);
+
+    // update multiple items for buyer and seller
+    const buyerItemDoc = doc(collection(sellerHistoryRef, "items"), post.id);
+    const sellerItemDoc = doc(collection(buyerHistoryRef, "items"), post.id);
+    setDoc(buyerItemDoc, post);
+    setDoc(sellerItemDoc, post);
+
     //#endregion
 
     // Send new message to the db
@@ -431,7 +440,7 @@ export default function ChatWindow({ navigation, route }) {
   const [availabilityUsername, setAvailabilityUserName] = useState("");
 
   function renderBubble(props) {
-    console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
+    // console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
 
     const { currentMessage } = props;
     const { text: currText } = currentMessage;
@@ -792,7 +801,23 @@ export default function ChatWindow({ navigation, route }) {
         { viewed: true, confirmedViewed: true }
       );
     });
-    return unsubscribeFromChat;
+
+    // We also want to check how many items the user is chatting about
+    // Gain a reference to the chat items
+    const sellerHistoryRef = doc(
+      collection(doc(historyRef, sellerEmail), "buyers"),
+      buyerEmail
+    );
+    const unsubscribeFromItems = onSnapshot(
+      query(collection(sellerHistoryRef, "items")),
+      (snapshot) => {
+        setItems(snapshot.docs.map((document) => document.data()));
+      }
+    );
+    return () => {
+      unsubscribeFromChat();
+      unsubscribeFromItems();
+    };
   }, []);
 
   // Update image viewer modal as URL changes:
@@ -822,7 +847,12 @@ export default function ChatWindow({ navigation, route }) {
         setProposedTime(meetingInfo.proposeTime);
       }
       // if a message from the other user has availability
-      if (msg.availability && msg.user._id !== auth.currentUser) {
+      if (
+        msg.availability &&
+        Object.keys(msg.availability).length > 0 &&
+        msg.user._id !== auth.currentUser.email
+      ) {
+        console.log(`\n\n\nMSG USER ID user id: ${msg.user._id}\n\n\n`);
         setActionButtons((buttons) =>
           buttons.filter((b) => b.title.includes("View")).length === 0
             ? [
@@ -1102,12 +1132,12 @@ export default function ChatWindow({ navigation, route }) {
             <Text
               style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
             >
-              {post.title}
+              {name}
             </Text>
             <Text
               style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
             >
-              {name}
+              {items.length > 0 ? itemsAsString(items) : post.title}
             </Text>
           </View>
           <View>
@@ -1202,6 +1232,7 @@ export default function ChatWindow({ navigation, route }) {
             setHeight={setHeight}
             screen={isBuyer ? "ChatBuyer" : "ChatSeller"}
             post={post}
+            items={items}
           />
 
           <BottomSheetModal
@@ -1254,36 +1285,6 @@ export default function ChatWindow({ navigation, route }) {
             setVisible={setSellerSyncVisible}
             eventTitle={"Meet " + name + " for Resell"}
             startDate={proposedTime}
-          />
-          <MeetingProposeModal
-            visible={meetingProposeVisible}
-            setVisible={setMeetingProposeVisible}
-            setAvailabilityVisible={setAvailabilityVisible}
-            startDate={selectedTime}
-            sellerEmail={sellerEmail}
-            buyerEmail={buyerEmail}
-            post={post}
-            setStartDate={setSelectedTime}
-            hasProposed={hasProposed}
-            originalTime={proposedTime}
-          />
-          <ConfirmedMeetingModal
-            visible={confirmedMeetingVisible}
-            setVisible={setConfirmedMeetingVisible}
-            eventTitle={"Meet " + name + " for Resell"}
-            text={name + " has confirmed the following meeting:"}
-            startDate={confirmedTime}
-            email={email}
-          />
-          <MeetingDetailModal
-            visible={cancelMeetingVisible}
-            setVisible={setCancelMeetingVisible}
-            startDate={isBuyer ? confirmedTime : proposedTime}
-            otherEmail={email}
-            name={name}
-            post={post}
-            proposer={proposer}
-            isBuyer={isBuyer}
           />
           <Modal visible={imageViewerVisible}>
             <ImageViewer

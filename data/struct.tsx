@@ -1,3 +1,5 @@
+import { DocumentData } from "firebase/firestore";
+
 export interface IPostPreview {
   categories: string[];
   description: string;
@@ -59,6 +61,7 @@ export interface ChatPreview {
   proposer?: string;
   confirmedTime?: string;
   confirmedViewed?: boolean;
+  items: DocumentData[];
 }
 export interface SUser {
   // shorter version of user interface
