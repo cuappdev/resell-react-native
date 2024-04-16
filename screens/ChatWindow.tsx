@@ -66,6 +66,7 @@ import ProductCard from "../components/ProductCard";
 import BottomSheetHandle from "../components/bottomSheet/BottomSheetHandle";
 import { AvailabilityModal } from "../components/chat/AvailabilityMatch";
 import EditMeetingModal from "../components/chat/EditMeetingModal";
+import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef } from "../config/firebase";
@@ -1264,7 +1265,10 @@ export default function ChatWindow({ navigation, route }) {
               setSelectedTime={setSelectedTime}
               setBuyerProposeVisible={setMeetingProposeVisible}
               selectdate={selectedTime}
-              isViewOnly={isConfirmed}
+              isViewOnly={
+                isConfirmed ||
+                availabilityUsername === auth.currentUser.displayName
+              }
             />
           </BottomSheetModal>
 
@@ -1279,6 +1283,18 @@ export default function ChatWindow({ navigation, route }) {
             email={email}
             isConfirmed={isConfirmed}
             proposer={proposer}
+          />
+          <MeetingProposeModal
+            visible={meetingProposeVisible}
+            setVisible={setMeetingProposeVisible}
+            setAvailabilityVisible={setAvailabilityVisible}
+            startDate={selectedTime}
+            sellerEmail={sellerEmail}
+            buyerEmail={buyerEmail}
+            post={post}
+            setStartDate={setSelectedTime}
+            hasProposed={hasProposed}
+            originalTime={proposedTime}
           />
           <SellerSyncModal
             visible={sellerSyncVisible}

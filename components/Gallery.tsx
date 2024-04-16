@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import PagerView from "react-native-pager-view";
+import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
 
 function Background({ children }: { children: JSX.Element }) {
   return (
@@ -16,8 +17,15 @@ function Background({ children }: { children: JSX.Element }) {
     </LinearGradient>
   );
 }
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
-export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
+export default function Gallery({
+  imagePaths,
+  isLoaded,
+}: {
+  imagePaths: string[];
+  isLoaded: boolean;
+}) {
   const [currentPage, setCurrentPage] = useState(0);
 
   var images: JSX.Element[] = [];
@@ -42,24 +50,31 @@ export default function Gallery({ imagePaths }: { imagePaths: string[] }) {
 
   return (
     <View style={styles.container}>
-      <PagerView
-        style={styles.pagerView}
-        initialPage={0}
-        onPageSelected={onPageSelected}
-      >
-        {images}
-      </PagerView>
-      <View style={styles.indicatorContainer}>
-        {imagePaths.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.indicator,
-              { backgroundColor: index === currentPage ? "#333" : "#ccc" },
-            ]}
-          />
-        ))}
-      </View>
+      {!isLoaded && (
+        <ShimmerPlaceholder style={{ width: "100%", height: "100%" }} />
+      )}
+      {isLoaded && (
+        <>
+          <PagerView
+            style={styles.pagerView}
+            initialPage={0}
+            onPageSelected={onPageSelected}
+          >
+            {images}
+          </PagerView>
+          <View style={styles.indicatorContainer}>
+            {imagePaths.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.indicator,
+                  { backgroundColor: index === currentPage ? "#333" : "#ccc" },
+                ]}
+              />
+            ))}
+          </View>
+        </>
+      )}
     </View>
   );
 }

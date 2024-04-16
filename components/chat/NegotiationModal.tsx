@@ -34,26 +34,28 @@ export function NegotiationModal({
     []
   );
   useEffect(() => {
-    setNegotiationBubbles(
-      items.map((item, index) => (
-        <View
-          style={[
-            {
-              width: "100%",
-              alignItems: "center",
-            },
-            styles.shadow,
-          ]}
-        >
-          <NegotiationProductBubble
-            product={item.title}
-            price={item.original_price}
-            image={item.images[0]}
-            key={index}
-          />
-        </View>
-      ))
-    );
+    if (items) {
+      setNegotiationBubbles(
+        items.map((item, index) => (
+          <View
+            style={[
+              {
+                width: "100%",
+                alignItems: "center",
+              },
+              styles.shadow,
+            ]}
+          >
+            <NegotiationProductBubble
+              product={item.title}
+              price={item.original_price}
+              image={item.images[0]}
+              key={index}
+            />
+          </View>
+        ))
+      );
+    }
   }, [items]);
 
   const onPageSelected = (event: any) => {

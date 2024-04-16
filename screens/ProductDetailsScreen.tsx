@@ -242,14 +242,29 @@ export default function ProductDetailsScreen({ route, navigation }) {
     });
   };
 
+  const getImageSizeAsync = (
+    uri: string
+  ): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
+    });
+  };
+
   useEffect(() => {
-    for (let i = 0; i < post.images.length; i++) {
-      Image.getSize(post.images[i], (width, height) => {
-        if (height / width > maxImgRatio) {
-          setMaxImgRatio(height / width);
+    const updateImgRatio = async () => {
+      try {
+        let maxImgRatio: number = 0;
+        for (const img of post.images) {
+          const dimensions = await getImageSizeAsync(img);
+          maxImgRatio = Math.max(
+            maxImgRatio,
+            dimensions.height / dimensions.width
+          );
         }
-      });
-    }
+        setMaxImgRatio(maxImgRatio);
+      } catch (_) {}
+    };
+    updateImgRatio();
   });
 
   const deletePost = () => {
@@ -394,11 +409,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
       <View
         style={{
-          height: Dimensions.get("window").width * maxImgRatio,
+          height:
+            maxImgRatio === 0
+              ? Dimensions.get("window").height
+              : Dimensions.get("window").width * maxImgRatio,
           width: Dimensions.get("window").width,
         }}
       >
-        <Gallery imagePaths={item.images}></Gallery>
+        <Gallery
+          isLoaded={maxImgRatio !== 0}
+          imagePaths={item.images}
+        ></Gallery>
       </View>
       <SlidingUpPanel
         draggableRange={{
@@ -406,7 +427,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
           bottom:
             Dimensions.get("window").height -
             Math.max(150, Dimensions.get("window").width * maxImgRatio),
-        }} // 100 is used to avoid overlapping with top bar
+        }}
         animatedValue={
           new Animated.Value(
             Dimensions.get("window").height -
