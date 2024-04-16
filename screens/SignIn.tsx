@@ -27,7 +27,8 @@ import {
   storeUserId,
   storeDeviceToken
 } from "../utils/asychStorageFunctions";
-import { getDeviceFCMToken, saveDeviceTokenToFireStore } from "../api/FirebaseNotificationManager";
+import { getDeviceFCMToken, saveDeviceTokenToFireStore, saveNotificationSettings } from "../api/FirebaseNotificationManager";
+import messaging from '@react-native-firebase/messaging';
 
 Logs.enableExpoCliLogging();
 
@@ -100,6 +101,15 @@ export default function SignIn() {
         doc(userRef, auth.currentUser.email)
       );
       setIsOnboarded(firebaseUserData.data()?.onboarded ?? false);
+      if (!isOnboarded) {
+
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        saveNotificationSettings(userData.email, enabled)
+      }
 
       if (!accountId) {
         makeToast({

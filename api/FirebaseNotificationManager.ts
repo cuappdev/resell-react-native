@@ -1,6 +1,6 @@
 import messaging from '@react-native-firebase/messaging';
-import { fcmRef, userRef } from '../config/firebase';
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+import { userRef } from '../config/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
@@ -30,13 +30,22 @@ export async function saveDeviceTokenToFireStore(userEmail, deviceToken) {
   }
 };
 
-export async function sendNotification(recipientToken, title, body, nav, chat) {
+export async function saveNotificationSettings(userEmail, notificationsEnabled) {
+  try {
+    const ref = doc(userRef, userEmail)
+    updateDoc(ref, {
+      notificationsEnabled: notificationsEnabled
+    })
+    console.log('Notifications Settings saved successfully');
+  } catch (error) {
+    console.error('Error saving device token:', error);
+  }
+}
+
+export async function sendNotification(recipientToken, title, body, nav, chat, notificationsEnabled) {
   const message = {
     to: recipientToken,
-    notification: {
-      body: body,
-      title: title,
-    },
+    notification: notificationsEnabled ? { body: body, title: title, } : null,
     data: {
       navigationId: nav,
       chat: chat

@@ -62,6 +62,15 @@ export const storeExpireAt = async (expiresAt) => {
   }
 };
 
+export const storeNotificationSettings = async (enabled) => {
+  try {
+    await AsyncStorage.setItem("notificationsEnabled", enabled);
+    console.log(enabled)
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const getOnboard = async (setOnBoarded) => {
   AsyncStorage.getItem("onboard", async (errs, result) => {
     if (!errs && result !== null && result !== "false") {
@@ -110,6 +119,22 @@ export const getAccessToken = async (setAccessToken) => {
     if (!errs && result !== null) {
       setAccessToken(result);
     }
+  });
+};
+
+export const getNotificationSettings = async (setNotificationSettings) => {
+  AsyncStorage.getItem("notificationsEnabled", async (errs, result) => {
+    if (!errs && result !== null) {
+      if (setNotificationSettings) {
+        setNotificationSettings(result);
+      }
+    } else {
+      console.log("WTF")
+    }
+
+    console.log(result)
+
+    return result
   });
 };
 

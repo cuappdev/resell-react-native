@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -17,6 +17,121 @@ import {
   setNewListings,
 } from "../state_manage/actions/settingsScreenActions";
 import { useDispatch, useSelector } from "react-redux";
+import { getEmail, getNotificationSettings, getUserId, storeNotificationSettings } from "../utils/asychStorageFunctions";
+import { saveNotificationSettings } from "../api/FirebaseNotificationManager";
+import { doc, getDoc } from "firebase/firestore";
+import { userRef } from "../config/firebase";
+
+export default function NotificationPreferencesScreen({ navigation }) {
+  const [notificationsEnabled, setNotificationsEnabled] = useState("");
+  const [userId, setUserId] = useState("");
+  const [userEmail, setUserEmail] = useState("")
+  const dispatch = useDispatch();
+
+  getUserId(setUserId);
+
+  const getEmail = async () => {
+    try {
+      const response = await fetch(
+        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
+      );
+      if (response.ok) {
+        const json = await response.json();
+        const user = json.user;
+        setUserEmail(user.email)
+        const docRef = doc(userRef, userEmail)
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setNotificationsEnabled(docSnap.data().notificationsEnabled)
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  getEmail()
+
+  const setIsAllNotificationsPaused = async (pauseAllNotifications: boolean) => {
+    dispatch(setPauseAllNotifications(pauseAllNotifications));
+    setNotificationsEnabled(JSON.stringify(pauseAllNotifications))
+    await storeNotificationSettings(JSON.stringify(pauseAllNotifications))
+    saveNotificationSettings(userEmail, pauseAllNotifications)
+  }
+
+  const setIsChatNotificationsOn = async (chatNotifications: boolean) => {
+    dispatch(setChatNotifications(chatNotifications));
+    setNotificationsEnabled(JSON.stringify(chatNotifications))
+    await storeNotificationSettings(JSON.stringify(chatNotifications))
+    saveNotificationSettings(userEmail, chatNotifications)
+  }
+
+  const setIsNewListingsOn = (newListings: boolean) =>
+    dispatch(setNewListings(newListings));
+
+  const isAllNotificationsPaused = useSelector((state: any) => {
+    return state.settings.pauseAllNotifications;
+  });
+
+  const isChatNotificationsOn = useSelector((state: any) => {
+    return state.settings.chatNotifications;
+  });
+
+  const isNewListingsOn = useSelector((state: any) => {
+    return state.settings.newListings;
+  });
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <BackButton color="black" />
+      </TouchableOpacity>
+      <View style={styles.title}>
+        <Text style={styles.titleText}>Notification Preferences</Text>
+      </View>
+      <FlatList
+        scrollEnabled={false}
+        style={styles.list}
+        data={[
+          {
+            text: "Pause All Notifications",
+            state: isAllNotificationsPaused,
+            action: (value) => setIsAllNotificationsPaused(value),
+          },
+          {
+            text: "Chat Notifications",
+            state: (notificationsEnabled),
+            action: (value) => setIsChatNotificationsOn(value),
+          },
+          {
+            text: "New Listings",
+            state: isNewListingsOn,
+            action: (value) => setIsNewListingsOn(value),
+          },
+        ]}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => { }} style={styles.item}>
+            <Text style={styles.itemText}>{item.text}</Text>
+            <Switch
+              trackColor={{ false: "#FFFFFF", true: "#9E70F6" }}
+              thumbColor={item.state ? "#FFFFFF" : "#BEBEBE"}
+              ios_backgroundColor="#FFFFFF"
+              onValueChange={(value) => {
+                item.action(value);
+                return;
+              }}
+              value={item.state}
+              style={styles.itemSwitch}
+            />
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -63,76 +178,3 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? menuBarTop + 30 : 50,
   },
 });
-
-export default function NotificationPreferencesScreen({ navigation }) {
-  const dispatch = useDispatch();
-
-  const setIsAllNotificationsPaused = (pauseAllNotifications: boolean) =>
-    dispatch(setPauseAllNotifications(pauseAllNotifications));
-
-  const setIsChatNotificationsOn = (chatNotifications: boolean) =>
-    dispatch(setChatNotifications(chatNotifications));
-
-  const setIsNewListingsOn = (newListings: boolean) =>
-    dispatch(setNewListings(newListings));
-
-  const isAllNotificationsPaused = useSelector((state: any) => {
-    return state.settings.pauseAllNotifications;
-  });
-
-  const isChatNotificationsOn = useSelector((state: any) => {
-    return state.settings.chatNotifications;
-  });
-
-  const isNewListingsOn = useSelector((state: any) => {
-    return state.settings.newListings;
-  });
-
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}
-      >
-        <BackButton color="black" />
-      </TouchableOpacity>
-      <View style={styles.title}>
-        <Text style={styles.titleText}>Notification Preferences</Text>
-      </View>
-      <FlatList
-        scrollEnabled={false}
-        style={styles.list}
-        data={[
-          {
-            text: "Pause All Notifications",
-            state: isAllNotificationsPaused,
-            setState: (value) => setIsAllNotificationsPaused(value),
-          },
-          {
-            text: "Chat Notifications",
-            state: isChatNotificationsOn,
-            setState: (value) => setIsChatNotificationsOn(value),
-          },
-          {
-            text: "New Listings",
-            state: isNewListingsOn,
-            setState: (value) => setIsNewListingsOn(value),
-          },
-        ]}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => { }} style={styles.item}>
-            <Text style={styles.itemText}>{item.text}</Text>
-            <Switch
-              trackColor={{ false: "#FFFFFF", true: "#9E70F6" }}
-              thumbColor={item.state ? "#FFFFFF" : "#BEBEBE"}
-              ios_backgroundColor="#FFFFFF"
-              onValueChange={(value) => item.setState(value)}
-              value={item.state}
-              style={styles.itemSwitch}
-            />
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-  );
-}

@@ -126,7 +126,7 @@ dist/
 
 # Google services
 config/google-services.json
-config/GoogleService-Info.plist
+**/GoogleService-Info.plist
 
 # @end expo-cli
 package-lock.json

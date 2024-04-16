@@ -363,7 +363,6 @@ export default function ChatWindow({ navigation, route }) {
       user,
     });
 
-    console.log(user)
     const docRef = doc(userRef, email)
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -382,7 +381,8 @@ export default function ChatWindow({ navigation, route }) {
           proposedTime,
           proposedViewed,
           proposer,
-        }
+        },
+        docSnap.data().notificationsEnabled
       )
     } else {
       console.log("No such document!");
