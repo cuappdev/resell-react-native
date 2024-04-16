@@ -218,9 +218,11 @@ export default function ChatScreen({ navigation }) {
               </Text>
               <View style={{ width: 12 }} />
               <View style={styles.itemContainer}>
-                <Text
-                  style={[fonts.Title4, { color: Colors.secondaryGray }]}
-                >{`${formatSingleItem(chatPreview.items[0].title)}`}</Text>
+                <Text style={[fonts.Title4, { color: Colors.secondaryGray }]}>
+                  {chatPreview.items.length > 0
+                    ? `${formatSingleItem(chatPreview.items[0].title)}`
+                    : "loading..."}
+                </Text>
               </View>
               {chatPreview.items.length > 1 && (
                 <>
