@@ -14,8 +14,8 @@ import {
 
 import { useApiClient } from "../api/ApiClientProvider";
 import ButtonBanner from "../components/ButtonBanner";
-import { NegotiationModal } from "../components/chat/NegotiationModal";
 import PurpleButton from "../components/PurpleButton";
+import { NegotiationModal } from "../components/chat/NegotiationModal";
 import Layout from "../constants/Layout";
 import { FILTER1 } from "../data/filter";
 import { fonts } from "../globalStyle/globalFont";
@@ -100,11 +100,7 @@ export function NewPostDetail({ navigation, route }) {
               }}
             />
             {title.length > 0 && (
-              <Text
-                style={styles.lengthLimit}
-              >
-                {title.length}/50
-              </Text>
+              <Text style={styles.lengthLimit}>{title.length}/50</Text>
             )}
           </View>
           <Text
@@ -151,6 +147,7 @@ export function NewPostDetail({ navigation, route }) {
             screen={"NewPost"}
             post={null}
             setHeight={null}
+            items={null}
           />
           <Text
             style={[
@@ -193,11 +190,7 @@ export function NewPostDetail({ navigation, route }) {
               maxLength={500}
             />
             {description.length > 0 && (
-              <Text
-                style={styles.lengthLimit}
-              >
-                {description.length}/500
-              </Text>
+              <Text style={styles.lengthLimit}>{description.length}/500</Text>
             )}
           </View>
           <Text
@@ -243,5 +236,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Rubik-Regular",
     color: "#707070",
-  }
+  },
 });

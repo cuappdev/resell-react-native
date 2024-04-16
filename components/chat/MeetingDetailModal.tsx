@@ -2,10 +2,13 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 
-import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
-import { auth, historyRef } from "../../config/firebase";
+import { auth } from "../../config/firebase";
 import { fonts } from "../../globalStyle/globalFont";
+
+/**
+ * UNUSED COMPONENT, DELETE IN THE FUTURE
+ */
 export default function MeetingDetailModal({
   visible,
   setVisible,
@@ -63,34 +66,7 @@ export default function MeetingDetailModal({
 
         <TouchableOpacity
           style={{ position: "absolute", bottom: "11%" }}
-          onPress={async () => {
-            // update interaction histories for seller and buyer
-            // seller:
-            updateDoc(
-              doc(
-                collection(doc(historyRef, sellerEmail), "buyers"),
-                buyerEmail
-              ),
-              {
-                proposedTime: "",
-                proposedViewed: false,
-                proposer: "",
-              }
-            );
-            // buyer:
-            updateDoc(
-              doc(
-                collection(doc(historyRef, buyerEmail), "sellers"),
-                sellerEmail
-              ),
-              {
-                confirmedTime: "",
-                confirmedViewed: false,
-              }
-            );
-
-            setVisible(false);
-          }}
+          onPress={async () => {}}
         >
           <View style={styles.button}>
             <Text

@@ -9,12 +9,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import ModalBar from "../assets/svg-components/modal_bar";
-import { auth } from "../config/firebase";
+import { useApiClient } from "../api/ApiClientProvider";
 import BookmarkIcon from "../assets/svg-components/bookmarkIcon";
 import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
+import ModalBar from "../assets/svg-components/modal_bar";
+import { auth } from "../config/firebase";
+import { makeToast } from "../utils/Toast";
 
-export function DetailPullUpHeader({ item, sellerName, sellerProfile, isSaved, save, unsave, }) {
+export function DetailPullUpHeader({
+  item,
+  sellerName,
+  sellerProfile,
+  isSaved,
+  save,
+  unsave,
+}) {
   return (
     <View style={[styles.container_header, styles.roundCorner]}>
       <TouchableOpacity
@@ -49,6 +58,7 @@ export function DetailPullUpBody({
   screen,
 }) {
   const [userId, setUserId] = useState("");
+  const api = useApiClient();
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
       if (result !== null && result !== undefined) {
@@ -62,12 +72,12 @@ export function DetailPullUpBody({
       arr.splice(index, 1);
       return true;
     }
-    console.log(item.id)
-    console.log(postId)
+    console.log(item.id);
+    console.log(postId);
     return false;
-  })
+  });
 
-  console.log(similarItems)
+  console.log(similarItems);
   return (
     <ScrollView
       style={[
@@ -87,28 +97,26 @@ export function DetailPullUpBody({
         renderItem={({ item }) => {
           return (
             <TouchableOpacity
-              onPress={() => {
-                fetch(
-                  "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-                  userId +
-                  "/postId/" +
-                  item.id
-                )
-                  .then((response) => {
-                    if (response.ok) {
-                      return response.json();
-                    } else return null;
-                  })
-                  .then((response) => {
-                    console.log(item);
-                    if (response != null) {
-                      navigation.navigate("ProductHome", {
-                        post: item,
-                        screen: "Home",
-                        savedInitial: response.isSaved,
-                      });
-                    }
+              onPress={async () => {
+                try {
+                  const response = await api.get(
+                    `/post/isSaved/postId/${item.id}`
+                  );
+
+                  if (response.isSaved !== undefined) {
+                    navigation.navigate("ProductHome", {
+                      post: item,
+                      screen: screen,
+                      savedInitial: response.isSaved,
+                    });
+                  }
+                } catch (error) {
+                  makeToast({
+                    message:
+                      "Failed to view product details, check internet connection",
+                    type: "ERROR",
                   });
+                }
               }}
               style={{ pointerEvents: "box-none" }}
             >

@@ -20,7 +20,6 @@ export default function ConfirmedMeetingModal({
   text,
   email,
   startDate,
-  setShowNotice,
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -114,7 +113,6 @@ export default function ConfirmedMeetingModal({
       isVisible={visible}
       backdropOpacity={0.2}
       onBackdropPress={() => {
-        setActivateIcon(true);
         setVisible(false);
         // setShowNotice(false);
         updateViewed();
@@ -142,7 +140,6 @@ export default function ConfirmedMeetingModal({
               updateViewed();
               setVisible(false);
               // setShowNotice(false);
-              setActivateIcon(true);
               console.log("here");
               const { status } =
                 await Calendar.requestCalendarPermissionsAsync();
@@ -163,7 +160,6 @@ export default function ConfirmedMeetingModal({
         <Text
           style={[fonts.Title2, { position: "absolute", bottom: "11%" }]}
           onPress={() => {
-            setActivateIcon(true);
             setVisible(false);
             // setShowNotice(false);
             updateViewed();

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-native-modal";
 
+import { DocumentData } from "firebase/firestore";
 import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import PagerView from "react-native-pager-view";
+import Colors from "../../constants/Colors";
 import { NumberPad } from "../CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
 const windowHeight = Dimensions.get("window").height;
@@ -15,7 +18,50 @@ export function NegotiationModal({
   setHeight,
   screen,
   post,
+  items,
+}: {
+  modalVisible;
+  setModalVisible;
+  text;
+  setText;
+  setHeight;
+  screen;
+  post;
+  items: DocumentData[];
 }) {
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [negotiationBubbles, setNegotiationBubbles] = useState<JSX.Element[]>(
+    []
+  );
+  useEffect(() => {
+    if (items) {
+      setNegotiationBubbles(
+        items.map((item, index) => (
+          <View
+            style={[
+              {
+                width: "100%",
+                alignItems: "center",
+              },
+              styles.shadow,
+            ]}
+          >
+            <NegotiationProductBubble
+              product={item.title}
+              price={item.original_price}
+              image={item.images[0]}
+              key={index}
+            />
+          </View>
+        ))
+      );
+    }
+  }, [items]);
+
+  const onPageSelected = (event: any) => {
+    setCurrentPage(event.nativeEvent.position);
+  };
+
   return (
     <Modal
       backdropColor="black"
@@ -51,19 +97,55 @@ export function NegotiationModal({
         ]}
       >
         {(screen === "ChatBuyer" || screen === "ChatSeller") && (
-          <View
-            style={{
-              width: "100%",
-              elevation: 5,
-              alignItems: "center",
-            }}
-          >
-            <NegotiationProductBubble
-              product={post.title}
-              price={post.original_price}
-              image={post.images[0]}
-            />
-          </View>
+          <>
+            {negotiationBubbles.length > 1 && (
+              <View style={[styles.dotNavContainer, styles.shadow]}>
+                {negotiationBubbles.map((_, index) => (
+                  <View
+                    style={[
+                      styles.circle,
+                      index === currentPage
+                        ? { backgroundColor: Colors.resellPurple }
+                        : { backgroundColor: Colors.iconInactive },
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+
+            <View
+              style={{
+                width: "100%",
+                alignItems: "center",
+                height: 100,
+                marginBottom: 24,
+              }}
+            >
+              <PagerView
+                onPageSelected={onPageSelected}
+                style={[styles.pagerView]}
+                initialPage={0}
+              >
+                {negotiationBubbles.length > 0 ? (
+                  negotiationBubbles
+                ) : (
+                  <View
+                    style={[
+                      { width: "100%", alignItems: "center" },
+                      styles.shadow,
+                    ]}
+                  >
+                    <NegotiationProductBubble
+                      product={post.title}
+                      price={post.original_price}
+                      image={post.images[0]}
+                    />
+                  </View>
+                )}
+                {negotiationBubbles}
+              </PagerView>
+            </View>
+          </>
         )}
         {screen === "NewPost" && (
           <View
@@ -244,5 +326,40 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center",
+  },
+  pagerView: {
+    flex: 1,
+    width: "100%",
+    // borderWidth: 1,
+    // borderStyle: "solid",
+    // borderColor: "blue",
+    marginBottom: -40,
+  },
+  dotNavContainer: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    gap: 6,
+    alignItems: "center",
+    backgroundColor: "white",
+    alignSelf: "center",
+    borderRadius: 100,
+  },
+  circle: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+
+    elevation: 11,
+    marginBottom: 12,
   },
 });

@@ -1,3 +1,5 @@
+import { DocumentData } from "firebase/firestore";
+
 export interface IPostPreview {
   categories: string[];
   description: string;
@@ -59,6 +61,7 @@ export interface ChatPreview {
   proposer?: string;
   confirmedTime?: string;
   confirmedViewed?: boolean;
+  items: DocumentData[];
 }
 export interface SUser {
   // shorter version of user interface
@@ -73,3 +76,30 @@ export interface signInfo {
   userId: string;
   email: string;
 }
+
+export interface MeetingInfo {
+  /**
+   * The start time that the meeting was proposed for (all meetings are 30 minutes)
+   */
+  proposeTime: string;
+  /**
+   * The state of the meeting request
+   */
+  // TODO finish this refactor
+  state: MeetingStatus;
+  /**
+   * The email address of the proposer
+   */
+  proposer: string;
+  /**
+   * The one who canceled the meeting (if applicable)
+   */
+  canceler?: string;
+}
+
+export type MeetingStatus = "confirmed" | "declined" | "proposed" | "canceled";
+
+export const MEETING_CONFIRMED: MeetingStatus = "confirmed";
+export const MEETING_DECLINED: MeetingStatus = "declined";
+export const MEETING_PROPOSED: MeetingStatus = "proposed";
+export const MEETING_CANCELED: MeetingStatus = "canceled";
