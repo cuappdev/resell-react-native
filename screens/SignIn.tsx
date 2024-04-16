@@ -30,8 +30,7 @@ Logs.enableExpoCliLogging();
 
 export default function SignIn() {
   GoogleSignin.configure({
-    webClientId: process.env.WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
-    iosClientId: process.env.IOS_CLIENT_ID,
+    webClientId: process.env.WEB_CLIENT_ID,
   });
   const colorScheme = useColorScheme();
   const signedIn = useSelector(signedInState);
@@ -62,6 +61,16 @@ export default function SignIn() {
           0,
           userData.email.indexOf("@cornell.edu")
         ),
+        givenName: userData.givenName,
+        familyName: userData.familyName,
+        photoUrl: userData.photo,
+        email: userData.email,
+        googleId: userData.id,
+      });
+
+      console.log({
+        username: userData.name,
+        netid: userData.email.substring(0, userData.email.indexOf("@")),
         givenName: userData.givenName,
         familyName: userData.familyName,
         photoUrl: userData.photo,
