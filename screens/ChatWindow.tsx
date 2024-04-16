@@ -52,6 +52,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
@@ -69,7 +70,7 @@ import ConfirmedMeetingModal from "../components/chat/ConfirmedMeetingModal";
 import MeetingDetailModal from "../components/chat/MeetingDetailModal";
 import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
-import { auth, chatRef, historyRef } from "../config/firebase";
+import { auth, chatRef, historyRef, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 import OptionsMenu from "../components/OptionsMenu";
@@ -77,6 +78,7 @@ import EllipsesIcon from "../assets/svg-components/ellipses";
 import Modal2 from "react-native-modal";
 import Layout, { menuBarTop } from "../constants/Layout";
 import PopupSheet from "../components/PopupSheet";
+import { sendNotification } from "../api/FirebaseNotificationManager";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -288,19 +290,23 @@ export default function ChatWindow({ navigation, route }) {
     }
   }, [text, isSendingAvailability]);
 
-  const onSend = useCallback((messages: any[] = []) => {
+  const onSend = useCallback(async (messages: any[] = []) => {
     //#region update histories
+    var notifText = ""
     const { _id, text, availability, image, product, createdAt, user } =
       messages[0];
     var recentMessage = "";
     if (text.length > 0) {
       recentMessage = text;
+      notifText = text
     } else if (availability[0] != undefined) {
       recentMessage = "[Availability]";
+      notifText = "Sent their Avalability"
     } else if (product.title != undefined) {
       recentMessage = "[Product: " + product.title + "]";
     } else if (image != "") {
       recentMessage = "[Image]";
+      notifText = "Sent an Image"
     }
     // In the buyer's history, track a new seller
     const buyerHistoryRef = doc(
@@ -356,6 +362,32 @@ export default function ChatWindow({ navigation, route }) {
       createdAt,
       user,
     });
+
+    console.log(user)
+    const docRef = doc(userRef, email)
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      sendNotification(docSnap.data().fcmToken,
+        user.name,
+        notifText,
+        "chat",
+        {
+          name,
+          receiverImage,
+          email,
+          post,
+          isBuyer,
+          confirmedTime,
+          confirmedViewed,
+          proposedTime,
+          proposedViewed,
+          proposer,
+        }
+      )
+    } else {
+      console.log("No such document!");
+    }
+
   }, []);
   function renderMessage(props: MessageProps<IMessage>) {
     if (props.currentMessage.image) {
@@ -1015,37 +1047,6 @@ export default function ChatWindow({ navigation, route }) {
           height: "100%",
         }}
       >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <BackButton color="black" />
-        </TouchableOpacity>
-
-        <View style={styles.optionsContainer}>
-          <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
-            <EllipsesIcon color={"black"} props />
-          </TouchableOpacity>
-          <Modal2
-            isVisible={menuVisible}
-            onBackdropPress={() => setMenuVisible(false)}
-            backdropOpacity={0.2}
-            animationIn="fadeIn"
-            animationOut="fadeOut"
-            style={styles.optionsMenu}
-          >
-
-            <OptionsMenu items={menuItems}></OptionsMenu>
-            <PopupSheet
-              isVisible={blockModalVisibility}
-              setIsVisible={setBlockModalVisibility}
-              actionName={"Block User"}
-              submitAction={blockUser}
-              buttonText={"Block"}
-              description={"Are you sure you’d like to block this user?"}
-            />
-          </Modal2>
-        </View>
         <View
           style={{
             width: "100%",

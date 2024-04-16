@@ -2,9 +2,10 @@ import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
+import Google from "expo-auth-session"
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,7 +25,9 @@ import {
   returnAccessToken,
   storeAccessToken,
   storeUserId,
+  storeDeviceToken
 } from "../utils/asychStorageFunctions";
+import { getDeviceFCMToken, saveDeviceTokenToFireStore } from "../api/FirebaseNotificationManager";
 
 Logs.enableExpoCliLogging();
 
@@ -69,6 +72,10 @@ export default function SignIn() {
         googleId: userData.id,
       });
 
+      const deviceToken = await getDeviceFCMToken()
+      await storeDeviceToken(deviceToken)
+      saveDeviceTokenToFireStore(userData.email, deviceToken)
+
       if (!createAccountRes.error || createAccountRes.httpCode === 409) {
         // If the httpCode is 409, that means there account already exists, so
         // we just need to log them in and we don't need to terminate sign in
@@ -108,7 +115,9 @@ export default function SignIn() {
       const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
       const session = accessTokenRes.sessions?.[0];
       if (session) {
+        console.log(`Firebase Token User: ${JSON.stringify(auth.currentUser)}`)
         const accessToken = session.accessToken;
+        console.log(`Access Token: ${JSON.stringify(session.accessToken)}`)
         const isActive = session.active;
         if (isActive) {
           await storeAccessToken(accessToken);

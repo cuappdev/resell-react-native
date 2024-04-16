@@ -13,6 +13,7 @@ export const storeOnboarded = async (onboard: boolean) => {
     console.log(e);
   }
 };
+
 export const storeEmail = async (email) => {
   try {
     await AsyncStorage.setItem("email", email);
@@ -20,6 +21,14 @@ export const storeEmail = async (email) => {
     console.log(e);
   }
 };
+
+export const storeDeviceToken = async (token) => {
+  try {
+    await AsyncStorage.setItem("fcmToken", token)
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 export const storeUserId = async (userid: string) => {
   try {
@@ -79,6 +88,15 @@ export const getEmail = async (setEmail) => {
     }
   });
 };
+
+export const getDeviceToken = async (setDeviceToken) => {
+  AsyncStorage.getItem("fcmToken", async (errs, result) => {
+    if (!errs && result !== null) {
+      setDeviceToken(result);
+    }
+  });
+}
+
 export const getUserId = async (setUserId) => {
   AsyncStorage.getItem("userId", async (errs, result) => {
     if (!errs && result !== null) {

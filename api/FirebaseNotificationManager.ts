@@ -1,0 +1,63 @@
+import messaging from '@react-native-firebase/messaging';
+import { fcmRef, userRef } from '../config/firebase';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+
+export async function requestUserPermission() {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  if (enabled) {
+    console.log('Authorization status:', authStatus);
+  }
+}
+
+export async function getDeviceFCMToken() {
+  const token = await messaging().getToken();
+  return token
+}
+
+export async function saveDeviceTokenToFireStore(userEmail, deviceToken) {
+  try {
+    const ref = doc(userRef, userEmail)
+    updateDoc(ref, {
+      fcmToken: deviceToken
+    })
+    console.log('Device token saved successfully');
+  } catch (error) {
+    console.error('Error saving device token:', error);
+  }
+};
+
+export async function sendNotification(recipientToken, title, body, nav, chat) {
+  const message = {
+    to: recipientToken,
+    notification: {
+      body: body,
+      title: title,
+    },
+    data: {
+      navigationId: nav,
+      chat: chat
+    }
+  }
+
+  try {
+    const response = await fetch(
+      "https://fcm.googleapis.com/fcm/send",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "key=AAAAAFt45DI:APA91bEK63cgXhAPZQ3KpC92q6RjrNOehM2H8zFqytJDuthFEvIBPaEaKfvNplZP90q74WdPcGhoeEo4iFOCks9DIpD9nyLoQpGe4pu6p3_BQGiYSvIx_YxrmLElgPgmv4Hz1P0LFQVO"
+        },
+        body: JSON.stringify(message),
+      }
+    );
+    const json = await response.json();
+  } catch (error) {
+    console.error(error);
+  }
+}

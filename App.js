@@ -7,6 +7,7 @@ import ApiClientProvider from "./api/ApiClientProvider";
 import useCachedResources from "./hooks/useCachedResources";
 import SignIn from "./screens/SignIn";
 import { store } from "./state_manage/reducers/store";
+import { getDeviceFCMToken, requestUserPermission } from "./api/FirebaseNotificationManager";
 
 export default function App() {
   function handleDeepLink(event) {
@@ -14,6 +15,11 @@ export default function App() {
     setPostID(data);
   }
   const [postID, setPostID] = useState(null);
+
+  useEffect(() => {
+    requestUserPermission()
+    getDeviceFCMToken()
+  })
 
   useEffect(() => {
     async function getInitialURL() {

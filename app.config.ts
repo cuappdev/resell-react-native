@@ -49,7 +49,7 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.cornellappdev.resell",
+      bundleIdentifier: "com.appdev.resellios",
       googleServicesFile: "./config/GoogleService-Info.plist",
       buildNumber: "2.0.2",
       infoPlist: {
