@@ -33,6 +33,7 @@ export default function HomeScreen({ navigation, route }) {
   const [count, setCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [posts, setPosts] = useState(null);
+  const [blockedUsers, setBlockedUsers] = useState([]);
   const isFocused = useIsFocused();
   const [userId, setUserId] = useState("");
 
@@ -42,6 +43,17 @@ export default function HomeScreen({ navigation, route }) {
   };
 
   const api = new ApiClient();
+
+  const getBlockedUsers = async () => {
+    try {
+      const response = await api.get(`/user/blocked/id/${userId}/`);
+      if (response.users) {
+        setBlockedUsers(response.users)
+      } else {
+        makeToast({ message: "Error fetching blocked users", type: "ERROR" });
+      }
+    } catch (e: unknown) { }
+  }
 
   // At the start load the current user ID, we need to check if the session is valid
   useEffect(() => {
@@ -66,11 +78,13 @@ export default function HomeScreen({ navigation, route }) {
 
             auth
               .signOut()
-              .then(() => {})
-              .catch((error) => {});
+              .then(() => { })
+              .catch((error) => { });
           }
         }
       });
+
+      getBlockedUsers()
     }
   }, [userId]);
 
@@ -102,6 +116,7 @@ export default function HomeScreen({ navigation, route }) {
               new Date(post1.created).getTime() -
               new Date(post2.created).getTime()
           )
+          // .filter(post => !blockedUsers.some(user => user.id === post.user.id))
         );
       } else {
         makeError();
@@ -138,6 +153,7 @@ export default function HomeScreen({ navigation, route }) {
   const refreshPosts = () => {
     setLoading(true);
     setTimeout(async () => {
+      await getBlockedUsers();
       await getPosts();
     }, 500);
   };

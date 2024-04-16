@@ -22,7 +22,8 @@ export default function BlockedUsersScreen({ route, navigation }) {
   const { userID } = route.params;
   const [blockedUsers, setBlockedUsers] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState("")
+  const [selectedUser, setSelectedUser] = useState<Record<string, any>>({});
+  const [refreshing, setRefreshing] = useState(false);
 
   const apiClient = useApiClient()
 
@@ -37,56 +38,30 @@ export default function BlockedUsersScreen({ route, navigation }) {
     } catch (e: unknown) { }
   }
 
-  const unblockUser = async ({ item }) => {
+  const unblockUser = async () => {
     try {
-      console.log(item)
       const response = await apiClient.post(`/user/unblock/`, {
-        blocked: item
+        unblocked: selectedUser.id
       });
       if (response.user) {
         setBlockedUsers(response.user.blocking)
+        setModalVisible(false)
       } else {
-        makeToast({ message: "Error blocking user", type: "ERROR" });
+        makeToast({ message: "Error unblocking user", type: "ERROR" });
       }
     } catch (e: unknown) { }
   }
 
   useEffect(() => {
     getBlockedUsers()
-    setBlockedUsers(
-      [
-        {
-          id: "1",
-          username: "Richie",
-          photoUrl: ""
-        },
-        {
-          id: "2",
-          username: "Zach",
-          photoUrl: ""
-        },
-        {
-          id: "3",
-          username: "Nancy",
-          photoUrl: ""
-        },
-        {
-          id: "4",
-          username: "Archit",
-          photoUrl: ""
-        },
-        {
-          id: "5",
-          username: "Vin",
-          photoUrl: ""
-        },
-        {
-          id: "6",
-          username: "Justin",
-          photoUrl: ""
-        }
-      ])
   }, userID);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    getBlockedUsers().then(() => {
+      setRefreshing(false);
+    });
+  };
 
 
 
@@ -100,7 +75,7 @@ export default function BlockedUsersScreen({ route, navigation }) {
       </View>
       <TouchableOpacity
         onPress={() => {
-          setSelectedUser(item.username)
+          setSelectedUser(item)
           setModalVisible(true)
         }}
         style={styles.unblockButton}
@@ -126,11 +101,13 @@ export default function BlockedUsersScreen({ route, navigation }) {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         style={styles.userList}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
       <PopupSheet
         isVisible={modalVisible}
         setIsVisible={setModalVisible}
-        actionName={`Unblock ${selectedUser}`}
+        actionName={`Unblock ${selectedUser.username}`}
         submitAction={unblockUser}
         buttonText={"Unblock"}
         description={"They will be able to message you and view your posts."}

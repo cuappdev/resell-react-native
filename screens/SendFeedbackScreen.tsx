@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from 'expo-image-manipulator';
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -66,15 +67,25 @@ export default function SendFeedbackScreen({ navigation }) {
       }
     });
   }, []);
+
+  const compressImage = async (base64) => {
+    const manipulatedImage = await ImageManipulator.manipulateAsync(
+      `data:image/jpeg;base64,${base64}`,
+      [{ resize: { width: 800 } }],
+      { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    return manipulatedImage.uri;
+  };
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
-      quality: 0.5,
     });
     if (!result.canceled && result !== null) {
       if (images.length < 3) {
-        setImages([...images, "data:image/jpeg;base64," + result["base64"]]);
+        const compressedImage = await compressImage(result["base64"]);
+        setImages([...images, compressedImage]);;
       }
     }
   };
@@ -86,8 +97,9 @@ export default function SendFeedbackScreen({ navigation }) {
       quality: 0.5,
     });
     if (result && !result.canceled) {
+      const compressedImage = await compressImage(result["base64"]);
       let updatedImages = [...images];
-      updatedImages[index] = "data:image/jpeg;base64," + result["base64"];
+      updatedImages[index] = compressedImage;
       setImages(updatedImages);
     }
   };
@@ -113,7 +125,7 @@ export default function SendFeedbackScreen({ navigation }) {
       const result = await api.post("/feedback/", {
         description: feedbackText,
         images: images,
-        userId: userId, //TODO: replace this with actual userID
+        userId: userId,
       });
 
       if (result.feedback) {
