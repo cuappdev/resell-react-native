@@ -109,11 +109,8 @@ export default function EditMeetingModal({
         "meetingInfo.state": MEETING_CONFIRMED,
       });
       await deleteDoc(otherProposalRef);
-      setVisible(false);
       setShowSyncCalendar(true);
-      makeToast({
-        message: "Meeting time confirmed.",
-      });
+      setVisible(false);
     } catch (error) {
       makeToast({
         message: "Error confirming meeting time",
@@ -224,7 +221,7 @@ export default function EditMeetingModal({
       isVisible={visible}
       backdropOpacity={0.2}
       onModalHide={() => {
-        if (showSyncCalendar && !isConfirmed) {
+        if (showSyncCalendar) {
           setSyncMeetingVisible(true);
         }
         if (showAvailability) {
