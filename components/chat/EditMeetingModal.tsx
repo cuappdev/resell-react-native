@@ -237,7 +237,7 @@ export default function EditMeetingModal({
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
-      <View style={styles.slideUp}>
+      <View style={[styles.slideUp, { height: isConfirmed ? 450 : 400 }]}>
         <Text style={[fonts.pageHeading3, { marginTop: "14%" }]}>
           Meeting Details
         </Text>
@@ -254,24 +254,31 @@ export default function EditMeetingModal({
 
         {/* Cancelable view */}
         {isConfirmed && (
-          <View style={styles.buttonAndCancelContainer}>
-            <PurpleButton
-              style={{ backgroundColor: Colors.errorState }}
-              text="Cancel Meeting"
-              onPress={onCancelMeetingPress}
-              isLoading={cancelLoading}
-            />
-            <View style={{ height: 24 }} />
-            <TouchableOpacity
-              onPress={() => {
-                setVisible(false);
-              }}
-            >
-              <Text style={[fonts.Title1, { color: Colors.secondaryGray }]}>
-                Close
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <>
+            <Text style={fonts.body1}>
+              {
+                "\nFor safety, make sure to meet up in a public space on campus."
+              }
+            </Text>
+            <View style={styles.buttonAndCancelContainer}>
+              <PurpleButton
+                style={{ backgroundColor: Colors.errorState }}
+                text="Cancel Meeting"
+                onPress={onCancelMeetingPress}
+                isLoading={cancelLoading}
+              />
+              <View style={{ height: 24 }} />
+              <TouchableOpacity
+                onPress={() => {
+                  setVisible(false);
+                }}
+              >
+                <Text style={[fonts.Title1, { color: Colors.secondaryGray }]}>
+                  Close
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
         {!isConfirmed && proposer !== auth.currentUser.email ? (
