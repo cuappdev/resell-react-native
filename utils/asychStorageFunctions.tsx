@@ -71,6 +71,14 @@ export const storeNotificationSettings = async (enabled) => {
   }
 };
 
+export const storeCalendarID = async (calendarID) => {
+  try {
+    await AsyncStorage.setItem("calendarID", calendarID);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const getOnboard = async (setOnBoarded) => {
   AsyncStorage.getItem("onboard", async (errs, result) => {
     if (!errs && result !== null && result !== "false") {
@@ -137,5 +145,17 @@ export const getNotificationSettings = async (setNotificationSettings) => {
     return result
   });
 };
+
+export const getCalendarID = async (
+  setCalendarID: React.Dispatch<React.SetStateAction<string>>
+) => {
+  AsyncStorage.getItem("calendarID", async (errs, result) => {
+    if (!errs && result !== null) {
+      setCalendarID(result);
+    }
+  });
+};
+
+export const returnCalendarId = () => AsyncStorage.getItem("calendarID");
 
 export const returnAccessToken = () => AsyncStorage.getItem("accessToken");

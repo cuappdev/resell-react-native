@@ -1,7 +1,5 @@
 import * as React from "react";
-import Svg, {
-  Circle,
-} from "react-native-svg";
+import Svg, { Circle, SvgProps } from "react-native-svg";
 
 function EllipsesIcon({ color, props }) {
   return (

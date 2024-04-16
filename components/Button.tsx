@@ -48,6 +48,9 @@ function Button(props) {
         );
       }
     }
+    if (props.title.includes("View")) {
+      props.openMostRecentAvailability();
+    }
   };
 
   return clicked || props.alwaysColor ? (
