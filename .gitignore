@@ -4,6 +4,8 @@
 .env
 **/.env*
 **/.env*.
+config/google-services.json
+config/GoogleService-Info.plist
 
 # Xcode
 #
@@ -124,10 +126,6 @@ buck-out/
 .expo/
 web-build/
 dist/
-
-# Google services
-config/google-services.json
-config/GoogleService-Info.plist
 
 # @end expo-cli
 package-lock.json
