@@ -16,6 +16,8 @@ import { fonts } from "../globalStyle/globalFont";
 import { menuBarTop } from "../constants/Layout";
 import PopupSheet from "../components/PopupSheet";
 import PurpleButton from "../components/PurpleButton";
+import { useApiClient } from "../api/ApiClientProvider";
+import { makeToast } from "../utils/Toast";
 
 export default function ReportPostConfirmScreen({ navigation, route }) {
   const {
@@ -27,26 +29,26 @@ export default function ReportPostConfirmScreen({ navigation, route }) {
 
   const [blockModalVisibility, setBlockModalVisibility] = useState(false)
 
-  const blockSeller = async () => {
+  const apiClient = useApiClient()
+
+  const blockUser = async () => {
     try {
-      console.log(sellerId)
-      const response = await fetch(
-        "/api/user/block",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            blocked: sellerId,
-          }),
-        }
-      );
-      const json = await response.json();
-    } catch (error) {
-      console.error(error);
-    }
+      const response = await apiClient.post("/user/block/", {
+        blocked: sellerId
+      });
+      if (response.user) {
+        console.log(`blocked user: ${JSON.stringify(response.user)}`);
+        makeToast({ message: `Blocked ${sellerName}` });
+        setBlockModalVisibility(false)
+        navigation.goBack()
+        navigation.goBack()
+        navigation.goBack()
+        navigation.goBack()
+      } else {
+        makeToast({ message: "Error blocking user", type: "ERROR" });
+        console.log("WHT")
+      }
+    } catch (e: unknown) { }
   }
 
   return (
@@ -84,7 +86,7 @@ export default function ReportPostConfirmScreen({ navigation, route }) {
           isVisible={blockModalVisibility}
           setIsVisible={setBlockModalVisibility}
           actionName={"Block User"}
-          submitAction={() => blockSeller}
+          submitAction={blockUser}
           buttonText={"Block"}
           description={"Are you sure you’d like to block this user?"}
         />

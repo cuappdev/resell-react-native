@@ -264,9 +264,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   item: {
-    marginTop: 40,
-    marginLeft: 24,
-    marginRight: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   list: {
-    top: Platform.OS === "ios" ? menuBarTop + 30 : 50,
+    top: Platform.OS === "ios" ? menuBarTop + 40 : 50,
   },
   slideUp: {
     borderTopLeftRadius: 40,
