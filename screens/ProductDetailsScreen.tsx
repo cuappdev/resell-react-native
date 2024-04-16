@@ -251,21 +251,19 @@ export default function ProductDetailsScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    const updateImgRatio = async () => {
-      try {
+    Promise.all(post.images.map((uri) => getImageSizeAsync(uri)))
+      .then((sizes) => {
         let maxImgRatio: number = 0;
-        for (const img of post.images) {
-          const dimensions = await getImageSizeAsync(img);
-          maxImgRatio = Math.max(
-            maxImgRatio,
-            dimensions.height / dimensions.width
-          );
+        for (const size of sizes) {
+          maxImgRatio = Math.max(maxImgRatio, size.height / size.width);
         }
         setMaxImgRatio(maxImgRatio);
-      } catch (_) {}
-    };
-    updateImgRatio();
-  });
+      })
+      .catch((error) => {
+        console.log(`error: ${JSON.stringify(error)}`);
+        makeToast({ message: "Images failed to load", type: "ERROR" });
+      });
+  }, []);
 
   const deletePost = () => {
     fetch("https://resell-dev.cornellappdev.com/api/post/id/" + post.id, {
