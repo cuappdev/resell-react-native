@@ -44,25 +44,30 @@ export default function SettingsScreen({ navigation }) {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [userId, setUserId] = useState("");
 
-  getUserId(setUserId);
-
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   const getUser = async () => {
     try {
-      const response = await apiClient.get(`/user/id/${userId}`)
+      const response = await apiClient.get(`/user/id/${userId}`);
       if (response.user) {
         const user = response.user;
-        setUserId(user.id)
+        setUserId(user.id);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
+  // Fetch user ID first
   useEffect(() => {
-    getUser()
-  });
+    getUserId(setUserId);
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      getUser();
+    }
+  }, [userId]);
 
   const presentEULA = () => {
     setShowEULA(true);
@@ -105,9 +110,10 @@ export default function SettingsScreen({ navigation }) {
           {
             icon: Blocked,
             text: "Blocked Users",
-            onPress: () => navigation.navigate("BlockedUsers", {
-              userID: userId,
-            }),
+            onPress: () =>
+              navigation.navigate("BlockedUsers", {
+                userID: userId,
+              }),
           },
           {
             icon: Terms,
@@ -129,7 +135,7 @@ export default function SettingsScreen({ navigation }) {
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => { }}
+            onPress={item.onPress ? item.onPress : () => {}}
             style={styles.item}
           >
             <item.icon />
@@ -165,8 +171,8 @@ export default function SettingsScreen({ navigation }) {
 
               auth
                 .signOut()
-                .then(() => { })
-                .catch((error) => { });
+                .then(() => {})
+                .catch((error) => {});
             }}
           >
             <View style={styles.button}>
@@ -348,8 +354,8 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     position: "absolute",
-    top: Dimensions.get('window').height / 3,
-    left: (Dimensions.get('window').width - 100) / 2,
-    width: 100
+    top: Dimensions.get("window").height / 3,
+    left: (Dimensions.get("window").width - 100) / 2,
+    width: 100,
   },
 });

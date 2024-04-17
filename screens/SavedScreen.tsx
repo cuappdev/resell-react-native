@@ -22,7 +22,7 @@ export default function SavedScreen({ navigation }) {
       if (posts === null) {
         setLoading(true);
       }
-      const response = await api.get("/post/save/");
+      const response = await api.get("/post/save");
       if (response.posts) {
         setPosts(response.posts);
         setLoading(false);
@@ -43,7 +43,9 @@ export default function SavedScreen({ navigation }) {
 
   useEffect(() => {
     // update posts when home screen is entered again
-    getPosts();
+    if (isFocused) {
+      getPosts();
+    }
   }, [isFocused]);
 
   return (
@@ -55,9 +57,7 @@ export default function SavedScreen({ navigation }) {
           <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
             No saved posts
           </Text>
-          <Text
-            style={[fonts.body1, styles.bodyText]}
-          >
+          <Text style={[fonts.body1, styles.bodyText]}>
             Posts you have bookmarked will be displayed here
           </Text>
         </View>
@@ -90,6 +90,6 @@ const styles = StyleSheet.create({
   bodyText: {
     color: "#707070",
     marginHorizontal: 48,
-    textAlign: "center"
-  }
+    textAlign: "center",
+  },
 });

@@ -46,14 +46,16 @@ export default function HomeScreen({ navigation, route }) {
 
   const getBlockedUsers = async () => {
     try {
-      const response = await api.get(`/user/blocked/id/${userId}/`);
+      const response = await api.get(`/user/blocked/id/${userId}`);
       if (response.users) {
-        setBlockedUsers(response.users)
+        setBlockedUsers(response.users);
       } else {
         makeToast({ message: "Error fetching blocked users", type: "ERROR" });
       }
-    } catch (e: unknown) { }
-  }
+    } catch (error) {
+      console.error(`HomeScreen.getBlockedUsers failed: ${error}`);
+    }
+  };
 
   // At the start load the current user ID, we need to check if the session is valid
   useEffect(() => {
@@ -78,22 +80,24 @@ export default function HomeScreen({ navigation, route }) {
 
             auth
               .signOut()
-              .then(() => { })
-              .catch((error) => { });
+              .then(() => {})
+              .catch((error) => {});
           }
         }
       });
 
-      getBlockedUsers()
+      getBlockedUsers();
     }
   }, [userId]);
 
   // When they change the filter or navigate back to the screen, refresh posts
   useEffect(() => {
-    if (count === 0) {
-      getPosts();
-    } else {
-      filterPost(FILTER[count].title);
+    if (isFocused) {
+      if (count === 0) {
+        getPosts();
+      } else {
+        filterPost(FILTER[count].title);
+      }
     }
   }, [count, isFocused]);
 
@@ -132,7 +136,7 @@ export default function HomeScreen({ navigation, route }) {
 
   const filterPost = async (keyword: string) => {
     try {
-      const response = await api.post("/post/filter/", {
+      const response = await api.post("/post/filter", {
         category: keyword,
       });
       if (response.posts) {

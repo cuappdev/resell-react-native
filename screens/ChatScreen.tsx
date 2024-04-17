@@ -28,6 +28,7 @@ import { makeToast } from "../utils/Toast";
 import { formatSingleItem } from "../utils/general";
 import { useApiClient } from "../api/ApiClientProvider";
 import { getUserId } from "../utils/asychStorageFunctions";
+import { RefreshControl } from "react-native-gesture-handler";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
@@ -41,13 +42,11 @@ export default function ChatScreen({ navigation }) {
   const [blockedUsers, setBlockedUsers] = useState([]);
   const [userId, setUserId] = useState("");
 
-  getUserId(setUserId);
-
   const apiClient = useApiClient();
 
   const getBlockedUsers = async () => {
     try {
-      const response = await apiClient.get(`/user/blocked/id/${userId}/`);
+      const response = await apiClient.get(`/user/blocked/id/${userId}`);
       if (response.users) {
         setBlockedUsers(response.users);
       } else {
@@ -55,10 +54,6 @@ export default function ChatScreen({ navigation }) {
       }
     } catch (e: unknown) {}
   };
-
-  useEffect(() => {
-    getBlockedUsers();
-  });
 
   const getPurchase = (): Unsubscribe => {
     if (purchase === null) {
@@ -178,15 +173,12 @@ export default function ChatScreen({ navigation }) {
       console.log("Error getting user: ", e);
     }
   };
-  useEffect(() => {
-    const unsubFromPurchase = getPurchase();
-    const unsubFromOffers = getOffer();
 
-    return () => {
-      unsubFromPurchase();
-      unsubFromOffers();
-    };
-  }, [isFocused]);
+  const fetchChatData = () => {
+    getPurchase();
+    getOffer();
+    getBlockedUsers();
+  };
 
   const countNotViewed = (chatPreviews: ChatPreview[]): number => {
     let notViewed = 0;
@@ -197,6 +189,18 @@ export default function ChatScreen({ navigation }) {
     });
     return notViewed;
   };
+
+  // Fetch user ID first
+  useEffect(() => {
+    getUserId(setUserId);
+  }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchChatData();
+    }
+  }, [isFocused]);
+
   useEffect(() => {
     setPurchaseUnread(countNotViewed(purchase ?? []));
   }, [purchase]);
@@ -313,6 +317,14 @@ export default function ChatScreen({ navigation }) {
             data={purchase}
             renderItem={renderItem}
             keyboardShouldPersistTaps="always"
+            refreshControl={
+              <RefreshControl
+                tintColor={"#DE6CD3"}
+                colors={["#DE6CD3"]}
+                refreshing={false}
+                onRefresh={fetchChatData}
+              />
+            }
           />
         ) : (
           <View style={styles.noResultView}>
@@ -337,6 +349,14 @@ export default function ChatScreen({ navigation }) {
             data={offer}
             renderItem={renderItem}
             keyboardShouldPersistTaps="always"
+            refreshControl={
+              <RefreshControl
+                tintColor={"#DE6CD3"}
+                colors={["#DE6CD3"]}
+                refreshing={false}
+                onRefresh={fetchChatData}
+              />
+            }
           />
         ) : (
           <View style={styles.noResultView}>

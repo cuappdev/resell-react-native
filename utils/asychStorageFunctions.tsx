@@ -153,6 +153,4 @@ export const getCalendarID = async (
   });
 };
 
-export const returnCalendarId = () => AsyncStorage.getItem("calendarID");
-
 export const returnAccessToken = () => AsyncStorage.getItem("accessToken");

@@ -17,7 +17,12 @@ import {
   setNewListings,
 } from "../state_manage/actions/settingsScreenActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getEmail, getNotificationSettings, getUserId, storeNotificationSettings } from "../utils/asychStorageFunctions";
+import {
+  getEmail,
+  getNotificationSettings,
+  getUserId,
+  storeNotificationSettings,
+} from "../utils/asychStorageFunctions";
 import { saveNotificationSettings } from "../api/FirebaseNotificationManager";
 import { doc, getDoc } from "firebase/firestore";
 import { userRef } from "../config/firebase";
@@ -26,45 +31,43 @@ import { useApiClient } from "../api/ApiClientProvider";
 export default function NotificationPreferencesScreen({ navigation }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState("");
   const [userId, setUserId] = useState("");
-  const [userEmail, setUserEmail] = useState("")
+  const [userEmail, setUserEmail] = useState("");
   const dispatch = useDispatch();
 
-  getUserId(setUserId);
-
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   const getEmail = async () => {
     try {
-      const response = await apiClient.get(`/user/id/${userId}`)
+      const response = await apiClient.get(`/user/id/${userId}`);
       if (response.user) {
         const user = response.user;
-        setUserEmail(user.email)
-        const docRef = doc(userRef, userEmail)
+        setUserEmail(user.email);
+        const docRef = doc(userRef, userEmail);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setNotificationsEnabled(docSnap.data().notificationsEnabled)
+          setNotificationsEnabled(docSnap.data().notificationsEnabled);
         }
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
-  getEmail()
-
-  const setIsAllNotificationsPaused = async (pauseAllNotifications: boolean) => {
+  const setIsAllNotificationsPaused = async (
+    pauseAllNotifications: boolean
+  ) => {
     dispatch(setPauseAllNotifications(pauseAllNotifications));
-    setNotificationsEnabled(JSON.stringify(pauseAllNotifications))
-    await storeNotificationSettings(JSON.stringify(pauseAllNotifications))
-    saveNotificationSettings(userEmail, pauseAllNotifications)
-  }
+    setNotificationsEnabled(JSON.stringify(pauseAllNotifications));
+    await storeNotificationSettings(JSON.stringify(pauseAllNotifications));
+    saveNotificationSettings(userEmail, pauseAllNotifications);
+  };
 
   const setIsChatNotificationsOn = async (chatNotifications: boolean) => {
     dispatch(setChatNotifications(chatNotifications));
-    setNotificationsEnabled(JSON.stringify(chatNotifications))
-    await storeNotificationSettings(JSON.stringify(chatNotifications))
-    saveNotificationSettings(userEmail, chatNotifications)
-  }
+    setNotificationsEnabled(JSON.stringify(chatNotifications));
+    await storeNotificationSettings(JSON.stringify(chatNotifications));
+    saveNotificationSettings(userEmail, chatNotifications);
+  };
 
   const setIsNewListingsOn = (newListings: boolean) =>
     dispatch(setNewListings(newListings));
@@ -80,6 +83,17 @@ export default function NotificationPreferencesScreen({ navigation }) {
   const isNewListingsOn = useSelector((state: any) => {
     return state.settings.newListings;
   });
+
+  // Fetch user ID first
+  useEffect(() => {
+    getUserId(setUserId);
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      getEmail();
+    }
+  }, [userId]);
 
   return (
     <View style={styles.container}>
@@ -103,7 +117,7 @@ export default function NotificationPreferencesScreen({ navigation }) {
           },
           {
             text: "Chat Notifications",
-            state: (notificationsEnabled),
+            state: notificationsEnabled,
             action: (value) => setIsChatNotificationsOn(value),
           },
           {
@@ -113,7 +127,7 @@ export default function NotificationPreferencesScreen({ navigation }) {
           },
         ]}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => { }} style={styles.item}>
+          <TouchableOpacity onPress={() => {}} style={styles.item}>
             <Text style={styles.itemText}>{item.text}</Text>
             <Switch
               trackColor={{ false: "#FFFFFF", true: "#9E70F6" }}

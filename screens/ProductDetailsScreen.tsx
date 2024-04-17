@@ -59,11 +59,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       let response;
       if (post.categories) {
-        response = await apiClient.post("/post/filter/", {
+        response = await apiClient.post("/post/filter", {
           category: post.categories[0],
         });
       } else {
-        response = await apiClient.get("/post/");
+        response = await apiClient.get("/post");
       }
       const json = response;
       setSimilarItems(json.posts.slice(0, 4));
