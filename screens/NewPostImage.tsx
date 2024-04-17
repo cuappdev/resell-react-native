@@ -76,7 +76,6 @@ export function NewPostImage({ navigation }) {
         quality: 1,
       });
       if (!result.canceled) {
-        console.log(result);
         setUri(result["uri"]);
         setModalVisibility(true);
       }
@@ -85,7 +84,8 @@ export function NewPostImage({ navigation }) {
 
   const checkPhotoPermission = async () => {
     if (Platform.OS !== "web") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       return status === "granted";
     }
     return false;
@@ -101,13 +101,13 @@ export function NewPostImage({ navigation }) {
       [
         r
           ? {
-            crop: {
-              height: (w * 4) / 3,
-              originX: 0,
-              originY: (h - (w * 4) / 3) / 2,
-              width: w,
-            },
-          }
+              crop: {
+                height: (w * 4) / 3,
+                originX: 0,
+                originY: (h - (w * 4) / 3) / 2,
+                width: w,
+              },
+            }
           : { crop: { height: h, originX: 0, originY: 0, width: w } },
       ],
       {

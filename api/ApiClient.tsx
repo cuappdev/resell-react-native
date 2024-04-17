@@ -54,7 +54,9 @@ export default class ApiClient {
         ...headers,
       },
       ...options,
-    }).then((response) => response.json());
+    }).then((response) => {
+      return response.json();
+    });
   }
 
   /**

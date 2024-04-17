@@ -1,5 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
@@ -19,6 +18,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import VenmoInput from "../components/VenmoInput";
 import { auth, userRef } from "../config/firebase";
@@ -27,7 +27,6 @@ import { menuBarTop } from "../constants/Layout";
 import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { getAccessToken } from "../utils/asychStorageFunctions";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -44,6 +43,7 @@ export default function EditProfileScreen({ navigation, route }) {
 
   const [username, setUsername] = useState(initialUsername);
   const [venmo, setVenmo] = useState(initialVenmo);
+  const api = useApiClient();
 
   const pickImage = async () => {
     const permission = await checkPhotoPermission();
@@ -72,7 +72,6 @@ export default function EditProfileScreen({ navigation, route }) {
         quality: 0.5,
       });
       if (!result.canceled) {
-        console.log(result);
         setImage("data:image/jpeg;base64," + result["base64"]);
       }
     }
@@ -80,7 +79,8 @@ export default function EditProfileScreen({ navigation, route }) {
 
   const checkPhotoPermission = async () => {
     if (Platform.OS !== "web") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       return status === "granted";
     }
     return false;
@@ -106,51 +106,30 @@ export default function EditProfileScreen({ navigation, route }) {
       keyboardDidHideListener.remove();
     };
   }, []);
-  const [accessToken, setAccessToken] = useState("");
 
-  getAccessToken(setAccessToken);
   const [usernameError, setUsernameError] = useState("");
 
   const submit = async () => {
-    var Json;
-    if (image.startsWith("https")) {
-      Json = JSON.stringify({
-        photoUrlBase64: "",
+    try {
+      const res = await api.post("/user/", {
+        photoUrlBase64: image.startsWith("https") ? "" : image,
         username: username,
         venmoHandle: venmo,
         bio: bio,
       });
-    } else {
-      Json = JSON.stringify({
-        photoUrlBase64: image,
-        username: username,
-        venmoHandle: venmo,
-        bio: bio,
-      });
-    }
-    console.log(Json);
-    const response = await fetch(
-      "https://resell-dev.cornellappdev.com/api/user",
-      {
-        method: "POST",
-        headers: {
-          Authorization: accessToken,
 
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: Json,
+      if (res.user) {
+        await updateProfile(auth.currentUser, {
+          displayName: res.user.givenName + " " + res.user.familyName,
+          photoURL: res.user.photoUrl,
+        });
+        await updateDoc(doc(userRef, res.user.email), { venmo: venmo });
+        navigation.goBack();
+        makeToast({ message: "Profile updated successfully", type: "INFO" });
       }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      updateProfile(auth.currentUser, {
-        displayName: data.user.givenName + " " + data.user.familyName,
-        photoURL: data.user.photoUrl,
-      });
-      updateDoc(doc(userRef, data.user.email), { venmo: venmo });
-      navigation.goBack();
+    } catch (e) {
+      console.log(`EditProfileScreen.submit failed: ${e}`);
+      makeToast({ message: "Error updating profile", type: "ERROR" });
     }
   };
   const scroll = useRef<ScrollView | null>(null);
@@ -183,7 +162,6 @@ export default function EditProfileScreen({ navigation, route }) {
               Keyboard.dismiss();
               if (username.length > 0) {
                 submit();
-                makeToast({ message: "Profile Updated Successfully" });
               } else {
                 makeToast({
                   message: "Username cannot be empty",

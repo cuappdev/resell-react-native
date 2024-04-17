@@ -28,6 +28,7 @@ export function AvailabilityModal({
   username,
   isBuyer,
   setSelectedTime,
+  isViewOnly,
 }) {
   const [schedule, setSchedule] = useState<Event[]>([]);
   const [largestIndex, setLargestIndex] = useState(30);
@@ -82,7 +83,6 @@ export function AvailabilityModal({
     }
   };
   const onEventPress = (event: WeekViewEvent) => {
-    console.log(`event pressed`);
     if (!isBubble) {
       if (schedule.length == 1) {
         setSchedule([]);
@@ -91,8 +91,10 @@ export function AvailabilityModal({
         setSchedule(tempt);
       }
     } else {
-      setAvailabilityVisible(false);
-      setSelectedTime(moment(event.startDate).format("MMMM Do YYYY, h:mm a"));
+      if (!isViewOnly) {
+        setAvailabilityVisible(false);
+        setSelectedTime(moment(event.startDate).format("MMMM Do YYYY, h:mm a"));
+      }
     }
   };
   const resetScheduleIndex = (temptSchedule) => {

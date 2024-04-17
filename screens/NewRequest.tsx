@@ -41,7 +41,6 @@ export function NewRequestScreen({ navigation, route }) {
   const postRequest = async () => {
     try {
       setIsLoading(true);
-      console.log(`description: ${description}`);
       const response = await api.post("/request/", {
         title: title,
         description: description,
@@ -49,13 +48,12 @@ export function NewRequestScreen({ navigation, route }) {
       });
       setIsLoading(false);
       if (response.request) {
-        console.log(`request posted: ${JSON.stringify(response.request)}`);
         makeToast({ message: "New request posted" });
         navigation.navigate("Root");
       } else {
         makeToast({ message: "Error posting request", type: "ERROR" });
       }
-    } catch (e: unknown) { }
+    } catch (e: unknown) {}
   };
 
   return (
@@ -98,11 +96,7 @@ export function NewRequestScreen({ navigation, route }) {
               }}
             />
             {title.length > 0 && (
-              <Text
-                style={styles.lengthLimit}
-              >
-                {title.length}/50
-              </Text>
+              <Text style={styles.lengthLimit}>{title.length}/50</Text>
             )}
           </View>
           <Text
@@ -219,6 +213,7 @@ export function NewRequestScreen({ navigation, route }) {
             screen={"NewRequestMin"}
             post={null}
             setHeight={null}
+            items={null}
           />
           <NegotiationModal
             modalVisible={maxModalVisible}
@@ -228,6 +223,7 @@ export function NewRequestScreen({ navigation, route }) {
             screen={"NewRequestMax"}
             post={null}
             setHeight={null}
+            items={null}
           />
           <Text
             style={[
@@ -270,11 +266,7 @@ export function NewRequestScreen({ navigation, route }) {
             maxLength={500}
           />
           {description.length > 0 && (
-            <Text
-              style={styles.lengthLimit}
-            >
-              {description.length}/500
-            </Text>
+            <Text style={styles.lengthLimit}>{description.length}/500</Text>
           )}
         </View>
         <View style={styles.purpleButton}>
@@ -327,5 +319,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Rubik-Regular",
     color: "#707070",
-  }
+  },
 });

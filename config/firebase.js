@@ -21,7 +21,14 @@ if (!getApps().length) {
   app = firebase.getApp(); // if already initialized, use that one
 }
 
-export const db = getFirestore(app);
+export let db;
+if (process.env.DATABASE_ID !== "resell-prod") {
+  // Dev
+  db = getFirestore(app);
+} else {
+  db = getFirestore(app, process.env.DATABASE_ID);
+}
+export const fcmRef = collection(db, "fcmTokens");
 export const chatRef = collection(db, "chats");
 export const historyRef = collection(db, "history");
 export const userRef = collection(db, "user");

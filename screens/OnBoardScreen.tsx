@@ -55,7 +55,6 @@ export default function OnBoardScreen({ navigation }) {
         quality: 0.5,
       });
       if (!result.canceled) {
-        console.log(result);
         setImage("data:image/jpeg;base64," + result["base64"]);
       }
     }
@@ -63,7 +62,8 @@ export default function OnBoardScreen({ navigation }) {
 
   const checkPhotoPermission = async () => {
     if (Platform.OS !== "web") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       return status === "granted";
     }
     return false;

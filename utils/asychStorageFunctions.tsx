@@ -13,9 +13,18 @@ export const storeOnboarded = async (onboard: boolean) => {
     console.log(e);
   }
 };
+
 export const storeEmail = async (email) => {
   try {
     await AsyncStorage.setItem("email", email);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const storeDeviceToken = async (token) => {
+  try {
+    await AsyncStorage.setItem("fcmToken", token);
   } catch (e) {
     console.log(e);
   }
@@ -53,6 +62,23 @@ export const storeExpireAt = async (expiresAt) => {
   }
 };
 
+export const storeNotificationSettings = async (enabled) => {
+  try {
+    await AsyncStorage.setItem("notificationsEnabled", enabled);
+    console.log(enabled);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const storeCalendarID = async (calendarID) => {
+  try {
+    await AsyncStorage.setItem("calendarID", calendarID);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const getOnboard = async (setOnBoarded) => {
   AsyncStorage.getItem("onboard", async (errs, result) => {
     if (!errs && result !== null && result !== "false") {
@@ -79,6 +105,15 @@ export const getEmail = async (setEmail) => {
     }
   });
 };
+
+export const getDeviceToken = async (setDeviceToken) => {
+  AsyncStorage.getItem("fcmToken", async (errs, result) => {
+    if (!errs && result !== null) {
+      setDeviceToken(result);
+    }
+  });
+};
+
 export const getUserId = async (setUserId) => {
   AsyncStorage.getItem("userId", async (errs, result) => {
     if (!errs && result !== null) {
@@ -94,5 +129,30 @@ export const getAccessToken = async (setAccessToken) => {
     }
   });
 };
+
+export const getNotificationSettings = async (setNotificationSettings) => {
+  AsyncStorage.getItem("notificationsEnabled", async (errs, result) => {
+    if (!errs && result !== null) {
+      if (setNotificationSettings) {
+        setNotificationSettings(result);
+      }
+    }
+    console.log(result);
+
+    return result;
+  });
+};
+
+export const getCalendarID = async (
+  setCalendarID: React.Dispatch<React.SetStateAction<string>>
+) => {
+  AsyncStorage.getItem("calendarID", async (errs, result) => {
+    if (!errs && result !== null) {
+      setCalendarID(result);
+    }
+  });
+};
+
+export const returnCalendarId = () => AsyncStorage.getItem("calendarID");
 
 export const returnAccessToken = () => AsyncStorage.getItem("accessToken");

@@ -27,6 +27,7 @@ import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
 import { makeToast } from "../utils/Toast";
+import { useApiClient } from "../api/ApiClientProvider";
 
 export default function ProductDetailsScreen({ route, navigation }) {
   const { post, screen, savedInitial } = route.params;
@@ -42,6 +43,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
     similarItems: [],
   });
 
+  const apiClient = useApiClient();
+
   useEffect(() => {
     setItem({
       images: post.images,
@@ -56,25 +59,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       let response;
       if (post.categories) {
-        response = await fetch(
-          "https://resell-dev.cornellappdev.com/api/post/filter/",
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              category: post.categories[0],
-            }),
-          }
-        );
+        response = await apiClient.post("/post/filter/", {
+          category: post.categories[0],
+        });
       } else {
-        response = await fetch(
-          "https://resell-dev.cornellappdev.com/api/post/"
-        );
+        response = await apiClient.get("/post/");
       }
-      const json = await response.json();
+      const json = response;
       setSimilarItems(json.posts.slice(0, 4));
     } catch (error) {
       console.error(error);
@@ -86,18 +77,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const fetchPost = async () => {
     try {
       let response;
-      response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/postId/" + post.id,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      response = await apiClient.get(`/user/postId/${post.id}`);
 
-      const userResult = await response.json();
+      const userResult = response;
 
       setSellerId(userResult.user.id);
       setSellerFirstName(userResult.user.givenName);
@@ -149,15 +131,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-        userId +
-        "/postId/" +
-        post.id
+          userId +
+          "/postId/" +
+          post.id
       );
       if (response.ok) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) { }
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     fetchIsSaved();
@@ -165,17 +149,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const save = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/save/postId/" + post.id,
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post(`/post/save/postId/${post.id}`);
       setIsSaved(true);
     } catch (error) {
       console.log(error);
@@ -184,38 +158,25 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const unsave = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/unsave/postId/" +
-        post.id,
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post(`/post/unsave/postId/${post.id}`);
       setIsSaved(false);
     } catch (error) {
       console.log(error);
       alert("sadUnsave");
     }
   };
-  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
-  console.log(`current user: ${JSON.stringify(auth.currentUser)}`);
 
   const onShare = async () => {
     try {
       const result = await Share.share({
         title: "Check out this " + post.title + "on Resell",
-        message:
-          `
-        Check out this ${post.title} posted by ${sellerName}. It's only for $${item.price}.
+        message: `
+        Check out this ${post.title} posted by ${sellerName}. It's only for $${
+          item.price
+        }.
         Click the following link if you have Resell already downloaded:
-        ${<a href="resell://product/${post.id}">Open in Resell</a>}
-        `
+        ${(<a href="resell://product/${post.id}">Open in Resell</a>)}
+        `,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -241,62 +202,51 @@ export default function ProductDetailsScreen({ route, navigation }) {
     });
   };
 
+  const getImageSizeAsync = (
+    uri: string
+  ): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
+    });
+  };
+
   useEffect(() => {
-    for (let i = 0; i < post.images.length; i++) {
-      Image.getSize(post.images[i], (width, height) => {
-        if (height / width > maxImgRatio) {
-          setMaxImgRatio(height / width);
+    Promise.all(post.images.map((uri) => getImageSizeAsync(uri)))
+      .then((sizes) => {
+        let maxImgRatio: number = 0;
+        for (const size of sizes) {
+          maxImgRatio = Math.max(maxImgRatio, size.height / size.width);
         }
+        setMaxImgRatio(maxImgRatio);
+      })
+      .catch((error) => {
+        console.log(`error: ${JSON.stringify(error)}`);
+        makeToast({ message: "Images failed to load", type: "ERROR" });
       });
-    }
-  });
+  }, []);
 
   const deletePost = () => {
-    fetch("https://resell-dev.cornellappdev.com/api/post/id/" + post.id, {
-      method: "DELETE",
-      headers: {
-        Authorization: accessToken,
-
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    }).then(function (response) {
-      // alert(JSON.stringify(response));
-
-      if (!response.ok) {
+    apiClient.delete(`/post/id/${post.id}`).then(function (response) {
+      if (!response.post) {
         let error = new Error(response.statusText);
         throw error;
       } else {
-        console.log("deleted");
         setModalVisibility(false);
         navigation.goBack();
-        return response.json();
+        return response;
       }
     });
   };
 
   const archivePost = () => {
-    fetch(
-      "https://resell-dev.cornellappdev.com/api/post/archive/postId/" + post.id,
-      {
-        method: "POST",
-        headers: {
-          Authorization: accessToken,
-
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    ).then(function (response) {
-      if (!response.ok) {
-        console.log("sad");
+    apiClient.post(`/post/archive/postId/${post.id}`).then(function (response) {
+      if (!response.post) {
         let error = new Error(response.statusText);
         throw error;
       } else {
-        console.log("archived");
         setModalVisibility(false);
         navigation.goBack();
-        return response.json();
+        return response;
       }
     });
   };
@@ -306,12 +256,18 @@ export default function ProductDetailsScreen({ route, navigation }) {
   };
 
   const menuItems = [
-    { label: 'Share', iconName: 'share', onPress: onShare },
-    { label: 'Report', iconName: 'flag', onPress: onReport },
+    { label: "Share", iconName: "share", onPress: onShare },
+    { label: "Report", iconName: "flag", onPress: onReport },
   ];
 
   if (userId === sellerId) {
-    menuItems.push({ label: 'Delete', iconName: 'trash', onPress: () => { setModalVisibility(true) } })
+    menuItems.push({
+      label: "Delete",
+      iconName: "trash",
+      onPress: () => {
+        setModalVisibility(true);
+      },
+    });
   }
 
   return (
@@ -330,7 +286,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       {/* Top bar options */}
       <View style={styles.optionsContainer}>
         <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
-          <EllipsesIcon />
+          <EllipsesIcon color={"white"} props />
         </TouchableOpacity>
         <Modal
           isVisible={menuVisible}
@@ -387,11 +343,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
       <View
         style={{
-          height: Dimensions.get("window").width * maxImgRatio,
+          height:
+            maxImgRatio === 0
+              ? Dimensions.get("window").height
+              : Dimensions.get("window").width * maxImgRatio,
           width: Dimensions.get("window").width,
         }}
       >
-        <Gallery imagePaths={item.images}></Gallery>
+        <Gallery
+          isLoaded={maxImgRatio !== 0}
+          imagePaths={item.images}
+        ></Gallery>
       </View>
       <SlidingUpPanel
         draggableRange={{
@@ -399,11 +361,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
           bottom:
             Dimensions.get("window").height -
             Math.max(150, Dimensions.get("window").width * maxImgRatio),
-        }} // 100 is used to avoid overlapping with top bar
+        }}
         animatedValue={
           new Animated.Value(
             Dimensions.get("window").height -
-            Math.min(400, Layout.window.width * maxImgRatio - 40)
+              Math.min(400, Layout.window.width * maxImgRatio - 40)
           )
         }
       >
@@ -427,8 +389,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
         </View>
       </SlidingUpPanel>
 
-      {
-        screen != "Profile" &&
+      {screen != "Profile" &&
         screen != "Archived" &&
         sellerEmail != auth?.currentUser?.email && (
           <View style={styles.greyButton}>
@@ -459,7 +420,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
                     post: post,
                     isBuyer: true,
                     confirmedTime: confirmedTime,
-                    confirmedViewed: confirmedViewed,
                     screen: "chat",
                   });
                   setContactSellerLoading(false);
@@ -476,19 +436,16 @@ export default function ProductDetailsScreen({ route, navigation }) {
               isLoading={contactSellerLoading}
             />
           </View>
-        )
-      }
-      {
-        screen != "Profile" &&
+        )}
+      {screen != "Profile" &&
         screen != "Archived" &&
         sellerEmail != auth?.currentUser?.email && (
           <LinearGradient
             colors={["rgba(255, 255, 255, 0)", "#FFFFFF"]}
             style={styles.bottomGradient}
           />
-        )
-      }
-    </View >
+        )}
+    </View>
   );
 }
 

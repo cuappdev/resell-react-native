@@ -8,6 +8,7 @@ import {
 
 import Modal from "react-native-modal";
 import ExitIcon from "../assets/svg-components/exit";
+import Colors from '../constants/Colors';
 
 
 export default function PopupSheet({
@@ -16,7 +17,8 @@ export default function PopupSheet({
   actionName,
   submitAction,
   buttonText,
-  description
+  description,
+  errorState = false
 }) {
   return (
     <Modal
@@ -34,12 +36,22 @@ export default function PopupSheet({
           {description}
         </Text>
         <TouchableOpacity
-          style={styles.submitButton}
+          style={[styles.submitButton, errorState && {
+            borderColor: Colors.errorState,
+            borderWidth: 1.5
+          }]}
           onPress={() => {
             submitAction()
           }}
         >
-          <Text style={styles.submitButtonText}>{buttonText}</Text>
+          <Text style={[styles.submitButtonText, errorState ? {
+            color: Colors.errorState,
+            fontFamily: "Rubik-Regular",
+          } : {
+            color: "white",
+            backgroundColor: "#9E70F6",
+            fontFamily: "Rubik-Medium",
+          }]}>{buttonText}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.submitButton}
@@ -72,7 +84,7 @@ const styles = StyleSheet.create({
   modalText: {
     fontFamily: "Rubik-Regular",
     fontSize: 16,
-    marginHorizontal: 24,
+    marginHorizontal: 12,
     textAlignVertical: "top",
     textAlign: "center",
     paddingHorizontal: 50,
@@ -89,11 +101,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   submitButtonText: {
-    fontFamily: "Rubik-Medium",
+    zIndex: 100,
     fontSize: 18,
     textAlign: "center",
-    color: "white",
-    backgroundColor: "#9E70F6",
     paddingVertical: 14,
   },
   cancelButtonText: {

@@ -20,7 +20,6 @@ export default function ConfirmedMeetingModal({
   text,
   email,
   startDate,
-  setShowNotice,
 }) {
   const momentDate = moment(startDate, "MMMM Do YYYY, h:mm a");
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
@@ -77,7 +76,6 @@ export default function ConfirmedMeetingModal({
       ownerAccount: "personal",
       accessLevel: Calendar.CalendarAccessLevel.OWNER,
     });
-    console.log(`Your new calendar ID is: ${newCalendarID}`);
     storeCalendarID(newCalendarID);
     setCalendarID(newCalendarID);
     return newCalendarID;
@@ -92,8 +90,6 @@ export default function ConfirmedMeetingModal({
         startDate: startDateWithTime,
         title: eventTitle,
       });
-      console.log("added event: ", startDateWithTime);
-      console.log("added event: ", endDateWithTime);
     } catch (e) {
       Alert.alert("Sorry we don't have access to you calendar account");
       console.log(e);
@@ -114,7 +110,6 @@ export default function ConfirmedMeetingModal({
       isVisible={visible}
       backdropOpacity={0.2}
       onBackdropPress={() => {
-        setActivateIcon(true);
         setVisible(false);
         // setShowNotice(false);
         updateViewed();
@@ -142,15 +137,12 @@ export default function ConfirmedMeetingModal({
               updateViewed();
               setVisible(false);
               // setShowNotice(false);
-              setActivateIcon(true);
-              console.log("here");
               const { status } =
                 await Calendar.requestCalendarPermissionsAsync();
               if (status === "granted") {
                 addNewEvent();
                 makeToast({ message: "Added event to your calendar!" });
               } else {
-                console.log("permission not granted");
                 makeToast({
                   message: "Calendar Permission not Granted",
                   type: "ERROR",
@@ -163,7 +155,6 @@ export default function ConfirmedMeetingModal({
         <Text
           style={[fonts.Title2, { position: "absolute", bottom: "11%" }]}
           onPress={() => {
-            setActivateIcon(true);
             setVisible(false);
             // setShowNotice(false);
             updateViewed();
