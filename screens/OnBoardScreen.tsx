@@ -4,7 +4,6 @@ import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,

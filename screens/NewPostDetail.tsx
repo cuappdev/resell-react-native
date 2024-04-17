@@ -34,35 +34,30 @@ export function NewPostDetail({ navigation, route }) {
   const api = useApiClient();
   getUserId(setUserId);
 
-  const postRequest = () => {
+  const postRequest = async () => {
     setIsLoading(true);
-    api
-      .post("/post/", {
-        title: title,
-        description: description,
-        categories: [FILTER1[count].title],
-        price: Number(price.substring(1)),
-        original_price: Number(price.substring(1)),
-        imagesBase64: image,
-        userId: userId,
-      })
-      .then((res) => {
-        if (res.post) {
-          navigation.navigate("Root");
-          makeToast({
-            message: JSON.stringify(res),
-          });
-        }
-      })
-      .catch((error) => {
-        makeToast({
-          message: `${error}|${JSON.stringify(error)} `,
-          type: "ERROR",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
+    const res = await api.post("/post/", {
+      title: title,
+      description: description,
+      categories: [FILTER1[count].title],
+      price: Number(price.substring(1)),
+      original_price: Number(price.substring(1)),
+      imagesBase64: image,
+      userId: userId,
+    });
+    setIsLoading(false);
+
+    if (res.post) {
+      navigation.navigate("Root");
+      makeToast({
+        message: "Item successfully posted",
       });
+    } else {
+      makeToast({
+        message: "Error creating post, check your internet",
+        type: "ERROR",
+      });
+    }
   };
 
   return (
