@@ -806,7 +806,6 @@ export default function ChatWindow({ navigation, route }) {
       body: Json,
     })
       .then(function (response) {
-        // alert(JSON.stringify(response));
         if (!response.ok) {
           let error = new Error(response.statusText);
           throw error;

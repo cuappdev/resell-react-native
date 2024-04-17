@@ -35,12 +35,10 @@ export default function AccountSettingsScreen({ navigation }) {
 
   const getUsername = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`)
+      console.log(JSON.stringify(response))
+      if (response.user) {
+        const user = response.user;
         setUsername(user.username)
         setUserEmail(user.email)
         setDeleteModalVisible(true)
@@ -52,12 +50,9 @@ export default function AccountSettingsScreen({ navigation }) {
 
   const getUser = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`)
+      if (response.user) {
+        const user = response.user;
         setUsername(user.username)
         navigation.navigate("EditProfile", {
           initialRealname: user.givenName + " " + user.familyName,
@@ -71,7 +66,7 @@ export default function AccountSettingsScreen({ navigation }) {
     } catch (error) {
       console.error(error);
     }
-  };
+  }
 
   const deleteAccount = async () => {
     try {

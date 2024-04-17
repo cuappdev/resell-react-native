@@ -52,6 +52,8 @@ export default function ProfileScreen({ navigation }) {
   const [archived, setArchived] = useState([]);
   const [requests, setRequests] = useState([]);
 
+  const apiClient = useApiClient()
+
   const ownPostRoute = () => {
     return (
       <OwnPostRoute
@@ -102,16 +104,14 @@ export default function ProfileScreen({ navigation }) {
     getRequest();
     getUser();
   }, [userId]);
+
   const getUser = async () => {
     try {
       setUserLoading(true);
 
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`)
+      if (response.user) {
+        const user = response.user;
         setRealname(user.givenName + " " + user.familyName);
         setUsername(user.username);
         setBio(user.bio);
@@ -124,14 +124,12 @@ export default function ProfileScreen({ navigation }) {
       setUserLoading(false);
     }
   };
+
   const getUserIngress = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`)
+      if (response.user) {
+        const user = response.user;
         setRealname(user.givenName + " " + user.familyName);
         setUsername(user.username);
         setBio(user.bio);
@@ -146,13 +144,9 @@ export default function ProfileScreen({ navigation }) {
   const getPosts = async () => {
     try {
       setOwnPostLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        // console.log(json);
-        setPosts(json.posts);
+      const response = await apiClient.get(`/post/userId/${userId}`)
+      if (response.posts) {
+        setPosts(response.posts);
       }
     } catch (error) {
       console.error(error);
@@ -161,14 +155,12 @@ export default function ProfileScreen({ navigation }) {
       setOwnPostLoading(false);
     }
   };
+
   const getPostsIngress = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setPosts(json.posts);
+      const response = await apiClient.get(`/post/userId/${userId}`)
+      if (response.posts) {
+        setPosts(response.posts);
       }
     } catch (error) {
       console.error(error);
@@ -178,12 +170,9 @@ export default function ProfileScreen({ navigation }) {
 
   const getPostsRefresh = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/userId/" + userId
-      );
+      const response = await apiClient.get(`/post/userId/${userId}`)
       setOwnPostLoading(true);
-      const json = await response.json();
-      setPosts(json.posts);
+      setPosts(response.posts);
     } catch (error) {
       console.error(error);
       setFetchOwnPostFailed(true);
@@ -197,21 +186,9 @@ export default function ProfileScreen({ navigation }) {
   const getArchived = async () => {
     try {
       setArchivedLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
-          userId,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        // console.log(json);
-        setArchived(json.posts);
+      const response = await apiClient.get(`/post/archive/userId/${userId}`)
+      if (response.posts) {
+        setArchived(response.posts);
       }
     } catch (error) {
       console.error(error);
@@ -223,34 +200,21 @@ export default function ProfileScreen({ navigation }) {
 
   const getArchivedIngress = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/archive/userId/" +
-          userId,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setArchived(json.posts);
+      const response = await apiClient.get(`/post/archive/userId/${userId}`)
+      if (response.posts) {
+        setArchived(response.posts);
       }
     } catch (error) {
       console.error(error);
       setFetchArchivedFailed(true);
     }
   };
+
   const getArchivedRefresh = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/archive/userId/" + userId
-      );
+      const response = await apiClient.get(`/post/archive/userId/${userId}`)
       setArchivedLoading(true);
-      const json = await response.json();
-      setArchived(json.posts);
+      setArchived(response.posts);
       console.log(archived);
     } catch (error) {
       console.error(error);
@@ -261,6 +225,7 @@ export default function ProfileScreen({ navigation }) {
       }, 500); //display loading animation
     }
   };
+
   const getRequest = async () => {
     setRequestLoading(true);
     try {

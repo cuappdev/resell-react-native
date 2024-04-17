@@ -32,6 +32,7 @@ import {
 } from "../utils/asychStorageFunctions";
 import Privacy from "../assets/svg-components/privacy";
 import { ActivityIndicator } from "react-native-paper";
+import { useApiClient } from "../api/ApiClientProvider";
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -45,14 +46,13 @@ export default function SettingsScreen({ navigation }) {
 
   getUserId(setUserId);
 
+  const apiClient = useApiClient()
+
   const getUser = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`)
+      if (response.user) {
+        const user = response.user;
         setUserId(user.id)
       }
     } catch (error) {

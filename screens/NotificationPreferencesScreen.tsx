@@ -21,6 +21,7 @@ import { getEmail, getNotificationSettings, getUserId, storeNotificationSettings
 import { saveNotificationSettings } from "../api/FirebaseNotificationManager";
 import { doc, getDoc } from "firebase/firestore";
 import { userRef } from "../config/firebase";
+import { useApiClient } from "../api/ApiClientProvider";
 
 export default function NotificationPreferencesScreen({ navigation }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState("");
@@ -30,14 +31,13 @@ export default function NotificationPreferencesScreen({ navigation }) {
 
   getUserId(setUserId);
 
+  const apiClient = useApiClient()
+
   const getEmail = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`)
+      if (response.user) {
+        const user = response.user;
         setUserEmail(user.email)
         const docRef = doc(userRef, userEmail)
         const docSnap = await getDoc(docRef);
