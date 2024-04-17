@@ -17,6 +17,7 @@ import { makeToast } from "../utils/Toast";
 import FastImage from "react-native-fast-image";
 import { relative } from "path";
 import PopupSheet from "../components/PopupSheet";
+import { fonts } from "../globalStyle/globalFont";
 
 export default function BlockedUsersScreen({ route, navigation }) {
   const { userID } = route.params;
@@ -87,6 +88,27 @@ export default function BlockedUsersScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      {blockedUsers.length == 0 && (<View
+        style={[
+          styles.noResultView,
+        ]}
+      >
+        <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+          No blocked users
+        </Text>
+        <Text
+          style={[
+            fonts.body1,
+            {
+              color: "#707070",
+              textAlign: "center",
+              paddingHorizontal: "10%",
+            },
+          ]}
+        >
+          Users you have blocked will appear here.
+        </Text>
+      </View>)}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
@@ -183,5 +205,10 @@ const styles = StyleSheet.create({
   },
   userList: {
     top: Platform.OS === "ios" ? menuBarTop + 40 : 60,
-  }
+  },
+  noResultView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
