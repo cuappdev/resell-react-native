@@ -56,6 +56,10 @@ export default function SignIn() {
       const user = await GoogleSignin.signIn();
       const userData = user.user;
 
+      const deviceToken = await getDeviceFCMToken()
+      await storeDeviceToken(deviceToken)
+      saveDeviceTokenToFireStore(userData.email, deviceToken)
+
       // Sign in on Firebase:
       const credential = GoogleAuthProvider.credential(user.idToken);
       await signInWithCredential(auth, credential);
@@ -74,10 +78,6 @@ export default function SignIn() {
         email: userData.email,
         googleId: userData.id,
       });
-
-      const deviceToken = await getDeviceFCMToken();
-      await storeDeviceToken(deviceToken);
-      saveDeviceTokenToFireStore(userData.email, deviceToken);
 
       if (!createAccountRes.error || createAccountRes.httpCode === 409) {
         // If the httpCode is 409, that means there account already exists, so

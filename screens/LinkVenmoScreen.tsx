@@ -16,7 +16,8 @@ import VenmoInput from "../components/VenmoInput";
 import { auth, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { storeOnboarded } from "../utils/asychStorageFunctions";
+import { storeDeviceToken, storeOnboarded } from "../utils/asychStorageFunctions";
+import { getDeviceFCMToken, saveDeviceTokenToFireStore } from "../api/FirebaseNotificationManager";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
@@ -39,11 +40,15 @@ export default function LinkVenmoScreen({ navigation, route }) {
       makeToast({ message: "Failed to update profile", type: "ERROR" });
       return;
     }
+
+    const deviceToken = await getDeviceFCMToken()
+    await storeDeviceToken(deviceToken)
     // update Firebase:
     try {
       await setDoc(doc(userRef, auth.currentUser.email), {
         venmo: venmo,
         onboarded: true,
+        fcmToken: deviceToken
       });
     } catch (e) {
       makeToast({ message: "Failed to update profile", type: "ERROR" });
