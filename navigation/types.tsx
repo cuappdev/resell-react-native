@@ -52,6 +52,7 @@ export type ProfileStackParamList = {
   RequestMatches: undefined;
   SendFeedback: undefined;
   EditProfile: undefined;
+  BlockedUsers: undefined;
 };
 
 export type OnboardStackParamList = {

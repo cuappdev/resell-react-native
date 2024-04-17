@@ -13,6 +13,7 @@ export const storeOnboarded = async (onboard: boolean) => {
     console.log(e);
   }
 };
+
 export const storeEmail = async (email) => {
   try {
     await AsyncStorage.setItem("email", email);
@@ -20,6 +21,14 @@ export const storeEmail = async (email) => {
     console.log(e);
   }
 };
+
+export const storeDeviceToken = async (token) => {
+  try {
+    await AsyncStorage.setItem("fcmToken", token)
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 export const storeUserId = async (userid: string) => {
   try {
@@ -48,6 +57,15 @@ export const storeRefreshToken = async (refreshToken) => {
 export const storeExpireAt = async (expiresAt) => {
   try {
     await AsyncStorage.setItem("expireAt", expiresAt);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const storeNotificationSettings = async (enabled) => {
+  try {
+    await AsyncStorage.setItem("notificationsEnabled", enabled);
+    console.log(enabled)
   } catch (e) {
     console.log(e);
   }
@@ -87,6 +105,15 @@ export const getEmail = async (setEmail) => {
     }
   });
 };
+
+export const getDeviceToken = async (setDeviceToken) => {
+  AsyncStorage.getItem("fcmToken", async (errs, result) => {
+    if (!errs && result !== null) {
+      setDeviceToken(result);
+    }
+  });
+}
+
 export const getUserId = async (setUserId) => {
   AsyncStorage.getItem("userId", async (errs, result) => {
     if (!errs && result !== null) {
@@ -100,6 +127,22 @@ export const getAccessToken = async (setAccessToken) => {
     if (!errs && result !== null) {
       setAccessToken(result);
     }
+  });
+};
+
+export const getNotificationSettings = async (setNotificationSettings) => {
+  AsyncStorage.getItem("notificationsEnabled", async (errs, result) => {
+    if (!errs && result !== null) {
+      if (setNotificationSettings) {
+        setNotificationSettings(result);
+      }
+    } else {
+      console.log("WTF")
+    }
+
+    console.log(result)
+
+    return result
   });
 };
 

@@ -160,26 +160,26 @@ export const ExpandablePlusButton = ({
           onPress={onExpand}
         />
       )}
-      <TouchableOpacity
+      {expand && (<TouchableOpacity
         style={styles.newListingButton}
         onPressIn={() => setOnListing(true)}
         onPressOut={() => setOnListing(false)}
         onPress={onListingPressed}
       >
-      </TouchableOpacity>
+      </TouchableOpacity>)}
       <Animated.View
         style={styles.newListingButtonContainer}
       >
         {onListing ? <NewListingClicked /> : <NewListing />}
       </Animated.View>
 
-      <TouchableOpacity
+      {expand && (<TouchableOpacity
         style={styles.newRequestButton}
         onPressIn={() => setOnRequest(true)}
         onPressOut={() => setOnRequest(false)}
         onPress={onRequestPressed}
       >
-      </TouchableOpacity>
+      </TouchableOpacity>)}
       <Animated.View
         style={styles.newRequestButtonContainer}
       >

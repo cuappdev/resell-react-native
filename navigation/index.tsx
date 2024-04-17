@@ -72,6 +72,7 @@ import ReportPostConfirmScreen from "../screens/ReportPostConfirmScreen";
 import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
 import ReportPostScreen from "../screens/ReportPostScreen";
 import RequestMatches from "../screens/RequestMatches";
+import BlockedUsersScreen from "../screens/BlockedUsersScreen";
 
 export default function Navigation({
   colorScheme,
@@ -83,7 +84,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+    // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
       <RootNavigator onboard={onboard} />
     </NavigationContainer>
@@ -453,6 +454,13 @@ function ProfileNavigator({ navigation }) {
       <ProfileStack.Screen
         name="NotificationPreferences"
         component={NotificationPreferencesScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileStack.Screen
+        name="BlockedUsers"
+        component={BlockedUsersScreen}
         options={{
           headerShown: false,
         }}

@@ -32,6 +32,14 @@
 				<string>com.googleusercontent.apps.1534649394-md8rscrlqmlhqpio3us6khjbj8mmc8jb</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1534649394-98pts94l83s9309oijhplbo0duvu9abd</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>2</string>
@@ -64,6 +72,11 @@
 	<string>Allow Resell to create a reminder for your meeting</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow Resell to access your reminders</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

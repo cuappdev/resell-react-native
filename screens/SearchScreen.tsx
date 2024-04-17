@@ -19,6 +19,7 @@ import HistoryList from "../components/HistoryList";
 import { AntDesign } from "@expo/vector-icons";
 import LoadingScreen from "./LoadingScreen";
 import { fonts } from "../globalStyle/globalFont";
+import { useApiClient } from "../api/ApiClientProvider";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -35,25 +36,15 @@ export default function SearchScreen({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
 
+  const apiClient = useApiClient()
+
   const getPosts = async (keyword) => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/search/",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            keywords: keyword,
-          }),
-        }
-      );
-      const json = await response.json();
-      // console.log("json", json);
-      setData(json.posts);
+      const response = await apiClient.post(`/post/search/`, {
+        keywords: keyword,
+      })
+      setData(response.posts);
     } catch (error) {
       //console.error(error);
       setFetchFailed(true);

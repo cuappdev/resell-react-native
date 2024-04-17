@@ -51,6 +51,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
@@ -69,13 +70,17 @@ import EditMeetingModal from "../components/chat/EditMeetingModal";
 import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
-import { auth, chatRef, historyRef } from "../config/firebase";
-import Colors from "../constants/Colors";
-import { menuBarTop } from "../constants/Layout";
-import { MeetingInfo } from "../data/struct";
+import { auth, chatRef, historyRef, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
+import Modal2 from "react-native-modal";
+import Layout, { menuBarTop } from "../constants/Layout";
+import PopupSheet from "../components/PopupSheet";
+import { sendNotification } from "../api/FirebaseNotificationManager";
+import Colors from "../constants/Colors";
+import { MeetingInfo } from "../data/struct";
 import { itemsAsString } from "../utils/general";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -185,6 +190,7 @@ export default function ChatWindow({ navigation, route }) {
     confirmedTime,
     confirmedViewed,
   }: ChatWindowParams = route.params;
+  const [accessToken, setAccessToken] = useState("");
   const [text, setText] = useState("");
   const [height, setHeight] = useState(40);
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -193,6 +199,8 @@ export default function ChatWindow({ navigation, route }) {
   const sellerEmail = isBuyer ? email : auth.currentUser.email;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [blockModalVisibility, setBlockModalVisibility] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageURL, setImageURL] = useState<string>("");
 
@@ -244,8 +252,6 @@ export default function ChatWindow({ navigation, route }) {
   // if you have proposed a meeting
   const [hasProposed, setHasProposed] = useState(false);
 
-  const [menuVisible, setMenuVisible] = useState(false);
-
   // Bottom sheet setup
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -262,6 +268,18 @@ export default function ChatWindow({ navigation, route }) {
       bottomSheetModalRef.current?.close();
     }
   }, []);
+
+  AsyncStorage.getItem("accessToken", (errs, result) => {
+    if (!errs) {
+      if (result !== null && result != undefined) {
+        setAccessToken(result);
+      }
+    }
+  });
+
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
 
   const apiClient = useApiClient();
 
@@ -310,19 +328,23 @@ export default function ChatWindow({ navigation, route }) {
     }
   }, [text, isSendingAvailability]);
 
-  const onSend = useCallback((messages: any[] = []) => {
+  const onSend = useCallback(async (messages: any[] = []) => {
     //#region update histories
+    var notifText = ""
     const { _id, text, availability, image, product, createdAt, user } =
       messages[0];
     var recentMessage = "";
     if (text.length > 0) {
       recentMessage = text;
+      notifText = text
     } else if (availability[0] != undefined) {
       recentMessage = "[Availability]";
+      notifText = "Sent their Avalability"
     } else if (product.title != undefined) {
       recentMessage = "[Product: " + product.title + "]";
     } else if (image != "") {
       recentMessage = "[Image]";
+      notifText = "Sent an Image"
     }
     // In the buyer's history, track a new seller
     const buyerHistoryRef = doc(
@@ -384,6 +406,31 @@ export default function ChatWindow({ navigation, route }) {
       createdAt,
       user,
     });
+
+    const docRef = doc(userRef, email)
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      sendNotification(docSnap.data().fcmToken,
+        user.name,
+        notifText,
+        "chat",
+        {
+          name,
+          receiverImage,
+          email,
+          post,
+          isBuyer,
+          confirmedTime,
+          confirmedViewed,
+          proposedTime,
+          proposer,
+        },
+        docSnap.data().notificationsEnabled
+      )
+    } else {
+      console.log("No such document!");
+    }
+
   }, []);
   function renderMessage(props) {
     if (props.currentMessage.meetingInfo) {
@@ -439,6 +486,45 @@ export default function ChatWindow({ navigation, route }) {
     );
   }
   const [availabilityUsername, setAvailabilityUserName] = useState("");
+
+  const onReport = () => {
+    setMenuVisible(false);
+    navigation.navigate("ReportPost", {
+      sellerName: name,
+      sellerId: post.user.id,
+      postId: post.id,
+      userId: "userId",
+    });
+  };
+
+  const onBlock = () => {
+    setBlockModalVisibility(true)
+  }
+
+  const blockUser = async () => {
+    const blocked = JSON.stringify({
+      blocked: post.user.id,
+    });
+    try {
+      const response = await apiClient.post("/user/block/", {
+        blocked: "8f07199c-f61a-4a37-b590-3d5fbabd2886"
+      });
+      if (response.user) {
+        console.log(`blocked user: ${JSON.stringify(response.user)}`);
+        makeToast({ message: `Blocked ${name}` });
+        setBlockModalVisibility(false)
+        setMenuVisible(false)
+        navigation.goBack()
+      } else {
+        makeToast({ message: "Error blocking user", type: "ERROR" });
+      }
+    } catch (e: unknown) { }
+  }
+
+  const menuItems = [
+    { label: 'Report', iconName: 'flag', onPress: onReport },
+    { label: 'Block', iconName: 'slash', onPress: onBlock },
+  ];
 
   function renderBubble(props) {
     // console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
@@ -638,10 +724,6 @@ export default function ChatWindow({ navigation, route }) {
         }
       });
   };
-  // if the user wants to report the chat
-  const onReport = () => {
-    // TODO file a report
-  };
 
   const pickImage = async () => {
     const permission = await checkPhotoPermission();
@@ -724,7 +806,6 @@ export default function ChatWindow({ navigation, route }) {
       body: Json,
     })
       .then(function (response) {
-        // alert(JSON.stringify(response));
         if (!response.ok) {
           let error = new Error(response.statusText);
           throw error;
@@ -837,7 +918,7 @@ export default function ChatWindow({ navigation, route }) {
         setProposer(meetingInfo.proposer);
         setMeetingDetailText(
           (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
-            " confirmed the following meeting:"
+          " confirmed the following meeting:"
         );
       }
       if (
@@ -857,9 +938,9 @@ export default function ChatWindow({ navigation, route }) {
         setActionButtons((buttons) =>
           buttons.filter((b) => b.title.includes("View")).length === 0
             ? [
-                ...buttons,
-                { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
-              ]
+              ...buttons,
+              { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
+            ]
             : buttons
         );
       }
@@ -1149,7 +1230,7 @@ export default function ChatWindow({ navigation, route }) {
                 setMenuVisible(true);
               }}
             >
-              <EllipsesIcon color={"black"} />
+              <EllipsesIcon color={"black"} props />
             </TouchableOpacity>
             <ReactNativeModal
               isVisible={menuVisible}
@@ -1370,6 +1451,28 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  buttonText2: {
+    color: "black",
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "500",
+    fontFamily: "Rubik-Medium",
+  },
+  optionsContainer: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop - 10 : 20,
+    right: 12,
+    zIndex: 15,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
+  optionsButton: {
+    zIndex: 15,
+    width: 30,
+    height: 25,
+    paddingVertical: 10,
+  },
   confirmedNotice: {
     width: "100%",
     backgroundColor: Colors.resellPurple,
@@ -1392,5 +1495,40 @@ const styles = StyleSheet.create({
     backgroundColor: "#EDEDEDEE",
     zIndex: 100,
     borderRadius: 12,
+  },
+  button: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 25,
+    backgroundColor: "#d52300",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "center",
+    fontFamily: "Rubik-Medium",
+  },
+  button1: {
+    width: 230,
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: "3%",
+    borderRadius: 25,
+  },
+  modal: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    height: 200,
+    backgroundColor: "#ffffff",
+    width: "100%",
+    marginHorizontal: 0,
+    alignItems: "center",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    zIndex: 200,
   },
 });

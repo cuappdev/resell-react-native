@@ -11,6 +11,7 @@ import {
 import { Swipeable } from "react-native-gesture-handler";
 import Colors from "../constants/Colors";
 import { makeToast } from "../utils/Toast";
+import { useApiClient } from "../api/ApiClientProvider";
 
 const RequestCard = ({
   title,
@@ -31,10 +32,11 @@ const RequestCard = ({
 
     setPrevOpenedRow(row[index]);
   }
+
+  const apiClient = useApiClient()
+
   const deleteRequest = () => {
-    fetch("https://resell-dev.cornellappdev.com/api/request/id/" + requestId, {
-      method: "DELETE",
-    }).then(function (response) {
+    apiClient.delete(`/request/id/${requestId}`).then(function (response) {
       if (!response.ok) {
         let error = new Error(response.statusText);
         throw error;
@@ -44,7 +46,7 @@ const RequestCard = ({
         return response.json();
       }
     });
-  };
+  }
 
   const renderRightActions = (progress, dragX) => {
     const trans = dragX.interpolate({
