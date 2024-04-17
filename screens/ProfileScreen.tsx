@@ -116,9 +116,10 @@ export default function ProfileScreen({ navigation }) {
         setUsername(user.username);
         setBio(user.bio);
         setImage(user.photoUrl);
+        setFetchUserFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getUser failed: ${error}`);
       setFetchUserFailed(true);
     } finally {
       setUserLoading(false);
@@ -134,9 +135,10 @@ export default function ProfileScreen({ navigation }) {
         setUsername(user.username);
         setBio(user.bio);
         setImage(user.photoUrl);
+        setFetchUserFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getUserIngress failed: ${error}`);
       setFetchUserFailed(true);
     }
   };
@@ -147,9 +149,10 @@ export default function ProfileScreen({ navigation }) {
       const response = await apiClient.get(`/post/userId/${userId}`);
       if (response.posts) {
         setPosts(response.posts);
+        setFetchOwnPostFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getPosts failed: ${error}`);
       setFetchOwnPostFailed(true);
     } finally {
       setOwnPostLoading(false);
@@ -161,9 +164,10 @@ export default function ProfileScreen({ navigation }) {
       const response = await apiClient.get(`/post/userId/${userId}`);
       if (response.posts) {
         setPosts(response.posts);
+        setFetchOwnPostFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getPostsIngress failed: ${error}`);
       setFetchOwnPostFailed(true);
     }
   };
@@ -171,10 +175,13 @@ export default function ProfileScreen({ navigation }) {
   const getPostsRefresh = async () => {
     try {
       const response = await apiClient.get(`/post/userId/${userId}`);
-      setOwnPostLoading(true);
-      setPosts(response.posts);
+      if (response.posts) {
+        setOwnPostLoading(true);
+        setPosts(response.posts);
+        setFetchOwnPostFailed(false);
+      }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getPostsRefresh failed: ${error}`);
       setFetchOwnPostFailed(true);
     } finally {
       setTimeout(() => {
@@ -189,9 +196,10 @@ export default function ProfileScreen({ navigation }) {
       const response = await apiClient.get(`/post/archive/userId/${userId}`);
       if (response.posts) {
         setArchived(response.posts);
+        setFetchArchivedFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getArchived failed: ${error}`);
       setFetchArchivedFailed(true);
     } finally {
       setArchivedLoading(false);
@@ -203,9 +211,10 @@ export default function ProfileScreen({ navigation }) {
       const response = await apiClient.get(`/post/archive/userId/${userId}`);
       if (response.posts) {
         setArchived(response.posts);
+        setFetchArchivedFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getArchivedIngress failed: ${error}`);
       setFetchArchivedFailed(true);
     }
   };
@@ -213,10 +222,13 @@ export default function ProfileScreen({ navigation }) {
   const getArchivedRefresh = async () => {
     try {
       const response = await apiClient.get(`/post/archive/userId/${userId}`);
-      setArchivedLoading(true);
-      setArchived(response.posts);
+      if (response.posts) {
+        setArchivedLoading(true);
+        setArchived(response.posts);
+        setFetchArchivedFailed(false);
+      }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getArchivedRefresh failed: ${error}`);
       setFetchArchivedFailed(true);
     } finally {
       setTimeout(() => {
@@ -234,8 +246,8 @@ export default function ProfileScreen({ navigation }) {
         setFetchRequestFailed(false);
       }
     } catch (error) {
+      console.error(`ProfileScreen.getRequest failed: ${error}`);
       setFetchRequestFailed(true);
-      console.error(error);
     }
   };
 
