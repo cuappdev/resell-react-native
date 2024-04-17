@@ -504,7 +504,7 @@ export default function ChatWindow({ navigation, route }) {
     });
     try {
       const response = await apiClient.post("/user/block/", {
-        blocked: "8f07199c-f61a-4a37-b590-3d5fbabd2886",
+        blocked,
       });
       if (response.user) {
         makeToast({ message: `Blocked ${name}` });

@@ -55,6 +55,7 @@ export default class ApiClient {
       },
       ...options,
     }).then((response) => {
+      console.log(response.url);
       return response.json();
     });
   }
