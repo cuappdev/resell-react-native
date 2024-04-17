@@ -37,8 +37,6 @@ elsif podfile_properties.key?('ios.flipper') then
   end
 end
 
-use_frameworks! :linkage => :static
-
 target 'Resell' do
   use_expo_modules!
   config = use_native_modules!

@@ -68,16 +68,6 @@ export default function SignIn() {
         googleId: userData.id,
       });
 
-      console.log({
-        username: userData.name,
-        netid: userData.email.substring(0, userData.email.indexOf("@")),
-        givenName: userData.givenName,
-        familyName: userData.familyName,
-        photoUrl: userData.photo,
-        email: userData.email,
-        googleId: userData.id,
-      });
-
       if (!createAccountRes.error || createAccountRes.httpCode === 409) {
         // If the httpCode is 409, that means there account already exists, so
         // we just need to log them in and we don't need to terminate sign in

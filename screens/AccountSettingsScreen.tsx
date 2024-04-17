@@ -16,9 +16,9 @@ import { menuBarTop } from "../constants/Layout";
 import DeleteAccountPopupSheet from "../components/DeleteAccountPopupSheet";
 
 export default function AccountSettingsScreen({ navigation }) {
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userId, setUserId] = useState("");
-  const [username, setUsername] = useState("")
+  const [username, setUsername] = useState("");
 
   getUserId(setUserId);
 
@@ -30,13 +30,13 @@ export default function AccountSettingsScreen({ navigation }) {
       if (response.ok) {
         const json = await response.json();
         const user = json.user;
-        setUsername(user.username)
-        setDeleteModalVisible(true)
+        setUsername(user.username);
+        setDeleteModalVisible(true);
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const getUser = async () => {
     try {
@@ -46,7 +46,7 @@ export default function AccountSettingsScreen({ navigation }) {
       if (response.ok) {
         const json = await response.json();
         const user = json.user;
-        setUsername(user.username)
+        setUsername(user.username);
         navigation.navigate("EditProfile", {
           initialRealname: user.givenName + " " + user.familyName,
           initialUsername: user.username,
@@ -85,24 +85,29 @@ export default function AccountSettingsScreen({ navigation }) {
             icon: null,
             text: "Delete Account",
             onPress: () => {
-              getUsername()
-            }
+              getUsername();
+            },
           },
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => { }}
+            onPress={item.onPress ? item.onPress : () => {}}
             style={styles.item}
           >
             {item.icon != null && <item.icon />}
             <Text
               style={[styles.itemText, item.icon == null && { color: "red" }]}
-            >{item.text}</Text>
+            >
+              {item.text}
+            </Text>
             <Feather
               name="chevron-right"
               size={22}
               color="black"
-              style={[styles.itemChevron, item.icon == null && { color: "red" }]}
+              style={[
+                styles.itemChevron,
+                item.icon == null && { color: "red" },
+              ]}
             />
           </TouchableOpacity>
         )}
@@ -114,7 +119,7 @@ export default function AccountSettingsScreen({ navigation }) {
         username={username}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -162,4 +167,4 @@ const styles = StyleSheet.create({
   list: {
     top: Platform.OS === "ios" ? menuBarTop + 30 : 50,
   },
-})
+});

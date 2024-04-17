@@ -4,8 +4,8 @@
 .env
 **/.env*
 **/.env*.
-config/google-services.json
-config/GoogleService-Info.plist
+**/google-services.json
+**/GoogleService-Info.plist
 
 # Xcode
 #
