@@ -18,11 +18,14 @@ import { useApiClient } from "../api/ApiClientProvider";
 import { makeToast } from "../utils/Toast";
 import { useDispatch } from "react-redux";
 import { logout } from "../state_manage/reducers/signInReducer";
+import { doc, updateDoc } from "firebase/firestore";
+import { userRef } from "../config/firebase";
 
 export default function AccountSettingsScreen({ navigation }) {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [userId, setUserId] = useState("");
-  const [username, setUsername] = useState("")
+  const [username, setUsername] = useState("");
+  const [userEmail, setUserEmail] = useState("")
 
   const apiClient = useApiClient()
   const dispatch = useDispatch();
@@ -39,6 +42,7 @@ export default function AccountSettingsScreen({ navigation }) {
         const json = await response.json();
         const user = json.user;
         setUsername(user.username)
+        setUserEmail(user.email)
         setDeleteModalVisible(true)
       }
     } catch (error) {
@@ -71,9 +75,14 @@ export default function AccountSettingsScreen({ navigation }) {
 
   const deleteAccount = async () => {
     try {
-      const response = await apiClient.delete(`/user/id/${userId}/`);
-      if (response) {
+      const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
+      if (response.user) {
+        const ref = doc(userRef, userEmail)
+        updateDoc(ref, {
+          onboarded: false
+        })
         console.log("Successfully Deleted Account")
+        console.log(JSON.stringify(response))
         log_out()
       } else {
         makeToast({ message: "Error deleting account", type: "ERROR" });
