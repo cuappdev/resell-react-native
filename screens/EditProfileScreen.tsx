@@ -27,7 +27,6 @@ import { menuBarTop } from "../constants/Layout";
 import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { getAccessToken } from "../utils/asychStorageFunctions";
 
 export default function EditProfileScreen({ navigation, route }) {
   const {
@@ -108,9 +107,7 @@ export default function EditProfileScreen({ navigation, route }) {
       keyboardDidHideListener.remove();
     };
   }, []);
-  const [accessToken, setAccessToken] = useState("");
 
-  getAccessToken(setAccessToken);
   const [usernameError, setUsernameError] = useState("");
 
   const submit = async () => {
@@ -121,7 +118,6 @@ export default function EditProfileScreen({ navigation, route }) {
         venmoHandle: venmo,
         bio: bio,
       });
-      console.log(`res: ${JSON.stringify(res)}`);
 
       if (res.user) {
         await updateProfile(auth.currentUser, {
