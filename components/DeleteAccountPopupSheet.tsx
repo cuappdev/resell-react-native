@@ -6,8 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 
 import React, { useState } from "react";
 
@@ -15,17 +15,15 @@ import Colors from "../constants/Colors";
 import Modal from "react-native-modal";
 import ExitIcon from "../assets/svg-components/exit";
 
-
 export default function DeleteAccountPopupSheet({
   isVisible,
   setIsVisible,
   deleteAction,
   username,
 }) {
-  const [deleteText, setDeleteText] = useState("")
+  const [deleteText, setDeleteText] = useState("");
 
   const handleChange = (event) => {
-    console.log(username)
     setDeleteText(event);
   };
 
@@ -43,11 +41,10 @@ export default function DeleteAccountPopupSheet({
     >
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
         <View style={styles.modal}>
-          <Text style={styles.titleText}>
-            Delete Account
-          </Text>
+          <Text style={styles.titleText}>Delete Account</Text>
           <Text style={styles.modalText}>
-            Once deleted, your account cannot be recovered. Enter your username to proceed with deletion.
+            Once deleted, your account cannot be recovered. Enter your username
+            to proceed with deletion.
           </Text>
           <TextInput
             multiline={false}
@@ -59,13 +56,20 @@ export default function DeleteAccountPopupSheet({
             style={styles.submitButton}
             onPress={() => {
               if (deleteText != "" && deleteText == username) {
-                deleteAction()
+                deleteAction();
               }
             }}
           >
-            <Text style={[styles.submitButtonText, (deleteText != "" && deleteText == username)
-              ? { backgroundColor: Colors.errorState }
-              : { backgroundColor: Colors.inactiveErrorState }]}>Delete Account</Text>
+            <Text
+              style={[
+                styles.submitButtonText,
+                deleteText != "" && deleteText == username
+                  ? { backgroundColor: Colors.errorState }
+                  : { backgroundColor: Colors.inactiveErrorState },
+              ]}
+            >
+              Delete Account
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.submitButton}
@@ -77,13 +81,16 @@ export default function DeleteAccountPopupSheet({
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.exitButton} onPress={() => setIsVisible(false)}>
+          <TouchableOpacity
+            style={styles.exitButton}
+            onPress={() => setIsVisible(false)}
+          >
             <ExitIcon></ExitIcon>
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -110,8 +117,8 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     borderRadius: 50,
-    overflow: 'hidden',
-    width: Dimensions.get('window').width - 138,
+    overflow: "hidden",
+    width: Dimensions.get("window").width - 138,
     marginHorizontal: 24,
     marginBottom: 10,
   },
@@ -126,7 +133,7 @@ const styles = StyleSheet.create({
     color: Colors.secondaryGray,
     fontFamily: "Rubik-Medium",
     fontSize: 18,
-    textAlign: "center"
+    textAlign: "center",
   },
   exitButton: {
     position: "absolute",
@@ -147,5 +154,4 @@ const styles = StyleSheet.create({
     height: 43,
     width: Dimensions.get("window").width - 128,
   },
-})
-
+});

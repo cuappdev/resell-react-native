@@ -19,7 +19,7 @@ export default function RequestMatches({ navigation, route }) {
   const [fetchFailed, setFetchFailed] = useState(false);
   const isFocused = useIsFocused();
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   useEffect(() => {
     getMatches();
@@ -28,9 +28,8 @@ export default function RequestMatches({ navigation, route }) {
   const getMatches = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get(`/request/matches/id/${requestId}`)
+      const response = await apiClient.get(`/request/matches/id/${requestId}`);
       if (response.request) {
-        console.log(response.request.matches);
         setPosts(response.request.matches);
       }
     } catch (error) {
@@ -48,7 +47,7 @@ export default function RequestMatches({ navigation, route }) {
   const getMatchesIngress = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get(`/request/matches/id/${requestId}`)
+      const response = await apiClient.get(`/request/matches/id/${requestId}`);
       if (response.request) {
         setPosts(response.request.matches);
       }

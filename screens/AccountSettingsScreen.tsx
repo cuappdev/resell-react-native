@@ -22,12 +22,12 @@ import { doc, updateDoc } from "firebase/firestore";
 import { userRef } from "../config/firebase";
 
 export default function AccountSettingsScreen({ navigation }) {
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userId, setUserId] = useState("");
   const [username, setUsername] = useState("");
-  const [userEmail, setUserEmail] = useState("")
+  const [userEmail, setUserEmail] = useState("");
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
   const dispatch = useDispatch();
   const log_out = () => dispatch(logout());
 
@@ -35,25 +35,25 @@ export default function AccountSettingsScreen({ navigation }) {
 
   const getUsername = async () => {
     try {
-      const response = await apiClient.get(`/user/id/${userId}`)
-      console.log(JSON.stringify(response))
+      const response = await apiClient.get(`/user/id/${userId}`);
+
       if (response.user) {
         const user = response.user;
-        setUsername(user.username)
-        setUserEmail(user.email)
-        setDeleteModalVisible(true)
+        setUsername(user.username);
+        setUserEmail(user.email);
+        setDeleteModalVisible(true);
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const getUser = async () => {
     try {
-      const response = await apiClient.get(`/user/id/${userId}`)
+      const response = await apiClient.get(`/user/id/${userId}`);
       if (response.user) {
         const user = response.user;
-        setUsername(user.username)
+        setUsername(user.username);
         navigation.navigate("EditProfile", {
           initialRealname: user.givenName + " " + user.familyName,
           initialUsername: user.username,
@@ -66,24 +66,26 @@ export default function AccountSettingsScreen({ navigation }) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const deleteAccount = async () => {
     try {
       const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
       if (response.user) {
-        const ref = doc(userRef, userEmail)
+        const ref = doc(userRef, userEmail);
         updateDoc(ref, {
-          onboarded: false
-        })
-        console.log("Successfully Deleted Account")
-        console.log(JSON.stringify(response))
-        log_out()
+          onboarded: false,
+        });
+        console.log("Successfully Deleted Account");
+        console.log(JSON.stringify(response));
+        log_out();
       } else {
         makeToast({ message: "Error deleting account", type: "ERROR" });
       }
-    } catch (e: unknown) { }
-  }
+    } catch (e) {
+      console.log(`AccountSettingsScreen.deleteAccount failed: ${e}`);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -109,24 +111,29 @@ export default function AccountSettingsScreen({ navigation }) {
             icon: null,
             text: "Delete Account",
             onPress: () => {
-              getUsername()
-            }
+              getUsername();
+            },
           },
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => { }}
+            onPress={item.onPress ? item.onPress : () => {}}
             style={styles.item}
           >
             {item.icon != null && <item.icon />}
             <Text
               style={[styles.itemText, item.icon == null && { color: "red" }]}
-            >{item.text}</Text>
+            >
+              {item.text}
+            </Text>
             <Feather
               name="chevron-right"
               size={22}
               color="black"
-              style={[styles.itemChevron, item.icon == null && { color: "red" }]}
+              style={[
+                styles.itemChevron,
+                item.icon == null && { color: "red" },
+              ]}
             />
           </TouchableOpacity>
         )}
@@ -138,7 +145,7 @@ export default function AccountSettingsScreen({ navigation }) {
         username={username}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -186,4 +193,4 @@ const styles = StyleSheet.create({
   list: {
     top: Platform.OS === "ios" ? menuBarTop + 30 : 50,
   },
-})
+});

@@ -26,7 +26,6 @@ export function AvailabilityBubble({
           }
           setInputSchedule(schedule);
           setAvailabilityUserName(userName);
-          console.log(schedule);
           setAvailabilityVisible(true);
           setIsBubble(true);
         }

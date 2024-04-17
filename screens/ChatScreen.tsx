@@ -43,21 +43,21 @@ export default function ChatScreen({ navigation }) {
 
   getUserId(setUserId);
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   const getBlockedUsers = async () => {
     try {
       const response = await apiClient.get(`/user/blocked/id/${userId}/`);
       if (response.users) {
-        setBlockedUsers(response.users)
+        setBlockedUsers(response.users);
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) { }
-  }
+    } catch (e: unknown) {}
+  };
 
   useEffect(() => {
-    getBlockedUsers()
+    getBlockedUsers();
   });
 
   const getPurchase = (): Unsubscribe => {
@@ -110,7 +110,11 @@ export default function ChatScreen({ navigation }) {
             });
           }
         }
-        setPurchase(tempt.filter(post => !blockedUsers.some(user => user.email === post.email)));
+        setPurchase(
+          tempt.filter(
+            (post) => !blockedUsers.some((user) => user.email === post.email)
+          )
+        );
         setIsLoadingPurchase(false);
       });
     } catch (e) {
@@ -160,13 +164,14 @@ export default function ChatScreen({ navigation }) {
               items: items,
             });
           } catch (error) {
-            console.log(`id token: ${await auth.currentUser.getIdToken()}`);
-
-            console.log(`error: ${error}`);
-            console.log(`erorr: ${JSON.stringify(error)}`);
+            console.log(error);
           }
         }
-        setOffer(tempt.filter(post => !blockedUsers.some(user => user.email === post.email)));
+        setOffer(
+          tempt.filter(
+            (post) => !blockedUsers.some((user) => user.email === post.email)
+          )
+        );
         setIsLoadingOffers(false);
       });
     } catch (e) {
@@ -226,7 +231,7 @@ export default function ChatScreen({ navigation }) {
             style={[
               styles.image,
               (isPurchase && purchaseUnread != 0) ||
-                (!isPurchase && offerUnread != 0)
+              (!isPurchase && offerUnread != 0)
                 ? { marginStart: 24 }
                 : { marginStart: 12 },
             ]}
@@ -242,10 +247,11 @@ export default function ChatScreen({ navigation }) {
               <View style={styles.itemContainer}>
                 <Text
                   style={[fonts.Title4, { color: Colors.secondaryGray }]}
-                >{`${chatPreview.items.length > 0
-                  ? formatSingleItem(chatPreview.items[0].title)
-                  : "loading..."
-                  }`}</Text>
+                >{`${
+                  chatPreview.items.length > 0
+                    ? formatSingleItem(chatPreview.items[0].title)
+                    : "loading..."
+                }`}</Text>
               </View>
               {chatPreview.items.length > 1 && (
                 <>

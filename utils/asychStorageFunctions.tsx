@@ -24,11 +24,11 @@ export const storeEmail = async (email) => {
 
 export const storeDeviceToken = async (token) => {
   try {
-    await AsyncStorage.setItem("fcmToken", token)
+    await AsyncStorage.setItem("fcmToken", token);
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 export const storeUserId = async (userid: string) => {
   try {
@@ -65,7 +65,7 @@ export const storeExpireAt = async (expiresAt) => {
 export const storeNotificationSettings = async (enabled) => {
   try {
     await AsyncStorage.setItem("notificationsEnabled", enabled);
-    console.log(enabled)
+    console.log(enabled);
   } catch (e) {
     console.log(e);
   }
@@ -112,7 +112,7 @@ export const getDeviceToken = async (setDeviceToken) => {
       setDeviceToken(result);
     }
   });
-}
+};
 
 export const getUserId = async (setUserId) => {
   AsyncStorage.getItem("userId", async (errs, result) => {
@@ -136,13 +136,10 @@ export const getNotificationSettings = async (setNotificationSettings) => {
       if (setNotificationSettings) {
         setNotificationSettings(result);
       }
-    } else {
-      console.log("WTF")
     }
+    console.log(result);
 
-    console.log(result)
-
-    return result
+    return result;
   });
 };
 

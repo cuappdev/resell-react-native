@@ -26,35 +26,39 @@ export default function BlockedUsersScreen({ route, navigation }) {
   const [selectedUser, setSelectedUser] = useState<Record<string, any>>({});
   const [refreshing, setRefreshing] = useState(false);
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   const getBlockedUsers = async () => {
     try {
       const response = await apiClient.get(`/user/blocked/id/${userID}/`);
       if (response.users) {
-        setBlockedUsers(response.users)
+        setBlockedUsers(response.users);
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) { }
-  }
+    } catch (e) {
+      console.log(`BlockedUsersScreen.getBlockedUsers: ${e}`);
+    }
+  };
 
   const unblockUser = async () => {
     try {
       const response = await apiClient.post(`/user/unblock/`, {
-        unblocked: selectedUser.id
+        unblocked: selectedUser.id,
       });
       if (response.user) {
-        setBlockedUsers(response.user.blocking)
-        setModalVisible(false)
+        setBlockedUsers(response.user.blocking);
+        setModalVisible(false);
       } else {
         makeToast({ message: "Error unblocking user", type: "ERROR" });
       }
-    } catch (e: unknown) { }
-  }
+    } catch (e) {
+      console.log(`BlockedUsersScreen.unblockUser: ${e}`);
+    }
+  };
 
   useEffect(() => {
-    getBlockedUsers()
+    getBlockedUsers();
   }, userID);
 
   const handleRefresh = () => {
@@ -64,20 +68,21 @@ export default function BlockedUsersScreen({ route, navigation }) {
     });
   };
 
-
-
-  getBlockedUsers()
+  getBlockedUsers();
 
   const renderItem = ({ item }) => (
     <View style={styles.cell}>
       <View style={styles.userContainer}>
-        <FastImage style={styles.profileImage} source={{ uri: item.photoUrl }} />
+        <FastImage
+          style={styles.profileImage}
+          source={{ uri: item.photoUrl }}
+        />
         <Text style={styles.userName}>{item.username}</Text>
       </View>
       <TouchableOpacity
         onPress={() => {
-          setSelectedUser(item)
-          setModalVisible(true)
+          setSelectedUser(item);
+          setModalVisible(true);
         }}
         style={styles.unblockButton}
       >
@@ -88,27 +93,25 @@ export default function BlockedUsersScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {blockedUsers.length == 0 && (<View
-        style={[
-          styles.noResultView,
-        ]}
-      >
-        <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
-          No blocked users
-        </Text>
-        <Text
-          style={[
-            fonts.body1,
-            {
-              color: "#707070",
-              textAlign: "center",
-              paddingHorizontal: "10%",
-            },
-          ]}
-        >
-          Users you have blocked will appear here.
-        </Text>
-      </View>)}
+      {blockedUsers.length == 0 && (
+        <View style={[styles.noResultView]}>
+          <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
+            No blocked users
+          </Text>
+          <Text
+            style={[
+              fonts.body1,
+              {
+                color: "#707070",
+                textAlign: "center",
+                paddingHorizontal: "10%",
+              },
+            ]}
+          >
+            Users you have blocked will appear here.
+          </Text>
+        </View>
+      )}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
@@ -137,7 +140,7 @@ export default function BlockedUsersScreen({ route, navigation }) {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -184,7 +187,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 50,
     marginRight: 15,
-    backgroundColor: "purple"
+    backgroundColor: "purple",
   },
   userName: {
     flex: 1,

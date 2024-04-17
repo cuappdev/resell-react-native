@@ -35,10 +35,9 @@ export default function LinkVenmoScreen({ navigation, route }) {
       bio: bio,
     });
     if (response.error) {
+      console.log(response.error);
       makeToast({ message: "Failed to update profile", type: "ERROR" });
       return;
-    } else {
-      console.log(`update response: ${JSON.stringify(response)}`);
     }
     // update Firebase:
     try {

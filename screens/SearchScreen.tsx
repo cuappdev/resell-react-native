@@ -36,14 +36,14 @@ export default function SearchScreen({ navigation, route }) {
   const [isLoading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   const getPosts = async (keyword) => {
     try {
       setLoading(true);
       const response = await apiClient.post(`/post/search/`, {
         keywords: keyword,
-      })
+      });
       setData(response.posts);
     } catch (error) {
       //console.error(error);
@@ -77,7 +77,6 @@ export default function SearchScreen({ navigation, route }) {
       console.log(e);
     }
   };
-  // console.log("data", data);
 
   return (
     <SafeAreaView style={[styles.outer]}>

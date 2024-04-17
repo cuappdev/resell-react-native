@@ -76,7 +76,6 @@ export default function ConfirmedMeetingModal({
       ownerAccount: "personal",
       accessLevel: Calendar.CalendarAccessLevel.OWNER,
     });
-    console.log(`Your new calendar ID is: ${newCalendarID}`);
     storeCalendarID(newCalendarID);
     setCalendarID(newCalendarID);
     return newCalendarID;
@@ -91,8 +90,6 @@ export default function ConfirmedMeetingModal({
         startDate: startDateWithTime,
         title: eventTitle,
       });
-      console.log("added event: ", startDateWithTime);
-      console.log("added event: ", endDateWithTime);
     } catch (e) {
       Alert.alert("Sorry we don't have access to you calendar account");
       console.log(e);
@@ -140,14 +137,12 @@ export default function ConfirmedMeetingModal({
               updateViewed();
               setVisible(false);
               // setShowNotice(false);
-              console.log("here");
               const { status } =
                 await Calendar.requestCalendarPermissionsAsync();
               if (status === "granted") {
                 addNewEvent();
                 makeToast({ message: "Added event to your calendar!" });
               } else {
-                console.log("permission not granted");
                 makeToast({
                   message: "Calendar Permission not Granted",
                   type: "ERROR",

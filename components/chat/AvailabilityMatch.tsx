@@ -83,7 +83,6 @@ export function AvailabilityModal({
     }
   };
   const onEventPress = (event: WeekViewEvent) => {
-    console.log(`event pressed`);
     if (!isBubble) {
       if (schedule.length == 1) {
         setSchedule([]);

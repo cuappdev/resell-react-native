@@ -2,7 +2,6 @@ import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import Google from "expo-auth-session"
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { collection, doc, getDoc } from "firebase/firestore";
@@ -25,17 +24,20 @@ import {
   returnAccessToken,
   storeAccessToken,
   storeUserId,
-  storeDeviceToken
+  storeDeviceToken,
 } from "../utils/asychStorageFunctions";
-import { getDeviceFCMToken, saveDeviceTokenToFireStore, saveNotificationSettings } from "../api/FirebaseNotificationManager";
-import messaging from '@react-native-firebase/messaging';
+import {
+  getDeviceFCMToken,
+  saveDeviceTokenToFireStore,
+  saveNotificationSettings,
+} from "../api/FirebaseNotificationManager";
+import messaging from "@react-native-firebase/messaging";
 
 Logs.enableExpoCliLogging();
 
 export default function SignIn() {
   GoogleSignin.configure({
-    webClientId: process.env.WEB_CLIENT_ID, // client ID of type WEB for your server (needed to verify user ID and offline access)
-    iosClientId: process.env.IOS_CLIENT_ID,
+    webClientId: process.env.WEB_CLIENT_ID,
   });
   const colorScheme = useColorScheme();
   const signedIn = useSelector(signedInState);
@@ -73,9 +75,9 @@ export default function SignIn() {
         googleId: userData.id,
       });
 
-      const deviceToken = await getDeviceFCMToken()
-      await storeDeviceToken(deviceToken)
-      saveDeviceTokenToFireStore(userData.email, deviceToken)
+      const deviceToken = await getDeviceFCMToken();
+      await storeDeviceToken(deviceToken);
+      saveDeviceTokenToFireStore(userData.email, deviceToken);
 
       if (!createAccountRes.error || createAccountRes.httpCode === 409) {
         // If the httpCode is 409, that means there account already exists, so
@@ -85,7 +87,6 @@ export default function SignIn() {
         alert(
           "Google user is not a Cornell student. You must use a Cornell email for Resell"
         );
-        console.log(`create account res: ${JSON.stringify(createAccountRes)}`);
         makeToast({ message: "Error creating account", type: "ERROR" });
         return;
       }
@@ -102,13 +103,12 @@ export default function SignIn() {
       );
       setIsOnboarded(firebaseUserData.data()?.onboarded ?? false);
       if (!isOnboarded) {
-
         const authStatus = await messaging().requestPermission();
         const enabled =
           authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-        saveNotificationSettings(userData.email, enabled)
+        saveNotificationSettings(userData.email, enabled);
       }
 
       if (!accountId) {
@@ -125,9 +125,9 @@ export default function SignIn() {
       const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
       const session = accessTokenRes.sessions?.[0];
       if (session) {
-        console.log(`Firebase Token User: ${JSON.stringify(auth.currentUser)}`)
+        console.log(`Firebase Token User: ${JSON.stringify(auth.currentUser)}`);
         const accessToken = session.accessToken;
-        console.log(`Access Token: ${JSON.stringify(session.accessToken)}`)
+        console.log(`Access Token: ${JSON.stringify(session.accessToken)}`);
         const isActive = session.active;
         if (isActive) {
           await storeAccessToken(accessToken);
@@ -152,6 +152,8 @@ export default function SignIn() {
         }
       }
     } catch (error) {
+      console.log(error);
+
       switch (error.code) {
         case statusCodes.SIGN_IN_CANCELLED:
           makeToast({ message: "Sign in was cancelled", type: "ERROR" });

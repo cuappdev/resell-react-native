@@ -51,10 +51,13 @@ export default {
       supportsTablet: false,
       bundleIdentifier: "com.appdev.resellios",
       googleServicesFile: "./config/GoogleService-Info.plist",
-      buildNumber: "1",
+      buildNumber: "3",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
         NSRemindersUsageDescription: "Allow Resell to access your reminders",
+      },
+      config: {
+        usesNonExemptEncryption: false,
       },
     },
 
@@ -101,6 +104,7 @@ export default {
         "svg",
       ],
     },
+
     extra: {
       apiKey: process.env.API_KEY,
       authDomain: process.env.AUTH_DOMAIN,

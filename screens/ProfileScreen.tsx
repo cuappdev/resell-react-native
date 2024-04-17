@@ -52,7 +52,7 @@ export default function ProfileScreen({ navigation }) {
   const [archived, setArchived] = useState([]);
   const [requests, setRequests] = useState([]);
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   const ownPostRoute = () => {
     return (
@@ -109,16 +109,17 @@ export default function ProfileScreen({ navigation }) {
     try {
       setUserLoading(true);
 
-      const response = await apiClient.get(`/user/id/${userId}`)
+      const response = await apiClient.get(`/user/id/${userId}`);
       if (response.user) {
         const user = response.user;
         setRealname(user.givenName + " " + user.familyName);
         setUsername(user.username);
         setBio(user.bio);
         setImage(user.photoUrl);
+        setFetchUserFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getUser failed: ${error}`);
       setFetchUserFailed(true);
     } finally {
       setUserLoading(false);
@@ -127,16 +128,17 @@ export default function ProfileScreen({ navigation }) {
 
   const getUserIngress = async () => {
     try {
-      const response = await apiClient.get(`/user/id/${userId}`)
+      const response = await apiClient.get(`/user/id/${userId}`);
       if (response.user) {
         const user = response.user;
         setRealname(user.givenName + " " + user.familyName);
         setUsername(user.username);
         setBio(user.bio);
         setImage(user.photoUrl);
+        setFetchUserFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getUserIngress failed: ${error}`);
       setFetchUserFailed(true);
     }
   };
@@ -144,12 +146,13 @@ export default function ProfileScreen({ navigation }) {
   const getPosts = async () => {
     try {
       setOwnPostLoading(true);
-      const response = await apiClient.get(`/post/userId/${userId}`)
+      const response = await apiClient.get(`/post/userId/${userId}`);
       if (response.posts) {
         setPosts(response.posts);
+        setFetchOwnPostFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getPosts failed: ${error}`);
       setFetchOwnPostFailed(true);
     } finally {
       setOwnPostLoading(false);
@@ -158,23 +161,27 @@ export default function ProfileScreen({ navigation }) {
 
   const getPostsIngress = async () => {
     try {
-      const response = await apiClient.get(`/post/userId/${userId}`)
+      const response = await apiClient.get(`/post/userId/${userId}`);
       if (response.posts) {
         setPosts(response.posts);
+        setFetchOwnPostFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getPostsIngress failed: ${error}`);
       setFetchOwnPostFailed(true);
     }
   };
 
   const getPostsRefresh = async () => {
     try {
-      const response = await apiClient.get(`/post/userId/${userId}`)
-      setOwnPostLoading(true);
-      setPosts(response.posts);
+      const response = await apiClient.get(`/post/userId/${userId}`);
+      if (response.posts) {
+        setOwnPostLoading(true);
+        setPosts(response.posts);
+        setFetchOwnPostFailed(false);
+      }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getPostsRefresh failed: ${error}`);
       setFetchOwnPostFailed(true);
     } finally {
       setTimeout(() => {
@@ -186,12 +193,13 @@ export default function ProfileScreen({ navigation }) {
   const getArchived = async () => {
     try {
       setArchivedLoading(true);
-      const response = await apiClient.get(`/post/archive/userId/${userId}`)
+      const response = await apiClient.get(`/post/archive/userId/${userId}`);
       if (response.posts) {
         setArchived(response.posts);
+        setFetchArchivedFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getArchived failed: ${error}`);
       setFetchArchivedFailed(true);
     } finally {
       setArchivedLoading(false);
@@ -200,24 +208,27 @@ export default function ProfileScreen({ navigation }) {
 
   const getArchivedIngress = async () => {
     try {
-      const response = await apiClient.get(`/post/archive/userId/${userId}`)
+      const response = await apiClient.get(`/post/archive/userId/${userId}`);
       if (response.posts) {
         setArchived(response.posts);
+        setFetchArchivedFailed(false);
       }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getArchivedIngress failed: ${error}`);
       setFetchArchivedFailed(true);
     }
   };
 
   const getArchivedRefresh = async () => {
     try {
-      const response = await apiClient.get(`/post/archive/userId/${userId}`)
-      setArchivedLoading(true);
-      setArchived(response.posts);
-      console.log(archived);
+      const response = await apiClient.get(`/post/archive/userId/${userId}`);
+      if (response.posts) {
+        setArchivedLoading(true);
+        setArchived(response.posts);
+        setFetchArchivedFailed(false);
+      }
     } catch (error) {
-      console.error(error);
+      console.error(`ProfileScreen.getArchivedRefresh failed: ${error}`);
       setFetchArchivedFailed(true);
     } finally {
       setTimeout(() => {
@@ -235,8 +246,8 @@ export default function ProfileScreen({ navigation }) {
         setFetchRequestFailed(false);
       }
     } catch (error) {
+      console.error(`ProfileScreen.getRequest failed: ${error}`);
       setFetchRequestFailed(true);
-      console.error(error);
     }
   };
 

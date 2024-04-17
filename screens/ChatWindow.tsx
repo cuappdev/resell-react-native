@@ -259,12 +259,9 @@ export default function ChatWindow({ navigation, route }) {
   const snapPoints = useMemo(() => ["85%"], []);
   // callbacks
   const setAvailabilityVisible = useCallback((visible: boolean) => {
-    console.log(`visible = ${visible}`);
     if (visible) {
-      console.log(`presenting bottom sheet`);
       bottomSheetModalRef.current?.present();
     } else {
-      console.log(`closing sheet`);
       bottomSheetModalRef.current?.close();
     }
   }, []);
@@ -330,21 +327,21 @@ export default function ChatWindow({ navigation, route }) {
 
   const onSend = useCallback(async (messages: any[] = []) => {
     //#region update histories
-    var notifText = ""
+    var notifText = "";
     const { _id, text, availability, image, product, createdAt, user } =
       messages[0];
     var recentMessage = "";
     if (text.length > 0) {
       recentMessage = text;
-      notifText = text
+      notifText = text;
     } else if (availability[0] != undefined) {
       recentMessage = "[Availability]";
-      notifText = "Sent their Avalability"
+      notifText = "Sent their Avalability";
     } else if (product.title != undefined) {
       recentMessage = "[Product: " + product.title + "]";
     } else if (image != "") {
       recentMessage = "[Image]";
-      notifText = "Sent an Image"
+      notifText = "Sent an Image";
     }
     // In the buyer's history, track a new seller
     const buyerHistoryRef = doc(
@@ -407,10 +404,11 @@ export default function ChatWindow({ navigation, route }) {
       user,
     });
 
-    const docRef = doc(userRef, email)
+    const docRef = doc(userRef, email);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      sendNotification(docSnap.data().fcmToken,
+      sendNotification(
+        docSnap.data().fcmToken,
         user.name,
         notifText,
         "chat",
@@ -426,11 +424,10 @@ export default function ChatWindow({ navigation, route }) {
           proposer,
         },
         docSnap.data().notificationsEnabled
-      )
+      );
     } else {
       console.log("No such document!");
     }
-
   }, []);
   function renderMessage(props) {
     if (props.currentMessage.meetingInfo) {
@@ -498,8 +495,8 @@ export default function ChatWindow({ navigation, route }) {
   };
 
   const onBlock = () => {
-    setBlockModalVisibility(true)
-  }
+    setBlockModalVisibility(true);
+  };
 
   const blockUser = async () => {
     const blocked = JSON.stringify({
@@ -507,28 +504,25 @@ export default function ChatWindow({ navigation, route }) {
     });
     try {
       const response = await apiClient.post("/user/block/", {
-        blocked: "8f07199c-f61a-4a37-b590-3d5fbabd2886"
+        blocked: "8f07199c-f61a-4a37-b590-3d5fbabd2886",
       });
       if (response.user) {
-        console.log(`blocked user: ${JSON.stringify(response.user)}`);
         makeToast({ message: `Blocked ${name}` });
-        setBlockModalVisibility(false)
-        setMenuVisible(false)
-        navigation.goBack()
+        setBlockModalVisibility(false);
+        setMenuVisible(false);
+        navigation.goBack();
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) { }
-  }
+    } catch (e: unknown) {}
+  };
 
   const menuItems = [
-    { label: 'Report', iconName: 'flag', onPress: onReport },
-    { label: 'Block', iconName: 'slash', onPress: onBlock },
+    { label: "Report", iconName: "flag", onPress: onReport },
+    { label: "Block", iconName: "slash", onPress: onBlock },
   ];
 
   function renderBubble(props) {
-    // console.log(`currentMessage: ${JSON.stringify(props.currentMessage)}`);
-
     const { currentMessage } = props;
     const { text: currText } = currentMessage;
     const { availability: currAvailability } = currentMessage;
@@ -680,7 +674,6 @@ export default function ChatWindow({ navigation, route }) {
             Clipboard.setString(message.text); // TODO replace with community clipboard
             break;
           case 1:
-            console.log(`report sent`);
             navigation.navigate("ReportPost", {
               sellerName: name,
               sellerId: "sellerId", // TODO: Add when Implementing Reporting Backend
@@ -718,7 +711,6 @@ export default function ChatWindow({ navigation, route }) {
           }
           setInputSchedule(schedule);
           setAvailabilityUserName(userName);
-          console.log(schedule);
           setAvailabilityVisible(true);
           setIsBubble(true);
         }
@@ -918,7 +910,7 @@ export default function ChatWindow({ navigation, route }) {
         setProposer(meetingInfo.proposer);
         setMeetingDetailText(
           (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
-          " confirmed the following meeting:"
+            " confirmed the following meeting:"
         );
       }
       if (
@@ -934,13 +926,12 @@ export default function ChatWindow({ navigation, route }) {
         Object.keys(msg.availability).length > 0 &&
         msg.user._id !== auth.currentUser.email
       ) {
-        console.log(`\n\n\nMSG USER ID user id: ${msg.user._id}\n\n\n`);
         setActionButtons((buttons) =>
           buttons.filter((b) => b.title.includes("View")).length === 0
             ? [
-              ...buttons,
-              { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
-            ]
+                ...buttons,
+                { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
+              ]
             : buttons
         );
       }

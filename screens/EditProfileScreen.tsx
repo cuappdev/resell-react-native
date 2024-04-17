@@ -72,7 +72,6 @@ export default function EditProfileScreen({ navigation, route }) {
         quality: 0.5,
       });
       if (!result.canceled) {
-        console.log(result);
         setImage("data:image/jpeg;base64," + result["base64"]);
       }
     }
@@ -128,7 +127,8 @@ export default function EditProfileScreen({ navigation, route }) {
         navigation.goBack();
         makeToast({ message: "Profile updated successfully", type: "INFO" });
       }
-    } catch (_) {
+    } catch (e) {
+      console.log(`EditProfileScreen.submit failed: ${e}`);
       makeToast({ message: "Error updating profile", type: "ERROR" });
     }
   };

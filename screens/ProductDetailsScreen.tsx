@@ -43,7 +43,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     similarItems: [],
   });
 
-  const apiClient = useApiClient()
+  const apiClient = useApiClient();
 
   useEffect(() => {
     setItem({
@@ -59,9 +59,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       let response;
       if (post.categories) {
-        response = await apiClient.post("/post/filter/", { category: post.categories[0], })
+        response = await apiClient.post("/post/filter/", {
+          category: post.categories[0],
+        });
       } else {
-        response = await apiClient.get("/post/")
+        response = await apiClient.get("/post/");
       }
       const json = response;
       setSimilarItems(json.posts.slice(0, 4));
@@ -129,15 +131,17 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       const response = await fetch(
         "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-        userId +
-        "/postId/" +
-        post.id
+          userId +
+          "/postId/" +
+          post.id
       );
       if (response.ok) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) { console.log(`BRUHH ${error}`) }
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     fetchIsSaved();
@@ -145,9 +149,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const save = async () => {
     try {
-      const response = await apiClient.post(`/post/save/postId/${post.id}`)
-      console.log("WORKED")
-      console.log(JSON.stringify(response))
+      const response = await apiClient.post(`/post/save/postId/${post.id}`);
       setIsSaved(true);
     } catch (error) {
       console.log(error);
@@ -156,9 +158,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const unsave = async () => {
     try {
-      const response = await apiClient.post(`/post/unsave/postId/${post.id}`)
-      console.log("WORKED2")
-      console.log(JSON.stringify(response))
+      const response = await apiClient.post(`/post/unsave/postId/${post.id}`);
       setIsSaved(false);
     } catch (error) {
       console.log(error);
@@ -166,16 +166,14 @@ export default function ProductDetailsScreen({ route, navigation }) {
     }
   };
 
-  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
-  console.log(`current user: ${JSON.stringify(auth.currentUser)}`);
-
   const onShare = async () => {
     try {
       const result = await Share.share({
         title: "Check out this " + post.title + "on Resell",
         message: `
-        Check out this ${post.title} posted by ${sellerName}. It's only for $${item.price
-          }.
+        Check out this ${post.title} posted by ${sellerName}. It's only for $${
+          item.price
+        }.
         Click the following link if you have Resell already downloaded:
         ${(<a href="resell://product/${post.id}">Open in Resell</a>)}
         `,
@@ -233,7 +231,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
         let error = new Error(response.statusText);
         throw error;
       } else {
-        console.log("deleted");
         setModalVisibility(false);
         navigation.goBack();
         return response;
@@ -244,11 +241,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const archivePost = () => {
     apiClient.post(`/post/archive/postId/${post.id}`).then(function (response) {
       if (!response.post) {
-        console.log("sad");
         let error = new Error(response.statusText);
         throw error;
       } else {
-        console.log("archived");
         setModalVisibility(false);
         navigation.goBack();
         return response;
@@ -370,7 +365,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
         animatedValue={
           new Animated.Value(
             Dimensions.get("window").height -
-            Math.min(400, Layout.window.width * maxImgRatio - 40)
+              Math.min(400, Layout.window.width * maxImgRatio - 40)
           )
         }
       >
