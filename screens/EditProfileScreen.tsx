@@ -127,7 +127,8 @@ export default function EditProfileScreen({ navigation, route }) {
         navigation.goBack();
         makeToast({ message: "Profile updated successfully", type: "INFO" });
       }
-    } catch (_) {
+    } catch (e) {
+      console.log(`EditProfileScreen.submit failed: ${e}`);
       makeToast({ message: "Error updating profile", type: "ERROR" });
     }
   };
