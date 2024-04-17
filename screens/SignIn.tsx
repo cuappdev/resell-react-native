@@ -56,9 +56,9 @@ export default function SignIn() {
       const user = await GoogleSignin.signIn();
       const userData = user.user;
 
-      const deviceToken = await getDeviceFCMToken()
-      await storeDeviceToken(deviceToken)
-      saveDeviceTokenToFireStore(userData.email, deviceToken)
+      const deviceToken = await getDeviceFCMToken();
+      await storeDeviceToken(deviceToken);
+      saveDeviceTokenToFireStore(userData.email, deviceToken);
 
       // Sign in on Firebase:
       const credential = GoogleAuthProvider.credential(user.idToken);
