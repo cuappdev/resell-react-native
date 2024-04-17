@@ -27,6 +27,7 @@ import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
 import { makeToast } from "../utils/Toast";
+import { useApiClient } from "../api/ApiClientProvider";
 
 export default function ProductDetailsScreen({ route, navigation }) {
   const { post, screen, savedInitial } = route.params;
@@ -42,6 +43,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
     similarItems: [],
   });
 
+  const apiClient = useApiClient();
+
   useEffect(() => {
     setItem({
       images: post.images,
@@ -56,25 +59,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       let response;
       if (post.categories) {
-        response = await fetch(
-          "https://resell-dev.cornellappdev.com/api/post/filter/",
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              category: post.categories[0],
-            }),
-          }
-        );
+        response = await apiClient.post("/post/filter/", {
+          category: post.categories[0],
+        });
       } else {
-        response = await fetch(
-          "https://resell-dev.cornellappdev.com/api/post/"
-        );
+        response = await apiClient.get("/post/");
       }
-      const json = await response.json();
+      const json = response;
       setSimilarItems(json.posts.slice(0, 4));
     } catch (error) {
       console.error(error);
@@ -86,18 +77,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const fetchPost = async () => {
     try {
       let response;
-      response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/postId/" + post.id,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      response = await apiClient.get(`/user/postId/${post.id}`);
 
-      const userResult = await response.json();
+      const userResult = response;
 
       setSellerId(userResult.user.id);
       setSellerFirstName(userResult.user.givenName);
@@ -157,7 +139,9 @@ export default function ProductDetailsScreen({ route, navigation }) {
         const json = await response.json();
         setIsSaved(json.isSaved);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     fetchIsSaved();
@@ -165,17 +149,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const save = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/save/postId/" + post.id,
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post(`/post/save/postId/${post.id}`);
       setIsSaved(true);
     } catch (error) {
       console.log(error);
@@ -184,27 +158,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
   const unsave = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/unsave/postId/" +
-          post.id,
-        {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post(`/post/unsave/postId/${post.id}`);
       setIsSaved(false);
     } catch (error) {
       console.log(error);
       alert("sadUnsave");
     }
   };
-  console.log("auth?.currentUser?.email" + auth?.currentUser?.email);
-  console.log(`current user: ${JSON.stringify(auth.currentUser)}`);
 
   const onShare = async () => {
     try {
@@ -266,51 +226,27 @@ export default function ProductDetailsScreen({ route, navigation }) {
   }, []);
 
   const deletePost = () => {
-    fetch("https://resell-dev.cornellappdev.com/api/post/id/" + post.id, {
-      method: "DELETE",
-      headers: {
-        Authorization: accessToken,
-
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    }).then(function (response) {
-      // alert(JSON.stringify(response));
-
-      if (!response.ok) {
+    apiClient.delete(`/post/id/${post.id}`).then(function (response) {
+      if (!response.post) {
         let error = new Error(response.statusText);
         throw error;
       } else {
-        console.log("deleted");
         setModalVisibility(false);
         navigation.goBack();
-        return response.json();
+        return response;
       }
     });
   };
 
   const archivePost = () => {
-    fetch(
-      "https://resell-dev.cornellappdev.com/api/post/archive/postId/" + post.id,
-      {
-        method: "POST",
-        headers: {
-          Authorization: accessToken,
-
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    ).then(function (response) {
-      if (!response.ok) {
-        console.log("sad");
+    apiClient.post(`/post/archive/postId/${post.id}`).then(function (response) {
+      if (!response.post) {
         let error = new Error(response.statusText);
         throw error;
       } else {
-        console.log("archived");
         setModalVisibility(false);
         navigation.goBack();
-        return response.json();
+        return response;
       }
     });
   };
@@ -350,7 +286,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       {/* Top bar options */}
       <View style={styles.optionsContainer}>
         <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
-          <EllipsesIcon />
+          <EllipsesIcon color={"white"} props />
         </TouchableOpacity>
         <Modal
           isVisible={menuVisible}

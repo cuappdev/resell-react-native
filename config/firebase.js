@@ -22,6 +22,7 @@ if (!getApps().length) {
 }
 
 export const db = getFirestore(app, process.env.DATABASE_ID);
+export const fcmRef = collection(db, "fcmTokens");
 export const chatRef = collection(db, "chats");
 export const historyRef = collection(db, "history");
 export const userRef = collection(db, "user");

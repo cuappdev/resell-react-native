@@ -42,7 +42,6 @@ export default function MeetingProposeModal({
   const startText = moment(momentDate).format("dddd, MMMM Do · h:mm");
   const endDate = moment(momentDate).add(30, "m").format("h:mm a");
   const dateText = startText + "-" + endDate;
-  console.log(`visible: ${visible}`);
 
   const [shouldOpenAvailability, setShouldOpenAvailability] = useState(false);
 

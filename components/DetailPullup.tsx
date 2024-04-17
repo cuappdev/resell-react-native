@@ -72,12 +72,9 @@ export function DetailPullUpBody({
       arr.splice(index, 1);
       return true;
     }
-    console.log(item.id);
-    console.log(postId);
     return false;
   });
 
-  console.log(similarItems);
   return (
     <ScrollView
       style={[

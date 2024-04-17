@@ -24,7 +24,6 @@ export default function DeleteAccountPopupSheet({
   const [deleteText, setDeleteText] = useState("");
 
   const handleChange = (event) => {
-    console.log(username);
     setDeleteText(event);
   };
 
@@ -56,7 +55,9 @@ export default function DeleteAccountPopupSheet({
           <TouchableOpacity
             style={styles.submitButton}
             onPress={() => {
-              deleteAction();
+              if (deleteText != "" && deleteText == username) {
+                deleteAction();
+              }
             }}
           >
             <Text

@@ -14,23 +14,33 @@ import Edit from "../assets/svg-components/edit";
 import { Feather } from "@expo/vector-icons";
 import { menuBarTop } from "../constants/Layout";
 import DeleteAccountPopupSheet from "../components/DeleteAccountPopupSheet";
+import { useApiClient } from "../api/ApiClientProvider";
+import { makeToast } from "../utils/Toast";
+import { useDispatch } from "react-redux";
+import { logout } from "../state_manage/reducers/signInReducer";
+import { doc, updateDoc } from "firebase/firestore";
+import { userRef } from "../config/firebase";
 
 export default function AccountSettingsScreen({ navigation }) {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userId, setUserId] = useState("");
   const [username, setUsername] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+
+  const apiClient = useApiClient();
+  const dispatch = useDispatch();
+  const log_out = () => dispatch(logout());
 
   getUserId(setUserId);
 
   const getUsername = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`);
+
+      if (response.user) {
+        const user = response.user;
         setUsername(user.username);
+        setUserEmail(user.email);
         setDeleteModalVisible(true);
       }
     } catch (error) {
@@ -40,12 +50,9 @@ export default function AccountSettingsScreen({ navigation }) {
 
   const getUser = async () => {
     try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/user/id/" + userId
-      );
-      if (response.ok) {
-        const json = await response.json();
-        const user = json.user;
+      const response = await apiClient.get(`/user/id/${userId}`);
+      if (response.user) {
+        const user = response.user;
         setUsername(user.username);
         navigation.navigate("EditProfile", {
           initialRealname: user.givenName + " " + user.familyName,
@@ -59,6 +66,22 @@ export default function AccountSettingsScreen({ navigation }) {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
+      if (response.user) {
+        const ref = doc(userRef, userEmail);
+        updateDoc(ref, {
+          onboarded: false,
+        });
+
+        log_out();
+      } else {
+        makeToast({ message: "Error deleting account", type: "ERROR" });
+      }
+    } catch (e: unknown) {}
   };
 
   return (
@@ -115,7 +138,7 @@ export default function AccountSettingsScreen({ navigation }) {
       <DeleteAccountPopupSheet
         isVisible={deleteModalVisible}
         setIsVisible={setDeleteModalVisible}
-        deleteAction={() => console.log("No Screen yet")}
+        deleteAction={deleteAccount}
         username={username}
       />
     </View>

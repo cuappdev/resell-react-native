@@ -26,6 +26,8 @@ import { ChatPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
 import { formatSingleItem } from "../utils/general";
+import { useApiClient } from "../api/ApiClientProvider";
+import { getUserId } from "../utils/asychStorageFunctions";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
@@ -36,6 +38,27 @@ export default function ChatScreen({ navigation }) {
   const isFocused = useIsFocused();
   const [isLoadingPurchase, setIsLoadingPurchase] = useState(true);
   const [isLoadingOffers, setIsLoadingOffers] = useState(true);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [userId, setUserId] = useState("");
+
+  getUserId(setUserId);
+
+  const apiClient = useApiClient();
+
+  const getBlockedUsers = async () => {
+    try {
+      const response = await apiClient.get(`/user/blocked/id/${userId}/`);
+      if (response.users) {
+        setBlockedUsers(response.users);
+      } else {
+        makeToast({ message: "Error blocking user", type: "ERROR" });
+      }
+    } catch (e: unknown) {}
+  };
+
+  useEffect(() => {
+    getBlockedUsers();
+  });
 
   const getPurchase = (): Unsubscribe => {
     if (purchase === null) {
@@ -87,8 +110,11 @@ export default function ChatScreen({ navigation }) {
             });
           }
         }
-
-        setPurchase(tempt);
+        setPurchase(
+          tempt.filter(
+            (post) => !blockedUsers.some((user) => user.email === post.email)
+          )
+        );
         setIsLoadingPurchase(false);
       });
     } catch (e) {
@@ -138,13 +164,14 @@ export default function ChatScreen({ navigation }) {
               items: items,
             });
           } catch (error) {
-            console.log(`id token: ${await auth.currentUser.getIdToken()}`);
-
-            console.log(`error: ${error}`);
-            console.log(`erorr: ${JSON.stringify(error)}`);
+            console.log(error);
           }
         }
-        setOffer(tempt);
+        setOffer(
+          tempt.filter(
+            (post) => !blockedUsers.some((user) => user.email === post.email)
+          )
+        );
         setIsLoadingOffers(false);
       });
     } catch (e) {
