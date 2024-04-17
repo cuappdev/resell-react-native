@@ -76,6 +76,23 @@ export default function AccountSettingsScreen({ navigation }) {
         updateDoc(ref, {
           onboarded: false,
         });
+        console.log("Successfully Deleted Account");
+        console.log(JSON.stringify(response));
+        log_out();
+      } else {
+        makeToast({ message: "Error deleting account", type: "ERROR" });
+      }
+    } catch (e: unknown) {}
+  };
+
+  const deleteAccount = async () => {
+    try {
+      const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
+      if (response.user) {
+        const ref = doc(userRef, userEmail);
+        updateDoc(ref, {
+          onboarded: false,
+        });
 
         log_out();
       } else {

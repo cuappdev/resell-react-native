@@ -2,7 +2,6 @@ import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import Google from "expo-auth-session";
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { collection, doc, getDoc } from "firebase/firestore";

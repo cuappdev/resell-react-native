@@ -136,10 +136,7 @@ export const getNotificationSettings = async (setNotificationSettings) => {
       if (setNotificationSettings) {
         setNotificationSettings(result);
       }
-    } else {
-      console.log("WTF");
     }
-
     console.log(result);
 
     return result;
