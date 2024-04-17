@@ -51,7 +51,7 @@ export default {
       supportsTablet: false,
       bundleIdentifier: "com.cornellappdev.resell",
       googleServicesFile: "./config/GoogleService-Info.plist",
-      buildNumber: "3",
+      buildNumber: "4",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
         NSRemindersUsageDescription: "Allow Resell to access your reminders",
