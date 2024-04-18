@@ -126,7 +126,7 @@ export default function ProfileScreen({ navigation }) {
       if (response.posts) {
         setPosts(
           // Sort with most recent at the top
-          response.posts.toSorted(
+          response.posts.sort(
             (post1, post2) =>
               new Date(post2.created).getTime() -
               new Date(post1.created).getTime()
@@ -148,7 +148,7 @@ export default function ProfileScreen({ navigation }) {
         setOwnPostLoading(true);
         setPosts(
           // Sort with most recent at the top
-          response.posts.toSorted(
+          response.posts.sort(
             (post1, post2) =>
               new Date(post2.created).getTime() -
               new Date(post1.created).getTime()

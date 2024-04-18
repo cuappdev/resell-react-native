@@ -121,7 +121,7 @@ export default function HomeScreen({ navigation, route }) {
         setPosts(
           // Sort with most recent at the top
           response.posts
-            .toSorted(
+            .sort(
               (post1, post2) =>
                 new Date(post2.created).getTime() -
                 new Date(post1.created).getTime()
@@ -152,7 +152,7 @@ export default function HomeScreen({ navigation, route }) {
         setPosts(
           // Sort with most recent at the top
           response.posts
-            .toSorted(
+            .sort(
               (post1, post2) =>
                 new Date(post2.created).getTime() -
                 new Date(post1.created).getTime()
