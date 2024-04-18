@@ -60,7 +60,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ApiClientProvider from "../api/ApiClientProvider";
 import Venmo from "../assets/svg-components/venmo";
 import { fonts } from "../globalStyle/globalFont";
-import AccountSettingsScreen from "../screens/AccountSettingsScreen";
 import ChatWindow from "../screens/ChatWindow";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import LinkVenmoScreen from "../screens/LinkVenmoScreen";

@@ -26,6 +26,7 @@ import {
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
 import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
+import { requestUserPermission } from "../api/FirebaseNotificationManager";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -62,6 +63,7 @@ export default function HomeScreen({ navigation, route }) {
   // At the start load the current user ID, we need to check if the session is valid
   useEffect(() => {
     getUserId(setUserId);
+    requestUserPermission();
   }, []);
 
   useEffect(() => {
