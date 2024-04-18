@@ -348,12 +348,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     marginTop: Platform.OS === "ios" ? 64 : 0,
   },
-
   upperContainer: {
     display: "flex",
     flexDirection: "row",
   },
-
   profileBubble: {
     width: 89,
     height: 89,

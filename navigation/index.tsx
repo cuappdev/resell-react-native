@@ -445,13 +445,6 @@ function ProfileNavigator({ navigation }) {
         }}
       />
       <ProfileStack.Screen
-        name="AccountSettings"
-        component={AccountSettingsScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <ProfileStack.Screen
         name="NotificationPreferences"
         component={NotificationPreferencesScreen}
         options={{

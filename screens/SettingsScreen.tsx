@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -20,7 +20,7 @@ import { menuBarTop } from "../constants/Layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
 import Blocked from "../assets/svg-components/blocked";
-import ProfileBlack from "../assets/svg-components/profileBlack";
+import EditPencil from "../assets/svg-components/editPencil";
 import Terms from "../assets/svg-components/terms";
 import { auth } from "../config/firebase";
 import Colors from "../constants/Colors";
@@ -43,6 +43,9 @@ export default function SettingsScreen({ navigation }) {
   const [showEULA, setShowEULA] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [userId, setUserId] = useState("");
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  getUserId(setUserId);
 
   const apiClient = useApiClient();
 
@@ -52,22 +55,20 @@ export default function SettingsScreen({ navigation }) {
       if (response.user) {
         const user = response.user;
         setUserId(user.id);
+
+        navigation.navigate("EditProfile", {
+          initialRealname: user.givenName + " " + user.familyName,
+          initialUsername: user.username,
+          initialBio: user.bio,
+          initialNetId: user.netid,
+          initialVenmo: user.venmoHandle,
+          initialImage: user.photoUrl,
+        });
       }
     } catch (error) {
-      console.error(error);
+      console.error(`SettingsScreen.getUser failed: ${error}`);
     }
   };
-
-  // Fetch user ID first
-  useEffect(() => {
-    getUserId(setUserId);
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      getUser();
-    }
-  }, [userId]);
 
   const presentEULA = () => {
     setShowEULA(true);
@@ -93,13 +94,15 @@ export default function SettingsScreen({ navigation }) {
         style={styles.list}
         data={[
           {
-            icon: ProfileBlack,
-            text: "Account Settings",
-            onPress: () => navigation.navigate("AccountSettings"),
+            icon: EditPencil,
+            text: "Edit Profile",
+            onPress: () => {
+              getUser();
+            },
           },
           {
             icon: Notifications,
-            text: "Notification Preferences",
+            text: "Notifications",
             onPress: () => navigation.navigate("NotificationPreferences"),
           },
           {
