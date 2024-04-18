@@ -51,6 +51,8 @@ export default function DeleteAccountPopupSheet({
             style={styles.feedbackText}
             onChangeText={handleChange}
             onSubmitEditing={dismissKeyboard}
+            placeholder={username}
+            placeholderTextColor="#D1D1D1"
           />
           <TouchableOpacity
             style={styles.submitButton}

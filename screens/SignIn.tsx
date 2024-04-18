@@ -4,7 +4,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,14 +24,14 @@ import {
   returnAccessToken,
   storeAccessToken,
   storeUserId,
+  storeUsername,
   storeDeviceToken,
+  storeGoogleSignInData,
 } from "../utils/asychStorageFunctions";
 import {
   getDeviceFCMToken,
   saveDeviceTokenToFireStore,
-  saveNotificationSettings,
 } from "../api/FirebaseNotificationManager";
-import messaging from "@react-native-firebase/messaging";
 
 Logs.enableExpoCliLogging();
 
@@ -42,8 +42,7 @@ export default function SignIn() {
   const colorScheme = useColorScheme();
   const signedIn = useSelector(signedInState);
   const dispatch = useDispatch();
-  const api = useApiClient();
-  // whether the user needs to onboard
+  const apiClient = useApiClient();
   const [isOnboarded, setIsOnboarded] = useState(true);
 
   const signIn = async () => {
@@ -52,38 +51,16 @@ export default function SignIn() {
       // Maybe it's required for Android? If not, remove it.
       await GoogleSignin.hasPlayServices();
 
-      // Start by getting user info from GoogleSignIn
-      const user = await GoogleSignin.signIn();
-      const userData = user.user;
+      // Start by getting user info from GoogleSignIn and store it
+      const googleResponse = await GoogleSignin.signIn();
+      const userData = googleResponse.user;
+      await storeGoogleSignInData(JSON.stringify(userData));
 
-      const deviceToken = await getDeviceFCMToken();
-      await storeDeviceToken(deviceToken);
-      saveDeviceTokenToFireStore(userData.email, deviceToken);
-
-      // Sign in on Firebase:
-      const credential = GoogleAuthProvider.credential(user.idToken);
-      await signInWithCredential(auth, credential);
-
-      // Create an account:
-      let accountId: string = "";
-      const createAccountRes = await api.post("/auth/", {
-        username: userData.name,
-        netid: userData.email.substring(
-          0,
-          userData.email.indexOf("@cornell.edu")
-        ),
-        givenName: userData.givenName,
-        familyName: userData.familyName,
-        photoUrl: userData.photo,
-        email: userData.email,
-        googleId: userData.id,
-      });
-
-      if (!createAccountRes.error || createAccountRes.httpCode === 409) {
-        // If the httpCode is 409, that means there account already exists, so
-        // we just need to log them in and we don't need to terminate sign in
-        accountId = createAccountRes.user?.id;
-      } else {
+      // Must be admin email or Cornell
+      if (
+        !process.env.ADMIN_EMAILS.split(",").includes(userData.email) &&
+        !userData.email.includes("@cornell.edu")
+      ) {
         alert(
           "Google user is not a Cornell student. You must use a Cornell email for Resell"
         );
@@ -91,51 +68,58 @@ export default function SignIn() {
         return;
       }
 
-      // It's possible the user already has an account, try to log them in
-      if (!accountId) {
-        const userDataResult = await api.get(`/user/googleId/${userData.id}/`);
-        accountId = userDataResult?.user?.id;
-      }
+      const deviceToken = await getDeviceFCMToken();
+      await storeDeviceToken(deviceToken);
+      saveDeviceTokenToFireStore(userData.email, deviceToken);
+
+      // Sign in on Firebase
+      const credential = GoogleAuthProvider.credential(googleResponse.idToken);
+      await signInWithCredential(auth, credential);
 
       // Check if this user has onboarded
       const firebaseUserData = await getDoc(
         doc(userRef, auth.currentUser.email)
       );
-      setIsOnboarded(firebaseUserData.data()?.onboarded ?? false);
-      if (!isOnboarded) {
-        const authStatus = await messaging().requestPermission();
-        const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      const isOnboarded = firebaseUserData.data()?.onboarded ?? false;
+      setIsOnboarded(isOnboarded);
 
-        saveNotificationSettings(userData.email, enabled);
+      if (!isOnboarded) {
+        // Go to onboarding
+        dispatch(login());
+        return;
       }
 
-      if (!accountId) {
+      // Get the user data
+      const response = await apiClient.get(`/user/googleId/${userData.id}`);
+      if (!response.user) {
         makeToast({
           message: "Error finding account information",
           type: "ERROR",
         });
         return;
       }
-      // Now we know the accountId is right, store it
-      await storeUserId(accountId);
 
-      // Get an access token and login using it
-      const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
+      // Store user ID and username
+      const user = response.user;
+      storeUserId(user.id);
+      storeUsername(user.username);
+
+      // Get an access token and log in using it
+      const accessTokenRes = await apiClient.get(`/auth/sessions/${user.id}`);
       const session = accessTokenRes.sessions?.[0];
       if (session) {
         console.log(`Firebase Token User: ${JSON.stringify(auth.currentUser)}`);
         const accessToken = session.accessToken;
         console.log(`Access Token: ${JSON.stringify(session.accessToken)}`);
         const isActive = session.active;
+
         if (isActive) {
           await storeAccessToken(accessToken);
-          await api.loadAccessToken();
+          await apiClient.loadAccessToken();
           dispatch(login(accessToken));
         } else {
-          // get a new session for the user
-          const newSession = await api.get(
+          // Get a new session for the user
+          const newSession = await apiClient.get(
             `/auth/refresh/`,
             {},
             {
@@ -147,7 +131,7 @@ export default function SignIn() {
             throw new Error("Unable to refresh login");
           }
           await storeAccessToken(newAccessToken);
-          await api.loadAccessToken();
+          await apiClient.loadAccessToken();
           dispatch(login(newAccessToken));
         }
       }
@@ -172,6 +156,7 @@ export default function SignIn() {
       }
     }
   };
+
   useEffect(() => {
     const checkLoggedIn = async () => {
       const token = await returnAccessToken();
@@ -216,20 +201,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   containerSignIn: {
     position: "relative",
     height: "100%",
     width: "100%",
   },
-
   innerContainer: {
     marginTop: "50%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
-
   signInButton: {
     flexDirection: "column",
     alignItems: "center",
@@ -243,12 +225,10 @@ const styles = StyleSheet.create({
     paddingTop: "10%",
     color: "red",
   },
-
   signInText: {
     fontSize: 19,
     fontWeight: "bold",
   },
-
   gradient0: {
     position: "absolute",
     bottom: "-10%",

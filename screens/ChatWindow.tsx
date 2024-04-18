@@ -766,7 +766,7 @@ export default function ChatWindow({ navigation, route }) {
       base64: true,
     });
     setUri("");
-    postImage("data:image/jpeg;base64," + manipResult["base64"], props);
+    await postImage("data:image/jpeg;base64," + manipResult["base64"], props);
   };
 
   const postProduct = (props) => {
@@ -785,49 +785,33 @@ export default function ChatWindow({ navigation, route }) {
     });
   };
 
-  const postImage = (image, props) => {
-    const Json = JSON.stringify({
-      imageBase64: image,
-    });
-    fetch("https://resell-dev.cornellappdev.com/api/image/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: Json,
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          let error = new Error(response.statusText);
-          throw error;
-        } else {
-          return response.json();
-        }
-      })
-      .then(async function (data) {
-        if (mCount == 0) {
-          setmCount(1);
-          postProduct(props);
-        }
-
-        props.onSend({
-          _id: new Date().valueOf(),
-          text: "",
-          availability: {},
-          image: data.image,
-          product: {},
-          createdAt: new Date(),
-          user: {
-            _id: email,
-            name: name,
-            avatar: receiverImage,
-          },
-        });
-      })
-      .catch((error) => {
-        //alert(error.message);
+  const postImage = async (image, props) => {
+    try {
+      const response = await apiClient.post("/image", {
+        imageBase64: image,
       });
+
+      if (mCount == 0) {
+        setmCount(1);
+        postProduct(props);
+      }
+
+      props.onSend({
+        _id: new Date().valueOf(),
+        text: "",
+        availability: {},
+        image: response.image,
+        product: {},
+        createdAt: new Date(),
+        user: {
+          _id: email,
+          name: name,
+          avatar: receiverImage,
+        },
+      });
+    } catch (error) {
+      console.error(`ChatWindow.postImage failed: ${error}`);
+    }
   };
 
   useEffect(() => {

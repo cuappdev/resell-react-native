@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -20,19 +20,23 @@ import { menuBarTop } from "../constants/Layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
 import Blocked from "../assets/svg-components/blocked";
-import ProfileBlack from "../assets/svg-components/profileBlack";
+import EditPencil from "../assets/svg-components/editPencil";
 import Terms from "../assets/svg-components/terms";
-import { auth } from "../config/firebase";
+import { auth, userRef } from "../config/firebase";
 import Colors from "../constants/Colors";
 import { logout } from "../state_manage/reducers/signInReducer";
 import {
   getUserId,
+  getUsername,
   storeEmail,
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
 import Privacy from "../assets/svg-components/privacy";
 import { ActivityIndicator } from "react-native-paper";
 import { useApiClient } from "../api/ApiClientProvider";
+import { makeToast } from "../utils/Toast";
+import { deleteDoc, doc } from "firebase/firestore";
+import DeleteAccountPopupSheet from "../components/DeleteAccountPopupSheet";
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -43,31 +47,48 @@ export default function SettingsScreen({ navigation }) {
   const [showEULA, setShowEULA] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("");
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  getUserId(setUserId);
+  getUsername(setUsername);
 
   const apiClient = useApiClient();
 
-  const getUser = async () => {
+  const editProfile = async () => {
     try {
       const response = await apiClient.get(`/user/id/${userId}`);
       if (response.user) {
         const user = response.user;
         setUserId(user.id);
+
+        navigation.navigate("EditProfile", {
+          initialRealname: user.givenName + " " + user.familyName,
+          initialUsername: user.username,
+          initialBio: user.bio,
+          initialNetId: user.netid,
+          initialVenmo: user.venmoHandle,
+          initialImage: user.photoUrl,
+        });
       }
     } catch (error) {
-      console.error(error);
+      console.error(`SettingsScreen.editProfile failed: ${error}`);
     }
   };
 
-  // Fetch user ID first
-  useEffect(() => {
-    getUserId(setUserId);
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      getUser();
+  const deleteAccount = async () => {
+    try {
+      const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
+      if (response.user) {
+        const ref = doc(userRef, auth.currentUser.email);
+        await deleteDoc(ref);
+        log_out();
+      }
+    } catch (error) {
+      console.log(`SettingsScreen.deleteAccount failed: ${error}`);
+      makeToast({ message: "Error deleting account", type: "ERROR" });
     }
-  }, [userId]);
+  };
 
   const presentEULA = () => {
     setShowEULA(true);
@@ -93,13 +114,15 @@ export default function SettingsScreen({ navigation }) {
         style={styles.list}
         data={[
           {
-            icon: ProfileBlack,
-            text: "Account Settings",
-            onPress: () => navigation.navigate("AccountSettings"),
+            icon: EditPencil,
+            text: "Edit Profile",
+            onPress: () => {
+              editProfile();
+            },
           },
           {
             icon: Notifications,
-            text: "Notification Preferences",
+            text: "Notifications",
             onPress: () => navigation.navigate("NotificationPreferences"),
           },
           {
@@ -132,19 +155,33 @@ export default function SettingsScreen({ navigation }) {
               setModalVisibility(true);
             },
           },
+          {
+            icon: null,
+            text: "Delete Account",
+            onPress: () => {
+              setDeleteModalVisible(true);
+            },
+          },
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={item.onPress ? item.onPress : () => {}}
             style={styles.item}
           >
-            <item.icon />
-            <Text style={styles.itemText}>{item.text}</Text>
+            {item.icon != null && <item.icon style={styles.itemIcon} />}
+            <Text
+              style={[styles.itemText, item.icon == null && { color: "red" }]}
+            >
+              {item.text}
+            </Text>
             <Feather
               name="chevron-right"
               size={22}
               color="black"
-              style={styles.itemChevron}
+              style={[
+                styles.itemChevron,
+                item.icon == null && { color: "red" },
+              ]}
             />
           </TouchableOpacity>
         )}
@@ -240,6 +277,12 @@ export default function SettingsScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </Modal>
+      <DeleteAccountPopupSheet
+        isVisible={deleteModalVisible}
+        setIsVisible={setDeleteModalVisible}
+        deleteAction={deleteAccount}
+        username={username}
+      />
     </View>
   );
 }
@@ -276,10 +319,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  itemIcon: {
+    marginRight: 20,
+  },
   itemText: {
     fontFamily: "Rubik-Regular",
     fontSize: 18,
-    marginLeft: 20,
   },
   itemChevron: {
     marginLeft: "auto",

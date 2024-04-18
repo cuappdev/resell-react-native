@@ -14,7 +14,7 @@ LogBox.ignoreAllLogs();
 export default function SavedScreen({ navigation }) {
   const [posts, setPosts] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const api = useApiClient();
+  const apiClient = useApiClient();
   const isFocused = useIsFocused();
 
   const getPosts = async () => {
@@ -22,9 +22,16 @@ export default function SavedScreen({ navigation }) {
       if (posts === null) {
         setLoading(true);
       }
-      const response = await api.get("/post/save");
+      const response = await apiClient.get("/post/save");
       if (response.posts) {
-        setPosts(response.posts);
+        setPosts(
+          // Sort with most recent at the top
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post2.created).getTime() -
+              new Date(post1.created).getTime()
+          )
+        );
         setLoading(false);
       } else {
         makeToast({ message: "Failed to load saved posts", type: "ERROR" });

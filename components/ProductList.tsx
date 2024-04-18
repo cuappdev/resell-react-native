@@ -1,5 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Platform,
@@ -12,6 +11,7 @@ import {
 import { useApiClient } from "../api/ApiClientProvider";
 import { makeToast } from "../utils/Toast";
 import ProductCard from "./ProductCard";
+import { getAccessToken, getUserId } from "../utils/asychStorageFunctions";
 
 /**
  * Constructs a Button react component
@@ -21,28 +21,11 @@ import ProductCard from "./ProductCard";
  * @returns two horizontal list of product cards
  */
 export function ProductList({ data, navigation, onRefresh, screen }) {
-  const [userId, setUserId] = useState("");
-  const [accessToken, setAccessToken] = useState("");
-  AsyncStorage.getItem("accessToken", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result != undefined) {
-        setAccessToken(result);
-      }
-    }
-  });
-  const api = useApiClient();
+  const apiClient = useApiClient();
 
-  AsyncStorage.getItem("userId", (errs, result) => {
-    if (!errs) {
-      if (result !== null && result !== undefined) {
-        setUserId(result);
-      }
-    }
-  });
   const isSaved = async (item) => {
     try {
-      const response = await api.get(`/post/isSaved/postId/${item.id}`);
-      console.log(`response: ${JSON.stringify(response)}`);
+      const response = await apiClient.get(`/post/isSaved/postId/${item.id}`);
 
       if (response.isSaved !== undefined) {
         navigation.navigate("ProductHome", {
@@ -58,6 +41,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       });
     }
   };
+
   const renderItem = ({ item }) => {
     return (
       <ProductCard

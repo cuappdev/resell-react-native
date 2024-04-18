@@ -2,12 +2,14 @@ import React from "react";
 
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import FastImage from "react-native-fast-image";
+import { BlurView } from "@react-native-community/blur";
 
 /**
  *
  * @param {directory} image - image directory surrounded by required() or image url
  * @param {string} title - title of the product
- * @param {double} price - boolean number of the price
+ * @param {double} price - price of the product
+ * @param {boolean} hidden - whether this product should be hidden
  * @returns one cardview containing some basic product information
  */
 
@@ -72,5 +74,12 @@ const styles = StyleSheet.create({
     margin: 1,
     paddingEnd: 1,
     marginTop: 2,
+  },
+  absolute: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });

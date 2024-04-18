@@ -25,6 +25,8 @@ import {
   storeEmail,
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
+import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
+import { requestUserPermission } from "../api/FirebaseNotificationManager";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -36,17 +38,18 @@ export default function HomeScreen({ navigation, route }) {
   const [blockedUsers, setBlockedUsers] = useState([]);
   const isFocused = useIsFocused();
   const [userId, setUserId] = useState("");
+  const [expand, setExpand] = useState(false);
 
   const dispatch = useDispatch();
   const log_out = () => {
     dispatch(logout());
   };
 
-  const api = new ApiClient();
+  const apiClient = new ApiClient();
 
   const getBlockedUsers = async () => {
     try {
-      const response = await api.get(`/user/blocked/id/${userId}`);
+      const response = await apiClient.get(`/user/blocked/id/${userId}`);
       if (response.users) {
         setBlockedUsers(response.users);
       } else {
@@ -60,11 +63,12 @@ export default function HomeScreen({ navigation, route }) {
   // At the start load the current user ID, we need to check if the session is valid
   useEffect(() => {
     getUserId(setUserId);
+    requestUserPermission();
   }, []);
 
   useEffect(() => {
     if (userId) {
-      api.get(`/auth/sessions/${userId}`).then(async (res) => {
+      apiClient.get(`/auth/sessions/${userId}`).then(async (res) => {
         if (res.sessions) {
           const currentSession = res.sessions[0];
           if (!currentSession.active) {
@@ -112,15 +116,20 @@ export default function HomeScreen({ navigation, route }) {
       if (!posts) {
         setLoading(true);
       }
-      const response = await api.get("/post");
+      const response = await apiClient.get("/post");
       if (response.posts) {
         setPosts(
-          response.posts.toSorted(
-            (post1, post2) =>
-              new Date(post1.created).getTime() -
-              new Date(post2.created).getTime()
-          )
-          // .filter(post => !blockedUsers.some(user => user.id === post.user.id))
+          // Sort with most recent at the top
+          response.posts
+            .toSorted(
+              (post1, post2) =>
+                new Date(post2.created).getTime() -
+                new Date(post1.created).getTime()
+            )
+            .slice(0, 200) // Restrict to only 200 posts, can change if needed
+            .filter(
+              (post) => !blockedUsers.some((user) => user.id === post.user.id)
+            )
         );
       } else {
         makeError();
@@ -136,16 +145,19 @@ export default function HomeScreen({ navigation, route }) {
 
   const filterPost = async (keyword: string) => {
     try {
-      const response = await api.post("/post/filter", {
+      const response = await apiClient.post("/post/filter", {
         category: keyword,
       });
       if (response.posts) {
         setPosts(
-          response.posts.toSorted(
-            (post1, post2) =>
-              new Date(post1.created).getTime() -
-              new Date(post2.created).getTime()
-          )
+          // Sort with most recent at the top
+          response.posts
+            .toSorted(
+              (post1, post2) =>
+                new Date(post2.created).getTime() -
+                new Date(post1.created).getTime()
+            )
+            .slice(0, 200) // Restrict to only 200 posts, can change if needed
         );
       }
     } catch (error) {
@@ -193,7 +205,7 @@ export default function HomeScreen({ navigation, route }) {
       </View>
 
       <ButtonBanner count={count} setCount={setCount} data={FILTER} />
-      <View style={{ height: "100%", flex: 1 }}>
+      <View style={styles.listView}>
         {isLoading ? (
           <LoadingScreen screen={"Home"} />
         ) : posts && posts.length == 0 ? (
@@ -214,6 +226,12 @@ export default function HomeScreen({ navigation, route }) {
           />
         )}
       </View>
+      <ExpandablePlusButton
+        onListingPressed={() => navigation.navigate("NewPostImage")}
+        onRequestPressed={() => navigation.navigate("NewRequest")}
+        expand={expand}
+        setExpand={setExpand}
+      />
       {showPanel && (
         <Modal
           isVisible={welcomeState}
@@ -262,7 +280,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 26,
   },
-
   searchButton: {
     position: "absolute",
     right: 20,
@@ -291,4 +308,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 15,
   },
+  listView: { height: "100%", flex: 1 },
 });

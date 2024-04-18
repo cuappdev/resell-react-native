@@ -124,7 +124,14 @@ export default function ProfileScreen({ navigation }) {
     try {
       const response = await apiClient.get(`/post/userId/${userId}`);
       if (response.posts) {
-        setPosts(response.posts);
+        setPosts(
+          // Sort with most recent at the top
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post2.created).getTime() -
+              new Date(post1.created).getTime()
+          )
+        );
       }
     } catch (error) {
       console.error(`ProfileScreen.getPosts failed: ${error}`);
@@ -139,7 +146,14 @@ export default function ProfileScreen({ navigation }) {
       const response = await apiClient.get(`/post/userId/${userId}`);
       if (response.posts) {
         setOwnPostLoading(true);
-        setPosts(response.posts);
+        setPosts(
+          // Sort with most recent at the top
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post2.created).getTime() -
+              new Date(post1.created).getTime()
+          )
+        );
       }
     } catch (error) {
       console.error(`ProfileScreen.getPostsRefresh failed: ${error}`);
@@ -348,12 +362,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     marginTop: Platform.OS === "ios" ? 64 : 0,
   },
-
   upperContainer: {
     display: "flex",
     flexDirection: "row",
   },
-
   profileBubble: {
     width: 89,
     height: 89,
