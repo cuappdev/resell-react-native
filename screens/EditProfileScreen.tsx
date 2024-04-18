@@ -18,6 +18,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import VenmoInput from "../components/VenmoInput";
@@ -43,6 +44,7 @@ export default function EditProfileScreen({ navigation, route }) {
 
   const [username, setUsername] = useState(initialUsername);
   const [venmo, setVenmo] = useState(initialVenmo);
+  const [isLoading, setIsLoading] = useState(false);
   const api = useApiClient();
 
   const pickImage = async () => {
@@ -110,6 +112,7 @@ export default function EditProfileScreen({ navigation, route }) {
   const [usernameError, setUsernameError] = useState("");
 
   const submit = async () => {
+    setIsLoading(true);
     try {
       const res = await api.post("/user/", {
         photoUrlBase64: image.startsWith("https") ? "" : image,
@@ -128,8 +131,9 @@ export default function EditProfileScreen({ navigation, route }) {
         makeToast({ message: "Profile updated successfully", type: "INFO" });
       }
     } catch (e) {
-      console.log(`EditProfileScreen.submit failed: ${e}`);
       makeToast({ message: "Error updating profile", type: "ERROR" });
+    } finally {
+      setIsLoading(false);
     }
   };
   const scroll = useRef<ScrollView | null>(null);
@@ -157,34 +161,43 @@ export default function EditProfileScreen({ navigation, route }) {
           <View style={styles.title}>
             <Text style={fonts.pageHeading3}>Edit Profile</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              Keyboard.dismiss();
-              if (username.length > 0) {
-                submit();
-              } else {
-                makeToast({
-                  message: "Username cannot be empty",
-                  type: "ERROR",
-                });
-              }
-            }}
-            style={styles.headerButton}
-            disabled={Boolean(usernameError)}
-          >
-            <Text
-              style={[
-                fonts.Title1,
-                {
-                  color: usernameError
-                    ? Colors.iconInactive
-                    : Colors.resellPurple,
-                },
-              ]}
+          <View style={[styles.headerButton, { opacity: isLoading ? 0.4 : 1 }]}>
+            {isLoading ? (
+              <>
+                <ActivityIndicator size={16} />
+                <View style={{ width: 16 }} />
+              </>
+            ) : (
+              <View style={{ width: 32 }} />
+            )}
+            <TouchableOpacity
+              onPress={() => {
+                Keyboard.dismiss();
+                if (username.length > 0) {
+                  submit();
+                } else {
+                  makeToast({
+                    message: "Username cannot be empty",
+                    type: "ERROR",
+                  });
+                }
+              }}
+              disabled={Boolean(usernameError)}
             >
-              Save
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  fonts.Title1,
+                  {
+                    color: usernameError
+                      ? Colors.iconInactive
+                      : Colors.resellPurple,
+                  },
+                ]}
+              >
+                Save
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -414,7 +427,7 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? menuBarTop : 20,
 
     alignItems: "center",
-    width: 50,
+    width: 100,
     height: 40,
   },
   title: {
@@ -424,10 +437,10 @@ const styles = StyleSheet.create({
 
   headerButton: {
     marginEnd: 10,
-    marginTop: Platform.OS === "ios" ? menuBarTop : 20,
+    marginTop: Platform.OS === "ios" ? menuBarTop - 5 : 20,
     height: 40,
-    width: 50,
-
+    width: 100,
+    flexDirection: "row",
     alignItems: "center",
   },
 
