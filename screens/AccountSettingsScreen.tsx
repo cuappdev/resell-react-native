@@ -18,7 +18,7 @@ import { useApiClient } from "../api/ApiClientProvider";
 import { makeToast } from "../utils/Toast";
 import { useDispatch } from "react-redux";
 import { logout } from "../state_manage/reducers/signInReducer";
-import { doc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { userRef } from "../config/firebase";
 
 export default function AccountSettingsScreen({ navigation }) {
@@ -73,9 +73,7 @@ export default function AccountSettingsScreen({ navigation }) {
       const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
       if (response.user) {
         const ref = doc(userRef, userEmail);
-        updateDoc(ref, {
-          onboarded: false,
-        });
+        await deleteDoc(ref)
         console.log("Successfully Deleted Account");
         console.log(JSON.stringify(response));
         log_out();
@@ -117,7 +115,7 @@ export default function AccountSettingsScreen({ navigation }) {
         ]}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={item.onPress ? item.onPress : () => {}}
+            onPress={item.onPress ? item.onPress : () => { }}
             style={styles.item}
           >
             {item.icon != null && <item.icon />}

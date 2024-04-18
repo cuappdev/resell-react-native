@@ -62,15 +62,6 @@ export const storeExpireAt = async (expiresAt) => {
   }
 };
 
-export const storeNotificationSettings = async (enabled) => {
-  try {
-    await AsyncStorage.setItem("notificationsEnabled", enabled);
-    console.log(enabled);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 export const storeCalendarID = async (calendarID) => {
   try {
     await AsyncStorage.setItem("calendarID", calendarID);
