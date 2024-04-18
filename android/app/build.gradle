@@ -81,7 +81,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.resell"
+    namespace "com.cornellappdev.resell.android"
     defaultConfig {
         applicationId 'com.cornellappdev.resell.android'
         minSdkVersion rootProject.ext.minSdkVersion

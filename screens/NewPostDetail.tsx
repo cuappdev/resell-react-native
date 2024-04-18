@@ -50,7 +50,7 @@ export function NewPostDetail({ navigation, route }) {
         if (res.post) {
           navigation.navigate("Root");
           makeToast({
-            message: JSON.stringify(res),
+            message: "New listing created",
           });
         }
       })

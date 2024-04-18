@@ -689,7 +689,7 @@ export default function ChatWindow({ navigation, route }) {
   const openMostRecentAvailability = () => {
     // messages need to be sorted by most recent first
     messages
-      .toSorted((m1, m2) => (m1.createdAt <= m2.createdAt ? -1 : 1))
+      .sort((m1, m2) => (m1.createdAt <= m2.createdAt ? -1 : 1))
       .forEach((msg) => {
         if (
           msg.user._id !== auth.currentUser.email &&
