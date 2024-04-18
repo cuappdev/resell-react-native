@@ -30,7 +30,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
       }
     }
   });
-  const api = useApiClient();
+  const apiClient = useApiClient();
 
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
@@ -41,7 +41,7 @@ export function ProductList({ data, navigation, onRefresh, screen }) {
   });
   const isSaved = async (item) => {
     try {
-      const response = await api.get(`/post/isSaved/postId/${item.id}`);
+      const response = await apiClient.get(`/post/isSaved/postId/${item.id}`);
       console.log(`response: ${JSON.stringify(response)}`);
 
       if (response.isSaved !== undefined) {

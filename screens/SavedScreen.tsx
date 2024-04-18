@@ -14,7 +14,7 @@ LogBox.ignoreAllLogs();
 export default function SavedScreen({ navigation }) {
   const [posts, setPosts] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const api = useApiClient();
+  const apiClient = useApiClient();
   const isFocused = useIsFocused();
 
   const getPosts = async () => {
@@ -22,7 +22,7 @@ export default function SavedScreen({ navigation }) {
       if (posts === null) {
         setLoading(true);
       }
-      const response = await api.get("/post/save");
+      const response = await apiClient.get("/post/save");
       if (response.posts) {
         setPosts(response.posts);
         setLoading(false);

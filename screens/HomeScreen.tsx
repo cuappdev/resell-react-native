@@ -42,11 +42,11 @@ export default function HomeScreen({ navigation, route }) {
     dispatch(logout());
   };
 
-  const api = new ApiClient();
+  const apiClient = new ApiClient();
 
   const getBlockedUsers = async () => {
     try {
-      const response = await api.get(`/user/blocked/id/${userId}`);
+      const response = await apiClient.get(`/user/blocked/id/${userId}`);
       if (response.users) {
         setBlockedUsers(response.users);
       } else {
@@ -64,7 +64,7 @@ export default function HomeScreen({ navigation, route }) {
 
   useEffect(() => {
     if (userId) {
-      api.get(`/auth/sessions/${userId}`).then(async (res) => {
+      apiClient.get(`/auth/sessions/${userId}`).then(async (res) => {
         if (res.sessions) {
           const currentSession = res.sessions[0];
           if (!currentSession.active) {
@@ -112,7 +112,7 @@ export default function HomeScreen({ navigation, route }) {
       if (!posts) {
         setLoading(true);
       }
-      const response = await api.get("/post");
+      const response = await apiClient.get("/post");
       if (response.posts) {
         setPosts(
           response.posts.toSorted(
@@ -136,7 +136,7 @@ export default function HomeScreen({ navigation, route }) {
 
   const filterPost = async (keyword: string) => {
     try {
-      const response = await api.post("/post/filter", {
+      const response = await apiClient.post("/post/filter", {
         category: keyword,
       });
       if (response.posts) {

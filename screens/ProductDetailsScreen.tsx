@@ -94,6 +94,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     getPost();
     fetchPost();
@@ -126,26 +127,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
       }
     }
   });
-
-  const fetchIsSaved = async () => {
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-          userId +
-          "/postId/" +
-          post.id
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setIsSaved(json.isSaved);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    fetchIsSaved();
-  }, [userId]);
 
   const save = async () => {
     try {

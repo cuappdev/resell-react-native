@@ -42,7 +42,7 @@ export default function SignIn() {
   const colorScheme = useColorScheme();
   const signedIn = useSelector(signedInState);
   const dispatch = useDispatch();
-  const api = useApiClient();
+  const apiClient = useApiClient();
   // whether the user needs to onboard
   const [isOnboarded, setIsOnboarded] = useState(true);
 
@@ -62,7 +62,7 @@ export default function SignIn() {
 
       // Create an account:
       let accountId: string = "";
-      const createAccountRes = await api.post("/auth/", {
+      const createAccountRes = await apiClient.post("/auth/", {
         username: userData.name,
         netid: userData.email.substring(
           0,
@@ -93,7 +93,9 @@ export default function SignIn() {
 
       // It's possible the user already has an account, try to log them in
       if (!accountId) {
-        const userDataResult = await api.get(`/user/googleId/${userData.id}/`);
+        const userDataResult = await apiClient.get(
+          `/user/googleId/${userData.id}/`
+        );
         accountId = userDataResult?.user?.id;
       }
 
@@ -122,7 +124,9 @@ export default function SignIn() {
       await storeUserId(accountId);
 
       // Get an access token and login using it
-      const accessTokenRes = await api.get(`/auth/sessions/${accountId}/`);
+      const accessTokenRes = await apiClient.get(
+        `/auth/sessions/${accountId}/`
+      );
       const session = accessTokenRes.sessions?.[0];
       if (session) {
         console.log(`Firebase Token User: ${JSON.stringify(auth.currentUser)}`);
@@ -131,11 +135,11 @@ export default function SignIn() {
         const isActive = session.active;
         if (isActive) {
           await storeAccessToken(accessToken);
-          await api.loadAccessToken();
+          await apiClient.loadAccessToken();
           dispatch(login(accessToken));
         } else {
           // get a new session for the user
-          const newSession = await api.get(
+          const newSession = await apiClient.get(
             `/auth/refresh/`,
             {},
             {
@@ -147,7 +151,7 @@ export default function SignIn() {
             throw new Error("Unable to refresh login");
           }
           await storeAccessToken(newAccessToken);
-          await api.loadAccessToken();
+          await apiClient.loadAccessToken();
           dispatch(login(newAccessToken));
         }
       }
