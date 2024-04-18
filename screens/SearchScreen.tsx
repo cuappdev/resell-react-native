@@ -44,7 +44,14 @@ export default function SearchScreen({ navigation, route }) {
       const response = await apiClient.post(`/post/search/`, {
         keywords: keyword,
       });
-      setData(response.posts);
+      setData(
+        // Sort with most recent at the top
+        response.posts.toSorted(
+          (post1, post2) =>
+            new Date(post2.created).getTime() -
+            new Date(post1.created).getTime()
+        )
+      );
     } catch (error) {
       //console.error(error);
       setFetchFailed(true);

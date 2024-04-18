@@ -127,7 +127,9 @@ export default function HomeScreen({ navigation, route }) {
                 new Date(post1.created).getTime()
             )
             .slice(0, 200) // Restrict to only 200 posts, can change if needed
-          // .filter(post => !blockedUsers.some(user => user.id === post.user.id))
+            .filter(
+              (post) => !blockedUsers.some((user) => user.id === post.user.id)
+            )
         );
       } else {
         makeError();
@@ -148,11 +150,14 @@ export default function HomeScreen({ navigation, route }) {
       });
       if (response.posts) {
         setPosts(
-          response.posts.toSorted(
-            (post1, post2) =>
-              new Date(post1.created).getTime() -
-              new Date(post2.created).getTime()
-          )
+          // Sort with most recent at the top
+          response.posts
+            .toSorted(
+              (post1, post2) =>
+                new Date(post2.created).getTime() -
+                new Date(post1.created).getTime()
+            )
+            .slice(0, 200) // Restrict to only 200 posts, can change if needed
         );
       }
     } catch (error) {

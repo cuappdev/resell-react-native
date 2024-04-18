@@ -41,9 +41,8 @@ export async function saveNotificationSettings(
     updateDoc(ref, {
       notificationsEnabled: notificationsEnabled,
     });
-    console.log("Notifications Settings saved successfully");
   } catch (error) {
-    console.error("Error saving device token:", error);
+    console.error("Error updating notification settings:", error);
   }
 }
 

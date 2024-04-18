@@ -62,7 +62,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
         venmo: venmo,
         onboarded: true,
         fcmToken: deviceToken,
-        notifcationsEnabled: false,
+        notificationsEnabled: false,
       });
 
       // Store user ID and username

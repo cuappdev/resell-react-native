@@ -24,7 +24,14 @@ export default function SavedScreen({ navigation }) {
       }
       const response = await apiClient.get("/post/save");
       if (response.posts) {
-        setPosts(response.posts);
+        setPosts(
+          // Sort with most recent at the top
+          response.posts.toSorted(
+            (post1, post2) =>
+              new Date(post2.created).getTime() -
+              new Date(post1.created).getTime()
+          )
+        );
         setLoading(false);
       } else {
         makeToast({ message: "Failed to load saved posts", type: "ERROR" });
