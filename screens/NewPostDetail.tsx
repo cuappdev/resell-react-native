@@ -68,9 +68,9 @@ export function NewPostDetail({ navigation, route }) {
           });
         }
       })
-      .catch((error) => {
+      .catch((_) => {
         makeToast({
-          message: `${error}|${JSON.stringify(error)} `,
+          message: `Error creating post, try a smaller image or check your internet connection`,
           type: "ERROR",
         });
       })
