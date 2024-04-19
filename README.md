@@ -38,7 +38,7 @@ If you are developing an iOS app from a Windows or a Linux machine, you will nee
 For AppDev members, you can find the files from the `#resell-frontend` Slack channel.
 
 1. Create a `.env` file in the **root directory** and copy/paste the values from the pinned message.
-    1. Note that there are two different `.env` files: development and production.
+   1. Note that there are two different `.env` files: development and production.
 2. Download `GoogleService-Info.plist` and `google-services.json` and place both files in the `/config` folder.
 
 ## Installing Dependencies
@@ -48,6 +48,12 @@ This codebase uses Node packages for dependencies. Android packages are managed 
 It is highly recommended to use yarn instead of npm. If you do not have yarn installed, you can do it with `npm install --global yarn`. Note that you will need to have NodeJS and npm installed in order to install yarn. Then, run `yarn install` in the root directory to install dependencies.
 
 ## Creating and Running the Development Build
+
+### Additional step for Android:
+
+If you plan to run the app on the Android simulator, you need to specify the location of your Android SDK. To do this, follow the steps [here](https://stackoverflow.com/a/48155800).
+
+### General instructions
 
 If this is your first time running the application, you must first create the development build.
 
