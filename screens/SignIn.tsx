@@ -9,6 +9,10 @@ import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useApiClient } from "../api/ApiClientProvider";
+import {
+  getDeviceFCMToken,
+  saveDeviceTokenToFireStore,
+} from "../api/FirebaseNotificationManager";
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
@@ -23,15 +27,11 @@ import { makeToast } from "../utils/Toast";
 import {
   returnAccessToken,
   storeAccessToken,
-  storeUserId,
-  storeUsername,
   storeDeviceToken,
   storeGoogleSignInData,
+  storeUserId,
+  storeUsername,
 } from "../utils/asychStorageFunctions";
-import {
-  getDeviceFCMToken,
-  saveDeviceTokenToFireStore,
-} from "../api/FirebaseNotificationManager";
 
 Logs.enableExpoCliLogging();
 
