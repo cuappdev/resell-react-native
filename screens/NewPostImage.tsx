@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ImageEditor } from "expo-image-editor";
 import * as ImagePicker from "expo-image-picker";
 import {
+  ActionSheetIOS,
   Alert,
   Animated,
   Dimensions,
@@ -53,6 +54,50 @@ export function NewPostImage({ navigation }) {
   const flatListRef: MutableRefObject<FlatList<any> | undefined> = useRef();
 
   const pickImage = async () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ["Cancel", "Photo Library", "Camera"],
+          cancelButtonIndex: 0,
+          title: "Select Image",
+        },
+        (buttonIndex) => {
+          switch (buttonIndex) {
+            case 1:
+              selectFromCameraRoll();
+              break;
+            case 2:
+              takePhoto();
+              break;
+            default:
+              break;
+          }
+        }
+      );
+    } else {
+      Alert.alert(
+        "Select Image",
+        "Choose from:",
+        [
+          {
+            text: "Photo Library",
+            onPress: selectFromCameraRoll,
+          },
+          {
+            text: "Camera",
+            onPress: takePhoto,
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
+
+  const selectFromCameraRoll = async () => {
     const permission = await checkPhotoPermission();
     if (!permission) {
       Alert.alert(
@@ -82,10 +127,51 @@ export function NewPostImage({ navigation }) {
     }
   };
 
+  const takePhoto = async () => {
+    const cameraPermission = await checkCameraPermission();
+    if (!cameraPermission) {
+      Alert.alert(
+        "Permission Required",
+        "Please enable camera permissions to use this feature.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Settings",
+            onPress: openAppSettings,
+          },
+        ]
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    console.log(JSON.stringify(result))
+
+    if (!result.canceled) {
+      setUri(result['uri']);
+      setModalVisibility(true);
+    }
+  };
+
   const checkPhotoPermission = async () => {
     if (Platform.OS !== "web") {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
+      return status === "granted";
+    }
+    return false;
+  };
+
+  const checkCameraPermission = async () => { // Added function for checking camera permission
+    if (Platform.OS !== "web") {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
       return status === "granted";
     }
     return false;
@@ -101,13 +187,13 @@ export function NewPostImage({ navigation }) {
       [
         r
           ? {
-              crop: {
-                height: (w * 4) / 3,
-                originX: 0,
-                originY: (h - (w * 4) / 3) / 2,
-                width: w,
-              },
-            }
+            crop: {
+              height: (w * 4) / 3,
+              originX: 0,
+              originY: (h - (w * 4) / 3) / 2,
+              width: w,
+            },
+          }
           : { crop: { height: h, originX: 0, originY: 0, width: w } },
       ],
       {
