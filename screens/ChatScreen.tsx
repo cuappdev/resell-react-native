@@ -42,6 +42,10 @@ export default function ChatScreen({ navigation }) {
   const [userId, setUserId] = useState("");
 
   const apiClient = useApiClient();
+  const compareItemsByDate = (item1: ChatPreview, item2: ChatPreview) =>
+    new Date(item1.recentMessageTime) < new Date(item2.recentMessageTime)
+      ? 11
+      : -1;
 
   const getBlockedUsers = async () => {
     try {
@@ -104,6 +108,7 @@ export default function ChatScreen({ navigation }) {
             });
           }
         }
+        tempt.sort(compareItemsByDate);
         setPurchase(
           tempt.filter(
             (post) => !blockedUsers.some((user) => user.email === post.email)
@@ -161,6 +166,7 @@ export default function ChatScreen({ navigation }) {
             console.log(error);
           }
         }
+        tempt.sort(compareItemsByDate);
         setOffer(
           tempt.filter(
             (post) => !blockedUsers.some((user) => user.email === post.email)
@@ -394,7 +400,6 @@ const styles = StyleSheet.create({
   inner: {
     width: "65%",
     marginStart: 12,
-
     flexDirection: "column",
     justifyContent: "space-around",
   },
