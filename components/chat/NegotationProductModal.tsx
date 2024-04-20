@@ -8,7 +8,9 @@ export function NegotiationProductBubble({ product, price, image }) {
         <Image source={{ uri: image }} style={styles.image} />
       </View>
       <View style={[styles.inner]}>
-        <Text style={styles.productText}>{product}</Text>
+        <Text style={styles.productText} numberOfLines={1}>
+          {product}
+        </Text>
         <Text style={styles.priceText}>$ {price}</Text>
       </View>
     </View>
