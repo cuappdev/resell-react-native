@@ -49,9 +49,11 @@ It is highly recommended to use yarn instead of npm. If you do not have yarn ins
 
 ## Creating and Running the Development Build
 
-### Additional step for Android:
+### Additional steps for Android:
 
 If you plan to run the app on the Android simulator, you need to specify the location of your Android SDK. To do this, follow the steps [here](https://stackoverflow.com/a/48155800).
+
+If you are still having issues building, make sure your Java version is compatible with the Gradle version. As of when this was written we were using Gradle version 8.0.1, so you need to have Java 19 or below to build the app. We recommend Java 17 since this is what we have been using.
 
 ### General instructions
 
