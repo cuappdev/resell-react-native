@@ -142,7 +142,6 @@ export function NegotiationModal({
                     />
                   </View>
                 )}
-                {negotiationBubbles}
               </PagerView>
             </View>
           </>
