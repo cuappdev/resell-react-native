@@ -42,6 +42,7 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -60,6 +61,7 @@ import {
 } from "firebase/firestore";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
+import { sendNotification } from "../api/FirebaseNotificationManager";
 import BackButton from "../assets/svg-components/back_button";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import OptionsMenu from "../components/OptionsMenu";
@@ -71,16 +73,12 @@ import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef, userRef } from "../config/firebase";
+import Colors from "../constants/Colors";
+import { menuBarTop } from "../constants/Layout";
+import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import Modal2 from "react-native-modal";
-import Layout, { menuBarTop } from "../constants/Layout";
-import PopupSheet from "../components/PopupSheet";
-import { sendNotification } from "../api/FirebaseNotificationManager";
-import Colors from "../constants/Colors";
-import { MeetingInfo } from "../data/struct";
 import { itemsAsString } from "../utils/general";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -482,7 +480,7 @@ export default function ChatWindow({ navigation, route }) {
       />
     );
   }
-  const [availabilityUsername, setAvailabilityUserName] = useState("");
+  const [availabilityUserId, setAvailabilityUserId] = useState("");
 
   const onReport = () => {
     setMenuVisible(false);
@@ -584,11 +582,12 @@ export default function ChatWindow({ navigation, route }) {
         <View style={{ width: "70%", marginVertical: 5 }}>
           <AvailabilityBubble
             userName={
-              currUser._id == auth?.currentUser?.email
-                ? auth?.currentUser?.displayName
+              currUser._id === auth.currentUser.email
+                ? auth.currentUser.displayName
                 : name
             }
-            setAvailabilityUserName={setAvailabilityUserName}
+            userId={currUser._id}
+            setAvailabilityUserId={setAvailabilityUserId}
             setIsBubble={setIsBubble}
             setAvailabilityVisible={setAvailabilityVisible}
             setInputSchedule={setInputSchedule}
@@ -688,7 +687,8 @@ export default function ChatWindow({ navigation, route }) {
 
   const openMostRecentAvailability = () => {
     // messages need to be sorted by most recent first
-    messages
+    // the toSorted function does not exist on Android :(
+    [...messages]
       .sort((m1, m2) => (m1.createdAt <= m2.createdAt ? -1 : 1))
       .forEach((msg) => {
         if (
@@ -696,10 +696,6 @@ export default function ChatWindow({ navigation, route }) {
           msg.availability &&
           msg.availability[0]
         ) {
-          const userName =
-            msg.user._id === auth?.currentUser?.email
-              ? auth?.currentUser?.displayName
-              : name;
           const schedule = msg.availability;
           if (!(schedule[0].endDate instanceof Date)) {
             schedule.forEach((element, index) => {
@@ -710,7 +706,7 @@ export default function ChatWindow({ navigation, route }) {
             });
           }
           setInputSchedule(schedule);
-          setAvailabilityUserName(userName);
+          setAvailabilityUserId(msg.user._id);
           setAvailabilityVisible(true);
           setIsBubble(true);
         }
@@ -1029,7 +1025,8 @@ export default function ChatWindow({ navigation, route }) {
                   setAvailabilityVisible={null}
                   setInputSchedule={null}
                   schedule={null}
-                  setAvailabilityUserName={null}
+                  setAvailabilityUserId={null}
+                  userId={null}
                 />
                 <TextInput
                   style={[
@@ -1316,14 +1313,17 @@ export default function ChatWindow({ navigation, route }) {
               isBubble={isBubble}
               setIsBubble={setIsBubble}
               setHeight={setHeight}
-              username={availabilityUsername}
+              username={
+                availabilityUserId === auth.currentUser.email
+                  ? auth.currentUser.displayName
+                  : name
+              }
               isBuyer={isBuyer}
               setSelectedTime={setSelectedTime}
               setBuyerProposeVisible={setMeetingProposeVisible}
               selectdate={selectedTime}
               isViewOnly={
-                isConfirmed ||
-                availabilityUsername === auth.currentUser.displayName
+                isConfirmed || availabilityUserId === auth.currentUser.email
               }
             />
           </BottomSheetModal>

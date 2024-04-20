@@ -6,9 +6,10 @@ export function AvailabilityBubble({
   userName,
   setIsBubble,
   setAvailabilityVisible,
+  userId,
   setInputSchedule,
   schedule,
-  setAvailabilityUserName,
+  setAvailabilityUserId,
 }) {
   return (
     <TouchableOpacity
@@ -25,7 +26,7 @@ export function AvailabilityBubble({
             });
           }
           setInputSchedule(schedule);
-          setAvailabilityUserName(userName);
+          setAvailabilityUserId(userId);
           setAvailabilityVisible(true);
           setIsBubble(true);
         }
