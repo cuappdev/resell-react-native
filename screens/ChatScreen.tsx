@@ -17,7 +17,9 @@ import {
   View,
 } from "react-native";
 import FastImage from "react-native-fast-image";
+import { RefreshControl } from "react-native-gesture-handler";
 import { format } from "timeago.js";
+import { useApiClient } from "../api/ApiClientProvider";
 import ChatTabs from "../components/chat/ChatTabs";
 import LoadingChat from "../components/chat/LoadingChat";
 import { auth, historyRef } from "../config/firebase";
@@ -25,10 +27,7 @@ import Colors from "../constants/Colors";
 import { ChatPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { formatSingleItem } from "../utils/general";
-import { useApiClient } from "../api/ApiClientProvider";
 import { getUserId } from "../utils/asychStorageFunctions";
-import { RefreshControl } from "react-native-gesture-handler";
 
 export default function ChatScreen({ navigation }) {
   const [isPurchase, setIsPurchase] = useState(true);
@@ -242,27 +241,34 @@ export default function ChatScreen({ navigation }) {
             source={{ uri: chatPreview.image }}
             resizeMode={"cover"}
           />
-          <View style={styles.inner}>
-            <View style={styles.chatHeaderContainer}>
-              <Text numberOfLines={1} style={styles.sellerName}>
-                {chatPreview.sellerName}
-              </Text>
+          <View style={[styles.inner]}>
+            <View style={[styles.chatHeaderContainer]}>
+              <View style={[{ flexShrink: 1 }]}>
+                <Text numberOfLines={1} style={styles.sellerName}>
+                  {chatPreview.sellerName}
+                </Text>
+              </View>
+
               <View style={{ width: 12 }} />
               <View style={styles.itemContainer}>
                 <Text
+                  numberOfLines={1}
                   style={[fonts.Title4, { color: Colors.secondaryGray }]}
                 >{`${
                   chatPreview.items.length > 0
-                    ? formatSingleItem(chatPreview.items[0].title)
+                    ? chatPreview.items[0].title
                     : "loading..."
                 }`}</Text>
               </View>
               {chatPreview.items.length > 1 && (
                 <>
                   <View style={{ width: 4 }} />
-                  <Text
-                    style={[fonts.subtitle, { color: Colors.secondaryGray }]}
-                  >{`+ ${chatPreview.items.length - 1} more`}</Text>
+                  <View style={{ flexShrink: 1 }}>
+                    <Text
+                      numberOfLines={1}
+                      style={[fonts.subtitle, { color: Colors.secondaryGray }]}
+                    >{`+ ${chatPreview.items.length - 1} more`}</Text>
+                  </View>
                 </>
               )}
             </View>
@@ -424,9 +430,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.stroke,
     borderWidth: 1,
     borderRadius: 75,
+    flexShrink: 1,
   },
   chatHeaderContainer: {
     alignItems: "center",
     flexDirection: "row",
+    maxWidth: "100%",
+    overflow: "hidden",
   },
 });
