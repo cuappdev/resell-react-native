@@ -78,7 +78,7 @@ import { menuBarTop } from "../constants/Layout";
 import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { itemsAsString } from "../utils/general";
+import { itemsAsString, useKeyboardVisible } from "../utils/general";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -218,6 +218,9 @@ export default function ChatWindow({ navigation, route }) {
   const [confirmedMeetingVisible, setConfirmedMeetingVisible] = useState(false);
   const [editMeetingVisible, setEditMeetingVisible] = useState(false);
   const [sellerSyncVisible, setSellerSyncVisible] = useState(false);
+
+  // keyboard visible
+  const isKeyboardVisible = useKeyboardVisible();
 
   // keep track of multiple items
   const [items, setItems] = useState<DocumentData[]>([]);
@@ -923,7 +926,7 @@ export default function ChatWindow({ navigation, route }) {
 
   function renderInputToolbar(props) {
     return (
-      <SafeAreaView>
+      <>
         {uri && (
           <ImageEditor
             visible={modalVisibility}
@@ -955,72 +958,52 @@ export default function ChatWindow({ navigation, route }) {
           otherEmail={email}
           openMostRecentAvailability={openMostRecentAvailability}
         />
-        <View style={styles.mainSendContainer}>
+        <View style={[styles.mainSendContainer]}>
           {/* Image input */}
-          <TouchableOpacity
-            style={{
-              marginLeft: 15,
-              marginBottom: 12,
-            }}
-            onPress={() => pickImage()}
-          >
+          <TouchableOpacity onPress={() => pickImage()}>
             <AntDesign name="picture" size={25} color="#707070" />
           </TouchableOpacity>
 
-          <SafeAreaView
+          {/* Spacer */}
+          <View style={{ width: 12 }} />
+
+          <View
             style={[
               styles.input,
               {
                 flexDirection: "row",
               },
-              isSendingAvailability
-                ? { alignItems: "flex-start" }
-                : { alignItems: "flex-end" },
-              { height: Math.min(Math.max(40, height), 140) },
+              { maxHeight: isSendingAvailability ? 90 : 60 },
             ]}
           >
             {!isSendingAvailability && (
-              <TextInput
-                style={[
-                  {
-                    width: "90%",
-                    height: "100%",
-                    paddingTop: 10,
-                    paddingLeft: 15,
-                    minHeight: 20,
-                    color: "#000000",
-                    textAlignVertical: "top",
-                    maxHeight: 60,
-                  },
-                  fonts.body2,
-                ]}
-                numberOfLines={3}
-                onChangeText={(t) => {
-                  if (!isSendingAvailability) {
-                    setText(t);
-                  }
-                }}
-                value={text}
-                onContentSizeChange={(event) => {
-                  setHeight(event.nativeEvent.contentSize.height);
-                }}
-                multiline={true}
-                placeholder="Message"
-              />
+              <View style={{ flex: 1 }}>
+                <TextInput
+                  style={styles.textInput}
+                  numberOfLines={3}
+                  onChangeText={(t) => {
+                    if (!isSendingAvailability) {
+                      setText(t);
+                    }
+                  }}
+                  value={text}
+                  onContentSizeChange={(event) => {
+                    setHeight(event.nativeEvent.contentSize.height);
+                  }}
+                  multiline={true}
+                  placeholder="Message"
+                />
+              </View>
             )}
             {isSendingAvailability && (
               <View
                 style={{
-                  width: "90%",
-                  marginStart: 12,
-                  marginVertical: 10,
-                  alignItems: "flex-start",
-                  backgroundColor: "transparent",
-                  flexDirection: "column",
+                  flex: 1,
+                  maxHeight: 70,
                 }}
               >
                 <AvailabilityBubble
-                  userName={auth?.currentUser?.displayName}
+                  userName={auth.currentUser.displayName}
                   setIsBubble={null}
                   setAvailabilityVisible={null}
                   setInputSchedule={null}
@@ -1028,7 +1011,7 @@ export default function ChatWindow({ navigation, route }) {
                   setAvailabilityUserId={null}
                   userId={null}
                 />
-                <TextInput
+                {/* <TextInput
                   style={[
                     {
                       paddingHorizontal: 10,
@@ -1057,19 +1040,15 @@ export default function ChatWindow({ navigation, route }) {
                   onChangeText={(t) => {
                     setPlaceholder(t);
                   }}
-                />
+                /> */}
               </View>
             )}
             <View />
-
+            <View style={{ width: 12 }} />
             {/* Send button */}
             {(text.trim().length !== 0 || isSendingAvailability) && (
               <TouchableOpacity
                 style={{
-                  marginRight: 10,
-                  marginLeft: "auto",
-                  marginTop: "auto",
-                  marginBottom: 10,
                   zIndex: 10,
                 }}
                 onPress={() => {
@@ -1136,9 +1115,9 @@ export default function ChatWindow({ navigation, route }) {
                 />
               </TouchableOpacity>
             )}
-          </SafeAreaView>
+          </View>
         </View>
-      </SafeAreaView>
+      </>
     );
   }
 
@@ -1255,8 +1234,8 @@ export default function ChatWindow({ navigation, route }) {
           renderBubble={renderBubble}
           renderInputToolbar={renderInputToolbar}
           renderMessage={renderMessage}
-          minInputToolbarHeight={125}
           renderAvatar={renderAvatar}
+          minInputToolbarHeight={150}
           scrollToBottom
           showAvatarForEveryMessage
           renderAvatarOnTop
@@ -1276,6 +1255,10 @@ export default function ChatWindow({ navigation, route }) {
             </View>
           )}
         />
+        {Platform.OS === "android" && isKeyboardVisible && (
+          <View style={{ height: 40 }} />
+        )}
+        {isSendingAvailability && <View style={{ height: 40 }} />}
         {/* Modals below */}
         <>
           <NegotiationModal
@@ -1382,16 +1365,21 @@ export default function ChatWindow({ navigation, route }) {
 const styles = StyleSheet.create({
   input: {
     width: "85%",
-    margin: 12,
     backgroundColor: "#F4F4F4",
     borderRadius: 15,
-    marginTop: 0,
-    maxHeight: 60,
-    padding: 20,
+    padding: 12,
+    flexShrink: 1,
   },
   mainSendContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
+    padding: 8,
+  },
+  textInput: {
+    ...fonts.body2,
+    color: "#000000",
+    paddingBottom: 0,
+    marginBottom: 0,
   },
 
   scheduleButton: {

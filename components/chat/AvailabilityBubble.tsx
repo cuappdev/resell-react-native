@@ -16,7 +16,7 @@ export function AvailabilityBubble({
       style={styles.outer}
       activeOpacity={0.7}
       onPress={() => {
-        if (schedule != null) {
+        if (schedule !== null) {
           if (!(schedule[0].endDate instanceof Date)) {
             schedule.forEach((element, index) => {
               const endDate = element.endDate.toDate();
@@ -32,7 +32,11 @@ export function AvailabilityBubble({
         }
       }}
     >
-      <Text style={styles.textStyle}>{userName}'s Availability</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.textStyle} numberOfLines={2}>
+          {userName}'s Availability
+        </Text>
+      </View>
       <View
         style={{
           marginLeft: 15,
