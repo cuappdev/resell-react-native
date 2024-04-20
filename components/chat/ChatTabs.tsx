@@ -204,7 +204,6 @@ const styles = StyleSheet.create({
     borderRadius: 23,
     marginVertical: 5,
     marginHorizontal: 5,
-    elevation: 8,
   },
 });
 export default ChatTabs;
