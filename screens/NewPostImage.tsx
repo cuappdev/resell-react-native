@@ -152,8 +152,6 @@ export function NewPostImage({ navigation }) {
       quality: 1,
     });
 
-    console.log(JSON.stringify(result))
-
     if (!result.canceled) {
       setUri(result['uri']);
       setModalVisibility(true);
