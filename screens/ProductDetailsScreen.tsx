@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import SlidingUpPanel from "rn-sliding-up-panel";
+import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import {
@@ -27,7 +28,6 @@ import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
 import { makeToast } from "../utils/Toast";
-import { useApiClient } from "../api/ApiClientProvider";
 
 export default function ProductDetailsScreen({ route, navigation }) {
   const { post, screen, savedInitial } = route.params;

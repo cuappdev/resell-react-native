@@ -1,14 +1,7 @@
 import { useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Easing,
-} from "react-native";
-import { Modal, Portal } from "react-native-paper";
+import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 import ColoredPlus from "../assets/svg-components/colored_plus";
 import NewListing from "../assets/svg-components/newListing";
 import NewListingClicked from "../assets/svg-components/newListingClicked";
@@ -83,14 +76,6 @@ export const ExpandablePlusButton = ({
       alignContent: "center",
       paddingVertical: 2,
       paddingHorizontal: 2,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 4.65,
-      elevation: 8,
     },
     plusButton: {
       display: "flex",
@@ -155,34 +140,29 @@ export const ExpandablePlusButton = ({
       }}
     >
       {expand && (
-        <TouchableOpacity
-          style={styles.expandableView}
-          onPress={onExpand}
-        />
+        <TouchableOpacity style={styles.expandableView} onPress={onExpand} />
       )}
-      {expand && (<TouchableOpacity
-        style={styles.newListingButton}
-        onPressIn={() => setOnListing(true)}
-        onPressOut={() => setOnListing(false)}
-        onPress={onListingPressed}
-      >
-      </TouchableOpacity>)}
-      <Animated.View
-        style={styles.newListingButtonContainer}
-      >
+      {expand && (
+        <TouchableOpacity
+          style={styles.newListingButton}
+          onPressIn={() => setOnListing(true)}
+          onPressOut={() => setOnListing(false)}
+          onPress={onListingPressed}
+        ></TouchableOpacity>
+      )}
+      <Animated.View style={styles.newListingButtonContainer}>
         {onListing ? <NewListingClicked /> : <NewListing />}
       </Animated.View>
 
-      {expand && (<TouchableOpacity
-        style={styles.newRequestButton}
-        onPressIn={() => setOnRequest(true)}
-        onPressOut={() => setOnRequest(false)}
-        onPress={onRequestPressed}
-      >
-      </TouchableOpacity>)}
-      <Animated.View
-        style={styles.newRequestButtonContainer}
-      >
+      {expand && (
+        <TouchableOpacity
+          style={styles.newRequestButton}
+          onPressIn={() => setOnRequest(true)}
+          onPressOut={() => setOnRequest(false)}
+          onPress={onRequestPressed}
+        ></TouchableOpacity>
+      )}
+      <Animated.View style={styles.newRequestButtonContainer}>
         {onRequest ? <NewRequestClicked /> : <NewRequest />}
       </Animated.View>
 

@@ -1,5 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -77,13 +76,6 @@ export default function OnBoardScreen({ navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [usernameError, setUsernameError] = useState("");
   const [agreedToEula, setAgreedToEula] = useState(false);
-  const storePermission = async () => {
-    try {
-      await AsyncStorage.setItem("PhotoPermission", "true");
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -243,33 +235,33 @@ export default function OnBoardScreen({ navigation }) {
               </View>
             </View>
           </KeyboardAvoidingView>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginStart: 24,
-            }}
-          >
+          <View style={[styles.eulaContainer]}>
             <RadioButton
               isToggled={agreedToEula}
               setIsToggled={setAgreedToEula}
             />
             <View style={{ width: 16 }} />
-            <Text style={fonts.Title4}>I agree to Resell’s </Text>
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL("https://www.cornellappdev.com/license/resell");
-              }}
-            >
-              <Text
-                style={[
-                  fonts.Title4,
-                  { color: Colors.linkBlue, textDecorationLine: "underline" },
-                ]}
-              >
-                End User License Agreement
+            <View style={{ flexDirection: "column", flex: 1 }}>
+              <Text style={fonts.Title4}>
+                I agree to Resell’s{" "}
+                <Text
+                  style={[
+                    fonts.Title4,
+                    {
+                      color: Colors.linkBlue,
+                      textDecorationLine: "underline",
+                    },
+                  ]}
+                  onPress={() => {
+                    Linking.openURL(
+                      "https://www.cornellappdev.com/license/resell"
+                    );
+                  }}
+                >
+                  End User License Agreement
+                </Text>
               </Text>
-            </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
 
@@ -367,5 +359,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 18,
     marginBottom: 8,
+  },
+  eulaContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginStart: 24,
+    marginEnd: 24,
   },
 });

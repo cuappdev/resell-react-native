@@ -234,10 +234,8 @@ export default function EditMeetingModal({
       }}
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
-      <View style={[styles.slideUp, { height: isConfirmed ? 450 : 400 }]}>
-        <Text style={[fonts.pageHeading3, { marginTop: "14%" }]}>
-          Meeting Details
-        </Text>
+      <View style={[styles.slideUp]}>
+        <Text style={[fonts.pageHeading3]}>Meeting Details</Text>
         {/* Time text */}
         <View style={{ marginTop: 24 }}>
           <Text style={fonts.body1}>{text}</Text>
@@ -329,18 +327,17 @@ const styles = StyleSheet.create({
   slideUp: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    height: 400,
     backgroundColor: "#ffffff",
     width: "100%",
     marginHorizontal: 0,
     alignItems: "center",
-
-    paddingLeft: "14%",
-    paddingRight: "14%",
+    paddingHorizontal: "14%",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    paddingVertical: 48,
   },
   buttonContainer: {
-    position: "absolute",
-    bottom: "14%",
+    marginTop: 48,
   },
   buttonAndCancelContainer: {
     flexDirection: "column",

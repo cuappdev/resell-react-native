@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   appButtonContainer: {
-    elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
     paddingVertical: 11,
@@ -89,7 +88,6 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   appUnclickedContainer: {
-    elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
     paddingVertical: 10,
