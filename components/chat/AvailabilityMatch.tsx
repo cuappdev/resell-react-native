@@ -5,6 +5,7 @@ import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import WeekView, { WeekViewEvent } from "react-native-week-view";
 import Colors from "../../constants/Colors";
 // TODO https://ui.gorhom.dev/components/bottom-sheet/modal/usage
+import { shadows } from "../../globalStyle/globalShadow";
 import PurpleButton from "../PurpleButton";
 const moment = require("moment");
 
@@ -104,7 +105,7 @@ export function AvailabilityModal({
     }
   };
   return (
-    <BottomSheetView style={styles.centeredView}>
+    <BottomSheetView style={[styles.centeredView, shadows.cardDrop]}>
       <View style={styles.modalView}>
         <Text style={[styles.textStyle, { marginBottom: isBubble ? 32 : 8 }]}>
           {isBubble
