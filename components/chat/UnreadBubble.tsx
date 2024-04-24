@@ -13,7 +13,6 @@ export default function UnreadBubble({
         width: 20,
         marginLeft: 8,
         paddingHorizontal: 6,
-        // paddingVertical: 1,
         alignItems: "center",
         justifyContent: "center",
       }}
