@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import UnreadBubble from "./UnreadBubble";
 
 /**
  *
@@ -33,19 +34,7 @@ function ChatTabs({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
             >
               <Text style={styles.appButtonText}>Purchases</Text>
               {purchaseUnread !== 0 && (
-                <View
-                  style={{
-                    width: 20,
-                    height: 16,
-                    backgroundColor: "#FF0000",
-                    borderRadius: 8,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginStart: 12,
-                  }}
-                >
-                  <Text style={{ color: "#FFFFFF" }}>{purchaseUnread}</Text>
-                </View>
+                <UnreadBubble numberUnread={purchaseUnread} />
               )}
             </View>
           </TouchableOpacity>
@@ -64,21 +53,7 @@ function ChatTabs({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
           >
             <Text style={styles.appUnclickText}>Purchases</Text>
             {purchaseUnread !== 0 && (
-              <View
-                style={{
-                  width: purchaseUnread > 9 ? 26 : 20,
-                  height: 16,
-                  backgroundColor: "#FF0000",
-                  borderRadius: 8,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginStart: 12,
-                }}
-              >
-                <Text style={{ color: "#FFFFFF" }}>
-                  {purchaseUnread > 9 ? "9+" : purchaseUnread}
-                </Text>
-              </View>
+              <UnreadBubble numberUnread={purchaseUnread} />
             )}
           </View>
         </TouchableOpacity>
@@ -102,23 +77,7 @@ function ChatTabs({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
               }}
             >
               <Text style={styles.appUnclickText}>Offers</Text>
-              {offerUnread !== 0 && (
-                <View
-                  style={{
-                    width: offerUnread > 9 ? 26 : 20,
-                    height: 16,
-                    backgroundColor: "#FF0000",
-                    borderRadius: 8,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginStart: 12,
-                  }}
-                >
-                  <Text style={{ color: "#FFFFFF" }}>
-                    {offerUnread > 9 ? "9+" : offerUnread}
-                  </Text>
-                </View>
-              )}
+              {offerUnread !== 0 && <UnreadBubble numberUnread={offerUnread} />}
             </View>
           </TouchableOpacity>
         </LinearGradient>
@@ -135,21 +94,7 @@ function ChatTabs({ isPurchase, setIsPurchase, purchaseUnread, offerUnread }) {
             }}
           >
             <Text style={styles.appUnclickText}>Offers</Text>
-            {offerUnread !== 0 && (
-              <View
-                style={{
-                  width: 20,
-                  height: 16,
-                  backgroundColor: "#FF0000",
-                  borderRadius: 8,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginStart: 12,
-                }}
-              >
-                <Text style={{ color: "#FFFFFF" }}>{offerUnread}</Text>
-              </View>
-            )}
+            {offerUnread !== 0 && <UnreadBubble numberUnread={offerUnread} />}
           </View>
         </TouchableOpacity>
       )}

@@ -1011,36 +1011,6 @@ export default function ChatWindow({ navigation, route }) {
                   setAvailabilityUserId={null}
                   userId={null}
                 />
-                {/* <TextInput
-                  style={[
-                    {
-                      paddingHorizontal: 10,
-                      color: "#000000",
-                      marginTop: 10,
-                      width: "95%",
-                      height: Math.min(height - 80, 60),
-                    },
-                    fonts.body2,
-                  ]}
-                  autoCorrect={false}
-                  multiline={true}
-                  onKeyPress={({ nativeEvent }) => {
-                    if (
-                      nativeEvent.key === "Backspace" &&
-                      placeholder.length == 0
-                    ) {
-                      setIsSendingAvailability(false);
-                      setScheduleCallback([]);
-                    }
-                  }}
-                  onContentSizeChange={(event) => {
-                    setHeight(event.nativeEvent.contentSize.height + 80);
-                  }}
-                  value={placeholder}
-                  onChangeText={(t) => {
-                    setPlaceholder(t);
-                  }}
-                /> */}
               </View>
             )}
             <View />
@@ -1051,6 +1021,7 @@ export default function ChatWindow({ navigation, route }) {
                 style={{
                   zIndex: 10,
                 }}
+                hitSlop={25}
                 onPress={() => {
                   setHeight(40);
                   if (mCount == 0) {

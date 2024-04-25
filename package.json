@@ -16,6 +16,7 @@
     "string-width": "4.2.3"
   },
   "dependencies": {
+    "@andordavoti/react-native-timeago": "^0.0.14",
     "@expo/config-plugins": "~7.2.2",
     "@expo/prebuild-config": "~6.2.4",
     "@expo/vector-icons": "^13.0.0",
