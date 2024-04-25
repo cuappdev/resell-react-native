@@ -1,3 +1,4 @@
+import TimeAgo from "@andordavoti/react-native-timeago";
 import { Feather } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 import {
@@ -18,7 +19,6 @@ import {
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { RefreshControl } from "react-native-gesture-handler";
-import { format } from "timeago.js";
 import { useApiClient } from "../api/ApiClientProvider";
 import ChatTabs from "../components/chat/ChatTabs";
 import LoadingChat from "../components/chat/LoadingChat";
@@ -296,7 +296,7 @@ export default function ChatScreen({ navigation }) {
                 }}
               />
               <Text style={[fonts.Title4, { color: Colors.secondaryGray }]}>
-                {format(chatPreview.recentMessageTime, "en_US")}
+                <TimeAgo dateTo={new Date(chatPreview.recentMessageTime)} />
               </Text>
             </View>
           </View>
