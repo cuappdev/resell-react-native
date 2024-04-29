@@ -21,7 +21,9 @@ import PurpleButton from "../components/PurpleButton";
 import RadioButton from "../components/RadioButton";
 import Colors from "../constants/Colors";
 import { maxUsernameLength, pressedOpacity } from "../constants/Values";
+import { debugBorders } from "../globalStyle/globalDebugBorder";
 import { fonts } from "../globalStyle/globalFont";
+import { useKeyboardVisible } from "../utils/general";
 
 export default function OnBoardScreen({ navigation }) {
   const [image, setImage] = useState("");
@@ -72,6 +74,7 @@ export default function OnBoardScreen({ navigation }) {
   const openAppSettings = () => {
     Linking.openSettings();
   };
+  const keyboardVisible = useKeyboardVisible();
 
   const [isEditing, setIsEditing] = useState(false);
   const [usernameError, setUsernameError] = useState("");
@@ -112,17 +115,17 @@ export default function OnBoardScreen({ navigation }) {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View>
+      <KeyboardAvoidingView
+        behavior="height"
+        style={[debugBorders.red, { height: "100%" }]}
+      >
         <ScrollView
           style={{ height: "100%" }}
           ref={(ref) => {
             scroll.current = ref;
           }}
         >
-          <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
+          <View style={styles.container}>
             <View>
               <Image
                 style={styles.profilePic}
@@ -162,11 +165,6 @@ export default function OnBoardScreen({ navigation }) {
                   value={username}
                   onChangeText={(text) => {
                     setUsername(text);
-                    if (scroll.current != null) {
-                      scroll.current.scrollToEnd({
-                        animated: true,
-                      });
-                    }
                   }}
                   style={[
                     fonts.body2,
@@ -198,11 +196,6 @@ export default function OnBoardScreen({ navigation }) {
                   value={bio}
                   onChangeText={(text) => {
                     setBio(text);
-                    if (scroll.current != null) {
-                      scroll.current.scrollToEnd({
-                        animated: true,
-                      });
-                    }
                   }}
                   style={[fonts.body2, styles.textInput]}
                   placeholderTextColor={"#707070"}
@@ -234,7 +227,7 @@ export default function OnBoardScreen({ navigation }) {
                 </View>
               </View>
             </View>
-          </KeyboardAvoidingView>
+          </View>
           <View style={[styles.eulaContainer]}>
             <RadioButton
               isToggled={agreedToEula}
@@ -263,28 +256,28 @@ export default function OnBoardScreen({ navigation }) {
               </Text>
             </View>
           </View>
+          {
+            <View style={styles.purpleButton}>
+              <PurpleButton
+                text={"Continue"}
+                onPress={() => {
+                  navigation.navigate("Venmo", {
+                    image: image,
+                    username: username,
+                    bio: bio,
+                  });
+                }}
+                enabled={
+                  !Boolean(usernameError) &&
+                  username.trim().length > 0 &&
+                  agreedToEula
+                }
+              />
+            </View>
+          }
+          {keyboardVisible && <View style={{ height: 200 }} />}
         </ScrollView>
-
-        {!isEditing && (
-          <View style={styles.purpleButton}>
-            <PurpleButton
-              text={"Continue"}
-              onPress={() => {
-                navigation.navigate("Venmo", {
-                  image: image,
-                  username: username,
-                  bio: bio,
-                });
-              }}
-              enabled={
-                !Boolean(usernameError) &&
-                username.trim().length > 0 &&
-                agreedToEula
-              }
-            />
-          </View>
-        )}
-      </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }
@@ -343,8 +336,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     backgroundColor: "white",
-    position: "absolute",
-    bottom: "5%",
   },
   textInput: {
     paddingTop: 12,
