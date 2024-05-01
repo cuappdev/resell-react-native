@@ -1,4 +1,6 @@
 import { DocumentData } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { Keyboard } from "react-native";
 
 export const itemsAsString = (items: DocumentData[]): string => {
   let shownItems: string[] = [];
@@ -21,9 +23,26 @@ export const itemsAsString = (items: DocumentData[]): string => {
   return commaSeparatedItems;
 };
 
-export const formatSingleItem = (item: string): string => {
-  if (item.length > 10) {
-    return item.slice(0, -3) + "...";
-  }
-  return item;
+export const useKeyboardVisible = (): boolean => {
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  return keyboardVisible;
 };

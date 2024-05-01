@@ -5,6 +5,7 @@ import { DocumentData } from "firebase/firestore";
 import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import Colors from "../../constants/Colors";
+import { shadows } from "../../globalStyle/globalShadow";
 import { NumberPad } from "../CustomizedNumKeyBoard";
 import { NegotiationProductBubble } from "./NegotationProductModal";
 const windowHeight = Dimensions.get("window").height;
@@ -37,15 +38,7 @@ export function NegotiationModal({
     if (items) {
       setNegotiationBubbles(
         items.map((item, index) => (
-          <View
-            style={[
-              {
-                width: "100%",
-                alignItems: "center",
-              },
-              styles.shadow,
-            ]}
-          >
+          <View style={styles.negotiationBubbleContainer}>
             <NegotiationProductBubble
               product={item.title}
               price={item.original_price}
@@ -99,7 +92,7 @@ export function NegotiationModal({
         {(screen === "ChatBuyer" || screen === "ChatSeller") && (
           <>
             {negotiationBubbles.length > 1 && (
-              <View style={[styles.dotNavContainer, styles.shadow]}>
+              <View style={[styles.dotNavContainer]}>
                 {negotiationBubbles.map((_, index) => (
                   <View
                     style={[
@@ -129,12 +122,7 @@ export function NegotiationModal({
                 {negotiationBubbles.length > 0 ? (
                   negotiationBubbles
                 ) : (
-                  <View
-                    style={[
-                      { width: "100%", alignItems: "center" },
-                      styles.shadow,
-                    ]}
-                  >
+                  <View style={[{ width: "100%", alignItems: "center" }]}>
                     <NegotiationProductBubble
                       product={post.title}
                       price={post.original_price}
@@ -142,7 +130,6 @@ export function NegotiationModal({
                     />
                   </View>
                 )}
-                {negotiationBubbles}
               </PagerView>
             </View>
           </>
@@ -344,22 +331,16 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignSelf: "center",
     borderRadius: 100,
+    ...shadows.cardDrop,
   },
   circle: {
     width: 12,
     height: 12,
     borderRadius: 6,
   },
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.36,
-    shadowRadius: 6.68,
-
-    elevation: 11,
-    marginBottom: 12,
+  negotiationBubbleContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginVertical: 12,
   },
 });

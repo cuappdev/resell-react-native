@@ -42,6 +42,7 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -60,6 +61,7 @@ import {
 } from "firebase/firestore";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
+import { sendNotification } from "../api/FirebaseNotificationManager";
 import BackButton from "../assets/svg-components/back_button";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import OptionsMenu from "../components/OptionsMenu";
@@ -71,16 +73,12 @@ import MeetingProposeModal from "../components/chat/MeetingProposeModal";
 import NoticeBanner from "../components/chat/NoticeBanner";
 import SellerSyncModal from "../components/chat/SellerSyncModal";
 import { auth, chatRef, historyRef, userRef } from "../config/firebase";
+import Colors from "../constants/Colors";
+import { menuBarTop } from "../constants/Layout";
+import { MeetingInfo } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import Modal2 from "react-native-modal";
-import Layout, { menuBarTop } from "../constants/Layout";
-import PopupSheet from "../components/PopupSheet";
-import { sendNotification } from "../api/FirebaseNotificationManager";
-import Colors from "../constants/Colors";
-import { MeetingInfo } from "../data/struct";
-import { itemsAsString } from "../utils/general";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { itemsAsString, useKeyboardVisible } from "../utils/general";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -220,6 +218,9 @@ export default function ChatWindow({ navigation, route }) {
   const [confirmedMeetingVisible, setConfirmedMeetingVisible] = useState(false);
   const [editMeetingVisible, setEditMeetingVisible] = useState(false);
   const [sellerSyncVisible, setSellerSyncVisible] = useState(false);
+
+  // keyboard visible
+  const isKeyboardVisible = useKeyboardVisible();
 
   // keep track of multiple items
   const [items, setItems] = useState<DocumentData[]>([]);
@@ -482,7 +483,7 @@ export default function ChatWindow({ navigation, route }) {
       />
     );
   }
-  const [availabilityUsername, setAvailabilityUserName] = useState("");
+  const [availabilityUserId, setAvailabilityUserId] = useState("");
 
   const onReport = () => {
     setMenuVisible(false);
@@ -585,11 +586,12 @@ export default function ChatWindow({ navigation, route }) {
         <View style={{ width: "70%", marginVertical: 5 }}>
           <AvailabilityBubble
             userName={
-              currUser._id == auth?.currentUser?.email
-                ? auth?.currentUser?.displayName
+              currUser._id === auth.currentUser.email
+                ? auth.currentUser.displayName
                 : name
             }
-            setAvailabilityUserName={setAvailabilityUserName}
+            userId={currUser._id}
+            setAvailabilityUserId={setAvailabilityUserId}
             setIsBubble={setIsBubble}
             setAvailabilityVisible={setAvailabilityVisible}
             setInputSchedule={setInputSchedule}
@@ -690,7 +692,8 @@ export default function ChatWindow({ navigation, route }) {
 
   const openMostRecentAvailability = () => {
     // messages need to be sorted by most recent first
-    messages
+    // the toSorted function does not exist on Android :(
+    [...messages]
       .sort((m1, m2) => (m1.createdAt <= m2.createdAt ? -1 : 1))
       .forEach((msg) => {
         if (
@@ -698,10 +701,6 @@ export default function ChatWindow({ navigation, route }) {
           msg.availability &&
           msg.availability[0]
         ) {
-          const userName =
-            msg.user._id === auth?.currentUser?.email
-              ? auth?.currentUser?.displayName
-              : name;
           const schedule = msg.availability;
           if (!(schedule[0].endDate instanceof Date)) {
             schedule.forEach((element, index) => {
@@ -712,7 +711,7 @@ export default function ChatWindow({ navigation, route }) {
             });
           }
           setInputSchedule(schedule);
-          setAvailabilityUserName(userName);
+          setAvailabilityUserId(msg.user._id);
           setAvailabilityVisible(true);
           setIsBubble(true);
         }
@@ -929,7 +928,7 @@ export default function ChatWindow({ navigation, route }) {
 
   function renderInputToolbar(props) {
     return (
-      <SafeAreaView>
+      <>
         {uri && (
           <ImageEditor
             visible={modalVisibility}
@@ -961,122 +960,70 @@ export default function ChatWindow({ navigation, route }) {
           otherEmail={email}
           openMostRecentAvailability={openMostRecentAvailability}
         />
-        <View style={styles.mainSendContainer}>
+        <View style={[styles.mainSendContainer]}>
           {/* Image input */}
-          <TouchableOpacity
-            style={{
-              marginLeft: 15,
-              marginBottom: 12,
-            }}
-            onPress={() => pickImage()}
-          >
+          <TouchableOpacity onPress={() => pickImage()}>
             <AntDesign name="picture" size={25} color="#707070" />
           </TouchableOpacity>
 
-          <SafeAreaView
+          {/* Spacer */}
+          <View style={{ width: 12 }} />
+
+          <View
             style={[
               styles.input,
               {
                 flexDirection: "row",
               },
-              isSendingAvailability
-                ? { alignItems: "flex-start" }
-                : { alignItems: "flex-end" },
-              { height: Math.min(Math.max(40, height), 140) },
+              { maxHeight: isSendingAvailability ? 90 : 60 },
             ]}
           >
             {!isSendingAvailability && (
-              <TextInput
-                style={[
-                  {
-                    width: "90%",
-                    height: "100%",
-                    paddingTop: 10,
-                    paddingLeft: 15,
-                    minHeight: 20,
-                    color: "#000000",
-                    textAlignVertical: "top",
-                    maxHeight: 60,
-                  },
-                  fonts.body2,
-                ]}
-                numberOfLines={3}
-                onChangeText={(t) => {
-                  if (!isSendingAvailability) {
-                    setText(t);
-                  }
-                }}
-                value={text}
-                onContentSizeChange={(event) => {
-                  setHeight(event.nativeEvent.contentSize.height);
-                }}
-                multiline={true}
-                placeholder="Message"
-              />
+              <View style={{ flex: 1 }}>
+                <TextInput
+                  style={styles.textInput}
+                  numberOfLines={3}
+                  onChangeText={(t) => {
+                    if (!isSendingAvailability) {
+                      setText(t);
+                    }
+                  }}
+                  value={text}
+                  onContentSizeChange={(event) => {
+                    setHeight(event.nativeEvent.contentSize.height);
+                  }}
+                  multiline={true}
+                  placeholder="Message"
+                />
+              </View>
             )}
             {isSendingAvailability && (
               <View
                 style={{
-                  width: "90%",
-                  marginStart: 12,
-                  marginVertical: 10,
-                  alignItems: "flex-start",
-                  backgroundColor: "transparent",
-                  flexDirection: "column",
+                  flex: 1,
+                  maxHeight: 70,
                 }}
               >
                 <AvailabilityBubble
-                  userName={auth?.currentUser?.displayName}
+                  userName={auth.currentUser.displayName}
                   setIsBubble={null}
                   setAvailabilityVisible={null}
                   setInputSchedule={null}
                   schedule={null}
-                  setAvailabilityUserName={null}
-                />
-                <TextInput
-                  style={[
-                    {
-                      paddingHorizontal: 10,
-                      color: "#000000",
-                      marginTop: 10,
-                      width: "95%",
-                      height: Math.min(height - 80, 60),
-                    },
-                    fonts.body2,
-                  ]}
-                  autoCorrect={false}
-                  multiline={true}
-                  onKeyPress={({ nativeEvent }) => {
-                    if (
-                      nativeEvent.key === "Backspace" &&
-                      placeholder.length == 0
-                    ) {
-                      setIsSendingAvailability(false);
-                      setScheduleCallback([]);
-                    }
-                  }}
-                  onContentSizeChange={(event) => {
-                    setHeight(event.nativeEvent.contentSize.height + 80);
-                  }}
-                  value={placeholder}
-                  onChangeText={(t) => {
-                    setPlaceholder(t);
-                  }}
+                  setAvailabilityUserId={null}
+                  userId={null}
                 />
               </View>
             )}
             <View />
-
+            <View style={{ width: 12 }} />
             {/* Send button */}
             {(text.trim().length !== 0 || isSendingAvailability) && (
               <TouchableOpacity
                 style={{
-                  marginRight: 10,
-                  marginLeft: "auto",
-                  marginTop: "auto",
-                  marginBottom: 10,
                   zIndex: 10,
                 }}
+                hitSlop={25}
                 onPress={() => {
                   setHeight(40);
                   if (mCount == 0) {
@@ -1141,9 +1088,9 @@ export default function ChatWindow({ navigation, route }) {
                 />
               </TouchableOpacity>
             )}
-          </SafeAreaView>
+          </View>
         </View>
-      </SafeAreaView>
+      </>
     );
   }
 
@@ -1260,8 +1207,8 @@ export default function ChatWindow({ navigation, route }) {
           renderBubble={renderBubble}
           renderInputToolbar={renderInputToolbar}
           renderMessage={renderMessage}
-          minInputToolbarHeight={125}
           renderAvatar={renderAvatar}
+          minInputToolbarHeight={150}
           scrollToBottom
           showAvatarForEveryMessage
           renderAvatarOnTop
@@ -1281,6 +1228,10 @@ export default function ChatWindow({ navigation, route }) {
             </View>
           )}
         />
+        {Platform.OS === "android" && isKeyboardVisible && (
+          <View style={{ height: 40 }} />
+        )}
+        {isSendingAvailability && <View style={{ height: 40 }} />}
         {/* Modals below */}
         <>
           <NegotiationModal
@@ -1318,14 +1269,17 @@ export default function ChatWindow({ navigation, route }) {
               isBubble={isBubble}
               setIsBubble={setIsBubble}
               setHeight={setHeight}
-              username={availabilityUsername}
+              username={
+                availabilityUserId === auth.currentUser.email
+                  ? auth.currentUser.displayName
+                  : name
+              }
               isBuyer={isBuyer}
               setSelectedTime={setSelectedTime}
               setBuyerProposeVisible={setMeetingProposeVisible}
               selectdate={selectedTime}
               isViewOnly={
-                isConfirmed ||
-                availabilityUsername === auth.currentUser.displayName
+                isConfirmed || availabilityUserId === auth.currentUser.email
               }
             />
           </BottomSheetModal>
@@ -1384,16 +1338,21 @@ export default function ChatWindow({ navigation, route }) {
 const styles = StyleSheet.create({
   input: {
     width: "85%",
-    margin: 12,
     backgroundColor: "#F4F4F4",
     borderRadius: 15,
-    marginTop: 0,
-    maxHeight: 60,
-    padding: 20,
+    padding: 12,
+    flexShrink: 1,
   },
   mainSendContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
+    padding: 8,
+  },
+  textInput: {
+    ...fonts.body2,
+    color: "#000000",
+    paddingBottom: 0,
+    marginBottom: 0,
   },
 
   scheduleButton: {

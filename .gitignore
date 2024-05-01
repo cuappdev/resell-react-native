@@ -6,6 +6,7 @@
 **/.env*.
 **/GoogleService-Info.plist
 config/google-services.json
+**/resell-service-account-key.json
 
 # Xcode
 #
