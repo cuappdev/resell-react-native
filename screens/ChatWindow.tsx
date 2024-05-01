@@ -491,6 +491,7 @@ export default function ChatWindow({ navigation, route }) {
       sellerId: post.user.id,
       postId: post.id,
       userId: "userId",
+      type: "User"
     });
   };
 
@@ -514,7 +515,7 @@ export default function ChatWindow({ navigation, route }) {
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) {}
+    } catch (e: unknown) { }
   };
 
   const menuItems = [
@@ -679,6 +680,7 @@ export default function ChatWindow({ navigation, route }) {
               sellerId: "sellerId", // TODO: Add when Implementing Reporting Backend
               postId: post.id,
               userId: auth.currentUser.uid,
+              type: "Message"
             });
             break;
         }
@@ -894,7 +896,7 @@ export default function ChatWindow({ navigation, route }) {
         setProposer(meetingInfo.proposer);
         setMeetingDetailText(
           (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
-            " confirmed the following meeting:"
+          " confirmed the following meeting:"
         );
       }
       if (
@@ -913,9 +915,9 @@ export default function ChatWindow({ navigation, route }) {
         setActionButtons((buttons) =>
           buttons.filter((b) => b.title.includes("View")).length === 0
             ? [
-                ...buttons,
-                { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
-              ]
+              ...buttons,
+              { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
+            ]
             : buttons
         );
       }

@@ -29,6 +29,8 @@ export type RootStackParamList = {
   ReportPostDetails: undefined;
   ReportPostConfirm: undefined;
   ChatWindow: undefined;
+  ExternalProfile: undefined;
+  SearchProfile: undefined;
 };
 export type HomeStackParamList = {
   Home: { showPanel: boolean };
