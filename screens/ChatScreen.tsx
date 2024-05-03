@@ -55,7 +55,7 @@ export default function ChatScreen({ navigation }) {
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) {}
+    } catch (e: unknown) { }
   };
 
   const getPurchase = (): Unsubscribe => {
@@ -240,7 +240,7 @@ export default function ChatScreen({ navigation }) {
             style={[
               styles.image,
               (isPurchase && purchaseUnread != 0) ||
-              (!isPurchase && offerUnread != 0)
+                (!isPurchase && offerUnread != 0)
                 ? { marginStart: 24 }
                 : { marginStart: 12 },
             ]}
@@ -260,11 +260,10 @@ export default function ChatScreen({ navigation }) {
                 <Text
                   numberOfLines={1}
                   style={[fonts.Title4, { color: Colors.secondaryGray }]}
-                >{`${
-                  chatPreview.items.length > 0
+                >{`${chatPreview.items.length > 0
                     ? chatPreview.items[0].title
                     : "loading..."
-                }`}</Text>
+                  }`}</Text>
               </View>
               {chatPreview.items.length > 1 && (
                 <>

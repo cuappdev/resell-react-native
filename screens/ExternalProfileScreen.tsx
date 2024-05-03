@@ -4,6 +4,7 @@ import {
   Dimensions,
   LogBox,
   Platform,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -28,6 +29,7 @@ import { ExternalPostRoute } from "./ExternalPostRoute";
 import PopupSheet from "../components/PopupSheet";
 import { makeToast } from "../utils/Toast";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BlurView } from "@react-native-community/blur";
 
 export default function ExternalProfileScreen({ navigation, route }) {
   const { sellerName, sellerId, sellerUsername } = route.params;
@@ -49,6 +51,8 @@ export default function ExternalProfileScreen({ navigation, route }) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [expandedProfile, setExpandedProfile] = useState(false);
   const [blockModalVisibility, setBlockModalVisibility] = useState(false);
+  const [unblockModalVisibility, setUnblockModalVisibility] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   // At the start load the current user ID
   useEffect(() => {
@@ -60,6 +64,7 @@ export default function ExternalProfileScreen({ navigation, route }) {
     if (userId && isFocused) {
       getUser();
       getPosts();
+      getBlockedUsers();
     }
   }, [userId, isFocused]);
 
@@ -141,6 +146,23 @@ export default function ExternalProfileScreen({ navigation, route }) {
     setBlockModalVisibility(true);
   }
 
+  const onUnblock = () => {
+    setUnblockModalVisibility(true);
+  }
+
+  const getBlockedUsers = async () => {
+    try {
+      const response = await apiClient.get(`/user/blocked/id/${userId}`);
+      if (response.users) {
+        setIsBlocked(response.users.some(user => user.id === sellerId))
+      } else {
+        makeToast({ message: "Error blocking user", type: "ERROR" });
+      }
+    } catch (error) {
+      console.log(`BlockedUsersScreen.getBlockedUsers failed: ${error}`);
+    }
+  };
+
   const blockUser = async () => {
     try {
       const response = await apiClient.post("/user/block/", {
@@ -157,6 +179,21 @@ export default function ExternalProfileScreen({ navigation, route }) {
     } catch (e: unknown) { }
   };
 
+  const unblockUser = async () => {
+    try {
+      const response = await apiClient.post(`/user/unblock/`, {
+        unblocked: sellerId,
+      });
+      if (response.user) {
+        navigation.goBack()
+      } else {
+        makeToast({ message: "Error unblocking user", type: "ERROR" });
+      }
+    } catch (e) {
+      console.log(`BlockedUsersScreen.unblockUser: ${e}`);
+    }
+  };
+
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };
@@ -167,7 +204,7 @@ export default function ExternalProfileScreen({ navigation, route }) {
 
   if (userId !== sellerId) {
     menuItems.push({
-      label: "Block", iconName: "slash", onPress: onBlock
+      label: isBlocked ? "Unblock" : "Block", iconName: "slash", onPress: isBlocked ? onUnblock : onBlock
     });
   }
 
@@ -315,6 +352,45 @@ export default function ExternalProfileScreen({ navigation, route }) {
         posts={posts}
         onRefresh={getPostsRefresh}
       />
+      {isBlocked && (
+        <BlurView
+          style={styles.blockingOverlay}
+          blurType="dark"
+          blurAmount={5}
+        >
+          <Text style={styles.blockedText}>This profile is blocked</Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton2}
+          >
+            <BackButton color="white" />
+          </TouchableOpacity>
+          <View style={styles.optionsContainer2}>
+            <TouchableOpacity onPress={toggleMenu} style={styles.optionsButton}>
+              <EllipsesIcon color={"white"} props />
+            </TouchableOpacity>
+            <Modal
+              isVisible={menuVisible}
+              onBackdropPress={() => setMenuVisible(false)}
+              backdropOpacity={0.2}
+              animationIn="fadeIn"
+              animationOut="fadeOut"
+              style={styles.optionsMenu}
+            >
+              <OptionsMenu items={menuItems}></OptionsMenu>
+              <PopupSheet
+                isVisible={unblockModalVisibility}
+                setIsVisible={setUnblockModalVisibility}
+                actionName={`Unblock ${sellerUsername}`}
+                submitAction={unblockUser}
+                buttonText={"Unblock"}
+                description={"They will be able to message you and view your posts."}
+                errorState={true}
+              />
+            </Modal>
+          </View>
+        </BlurView>
+      )}
     </View >
   );
 }
@@ -400,5 +476,36 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     alignItems: "center",
-  }
+  },
+  blockingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    top: -100,
+  },
+  // Style for the text in the blocking overlay
+  blockedText: {
+    fontSize: 18,
+    fontFamily: "Rubik-Medium",
+    color: "white",
+    textAlign: "center",
+  },
+  backButton2: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop + 50 : 50,
+    left: 10,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
+  optionsContainer2: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? menuBarTop + 60 : 60,
+    right: 0,
+    zIndex: 15,
+    width: 50,
+    height: 50,
+    alignItems: "center",
+  },
 });

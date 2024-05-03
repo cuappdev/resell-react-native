@@ -1098,6 +1098,15 @@ export default function ChatWindow({ navigation, route }) {
     return <BottomSheetBackdrop {...props} appearsOnIndex={1} />;
   }
 
+  const displayExternalProfile = () => {
+    navigation.navigate("ExternalProfile", {
+      sellerName: name,
+      sellerId: post.user.id,
+      sellerUsername: post.user.username,
+      isBlocked: false
+    });
+  }
+
   const ref = useRef<any>();
   return (
     <BottomSheetModalProvider>
@@ -1135,16 +1144,21 @@ export default function ChatWindow({ navigation, route }) {
               justifyContent: "center",
             }}
           >
-            <Text
-              style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
+            <TouchableOpacity
+              onPress={displayExternalProfile}
             >
-              {name}
-            </Text>
-            <Text
-              style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
-            >
-              {items.length > 0 ? itemsAsString(items) : post.title}
-            </Text>
+              <Text
+                style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
+              >
+                {name}
+              </Text>
+              <Text
+                style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
+              >
+                {items.length > 0 ? itemsAsString(items) : post.title}
+              </Text>
+
+            </TouchableOpacity>
           </View>
           <View>
             <TouchableOpacity

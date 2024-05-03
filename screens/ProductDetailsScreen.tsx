@@ -101,6 +101,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       sellerName: sellerName,
       sellerId: sellerId,
       sellerUsername: sellerUsername,
+      isBlocked: false,
     });
   }
 

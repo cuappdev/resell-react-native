@@ -67,15 +67,30 @@ export default function BlockedUsersScreen({ navigation }) {
     }
   }, [userId]);
 
+  const displayExternalProfile = (user) => {
+    navigation.navigate("ExternalProfile", {
+      sellerName: "HELLO",
+      sellerId: user.id,
+      sellerUsername: user.username,
+      isBlocked: true
+    });
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.cell}>
-      <View style={styles.userContainer}>
-        <FastImage
-          style={styles.profileImage}
-          source={{ uri: item.photoUrl }}
-        />
-        <Text style={styles.userName}>{item.username}</Text>
-      </View>
+      <TouchableOpacity
+        onPress={() => displayExternalProfile(item)}
+      >
+        <View style={styles.userContainer}>
+
+          <FastImage
+            style={styles.profileImage}
+            source={{ uri: item.photoUrl }}
+          />
+          <Text style={styles.userName}>{item.username}</Text>
+
+        </View>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
           setSelectedUser(item);
