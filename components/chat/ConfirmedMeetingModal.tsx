@@ -96,13 +96,17 @@ export default function ConfirmedMeetingModal({
     }
   };
   const updateViewed = () => {
-    updateDoc(
-      doc(
-        collection(doc(historyRef, auth.currentUser.email), "sellers"),
-        email
-      ),
-      { confirmedView: true }
-    );
+    try {
+      updateDoc(
+        doc(
+          collection(doc(historyRef, auth.currentUser.email), "sellers"),
+          email
+        ),
+        { confirmedView: true }
+      );
+    } catch (e) {
+      console.error(`Error in ConfirmedMeetingModal: ${e}`);
+    }
   };
 
   return (

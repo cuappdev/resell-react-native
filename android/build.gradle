@@ -1,4 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services' // apply after this line
+apply plugin: 'com.google.firebase.crashlytics'
 
 buildscript {
     ext {

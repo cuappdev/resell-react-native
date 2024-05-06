@@ -1,8 +1,7 @@
 import React from "react";
 
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import FastImage from "react-native-fast-image";
-import { BlurView } from "@react-native-community/blur";
+import { Image } from "react-native-elements";
 
 /**
  *
@@ -17,7 +16,7 @@ const ProductCard = (props) => {
   return (
     <TouchableOpacity style={styles.container} onPress={props.onPress}>
       <View>
-        <FastImage source={{ uri: props.image }} style={styles.image} />
+        <Image source={{ uri: props.image }} style={styles.image} />
       </View>
       <View style={styles.textBox}>
         <Text style={styles.itemName}>{props.title}</Text>
