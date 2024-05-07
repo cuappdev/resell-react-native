@@ -344,90 +344,96 @@ export default function ChatWindow({ navigation, route }) {
       recentMessage = "[Image]";
       notifText = "Sent an Image";
     }
-    // In the buyer's history, track a new seller
-    const buyerHistoryRef = doc(
-      collection(doc(historyRef, buyerEmail), "sellers"),
-      sellerEmail
-    );
-    // In the seller's history, track a new buyer
-    const sellerHistoryRef = doc(
-      collection(doc(historyRef, sellerEmail), "buyers"),
-      buyerEmail
-    );
-    // the names for buyer and seller
-    const buyersName = isBuyer ? auth.currentUser.displayName : name;
-    const sellersName = isBuyer ? name : auth.currentUser.displayName;
-    // images for buyer and seller
-    const buyersImage = isBuyer ? auth.currentUser.photoURL : receiverImage;
-    const sellersImage = isBuyer ? receiverImage : auth.currentUser.photoURL;
-
-    const commonData = {
-      item: post,
-      recentMessage: recentMessage,
-      recentMessageTime: new Date().toISOString(),
-      recentSender: auth.currentUser.email,
-      confirmedTime:
-        confirmedTime == "" || confirmedTime == undefined ? "" : confirmedTime,
-    };
-    const buyerData = {
-      ...commonData,
-      name: sellersName,
-      image: sellersImage,
-      viewed: isBuyer,
-    };
-    const sellerData = {
-      ...commonData,
-      name: buyersName,
-      image: buyersImage,
-      viewed: !isBuyer,
-    };
-
-    setDoc(buyerHistoryRef, buyerData);
-    setDoc(sellerHistoryRef, sellerData);
-
-    // update multiple items for buyer and seller
-    const buyerItemDoc = doc(collection(sellerHistoryRef, "items"), post.id);
-    const sellerItemDoc = doc(collection(buyerHistoryRef, "items"), post.id);
-    setDoc(buyerItemDoc, post);
-    setDoc(sellerItemDoc, post);
-
-    //#endregion
-
-    // Send new message to the db
-    const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
-    addDoc(messageRef, {
-      _id,
-      text,
-      availability,
-      image,
-      product,
-      createdAt,
-      user,
-    });
-
-    const docRef = doc(userRef, email);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      sendNotification(
-        docSnap.data().fcmToken,
-        user.name,
-        notifText,
-        "chat",
-        {
-          name,
-          receiverImage,
-          email,
-          post,
-          isBuyer,
-          confirmedTime,
-          confirmedViewed,
-          proposedTime,
-          proposer,
-        },
-        docSnap.data().notificationsEnabled
+    try {
+      // In the buyer's history, track a new seller
+      const buyerHistoryRef = doc(
+        collection(doc(historyRef, buyerEmail), "sellers"),
+        sellerEmail
       );
-    } else {
-      console.log("No such document!");
+      // In the seller's history, track a new buyer
+      const sellerHistoryRef = doc(
+        collection(doc(historyRef, sellerEmail), "buyers"),
+        buyerEmail
+      );
+      // the names for buyer and seller
+      const buyersName = isBuyer ? auth.currentUser.displayName : name;
+      const sellersName = isBuyer ? name : auth.currentUser.displayName;
+      // images for buyer and seller
+      const buyersImage = isBuyer ? auth.currentUser.photoURL : receiverImage;
+      const sellersImage = isBuyer ? receiverImage : auth.currentUser.photoURL;
+
+      const commonData = {
+        item: post,
+        recentMessage: recentMessage,
+        recentMessageTime: new Date().toISOString(),
+        recentSender: auth.currentUser.email,
+        confirmedTime:
+          confirmedTime == "" || confirmedTime == undefined
+            ? ""
+            : confirmedTime,
+      };
+      const buyerData = {
+        ...commonData,
+        name: sellersName,
+        image: sellersImage,
+        viewed: isBuyer,
+      };
+      const sellerData = {
+        ...commonData,
+        name: buyersName,
+        image: buyersImage,
+        viewed: !isBuyer,
+      };
+
+      setDoc(buyerHistoryRef, buyerData);
+      setDoc(sellerHistoryRef, sellerData);
+
+      // update multiple items for buyer and seller
+      const buyerItemDoc = doc(collection(sellerHistoryRef, "items"), post.id);
+      const sellerItemDoc = doc(collection(buyerHistoryRef, "items"), post.id);
+      setDoc(buyerItemDoc, post);
+      setDoc(sellerItemDoc, post);
+
+      //#endregion
+
+      // Send new message to the db
+      const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
+      addDoc(messageRef, {
+        _id,
+        text,
+        availability,
+        image,
+        product,
+        createdAt,
+        user,
+      });
+
+      const docRef = doc(userRef, email);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        sendNotification(
+          docSnap.data().fcmToken,
+          user.name,
+          notifText,
+          "chat",
+          {
+            name,
+            receiverImage,
+            email,
+            post,
+            isBuyer,
+            confirmedTime,
+            confirmedViewed,
+            proposedTime,
+            proposer,
+          },
+          docSnap.data().notificationsEnabled
+        );
+      } else {
+        console.log("No such document!");
+      }
+    } catch (e) {
+      console.error(`Error in ChatWindow: ${e}`);
     }
   }, []);
   function renderMessage(props) {

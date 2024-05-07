@@ -126,7 +126,7 @@ export default function HomeScreen({ navigation, route }) {
                 new Date(post2.created).getTime() -
                 new Date(post1.created).getTime()
             )
-            .slice(0, 200) // Restrict to only 200 posts, can change if needed
+            .slice(0, 500) // Restrict to only 500 posts, can change if needed
             .filter(
               (post) => !blockedUsers.some((user) => user.id === post.user.id)
             )
@@ -157,7 +157,7 @@ export default function HomeScreen({ navigation, route }) {
                 new Date(post2.created).getTime() -
                 new Date(post1.created).getTime()
             )
-            .slice(0, 200) // Restrict to only 200 posts, can change if needed
+            .slice(0, 500) // Restrict to only 500 posts, can change if needed
         );
       }
     } catch (error) {
