@@ -45,6 +45,9 @@ export default class ApiClient {
     headers?: Record<string, string>,
     options?: any
   ) {
+    if (!this.accessToken) {
+      await this.loadAccessToken();
+    }
     return fetch(process.env.BASE_API_URL + route, {
       method: type,
       body: body ? JSON.stringify(body) : "",
@@ -55,6 +58,7 @@ export default class ApiClient {
       },
       ...options,
     }).then((response) => {
+      console.log(response.url);
       return response.json();
     });
   }

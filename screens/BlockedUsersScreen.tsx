@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Image,
   Text,
   View,
   TouchableOpacity,
@@ -8,6 +7,7 @@ import {
   FlatList,
   Platform,
   Dimensions,
+  RefreshControl,
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
@@ -15,29 +15,28 @@ import Colors from "../constants/Colors";
 import { useApiClient } from "../api/ApiClientProvider";
 import { makeToast } from "../utils/Toast";
 import FastImage from "react-native-fast-image";
-import { relative } from "path";
 import PopupSheet from "../components/PopupSheet";
 import { fonts } from "../globalStyle/globalFont";
+import { getUserId } from "../utils/asychStorageFunctions";
 
-export default function BlockedUsersScreen({ route, navigation }) {
-  const { userID } = route.params;
+export default function BlockedUsersScreen({ navigation }) {
   const [blockedUsers, setBlockedUsers] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Record<string, any>>({});
-  const [refreshing, setRefreshing] = useState(false);
+  const [userId, setUserId] = useState("");
 
   const apiClient = useApiClient();
 
   const getBlockedUsers = async () => {
     try {
-      const response = await apiClient.get(`/user/blocked/id/${userID}/`);
+      const response = await apiClient.get(`/user/blocked/id/${userId}`);
       if (response.users) {
         setBlockedUsers(response.users);
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e) {
-      console.log(`BlockedUsersScreen.getBlockedUsers: ${e}`);
+    } catch (error) {
+      console.log(`BlockedUsersScreen.getBlockedUsers failed: ${error}`);
     }
   };
 
@@ -57,18 +56,16 @@ export default function BlockedUsersScreen({ route, navigation }) {
     }
   };
 
+  // Fetch user ID first
   useEffect(() => {
-    getBlockedUsers();
-  }, userID);
+    getUserId(setUserId);
+  }, []);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    getBlockedUsers().then(() => {
-      setRefreshing(false);
-    });
-  };
-
-  getBlockedUsers();
+  useEffect(() => {
+    if (userId) {
+      getBlockedUsers();
+    }
+  }, [userId]);
 
   const renderItem = ({ item }) => (
     <View style={styles.cell}>
@@ -126,8 +123,14 @@ export default function BlockedUsersScreen({ route, navigation }) {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         style={styles.userList}
-        refreshing={refreshing}
-        onRefresh={handleRefresh}
+        refreshControl={
+          <RefreshControl
+            tintColor={"#DE6CD3"}
+            colors={["#DE6CD3"]}
+            refreshing={false}
+            onRefresh={getBlockedUsers}
+          />
+        }
       />
       <PopupSheet
         isVisible={modalVisible}

@@ -33,19 +33,23 @@ function Button(props) {
       props.setIsBubble(false);
     }
     if (props.title == "Pay with Venmo") {
-      const myUserRef = doc(userRef, props.otherEmail);
-      const myUserDoc = await getDoc(myUserRef);
-      var venmo = "";
-      if (myUserDoc.exists()) {
-        venmo = myUserDoc.data().venmo;
-      }
-      if (venmo !== "") {
-        Linking.openURL("https://account.venmo.com/u/" + venmo);
-      } else {
-        Alert.alert(
-          "Warning",
-          "The user has not set up venmo yet, please contact the user directly."
-        );
+      try {
+        const myUserRef = doc(userRef, props.otherEmail);
+        const myUserDoc = await getDoc(myUserRef);
+        var venmo = "";
+        if (myUserDoc.exists()) {
+          venmo = myUserDoc.data().venmo;
+        }
+        if (venmo !== "") {
+          Linking.openURL("https://account.venmo.com/u/" + venmo);
+        } else {
+          Alert.alert(
+            "Warning",
+            "The user has not set up venmo yet, please contact the user directly."
+          );
+        }
+      } catch (e) {
+        console.error(`Error in Button: ${e}`);
       }
     }
     if (props.title.includes("View")) {
@@ -77,7 +81,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   appButtonContainer: {
-    elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
     paddingVertical: 11,
@@ -89,7 +92,6 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   appUnclickedContainer: {
-    elevation: 8,
     backgroundColor: "#ffffff",
     borderRadius: 100,
     paddingVertical: 10,

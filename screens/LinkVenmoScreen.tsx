@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-
+import { useDispatch } from "react-redux";
 import { doc, setDoc } from "firebase/firestore";
 import {
   Keyboard,
@@ -16,46 +16,112 @@ import VenmoInput from "../components/VenmoInput";
 import { auth, userRef } from "../config/firebase";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { storeOnboarded } from "../utils/asychStorageFunctions";
+import {
+  getGoogleSignInData,
+  storeAccessToken,
+  storeDeviceToken,
+  storeOnboarded,
+  storeUserId,
+  storeUsername,
+} from "../utils/asychStorageFunctions";
+import { getDeviceFCMToken } from "../api/FirebaseNotificationManager";
+import { login } from "../state_manage/reducers/signInReducer";
 
 export default function LinkVenmoScreen({ navigation, route }) {
   const { image, username, bio } = route.params;
-  const [venmo, setVenmo] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const api = useApiClient();
+  const dispatch = useDispatch();
 
-  const updateProfileOnBackend = async () => {
+  const [venmo, setVenmo] = useState("");
+  const [googleUser, setGoogleUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const apiClient = useApiClient();
+  getGoogleSignInData(setGoogleUser);
+
+  const createUser = async () => {
     setIsLoading(true);
 
-    // update backend
-    const response = await api.post("/user/", {
-      photoUrlBase64: image,
-      username: username,
-      venmoHandle: venmo,
-      bio: bio,
-    });
-    if (response.error) {
-      console.log(response.error);
-      makeToast({ message: "Failed to update profile", type: "ERROR" });
-      return;
-    }
-    // update Firebase:
     try {
+      const createAccountRes = await apiClient.post("/auth/", {
+        username: username,
+        netid: googleUser.email.substring(
+          0,
+          googleUser.email.indexOf("@cornell.edu")
+        ),
+        givenName: googleUser.givenName,
+        familyName: googleUser.familyName,
+        photoUrl: googleUser.photo,
+        email: googleUser.email,
+        googleId: googleUser.id,
+      });
+
+      // Update Firebase
+      const deviceToken = await getDeviceFCMToken();
+      await storeDeviceToken(deviceToken);
       await setDoc(doc(userRef, auth.currentUser.email), {
         venmo: venmo,
         onboarded: true,
+        fcmToken: deviceToken,
+        notificationsEnabled: false,
       });
-    } catch (e) {
-      makeToast({ message: "Failed to update profile", type: "ERROR" });
+
+      // Store user ID and username
+      const accountId = createAccountRes.user?.id;
+      await storeUserId(accountId);
+      await storeUsername(username);
+      await storeOnboarded(true);
+
+      // Get an access token and login using it
+      const accessTokenRes = await apiClient.get(`/auth/sessions/${accountId}`);
+      const session = accessTokenRes.sessions?.[0];
+      if (session) {
+        console.log(`Firebase Token User: ${JSON.stringify(auth.currentUser)}`);
+        const accessToken = session.accessToken;
+        console.log(`Access Token: ${JSON.stringify(session.accessToken)}`);
+        const isActive = session.active;
+
+        if (isActive) {
+          await storeAccessToken(accessToken);
+          await apiClient.loadAccessToken();
+          dispatch(login(accessToken));
+        } else {
+          // Get a new session for the user
+          const newSession = await apiClient.get(
+            `/auth/refresh/`,
+            {},
+            {
+              Authorization: session.refreshToken,
+            }
+          );
+          const newAccessToken = newSession.accessToken;
+          if (!newAccessToken) {
+            throw new Error("Unable to refresh login");
+          }
+          await storeAccessToken(newAccessToken);
+          await apiClient.loadAccessToken();
+          dispatch(login(newAccessToken));
+        }
+
+        // Change tabs and stop loading animation
+        setIsLoading(false);
+
+        // Update profile
+        await apiClient.post("/user/", {
+          photoUrlBase64: image,
+          username: username,
+          venmoHandle: venmo,
+          bio: bio,
+        });
+
+        navigation.navigate("Root", {
+          screen: "HomeTab",
+          params: { showPanel: true },
+        });
+      }
+    } catch (error) {
+      console.error(`LinkVenmoScreen.createUser failed: ${error}`);
+      makeToast({ message: "Failed to create an account", type: "ERROR" });
     }
-
-    await storeOnboarded(true);
-    setIsLoading(false);
-
-    navigation.navigate("Root", {
-      screen: "HomeTab",
-      params: { showPanel: true },
-    });
   };
 
   return (
@@ -73,7 +139,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
         <View style={styles.purpleButton}>
           <PurpleButton
             text={"Continue"}
-            onPress={updateProfileOnBackend}
+            onPress={createUser}
             enabled={venmo.trim().length > 0}
             isLoading={isLoading}
           />
@@ -83,7 +149,7 @@ export default function LinkVenmoScreen({ navigation, route }) {
             text={"Skip"}
             onPress={() => {
               setVenmo("");
-              updateProfileOnBackend();
+              createUser();
             }}
           />
         </View>

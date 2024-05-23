@@ -15,6 +15,7 @@ import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 import ModalBar from "../assets/svg-components/modal_bar";
 import { auth } from "../config/firebase";
 import { makeToast } from "../utils/Toast";
+import FastImage from "react-native-fast-image";
 
 export function DetailPullUpHeader({
   item,
@@ -42,7 +43,10 @@ export function DetailPullUpHeader({
         <Text style={styles.price}>{"$" + item.price}</Text>
       </View>
       <View style={styles.paddedRow}>
-        <Image source={{ uri: sellerProfile }} style={styles.profileImage} />
+        <FastImage
+          source={{ uri: sellerProfile }}
+          style={styles.profileImage}
+        />
         <Text style={styles.profile}>{sellerName}</Text>
       </View>
     </View>
@@ -58,7 +62,7 @@ export function DetailPullUpBody({
   screen,
 }) {
   const [userId, setUserId] = useState("");
-  const api = useApiClient();
+  const apiClient = useApiClient();
   AsyncStorage.getItem("userId", (errs, result) => {
     if (!errs) {
       if (result !== null && result !== undefined) {
@@ -96,7 +100,7 @@ export function DetailPullUpBody({
             <TouchableOpacity
               onPress={async () => {
                 try {
-                  const response = await api.get(
+                  const response = await apiClient.get(
                     `/post/isSaved/postId/${item.id}`
                   );
 

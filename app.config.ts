@@ -3,7 +3,7 @@ export default {
   expo: {
     name: "Resell",
     slug: "Resell",
-    version: "1.0.0",
+    version: "1.0.3",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
@@ -42,6 +42,7 @@ export default {
         },
       ],
       "@react-native-google-signin/google-signin",
+      "@react-native-firebase/crashlytics",
     ],
     updates: {
       fallbackToCacheTimeout: 0,
@@ -49,9 +50,9 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: false,
-      bundleIdentifier: "com.appdev.resellios",
+      bundleIdentifier: "com.cornellappdev.resell",
       googleServicesFile: "./config/GoogleService-Info.plist",
-      buildNumber: "3",
+      buildNumber: "11",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
         NSRemindersUsageDescription: "Allow Resell to access your reminders",

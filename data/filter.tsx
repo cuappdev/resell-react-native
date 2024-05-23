@@ -1,7 +1,7 @@
 export const FILTER = [
   {
     id: 0,
-    title: "All",
+    title: "Recent",
   },
   {
     id: 1,

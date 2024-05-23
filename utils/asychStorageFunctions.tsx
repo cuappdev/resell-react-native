@@ -6,6 +6,7 @@ export const storeSignedIn = async (signedIn) => {
     console.log(e);
   }
 };
+
 export const storeOnboarded = async (onboard: boolean) => {
   try {
     await AsyncStorage.setItem("onboard", onboard.toString());
@@ -38,6 +39,14 @@ export const storeUserId = async (userid: string) => {
   }
 };
 
+export const storeUsername = async (username: string) => {
+  try {
+    await AsyncStorage.setItem("username", username);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const storeAccessToken = async (accessToken: string) => {
   try {
     await AsyncStorage.setItem("accessToken", accessToken);
@@ -62,18 +71,17 @@ export const storeExpireAt = async (expiresAt) => {
   }
 };
 
-export const storeNotificationSettings = async (enabled) => {
+export const storeCalendarID = async (calendarID) => {
   try {
-    await AsyncStorage.setItem("notificationsEnabled", enabled);
-    console.log(enabled);
+    await AsyncStorage.setItem("calendarID", calendarID);
   } catch (e) {
     console.log(e);
   }
 };
 
-export const storeCalendarID = async (calendarID) => {
+export const storeGoogleSignInData = async (signInData) => {
   try {
-    await AsyncStorage.setItem("calendarID", calendarID);
+    await AsyncStorage.setItem("googleSignInData", signInData);
   } catch (e) {
     console.log(e);
   }
@@ -86,6 +94,7 @@ export const getOnboard = async (setOnBoarded) => {
     }
   });
 };
+
 export const getSignedIn = async (setSigned) => {
   AsyncStorage.getItem("signedIn", async (errs, result) => {
     if (!errs && result !== null) {
@@ -122,24 +131,19 @@ export const getUserId = async (setUserId) => {
   });
 };
 
+export const getUsername = async (setUsername) => {
+  AsyncStorage.getItem("username", async (errs, result) => {
+    if (!errs && result !== null) {
+      setUsername(result);
+    }
+  });
+};
+
 export const getAccessToken = async (setAccessToken) => {
   AsyncStorage.getItem("accessToken", async (errs, result) => {
     if (!errs && result !== null) {
       setAccessToken(result);
     }
-  });
-};
-
-export const getNotificationSettings = async (setNotificationSettings) => {
-  AsyncStorage.getItem("notificationsEnabled", async (errs, result) => {
-    if (!errs && result !== null) {
-      if (setNotificationSettings) {
-        setNotificationSettings(result);
-      }
-    }
-    console.log(result);
-
-    return result;
   });
 };
 
@@ -153,6 +157,12 @@ export const getCalendarID = async (
   });
 };
 
-export const returnCalendarId = () => AsyncStorage.getItem("calendarID");
+export const getGoogleSignInData = async (setGoogleSignInData) => {
+  AsyncStorage.getItem("googleSignInData", async (errs, result) => {
+    if (!errs && result !== null) {
+      setGoogleSignInData(JSON.parse(result));
+    }
+  });
+};
 
 export const returnAccessToken = () => AsyncStorage.getItem("accessToken");

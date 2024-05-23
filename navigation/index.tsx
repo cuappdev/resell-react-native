@@ -60,7 +60,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ApiClientProvider from "../api/ApiClientProvider";
 import Venmo from "../assets/svg-components/venmo";
 import { fonts } from "../globalStyle/globalFont";
-import AccountSettingsScreen from "../screens/AccountSettingsScreen";
+import BlockedUsersScreen from "../screens/BlockedUsersScreen";
 import ChatWindow from "../screens/ChatWindow";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import LinkVenmoScreen from "../screens/LinkVenmoScreen";
@@ -72,7 +72,6 @@ import ReportPostConfirmScreen from "../screens/ReportPostConfirmScreen";
 import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
 import ReportPostScreen from "../screens/ReportPostScreen";
 import RequestMatches from "../screens/RequestMatches";
-import BlockedUsersScreen from "../screens/BlockedUsersScreen";
 
 export default function Navigation({
   colorScheme,
@@ -84,7 +83,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-    // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
       <RootNavigator onboard={onboard} />
     </NavigationContainer>
@@ -445,13 +444,6 @@ function ProfileNavigator({ navigation }) {
         }}
       />
       <ProfileStack.Screen
-        name="AccountSettings"
-        component={AccountSettingsScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <ProfileStack.Screen
         name="NotificationPreferences"
         component={NotificationPreferencesScreen}
         options={{
@@ -691,11 +683,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
     height: Platform.OS === "ios" ? bottomTabsHeight : bottomTabsHeight - 20,
     borderTopWidth: 0,
-    shadowColor: "gray",
-    shadowRadius: 10,
-    backgroundColor: "#ffffff",
-    shadowOpacity: 0.3,
-    elevation: 10, // android
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.0,
+    backgroundColor: "white",
+    elevation: 24,
   },
   headerNoShadow: {
     shadowColor: "transparent",

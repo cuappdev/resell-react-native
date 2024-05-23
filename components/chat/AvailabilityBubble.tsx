@@ -6,16 +6,17 @@ export function AvailabilityBubble({
   userName,
   setIsBubble,
   setAvailabilityVisible,
+  userId,
   setInputSchedule,
   schedule,
-  setAvailabilityUserName,
+  setAvailabilityUserId,
 }) {
   return (
     <TouchableOpacity
       style={styles.outer}
       activeOpacity={0.7}
       onPress={() => {
-        if (schedule != null) {
+        if (schedule !== null) {
           if (!(schedule[0].endDate instanceof Date)) {
             schedule.forEach((element, index) => {
               const endDate = element.endDate.toDate();
@@ -25,13 +26,17 @@ export function AvailabilityBubble({
             });
           }
           setInputSchedule(schedule);
-          setAvailabilityUserName(userName);
+          setAvailabilityUserId(userId);
           setAvailabilityVisible(true);
           setIsBubble(true);
         }
       }}
     >
-      <Text style={styles.textStyle}>{userName}'s Availability</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.textStyle} numberOfLines={2}>
+          {userName}'s Availability
+        </Text>
+      </View>
       <View
         style={{
           marginLeft: 15,

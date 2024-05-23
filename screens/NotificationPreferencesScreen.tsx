@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -10,61 +10,29 @@ import {
 } from "react-native";
 import BackButton from "../assets/svg-components/back_button";
 import { menuBarTop } from "../constants/Layout";
-
+import { auth } from "../config/firebase";
 import {
   setPauseAllNotifications,
   setChatNotifications,
   setNewListings,
 } from "../state_manage/actions/settingsScreenActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getEmail, getNotificationSettings, getUserId, storeNotificationSettings } from "../utils/asychStorageFunctions";
 import { saveNotificationSettings } from "../api/FirebaseNotificationManager";
-import { doc, getDoc } from "firebase/firestore";
-import { userRef } from "../config/firebase";
-import { useApiClient } from "../api/ApiClientProvider";
 
 export default function NotificationPreferencesScreen({ navigation }) {
-  const [notificationsEnabled, setNotificationsEnabled] = useState("");
-  const [userId, setUserId] = useState("");
-  const [userEmail, setUserEmail] = useState("")
   const dispatch = useDispatch();
 
-  getUserId(setUserId);
-
-  const apiClient = useApiClient()
-
-  const getEmail = async () => {
-    try {
-      const response = await apiClient.get(`/user/id/${userId}`)
-      if (response.user) {
-        const user = response.user;
-        setUserEmail(user.email)
-        const docRef = doc(userRef, userEmail)
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setNotificationsEnabled(docSnap.data().notificationsEnabled)
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  getEmail()
-
-  const setIsAllNotificationsPaused = async (pauseAllNotifications: boolean) => {
+  const setIsAllNotificationsPaused = async (
+    pauseAllNotifications: boolean
+  ) => {
     dispatch(setPauseAllNotifications(pauseAllNotifications));
-    setNotificationsEnabled(JSON.stringify(pauseAllNotifications))
-    await storeNotificationSettings(JSON.stringify(pauseAllNotifications))
-    saveNotificationSettings(userEmail, pauseAllNotifications)
-  }
+    saveNotificationSettings(auth.currentUser.email, !pauseAllNotifications);
+  };
 
   const setIsChatNotificationsOn = async (chatNotifications: boolean) => {
     dispatch(setChatNotifications(chatNotifications));
-    setNotificationsEnabled(JSON.stringify(chatNotifications))
-    await storeNotificationSettings(JSON.stringify(chatNotifications))
-    saveNotificationSettings(userEmail, chatNotifications)
-  }
+    saveNotificationSettings(auth.currentUser.email, chatNotifications);
+  };
 
   const setIsNewListingsOn = (newListings: boolean) =>
     dispatch(setNewListings(newListings));
@@ -103,7 +71,7 @@ export default function NotificationPreferencesScreen({ navigation }) {
           },
           {
             text: "Chat Notifications",
-            state: (notificationsEnabled),
+            state: isChatNotificationsOn,
             action: (value) => setIsChatNotificationsOn(value),
           },
           {
@@ -113,7 +81,7 @@ export default function NotificationPreferencesScreen({ navigation }) {
           },
         ]}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => { }} style={styles.item}>
+          <TouchableOpacity onPress={() => {}} style={styles.item}>
             <Text style={styles.itemText}>{item.text}</Text>
             <Switch
               trackColor={{ false: "#FFFFFF", true: "#9E70F6" }}

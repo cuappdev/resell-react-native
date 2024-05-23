@@ -1,3 +1,4 @@
+import TimeAgo from "@andordavoti/react-native-timeago";
 import { Feather } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 import {
@@ -17,7 +18,8 @@ import {
   View,
 } from "react-native";
 import FastImage from "react-native-fast-image";
-import { format } from "timeago.js";
+import { RefreshControl } from "react-native-gesture-handler";
+import { useApiClient } from "../api/ApiClientProvider";
 import ChatTabs from "../components/chat/ChatTabs";
 import LoadingChat from "../components/chat/LoadingChat";
 import { auth, historyRef } from "../config/firebase";
@@ -25,8 +27,6 @@ import Colors from "../constants/Colors";
 import { ChatPreview } from "../data/struct";
 import { fonts } from "../globalStyle/globalFont";
 import { makeToast } from "../utils/Toast";
-import { formatSingleItem } from "../utils/general";
-import { useApiClient } from "../api/ApiClientProvider";
 import { getUserId } from "../utils/asychStorageFunctions";
 
 export default function ChatScreen({ navigation }) {
@@ -41,13 +41,15 @@ export default function ChatScreen({ navigation }) {
   const [blockedUsers, setBlockedUsers] = useState([]);
   const [userId, setUserId] = useState("");
 
-  getUserId(setUserId);
-
   const apiClient = useApiClient();
+  const compareItemsByDate = (item1: ChatPreview, item2: ChatPreview) =>
+    new Date(item1.recentMessageTime) < new Date(item2.recentMessageTime)
+      ? 11
+      : -1;
 
   const getBlockedUsers = async () => {
     try {
-      const response = await apiClient.get(`/user/blocked/id/${userId}/`);
+      const response = await apiClient.get(`/user/blocked/id/${userId}`);
       if (response.users) {
         setBlockedUsers(response.users);
       } else {
@@ -56,30 +58,27 @@ export default function ChatScreen({ navigation }) {
     } catch (e: unknown) {}
   };
 
-  useEffect(() => {
-    getBlockedUsers();
-  });
-
   const getPurchase = (): Unsubscribe => {
     if (purchase === null) {
       setIsLoadingPurchase(true);
     }
 
-    const sellersQuery = collection(
-      doc(historyRef, auth.currentUser?.email),
-      "sellers"
-    );
-
     try {
+      const sellersQuery = collection(
+        doc(historyRef, auth.currentUser?.email),
+        "sellers"
+      );
+
       return onSnapshot(sellersQuery, async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
         for (const document of querySnapshot.docs) {
           // get the items for the chat
-          const sellerHistoryRef = doc(
-            collection(doc(historyRef, document.id), "buyers"),
-            auth.currentUser.email
-          );
           try {
+            const sellerHistoryRef = doc(
+              collection(doc(historyRef, document.id), "buyers"),
+              auth.currentUser.email
+            );
+
             const items = (
               await getDocs(query(collection(sellerHistoryRef, "items")))
             ).docs.map((d) => d.data());
@@ -110,6 +109,7 @@ export default function ChatScreen({ navigation }) {
             });
           }
         }
+        tempt.sort(compareItemsByDate);
         setPurchase(
           tempt.filter(
             (post) => !blockedUsers.some((user) => user.email === post.email)
@@ -126,21 +126,21 @@ export default function ChatScreen({ navigation }) {
       setIsLoadingOffers(true);
     }
 
-    const buyersQuery = collection(
-      doc(historyRef, auth.currentUser.email),
-      "buyers"
-    );
-
     try {
+      const buyersQuery = collection(
+        doc(historyRef, auth.currentUser.email),
+        "buyers"
+      );
+
       return onSnapshot(buyersQuery, async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
         for (const document of querySnapshot.docs) {
-          // get the items for the chat
-          const buyerHistoryRef = doc(
-            collection(doc(historyRef, document.id), "sellers"),
-            auth.currentUser.email
-          );
           try {
+            // get the items for the chat
+            const buyerHistoryRef = doc(
+              collection(doc(historyRef, document.id), "sellers"),
+              auth.currentUser.email
+            );
             const items = (
               await getDocs(query(collection(buyerHistoryRef, "items")))
             ).docs.map((d) => d.data());
@@ -167,6 +167,7 @@ export default function ChatScreen({ navigation }) {
             console.log(error);
           }
         }
+        tempt.sort(compareItemsByDate);
         setOffer(
           tempt.filter(
             (post) => !blockedUsers.some((user) => user.email === post.email)
@@ -178,15 +179,12 @@ export default function ChatScreen({ navigation }) {
       console.log("Error getting user: ", e);
     }
   };
-  useEffect(() => {
-    const unsubFromPurchase = getPurchase();
-    const unsubFromOffers = getOffer();
 
-    return () => {
-      unsubFromPurchase();
-      unsubFromOffers();
-    };
-  }, [isFocused]);
+  const fetchChatData = () => {
+    getPurchase();
+    getOffer();
+    getBlockedUsers();
+  };
 
   const countNotViewed = (chatPreviews: ChatPreview[]): number => {
     let notViewed = 0;
@@ -197,6 +195,18 @@ export default function ChatScreen({ navigation }) {
     });
     return notViewed;
   };
+
+  // Fetch user ID first
+  useEffect(() => {
+    getUserId(setUserId);
+  }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchChatData();
+    }
+  }, [isFocused]);
+
   useEffect(() => {
     setPurchaseUnread(countNotViewed(purchase ?? []));
   }, [purchase]);
@@ -238,27 +248,34 @@ export default function ChatScreen({ navigation }) {
             source={{ uri: chatPreview.image }}
             resizeMode={"cover"}
           />
-          <View style={styles.inner}>
-            <View style={styles.chatHeaderContainer}>
-              <Text numberOfLines={1} style={styles.sellerName}>
-                {chatPreview.sellerName}
-              </Text>
+          <View style={[styles.inner]}>
+            <View style={[styles.chatHeaderContainer]}>
+              <View style={[{ flexShrink: 1 }]}>
+                <Text numberOfLines={1} style={styles.sellerName}>
+                  {chatPreview.sellerName}
+                </Text>
+              </View>
+
               <View style={{ width: 12 }} />
               <View style={styles.itemContainer}>
                 <Text
+                  numberOfLines={1}
                   style={[fonts.Title4, { color: Colors.secondaryGray }]}
                 >{`${
                   chatPreview.items.length > 0
-                    ? formatSingleItem(chatPreview.items[0].title)
+                    ? chatPreview.items[0].title
                     : "loading..."
                 }`}</Text>
               </View>
               {chatPreview.items.length > 1 && (
                 <>
                   <View style={{ width: 4 }} />
-                  <Text
-                    style={[fonts.subtitle, { color: Colors.secondaryGray }]}
-                  >{`+ ${chatPreview.items.length - 1} more`}</Text>
+                  <View style={{ flexShrink: 1 }}>
+                    <Text
+                      numberOfLines={1}
+                      style={[fonts.subtitle, { color: Colors.secondaryGray }]}
+                    >{`+ ${chatPreview.items.length - 1} more`}</Text>
+                  </View>
                 </>
               )}
             </View>
@@ -280,7 +297,7 @@ export default function ChatScreen({ navigation }) {
                 }}
               />
               <Text style={[fonts.Title4, { color: Colors.secondaryGray }]}>
-                {format(chatPreview.recentMessageTime, "en_US")}
+                <TimeAgo dateTo={new Date(chatPreview.recentMessageTime)} />
               </Text>
             </View>
           </View>
@@ -313,6 +330,14 @@ export default function ChatScreen({ navigation }) {
             data={purchase}
             renderItem={renderItem}
             keyboardShouldPersistTaps="always"
+            refreshControl={
+              <RefreshControl
+                tintColor={"#DE6CD3"}
+                colors={["#DE6CD3"]}
+                refreshing={false}
+                onRefresh={fetchChatData}
+              />
+            }
           />
         ) : (
           <View style={styles.noResultView}>
@@ -337,6 +362,14 @@ export default function ChatScreen({ navigation }) {
             data={offer}
             renderItem={renderItem}
             keyboardShouldPersistTaps="always"
+            refreshControl={
+              <RefreshControl
+                tintColor={"#DE6CD3"}
+                colors={["#DE6CD3"]}
+                refreshing={false}
+                onRefresh={fetchChatData}
+              />
+            }
           />
         ) : (
           <View style={styles.noResultView}>
@@ -368,7 +401,6 @@ const styles = StyleSheet.create({
   inner: {
     width: "65%",
     marginStart: 12,
-
     flexDirection: "column",
     justifyContent: "space-around",
   },
@@ -404,9 +436,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.stroke,
     borderWidth: 1,
     borderRadius: 75,
+    flexShrink: 1,
   },
   chatHeaderContainer: {
     alignItems: "center",
     flexDirection: "row",
+    maxWidth: "100%",
+    overflow: "hidden",
   },
 });

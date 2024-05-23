@@ -3,12 +3,14 @@ import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 export function NegotiationProductBubble({ product, price, image }) {
   return (
-    <View style={styles.outer}>
+    <View style={[styles.outer]}>
       <View>
         <Image source={{ uri: image }} style={styles.image} />
       </View>
-      <View style={styles.inner}>
-        <Text style={styles.productText}>{product}</Text>
+      <View style={[styles.inner]}>
+        <Text style={styles.productText} numberOfLines={1}>
+          {product}
+        </Text>
         <Text style={styles.priceText}>$ {price}</Text>
       </View>
     </View>
@@ -21,18 +23,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 15,
     width: "90%",
+    paddingHorizontal: 16,
+    gap: 16,
   },
   inner: {
     flexDirection: "column",
     marginVertical: 24,
-    marginHorizontal: 10,
-    width: "70%",
+    flex: 1,
   },
   productText: {
     fontFamily: "Rubik-Bold",
     fontSize: 20,
     marginVertical: 4,
-    maxWidth: "85%",
+    maxWidth: "100%",
   },
   priceText: {
     fontFamily: "Rubik-Regular",
@@ -44,6 +47,5 @@ const styles = StyleSheet.create({
     width: 120,
     resizeMode: "cover",
     borderRadius: 15,
-    margin: 8,
   },
 });

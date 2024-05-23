@@ -14,7 +14,7 @@ LogBox.ignoreAllLogs();
 export default function SavedScreen({ navigation }) {
   const [posts, setPosts] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const api = useApiClient();
+  const apiClient = useApiClient();
   const isFocused = useIsFocused();
 
   const getPosts = async () => {
@@ -22,9 +22,16 @@ export default function SavedScreen({ navigation }) {
       if (posts === null) {
         setLoading(true);
       }
-      const response = await api.get("/post/save/");
+      const response = await apiClient.get("/post/save");
       if (response.posts) {
-        setPosts(response.posts);
+        setPosts(
+          // Sort with most recent at the top
+          response.posts.sort(
+            (post1, post2) =>
+              new Date(post2.created).getTime() -
+              new Date(post1.created).getTime()
+          )
+        );
         setLoading(false);
       } else {
         makeToast({ message: "Failed to load saved posts", type: "ERROR" });
@@ -43,7 +50,9 @@ export default function SavedScreen({ navigation }) {
 
   useEffect(() => {
     // update posts when home screen is entered again
-    getPosts();
+    if (isFocused) {
+      getPosts();
+    }
   }, [isFocused]);
 
   return (
@@ -55,9 +64,7 @@ export default function SavedScreen({ navigation }) {
           <Text style={[fonts.pageHeading2, { marginBottom: 8 }]}>
             No saved posts
           </Text>
-          <Text
-            style={[fonts.body1, styles.bodyText]}
-          >
+          <Text style={[fonts.body1, styles.bodyText]}>
             Posts you have bookmarked will be displayed here
           </Text>
         </View>
@@ -90,6 +97,6 @@ const styles = StyleSheet.create({
   bodyText: {
     color: "#707070",
     marginHorizontal: 48,
-    textAlign: "center"
-  }
+    textAlign: "center",
+  },
 });

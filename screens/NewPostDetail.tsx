@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   Keyboard,
@@ -16,6 +16,7 @@ import { useApiClient } from "../api/ApiClientProvider";
 import ButtonBanner from "../components/ButtonBanner";
 import PurpleButton from "../components/PurpleButton";
 import { NegotiationModal } from "../components/chat/NegotiationModal";
+import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import { FILTER1 } from "../data/filter";
 import { fonts } from "../globalStyle/globalFont";
@@ -31,33 +32,52 @@ export function NewPostDetail({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // used to get state of isLoading in a closure
+  const loadingRef = useRef(false);
+  // used to track if the still loading text should be displayed for long load times
+  const [stillLoading, setStillLoading] = useState(false);
   const api = useApiClient();
   getUserId(setUserId);
+  useEffect(() => {
+    loadingRef.current = isLoading;
+  }, [isLoading]);
 
-  const postRequest = async () => {
+  const postRequest = () => {
     setIsLoading(true);
-    const res = await api.post("/post/", {
-      title: title,
-      description: description,
-      categories: [FILTER1[count].title],
-      price: Number(price.substring(1)),
-      original_price: Number(price.substring(1)),
-      imagesBase64: image,
-      userId: userId,
-    });
-    setIsLoading(false);
+    setTimeout(() => {
+      if (loadingRef.current) {
+        setStillLoading(true);
+      }
+    }, 5000);
 
-    if (res.post) {
-      navigation.navigate("Root");
-      makeToast({
-        message: "Item successfully posted",
+    api
+      .post("/post/", {
+        title: title,
+        description: description,
+        categories: [FILTER1[count].title],
+        price: Number(price.substring(1)),
+        original_price: Number(price.substring(1)),
+        imagesBase64: image,
+        userId: userId,
+      })
+      .then((res) => {
+        if (res.post) {
+          navigation.navigate("Root");
+          makeToast({
+            message: "New listing created",
+          });
+        }
+      })
+      .catch((_) => {
+        makeToast({
+          message: `Error creating post, try a smaller image or check your internet connection`,
+          type: "ERROR",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setStillLoading(false);
       });
-    } else {
-      makeToast({
-        message: "Error creating post, check your internet",
-        type: "ERROR",
-      });
-    }
   };
 
   return (
@@ -204,6 +224,16 @@ export function NewPostDetail({ navigation, route }) {
           <ButtonBanner count={count} setCount={setCount} data={FILTER1} />
         </View>
         <View style={styles.purpleButton}>
+          {stillLoading && (
+            <Text
+              style={[
+                fonts.body1,
+                { color: Colors.resellPurple, marginBottom: 16 },
+              ]}
+            >
+              Still loading...
+            </Text>
+          )}
           <PurpleButton
             text={"Continue"}
             onPress={() => {

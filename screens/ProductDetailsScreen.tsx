@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import SlidingUpPanel from "rn-sliding-up-panel";
+import { useApiClient } from "../api/ApiClientProvider";
 import BackButton from "../assets/svg-components/back_button";
 import EllipsesIcon from "../assets/svg-components/ellipses";
 import {
@@ -27,7 +28,6 @@ import PurpleButton from "../components/PurpleButton";
 import { auth, historyRef } from "../config/firebase";
 import Layout, { menuBarTop } from "../constants/Layout";
 import { makeToast } from "../utils/Toast";
-import { useApiClient } from "../api/ApiClientProvider";
 
 export default function ProductDetailsScreen({ route, navigation }) {
   const { post, screen, savedInitial } = route.params;
@@ -59,11 +59,11 @@ export default function ProductDetailsScreen({ route, navigation }) {
     try {
       let response;
       if (post.categories) {
-        response = await apiClient.post("/post/filter/", {
+        response = await apiClient.post("/post/filter", {
           category: post.categories[0],
         });
       } else {
-        response = await apiClient.get("/post/");
+        response = await apiClient.get("/post");
       }
       const json = response;
       setSimilarItems(json.posts.slice(0, 4));
@@ -94,6 +94,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     getPost();
     fetchPost();
@@ -126,26 +127,6 @@ export default function ProductDetailsScreen({ route, navigation }) {
       }
     }
   });
-
-  const fetchIsSaved = async () => {
-    try {
-      const response = await fetch(
-        "https://resell-dev.cornellappdev.com/api/post/isSaved/userId/" +
-          userId +
-          "/postId/" +
-          post.id
-      );
-      if (response.ok) {
-        const json = await response.json();
-        setIsSaved(json.isSaved);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    fetchIsSaved();
-  }, [userId]);
 
   const save = async () => {
     try {

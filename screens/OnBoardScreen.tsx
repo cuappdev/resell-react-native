@@ -1,9 +1,9 @@
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -14,7 +14,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import PurpleButton from "../components/PurpleButton";
@@ -22,6 +21,7 @@ import RadioButton from "../components/RadioButton";
 import Colors from "../constants/Colors";
 import { maxUsernameLength, pressedOpacity } from "../constants/Values";
 import { fonts } from "../globalStyle/globalFont";
+import { useKeyboardVisible } from "../utils/general";
 
 export default function OnBoardScreen({ navigation }) {
   const [image, setImage] = useState("");
@@ -72,17 +72,11 @@ export default function OnBoardScreen({ navigation }) {
   const openAppSettings = () => {
     Linking.openSettings();
   };
+  const keyboardVisible = useKeyboardVisible();
 
   const [isEditing, setIsEditing] = useState(false);
   const [usernameError, setUsernameError] = useState("");
   const [agreedToEula, setAgreedToEula] = useState(false);
-  const storePermission = async () => {
-    try {
-      await AsyncStorage.setItem("PhotoPermission", "true");
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -118,161 +112,143 @@ export default function OnBoardScreen({ navigation }) {
   const scroll = useRef<ScrollView | null>(null);
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View>
-        <ScrollView
-          style={{ height: "100%" }}
-          ref={(ref) => {
-            scroll.current = ref;
-          }}
-        >
-          <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <View>
-              <Image
-                style={styles.profilePic}
-                source={
-                  image === ""
-                    ? require("../assets/images/empty_profile.png")
-                    : { uri: image }
-                }
-              />
-              <TouchableOpacity
-                activeOpacity={pressedOpacity}
-                style={styles.roundButton1}
-                onPress={() => {
-                  pickImage();
-                }}
-              >
-                <Feather name="edit-2" size={18} color="black" />
-              </TouchableOpacity>
-            </View>
-            <View style={{ width: "100%" }}>
-              <View
-                style={{
-                  marginTop: 30,
-                  marginBottom: 10,
-                  flexDirection: "row",
-                }}
-              >
-                <Text style={styles.username}>Username</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: "column",
-                  alignItems: "flex-end",
-                }}
-              >
-                <TextInput
-                  value={username}
-                  onChangeText={(text) => {
-                    setUsername(text);
-                    if (scroll.current != null) {
-                      scroll.current.scrollToEnd({
-                        animated: true,
-                      });
-                    }
-                  }}
-                  style={[
-                    fonts.body2,
-                    {
-                      paddingVertical: 10,
-                      paddingHorizontal: 15,
-                      backgroundColor: "#F4F4F4",
-                      borderRadius: 10,
-                      marginBottom: 8,
-                      width: "100%",
-                      height: 40,
-                    },
-                  ]}
-                  placeholderTextColor={"#707070"}
-                />
-                <View style={{ height: 24 }}>
-                  {usernameError && (
-                    <Text
-                      style={[fonts.subtitle, { color: Colors.errorState }]}
-                    >
-                      {usernameError}
-                    </Text>
-                  )}
-                </View>
-              </View>
-              <Text style={styles.bio}>Bio</Text>
-              <View>
-                <TextInput
-                  value={bio}
-                  onChangeText={(text) => {
-                    setBio(text);
-                    if (scroll.current != null) {
-                      scroll.current.scrollToEnd({
-                        animated: true,
-                      });
-                    }
-                  }}
-                  style={[fonts.body2, styles.textInput]}
-                  placeholderTextColor={"#707070"}
-                  numberOfLines={4}
-                  multiline={true}
-                  maxLength={200}
-                />
-                <View
-                  style={{
-                    width: "100%",
-                    flexDirection: "row",
-                    justifyContent: "flex-end",
-                    height: 24,
-                  }}
-                >
-                  {bio.length > 0 && (
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        fontFamily: "Rubik-Regular",
-                        color: "#707070",
-                        marginTop: 4,
-                        marginRight: 10,
-                      }}
-                    >
-                      {bio.length}/200
-                    </Text>
-                  )}
-                </View>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginStart: 24,
-            }}
-          >
-            <RadioButton
-              isToggled={agreedToEula}
-              setIsToggled={setAgreedToEula}
+    <KeyboardAvoidingView behavior="height" style={{ height: "100%" }}>
+      <ScrollView
+        style={{ height: "100%" }}
+        ref={(ref) => {
+          scroll.current = ref;
+        }}
+      >
+        <View style={styles.container}>
+          <View>
+            <Image
+              style={styles.profilePic}
+              source={
+                image === ""
+                  ? require("../assets/images/empty_profile.png")
+                  : { uri: image }
+              }
             />
-            <View style={{ width: 16 }} />
-            <Text style={fonts.Title4}>I agree to Resell’s </Text>
             <TouchableOpacity
+              activeOpacity={pressedOpacity}
+              style={styles.roundButton1}
               onPress={() => {
-                Linking.openURL("https://www.cornellappdev.com/license/resell");
+                pickImage();
               }}
             >
+              <Feather name="edit-2" size={18} color="black" />
+            </TouchableOpacity>
+          </View>
+          <View style={{ width: "100%" }}>
+            <View
+              style={{
+                marginTop: 30,
+                marginBottom: 10,
+                flexDirection: "row",
+              }}
+            >
+              <Text style={styles.username}>Username</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "column",
+                alignItems: "flex-end",
+              }}
+            >
+              <TextInput
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
+                }}
+                style={[
+                  fonts.body2,
+                  {
+                    paddingVertical: 10,
+                    paddingHorizontal: 15,
+                    backgroundColor: "#F4F4F4",
+                    borderRadius: 10,
+                    marginBottom: 8,
+                    width: "100%",
+                    height: 40,
+                  },
+                ]}
+                placeholderTextColor={"#707070"}
+              />
+              <View style={{ height: 24 }}>
+                {usernameError && (
+                  <Text style={[fonts.subtitle, { color: Colors.errorState }]}>
+                    {usernameError}
+                  </Text>
+                )}
+              </View>
+            </View>
+            <Text style={styles.bio}>Bio</Text>
+            <View>
+              <TextInput
+                value={bio}
+                onChangeText={(text) => {
+                  setBio(text);
+                }}
+                style={[fonts.body2, styles.textInput]}
+                placeholderTextColor={"#707070"}
+                numberOfLines={4}
+                multiline={true}
+                maxLength={200}
+              />
+              <View
+                style={{
+                  width: "100%",
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  height: 24,
+                }}
+              >
+                {bio.length > 0 && (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "Rubik-Regular",
+                      color: "#707070",
+                      marginTop: 4,
+                      marginRight: 10,
+                    }}
+                  >
+                    {bio.length}/200
+                  </Text>
+                )}
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={[styles.eulaContainer]}>
+          <RadioButton
+            isToggled={agreedToEula}
+            setIsToggled={setAgreedToEula}
+          />
+          <View style={{ width: 16 }} />
+          <View style={{ flexDirection: "column", flex: 1 }}>
+            <Text style={fonts.Title4}>
+              I agree to Resell’s{" "}
               <Text
                 style={[
                   fonts.Title4,
-                  { color: Colors.linkBlue, textDecorationLine: "underline" },
+                  {
+                    color: Colors.linkBlue,
+                    textDecorationLine: "underline",
+                  },
                 ]}
+                onPress={() => {
+                  Linking.openURL(
+                    "https://www.cornellappdev.com/license/resell"
+                  );
+                }}
               >
                 End User License Agreement
               </Text>
-            </TouchableOpacity>
+            </Text>
           </View>
-        </ScrollView>
-
-        {!isEditing && (
+        </View>
+        {
           <View style={styles.purpleButton}>
             <PurpleButton
               text={"Continue"}
@@ -290,9 +266,10 @@ export default function OnBoardScreen({ navigation }) {
               }
             />
           </View>
-        )}
-      </View>
-    </TouchableWithoutFeedback>
+        }
+        {keyboardVisible && <View style={{ height: 200 }} />}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -350,8 +327,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     backgroundColor: "white",
-    position: "absolute",
-    bottom: "5%",
   },
   textInput: {
     paddingTop: 12,
@@ -366,5 +341,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 18,
     marginBottom: 8,
+  },
+  eulaContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginStart: 24,
+    marginEnd: 24,
   },
 });
