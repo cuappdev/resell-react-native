@@ -112,6 +112,7 @@ export default function SignIn() {
         const accessToken = session.accessToken;
         console.log(`Access Token: ${JSON.stringify(session.accessToken)}`);
         const isActive = session.active;
+        console.log(`session: ${JSON.stringify(session)}`);
 
         if (isActive) {
           await storeAccessToken(accessToken);
@@ -119,13 +120,9 @@ export default function SignIn() {
           dispatch(login(accessToken));
         } else {
           // Get a new session for the user
-          const newSession = await apiClient.get(
-            `/auth/refresh/`,
-            {},
-            {
-              Authorization: session.refreshToken,
-            }
-          );
+          const newSession = await apiClient.get(`/auth/refresh/`, null, {
+            Authorization: session.refreshToken,
+          });
           const newAccessToken = newSession.accessToken;
           if (!newAccessToken) {
             throw new Error("Unable to refresh login");
