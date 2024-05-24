@@ -24,6 +24,7 @@ export function DetailPullUpHeader({
   isSaved,
   save,
   unsave,
+  displayExternalProfile,
 }) {
   return (
     <View style={[styles.container_header, styles.roundCorner]}>
@@ -42,13 +43,13 @@ export function DetailPullUpHeader({
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.price}>{"$" + item.price}</Text>
       </View>
-      <View style={styles.paddedRow}>
-        <FastImage
-          source={{ uri: sellerProfile }}
-          style={styles.profileImage}
-        />
+      <TouchableOpacity
+        onPress={displayExternalProfile}
+        style={styles.paddedRow}
+      >
+        <Image source={{ uri: sellerProfile }} style={styles.profileImage} />
         <Text style={styles.profile}>{sellerName}</Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }

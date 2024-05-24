@@ -16,7 +16,8 @@ export default function ReportPostScreen({ navigation, route }) {
     sellerName,
     sellerId,
     postId,
-    userId
+    userId,
+    type,
   } = route.params;
 
   const presentDetails = (label) => {
@@ -45,7 +46,7 @@ export default function ReportPostScreen({ navigation, route }) {
       >
         <BackButton color="black" />
       </TouchableOpacity>
-      <Text style={styles.navHeader}>Report Post</Text>
+      <Text style={styles.navHeader}>{`Report ${type}`}</Text>
       <Text style={styles.header}>Why do you want to report this post?</Text>
       <View style={styles.options}>
         {reportOptions.map(report => (
