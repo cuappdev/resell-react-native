@@ -47,6 +47,8 @@ This codebase uses Node packages for dependencies. Android packages are managed 
 
 It is highly recommended to use yarn instead of npm. If you do not have yarn installed, you can do it with `npm install --global yarn`. Note that you will need to have NodeJS and npm installed in order to install yarn. Then, run `yarn install` in the root directory to install dependencies.
 
+You will also need to install CocoaPods dependencies: `cd ios` then `pod install`. If you don't have CocoaPods installed, you can install it with `sudo gem install cocoapods`.
+
 ## Creating and Running the Development Build
 
 ### Additional steps for Android:

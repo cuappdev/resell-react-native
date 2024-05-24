@@ -63,21 +63,22 @@ export default function ChatScreen({ navigation }) {
       setIsLoadingPurchase(true);
     }
 
-    const sellersQuery = collection(
-      doc(historyRef, auth.currentUser?.email),
-      "sellers"
-    );
-
     try {
+      const sellersQuery = collection(
+        doc(historyRef, auth.currentUser?.email),
+        "sellers"
+      );
+
       return onSnapshot(sellersQuery, async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
         for (const document of querySnapshot.docs) {
           // get the items for the chat
-          const sellerHistoryRef = doc(
-            collection(doc(historyRef, document.id), "buyers"),
-            auth.currentUser.email
-          );
           try {
+            const sellerHistoryRef = doc(
+              collection(doc(historyRef, document.id), "buyers"),
+              auth.currentUser.email
+            );
+
             const items = (
               await getDocs(query(collection(sellerHistoryRef, "items")))
             ).docs.map((d) => d.data());
@@ -125,21 +126,21 @@ export default function ChatScreen({ navigation }) {
       setIsLoadingOffers(true);
     }
 
-    const buyersQuery = collection(
-      doc(historyRef, auth.currentUser.email),
-      "buyers"
-    );
-
     try {
+      const buyersQuery = collection(
+        doc(historyRef, auth.currentUser.email),
+        "buyers"
+      );
+
       return onSnapshot(buyersQuery, async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
         for (const document of querySnapshot.docs) {
-          // get the items for the chat
-          const buyerHistoryRef = doc(
-            collection(doc(historyRef, document.id), "sellers"),
-            auth.currentUser.email
-          );
           try {
+            // get the items for the chat
+            const buyerHistoryRef = doc(
+              collection(doc(historyRef, document.id), "sellers"),
+              auth.currentUser.email
+            );
             const items = (
               await getDocs(query(collection(buyerHistoryRef, "items")))
             ).docs.map((d) => d.data());

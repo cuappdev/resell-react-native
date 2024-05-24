@@ -15,6 +15,7 @@ import BookmarkIconSaved from "../assets/svg-components/bookmarkIconSaved";
 import ModalBar from "../assets/svg-components/modal_bar";
 import { auth } from "../config/firebase";
 import { makeToast } from "../utils/Toast";
+import FastImage from "react-native-fast-image";
 
 export function DetailPullUpHeader({
   item,

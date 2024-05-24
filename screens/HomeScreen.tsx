@@ -9,8 +9,10 @@ import { FILTER } from "../data/filter";
 import { useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import ApiClient from "../api/ApiClient";
+import { requestUserPermission } from "../api/FirebaseNotificationManager";
 import Header from "../assets/svg-components/header";
 import { ButtonBanner } from "../components/ButtonBanner";
+import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
 import { ProductList } from "../components/ProductList";
 import PurpleButton from "../components/PurpleButton";
 import { auth } from "../config/firebase";
@@ -25,8 +27,6 @@ import {
   storeEmail,
   storeSignedIn,
 } from "../utils/asychStorageFunctions";
-import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
-import { requestUserPermission } from "../api/FirebaseNotificationManager";
 
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -106,6 +106,7 @@ export default function HomeScreen({ navigation, route }) {
   }, [count, isFocused]);
 
   const getPosts = async () => {
+    setLoading(true);
     const makeError = () => {
       makeToast({
         message: "Failed to load posts, reload the app",
@@ -126,7 +127,7 @@ export default function HomeScreen({ navigation, route }) {
                 new Date(post2.created).getTime() -
                 new Date(post1.created).getTime()
             )
-            .slice(0, 200) // Restrict to only 200 posts, can change if needed
+            .slice(0, 500) // Restrict to only 500 posts, can change if needed
             .filter(
               (post) => !blockedUsers.some((user) => user.id === post.user.id)
             )
@@ -144,6 +145,7 @@ export default function HomeScreen({ navigation, route }) {
   };
 
   const filterPost = async (keyword: string) => {
+    setLoading(true);
     try {
       const response = await apiClient.post("/post/filter", {
         category: keyword,
@@ -157,11 +159,13 @@ export default function HomeScreen({ navigation, route }) {
                 new Date(post2.created).getTime() -
                 new Date(post1.created).getTime()
             )
-            .slice(0, 200) // Restrict to only 200 posts, can change if needed
+            .slice(0, 500) // Restrict to only 500 posts, can change if needed
         );
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -170,7 +174,11 @@ export default function HomeScreen({ navigation, route }) {
     setLoading(true);
     setTimeout(async () => {
       await getBlockedUsers();
-      await getPosts();
+      if (FILTER[count]?.title) {
+        filterPost(FILTER[count].title);
+      } else {
+        getPosts();
+      }
     }, 500);
   };
   const { showPanel } = route.params;
