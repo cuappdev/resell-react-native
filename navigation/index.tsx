@@ -72,6 +72,8 @@ import ReportPostConfirmScreen from "../screens/ReportPostConfirmScreen";
 import ReportPostDetailsScreen from "../screens/ReportPostDetailsScreen";
 import ReportPostScreen from "../screens/ReportPostScreen";
 import RequestMatches from "../screens/RequestMatches";
+import ExternalProfileScreen from "../screens/ExternalProfileScreen";
+import ProfileSearchScreen from "../screens/ProfileSearchScreen";
 
 export default function Navigation({
   colorScheme,
@@ -83,7 +85,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+    // theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
     >
       <RootNavigator onboard={onboard} />
     </NavigationContainer>
@@ -281,6 +283,24 @@ function RootNavigator({ onboard }) {
           <Stack.Screen
             name="ProductHome"
             component={ProductDetailsScreen}
+            options={{
+              headerShown: false,
+              headerTitle: "",
+              headerTransparent: true,
+            }}
+          />
+          <Stack.Screen
+            name="ExternalProfile"
+            component={ExternalProfileScreen}
+            options={{
+              headerShown: false,
+              headerTitle: "",
+              headerTransparent: true,
+            }}
+          />
+          <Stack.Screen
+            name="SearchProfile"
+            component={ProfileSearchScreen}
             options={{
               headerShown: false,
               headerTitle: "",

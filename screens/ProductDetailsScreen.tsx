@@ -86,6 +86,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setSellerName(
         userResult.user.givenName + " " + userResult.user.familyName
       );
+      setSellerUsername(userResult.user.username)
       setProfileImage(userResult.user.photoUrl);
       setSellerEmail(userResult.user.email);
     } catch (error) {
@@ -94,6 +95,15 @@ export default function ProductDetailsScreen({ route, navigation }) {
       setLoading(false);
     }
   };
+
+  const displayExternalProfile = () => {
+    navigation.navigate("ExternalProfile", {
+      sellerName: sellerName,
+      sellerId: sellerId,
+      sellerUsername: sellerUsername,
+      isBlocked: false,
+    });
+  }
 
   useEffect(() => {
     getPost();
@@ -106,6 +116,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
   const [sellerFirstName, setSellerFirstName] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
+  const [sellerUsername, setSellerUsername] = useState("")
 
   const [profileImage, setProfileImage] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
@@ -152,9 +163,8 @@ export default function ProductDetailsScreen({ route, navigation }) {
       const result = await Share.share({
         title: "Check out this " + post.title + "on Resell",
         message: `
-        Check out this ${post.title} posted by ${sellerName}. It's only for $${
-          item.price
-        }.
+        Check out this ${post.title} posted by ${sellerName}. It's only for $${item.price
+          }.
         Click the following link if you have Resell already downloaded:
         ${(<a href="resell://product/${post.id}">Open in Resell</a>)}
         `,
@@ -180,6 +190,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
       sellerId: sellerId,
       postId: post.id,
       userId: userId,
+      type: "Post"
     });
   };
 
@@ -346,7 +357,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
         animatedValue={
           new Animated.Value(
             Dimensions.get("window").height -
-              Math.min(400, Layout.window.width * maxImgRatio - 40)
+            Math.min(400, Layout.window.width * maxImgRatio - 40)
           )
         }
       >
@@ -358,6 +369,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
             isSaved={isSaved}
             save={save}
             unsave={unsave}
+            displayExternalProfile={displayExternalProfile}
           />
           <DetailPullUpBody
             postId={post.id}

@@ -10,13 +10,13 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		2C0F40B12C00485B00AEFE36 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C0F40B02C00485B00AEFE36 /* GoogleService-Info.plist */; };
 		2EE509EA2BD1C5B9005B77C7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2EE509E92BD1C5B9005B77C7 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4A1323AFC4AE46A1976ADCC9 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A41C7A5C5854BC4BAC31533 /* noop-file.swift */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		D2AF6D5ABF5185ECF8FDCB8C /* Pods_Resell.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47E67E65AD48A1038D43F9B8 /* Pods_Resell.framework */; };
-		E9B8CB89F9D0437B900215B2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 553DCD166C1A436292258F8A /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,9 +26,9 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Resell/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Resell/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Resell/main.m; sourceTree = "<group>"; };
+		2C0F40B02C00485B00AEFE36 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../config/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2EE509E92BD1C5B9005B77C7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		47E67E65AD48A1038D43F9B8 /* Pods_Resell.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Resell.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		553DCD166C1A436292258F8A /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Resell/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5A41C7A5C5854BC4BAC31533 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Resell/noop-file.swift"; sourceTree = "<group>"; };
 		6C2E3173556A471DD304B334 /* Pods-Resell.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Resell.debug.xcconfig"; path = "Target Support Files/Pods-Resell/Pods-Resell.debug.xcconfig"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-Resell.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Resell.release.xcconfig"; path = "Target Support Files/Pods-Resell/Pods-Resell.release.xcconfig"; sourceTree = "<group>"; };
@@ -60,7 +60,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				553DCD166C1A436292258F8A /* GoogleService-Info.plist */,
+				2C0F40B02C00485B00AEFE36 /* GoogleService-Info.plist */,
 				5A41C7A5C5854BC4BAC31533 /* noop-file.swift */,
 				2EE509E92BD1C5B9005B77C7 /* PrivacyInfo.xcprivacy */,
 			);
@@ -207,7 +207,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				2EE509EA2BD1C5B9005B77C7 /* PrivacyInfo.xcprivacy in Resources */,
-				E9B8CB89F9D0437B900215B2 /* GoogleService-Info.plist in Resources */,
+				2C0F40B12C00485B00AEFE36 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
