@@ -20,6 +20,6 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --immutable --immutable-cache --check-cache
       - name: Build on EAS
-        run: eas build --platform ios --non-interactive --no-wait --profile production --auto-submit
+        run: eas build --platform all --non-interactive --no-wait --profile production --auto-submit
