@@ -76,7 +76,9 @@ If you need to switch between environments, make sure that you are using the cor
 
 ## Deployment
 
-TODO
+1. In `app.config.ts`, change `expo.version` to the next version and increment `ios.buildNumber` by 1.
+2. Create a PR to merge `main` to `release`.
+3. A GitHub Actions workflow should automatically run. Note that EAS Build and EAS Submit can be quite buggy sometimes so manual deployment may need to be done. If that's the case, make sure that you update the versions properly through the native files (such as Xcode).
 
 ## Troubleshooting
 
