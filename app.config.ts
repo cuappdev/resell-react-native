@@ -3,7 +3,7 @@ export default {
   expo: {
     name: "Resell",
     slug: "Resell",
-    version: "1.0.3",
+    version: "1.0.4",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
@@ -52,7 +52,7 @@ export default {
       supportsTablet: false,
       bundleIdentifier: "com.cornellappdev.resell",
       googleServicesFile: "./config/GoogleService-Info.plist",
-      buildNumber: "11",
+      buildNumber: "15",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
         NSRemindersUsageDescription: "Allow Resell to access your reminders",
