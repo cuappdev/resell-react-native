@@ -51,7 +51,9 @@ export default {
     ios: {
       supportsTablet: false,
       bundleIdentifier: "com.cornellappdev.resell",
-      googleServicesFile: "$(GOOGLE_SERVICES_INFO_PLIST)",
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_INFO_PLIST ||
+        "./config/GoogleService-Info.plist",
       buildNumber: "15",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
@@ -70,7 +72,8 @@ export default {
       permissions: ["READ_CALENDAR", "WRITE_CALENDAR"],
 
       package: "com.cornellappdev.resell.android",
-      googleServicesFile: "$(GOOGLE_SERVICES_JSON)",
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_JSON || "./config/google-services.json",
       versionCode: 2,
       intentFilters: [
         {
