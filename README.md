@@ -40,6 +40,7 @@ For AppDev members, you can find the files from the `#resell-frontend` Slack cha
 1. Create a `.env` file in the **root directory** and copy/paste the values from the pinned message.
    1. Note that there are two different `.env` files: development and production.
 2. Download `GoogleService-Info.plist` and `google-services.json` and place both files in the `/config` folder.
+3. Also, drag `GoogleService-Info.plist` into `ios/Resell` folder. DO NOT do this through Xcode.
 
 ## Installing Dependencies
 
