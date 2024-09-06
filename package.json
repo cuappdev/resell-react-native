@@ -28,6 +28,7 @@
     "@react-native-firebase/analytics": "^19.2.2",
     "@react-native-firebase/app": "^19.2.2",
     "@react-native-firebase/crashlytics": "^19.2.2",
+    "@react-native-firebase/firestore": "^19.2.2",
     "@react-native-firebase/messaging": "^19.2.2",
     "@react-native-google-signin/google-signin": "^10.0.1",
     "@react-navigation/bottom-tabs": "^6.3.3",

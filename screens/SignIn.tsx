@@ -1,10 +1,10 @@
+import firestore from "@react-native-firebase/firestore";
 import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { Logs } from "expo";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View, useColorScheme } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,7 @@ import {
 import Header from "../assets/svg-components/header";
 import ResellLogo from "../assets/svg-components/resell_logo";
 import PurpleButton from "../components/PurpleButton";
-import { auth, userRef } from "../config/firebase";
+import { auth } from "../config/firebase";
 import Navigation from "../navigation";
 import {
   login,
@@ -77,9 +77,12 @@ export default function SignIn() {
       await signInWithCredential(auth, credential);
 
       // Check if this user has onboarded
-      const firebaseUserData = await getDoc(
-        doc(userRef, auth.currentUser.email)
-      );
+
+      const firebaseUserData = await firestore()
+        .collection("user")
+        .doc(auth.currentUser.email)
+        .get();
+
       const isOnboarded = firebaseUserData.data()?.onboarded ?? false;
       setIsOnboarded(isOnboarded);
 
