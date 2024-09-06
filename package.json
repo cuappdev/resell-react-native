@@ -13,7 +13,8 @@
   "resolutions": {
     "@expo/config-plugins": "^5.0.0",
     "strip-ansi": "6.0.0",
-    "string-width": "4.2.3"
+    "string-width": "4.2.3",
+    "react-native-svg": "13.9.0"
   },
   "dependencies": {
     "@andordavoti/react-native-timeago": "^0.0.14",
@@ -72,6 +73,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.72.6",
     "react-native-animated-dots-carousel": "^1.0.1",
+    "react-native-appdev-announcements": "^0.1.9",
     "react-native-dotenv": "^3.4.9",
     "react-native-elements": "^3.4.2",
     "react-native-fast-image": "^8.6.3",
