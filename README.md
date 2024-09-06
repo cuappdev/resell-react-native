@@ -56,7 +56,7 @@ You will also need to install CocoaPods dependencies: `cd ios` then `pod install
 
 If you plan to run the app on the Android simulator, you need to specify the location of your Android SDK. To do this, follow the steps [here](https://stackoverflow.com/a/48155800).
 
-If you are still having issues building, make sure your Java version is compatible with the Gradle version. As of when this was written we were using Gradle version 8.0.1, so you need to have Java 19 or below to build the app. We recommend Java 17 since this is what we have been using.
+If you are still having issues building, make sure your Java version is compatible with the Gradle version. As of when this was written we were using Gradle version 8.0.1, so you need to have a Java version in the range of 11 to 19 to build the app (we're not sure of the minimum version, but we suspect it is 11). We recommend Java 17 since this is what we have been using.
 
 ### General instructions
 
