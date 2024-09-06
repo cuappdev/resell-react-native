@@ -7,6 +7,7 @@ import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import { FILTER } from "../data/filter";
 
 import { useIsFocused } from "@react-navigation/native";
+import { AppDevAnnouncements } from "react-native-appdev-announcements";
 import { useDispatch } from "react-redux";
 import ApiClient from "../api/ApiClient";
 import { requestUserPermission } from "../api/FirebaseNotificationManager";
@@ -22,6 +23,7 @@ import { HeaderIcon } from "../navigation/index";
 import LoadingScreen from "../screens/LoadingScreen";
 import { logout } from "../state_manage/reducers/signInReducer";
 import { makeToast } from "../utils/Toast";
+
 import {
   getUserId,
   storeEmail,
@@ -267,6 +269,7 @@ export default function HomeScreen({ navigation, route }) {
           </View>
         </Modal>
       )}
+      <AppDevAnnouncements />
     </SafeAreaView>
   );
 }
