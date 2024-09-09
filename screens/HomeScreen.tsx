@@ -5,9 +5,8 @@ import Modal from "react-native-modal";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import { FILTER } from "../data/filter";
-
-import { useIsFocused } from "@react-navigation/native";
 import { AppDevAnnouncements } from "react-native-appdev-announcements";
+import { useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import ApiClient from "../api/ApiClient";
 import { requestUserPermission } from "../api/FirebaseNotificationManager";
@@ -188,6 +187,10 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={[styles.outer]}>
+      <AppDevAnnouncements
+        host={process.env.ANNOUNCEMENTS_HOST}
+        appPath={process.env.ANNOUNCEMENTS_PATH}
+      />
       <View style={styles.header}>
         <View style={styles.resellLogo}>
           <Header />
@@ -269,7 +272,6 @@ export default function HomeScreen({ navigation, route }) {
           </View>
         </Modal>
       )}
-      <AppDevAnnouncements />
     </SafeAreaView>
   );
 }
