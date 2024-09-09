@@ -187,10 +187,6 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={[styles.outer]}>
-      <AppDevAnnouncements
-        host={process.env.ANNOUNCEMENTS_HOST}
-        appPath={process.env.ANNOUNCEMENTS_PATH}
-      />
       <View style={styles.header}>
         <View style={styles.resellLogo}>
           <Header />
@@ -272,6 +268,10 @@ export default function HomeScreen({ navigation, route }) {
           </View>
         </Modal>
       )}
+      <AppDevAnnouncements
+        host={process.env.ANNOUNCEMENTS_HOST}
+        appPath={process.env.ANNOUNCEMENTS_PATH}
+      />
     </SafeAreaView>
   );
 }
