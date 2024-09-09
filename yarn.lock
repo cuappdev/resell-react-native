@@ -9680,10 +9680,10 @@ react-native-animated-dots-carousel@^1.0.1:
   resolved "https://registry.yarnpkg.com/react-native-animated-dots-carousel/-/react-native-animated-dots-carousel-1.0.2.tgz#313881ade949f5888c8ca31def0d38072b870687"
   integrity sha512-WIPyajD9iMUVKxIZgqcAMYL9WSjbaZT92piiw9GlaPflbgoGW0WRRAiMZu0QOexDffuLzlXgCnJbFpMY5frYjA==
 
-react-native-appdev-announcements@^0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/react-native-appdev-announcements/-/react-native-appdev-announcements-0.1.9.tgz#587d8f8e6484e558a70cd39b16138526458c3053"
-  integrity sha512-kiBIlCigTt2hpySFgZkVbAeM9ekAXEwqiteI6Bf+rwwu7OE/5lfJPdKL/ELGcJwgH068sB+y+hFw1pUq1aH3pA==
+react-native-appdev-announcements@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/react-native-appdev-announcements/-/react-native-appdev-announcements-0.2.4.tgz#374e8e5ee41bd5d3fee3b5cb976865eadd550263"
+  integrity sha512-pnMuQDEmkrXQtCHPitW0Y+fysD/5RPa1ql1SKqQPwgM60PsQevJVZAXqFPcZ/ha8pXgXayrqj+HEvzDARx8flA==
   dependencies:
     "@react-native-async-storage/async-storage" "^2.0.0"
     "@tanstack/react-query" "^5.54.1"
