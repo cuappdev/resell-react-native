@@ -1,3 +1,4 @@
+import firestore from "@react-native-firebase/firestore";
 import { Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -35,7 +36,6 @@ import Privacy from "../assets/svg-components/privacy";
 import { ActivityIndicator } from "react-native-paper";
 import { useApiClient } from "../api/ApiClientProvider";
 import { makeToast } from "../utils/Toast";
-import { deleteDoc, doc } from "firebase/firestore";
 import DeleteAccountPopupSheet from "../components/DeleteAccountPopupSheet";
 
 export default function SettingsScreen({ navigation }) {
@@ -80,8 +80,9 @@ export default function SettingsScreen({ navigation }) {
     try {
       const response = await apiClient.post(`/user/softdelete/id/${userId}/`);
       if (response.user) {
-        const ref = doc(userRef, auth.currentUser.email);
-        await deleteDoc(ref);
+        await userRef
+          .doc(auth.currentUser.email)
+          .delete()
         log_out();
       }
     } catch (error) {
