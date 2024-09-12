@@ -2,6 +2,7 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import firebase, { getApps, initializeApp } from "firebase/app";
 import { getReactNativePersistence, initializeAuth } from "firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import { collection, getFirestore } from "firebase/firestore";
 
 export const firebaseConfig = {
@@ -28,11 +29,11 @@ if (process.env.DATABASE_ID !== "resell-prod") {
 } else {
   db = getFirestore(app, process.env.DATABASE_ID);
 }
-export const fcmRef = collection(db, "fcmTokens");
-export const chatRef = collection(db, "chats");
-export const historyRef = collection(db, "history");
-export const userRef = collection(db, "user");
-export const requestRef = collection(db, "requests");
+export const fcmRef = firestore().collection("fcmtokens")
+export const chatRef = firestore().collection("chats");
+export const historyRef = firestore().collection("history");
+export const userRef = firestore().collection("user");
+export const requestRef = firestore().collection("requests")
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });

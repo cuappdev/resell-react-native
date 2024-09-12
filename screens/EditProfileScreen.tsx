@@ -1,7 +1,7 @@
+import firestore from "@react-native-firebase/firestore";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -126,7 +126,11 @@ export default function EditProfileScreen({ navigation, route }) {
           displayName: res.user.givenName + " " + res.user.familyName,
           photoURL: res.user.photoUrl,
         });
-        await updateDoc(doc(userRef, res.user.email), { venmo: venmo });
+        await userRef
+          .doc(res.user.email)
+          .update({
+            venmo: venmo
+          })
         navigation.goBack();
         makeToast({ message: "Profile updated successfully", type: "INFO" });
       }
