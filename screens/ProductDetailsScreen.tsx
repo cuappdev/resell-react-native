@@ -1,6 +1,6 @@
+import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
   Animated,
@@ -393,16 +393,13 @@ export default function ProductDetailsScreen({ route, navigation }) {
                   var confirmedTime = "";
                   var confirmedViewed = false;
 
-                  const myHistoryRef = doc(
-                    collection(
-                      doc(historyRef, auth.currentUser.email),
-                      "sellers"
-                    ),
-                    sellerEmail
-                  );
-                  const myDoc = await getDoc(myHistoryRef);
-                  if (myDoc.exists()) {
-                    updateDoc(myHistoryRef, { viewed: true });
+                  const myHistoryRef = firestore()
+                    .collection(`history/${auth.currentUser.email}/sellers`)
+                    .doc(sellerEmail)
+
+                  const myDoc = await myHistoryRef.get();
+                  if (myDoc.exists) {
+                    await myHistoryRef.update({ viewed: true})
                     confirmedTime = myDoc.data().confirmedTime;
                     confirmedViewed = myDoc.data().confirmedViewed;
                   }

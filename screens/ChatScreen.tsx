@@ -1,6 +1,7 @@
 import TimeAgo from "@andordavoti/react-native-timeago";
 import { Feather } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
+import firestore from "@react-native-firebase/firestore";
 import {
   Unsubscribe,
   collection,
@@ -64,24 +65,23 @@ export default function ChatScreen({ navigation }) {
     }
 
     try {
-      const sellersQuery = collection(
-        doc(historyRef, auth.currentUser?.email),
-        "sellers"
-      );
+      const sellersQuery = historyRef
+        .doc(auth.currentUser?.email)
+        .collection('sellers')
 
-      return onSnapshot(sellersQuery, async (querySnapshot) => {
+      return sellersQuery.onSnapshot(async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
         for (const document of querySnapshot.docs) {
           // get the items for the chat
           try {
-            const sellerHistoryRef = doc(
-              collection(doc(historyRef, document.id), "buyers"),
-              auth.currentUser.email
-            );
+            const sellerHistoryRef = firestore()
+              .collection(`history/${document.id}/buyers`)
+              .doc(auth.currentUser.email);
 
-            const items = (
-              await getDocs(query(collection(sellerHistoryRef, "items")))
-            ).docs.map((d) => d.data());
+            const items = (await sellerHistoryRef
+              .collection('items')
+              .get())
+              .docs.map((doc) => doc.data())
 
             tempt.push({
               sellerName: document.data().name,
@@ -127,22 +127,22 @@ export default function ChatScreen({ navigation }) {
     }
 
     try {
-      const buyersQuery = collection(
-        doc(historyRef, auth.currentUser.email),
-        "buyers"
-      );
+      const buyersQuery = historyRef
+        .doc(auth.currentUser?.email)
+        .collection('buyers');
 
-      return onSnapshot(buyersQuery, async (querySnapshot) => {
+      return buyersQuery.onSnapshot(async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
         for (const document of querySnapshot.docs) {
           try {
             // get the items for the chat
-            const buyerHistoryRef = doc(
-              collection(doc(historyRef, document.id), "sellers"),
-              auth.currentUser.email
-            );
+            const buyerHistoryRef = firestore()
+              .collection(`history/${document.id}/sellers`)
+              .doc(auth.currentUser.email);
             const items = (
-              await getDocs(query(collection(buyerHistoryRef, "items")))
+              await buyerHistoryRef
+                .collection('items')
+                .get()
             ).docs.map((d) => d.data());
             tempt.push({
               sellerName: document.data().name, //buyername

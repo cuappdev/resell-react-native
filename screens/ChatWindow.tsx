@@ -1,3 +1,5 @@
+import firestore from '@react-native-firebase/firestore';
+import { DocumentData } from 'firebase/firestore';
 import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import { ImageEditor } from "expo-image-editor";
 import { Subscription } from "expo-modules-core";
@@ -47,18 +49,6 @@ import * as Device from "expo-device";
 import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
-import {
-  DocumentData,
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  orderBy,
-  query,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useApiClient } from "../api/ApiClientProvider";
 import { sendNotification } from "../api/FirebaseNotificationManager";
@@ -346,15 +336,13 @@ export default function ChatWindow({ navigation, route }) {
     }
     try {
       // In the buyer's history, track a new seller
-      const buyerHistoryRef = doc(
-        collection(doc(historyRef, buyerEmail), "sellers"),
-        sellerEmail
-      );
+      const buyerHistoryRef = firestore()
+        .collection(`history/${buyerEmail}/sellers`)
+        .doc(sellerEmail);
       // In the seller's history, track a new buyer
-      const sellerHistoryRef = doc(
-        collection(doc(historyRef, sellerEmail), "buyers"),
-        buyerEmail
-      );
+      const sellerHistoryRef = firestore()
+        .collection(`history/${sellerEmail}/buyers`)
+        .doc(buyerEmail);
       // the names for buyer and seller
       const buyersName = isBuyer ? auth.currentUser.displayName : name;
       const sellersName = isBuyer ? name : auth.currentUser.displayName;
@@ -385,32 +373,34 @@ export default function ChatWindow({ navigation, route }) {
         viewed: !isBuyer,
       };
 
-      setDoc(buyerHistoryRef, buyerData);
-      setDoc(sellerHistoryRef, sellerData);
+      await buyerHistoryRef.set(buyerData);
+      await sellerHistoryRef.set(sellerData);
 
       // update multiple items for buyer and seller
-      const buyerItemDoc = doc(collection(sellerHistoryRef, "items"), post.id);
-      const sellerItemDoc = doc(collection(buyerHistoryRef, "items"), post.id);
-      setDoc(buyerItemDoc, post);
-      setDoc(sellerItemDoc, post);
+      const buyerItemDoc = firestore().doc(`history/${sellerEmail}/items/${post.id}`);
+      const sellerItemDoc = firestore().doc(`history/${buyerEmail}/items/${post.id}`);
+      await buyerItemDoc.set(post);
+      await sellerItemDoc.set(post);
 
       //#endregion
 
       // Send new message to the db
-      const messageRef = collection(doc(chatRef, buyerEmail), sellerEmail);
-      addDoc(messageRef, {
-        _id,
-        text,
-        availability,
-        image,
-        product,
-        createdAt,
-        user,
-      });
+      const messageRef = firestore()
+        .collection(`chat/${buyerEmail}/${sellerEmail}`)
+        .add({
+          _id,
+          text,
+          availability,
+          image,
+          product,
+          createdAt,
+          user
+        })
 
-      const docRef = doc(userRef, email);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
+
+      const docRef = userRef.doc(email);
+      const docSnap = await docRef.get();
+      if (docSnap.exists) {
         sendNotification(
           docSnap.data().fcmToken,
           user.name,
@@ -830,17 +820,20 @@ export default function ChatWindow({ navigation, route }) {
 
   useEffect(() => {
     // Get a reference to the current chat
-    const currentChat = query(
-      collection(doc(chatRef, buyerEmail), sellerEmail),
-      orderBy("createdAt", "desc")
-    );
+    const currentChat = chatRef
+      .doc(buyerEmail)
+      .collection('sellers')
+      .doc(sellerEmail)
+      .collection('messages')
+      .orderBy('createdAt', 'desc')
     /*
     When we call on snapshot we pass in a callback function that updates the 
     state of the chat whenever it changes according to Firebase. The call to
     onSnapshot returns a reference to a function that, when called, unsubscribes 
     the user from this chat. We call this on the dispose of the useEffect hook.
     */
-    const unsubscribeFromChat = onSnapshot(currentChat, (snapshot) => {
+    const unsubscribeFromChat = currentChat
+      .onSnapshot((snapshot) => {
       // Set the messages to the most recent ones
       setMessages(
         snapshot.docs.map((doc) => ({
@@ -855,30 +848,29 @@ export default function ChatWindow({ navigation, route }) {
         }))
       );
       // Update the chat as viewed
-      updateDoc(
-        doc(
-          collection(
-            doc(historyRef, auth.currentUser.email),
-            isBuyer ? "sellers" : "buyers"
-          ),
-          email
-        ),
-        { viewed: true, confirmedViewed: true }
-      );
+
+      historyRef
+        .doc(auth.currentUser.email)
+        .collection(isBuyer ? 'sellers' : 'buyers')
+        .doc(email)
+        .update({
+          viewed: true,
+          confirmedViewed: true
+        });
     });
 
     // We also want to check how many items the user is chatting about
     // Gain a reference to the chat items
-    const sellerHistoryRef = doc(
-      collection(doc(historyRef, sellerEmail), "buyers"),
-      buyerEmail
-    );
-    const unsubscribeFromItems = onSnapshot(
-      query(collection(sellerHistoryRef, "items")),
-      (snapshot) => {
+    const sellerHistoryRef = firestore()
+      .collection(`history/${sellerEmail}/buyers`)
+      .doc(buyerEmail);
+
+    const unsubscribeFromItems = sellerHistoryRef
+      .collection('items')
+      .onSnapshot((snapshot) =>{
         setItems(snapshot.docs.map((document) => document.data()));
-      }
-    );
+      });
+
     return () => {
       unsubscribeFromChat();
       unsubscribeFromItems();

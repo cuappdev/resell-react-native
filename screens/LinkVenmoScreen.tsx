@@ -1,7 +1,7 @@
+import firestore from "@react-native-firebase/firestore";
 import * as React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { doc, setDoc } from "firebase/firestore";
 import {
   Keyboard,
   StyleSheet,
@@ -58,12 +58,14 @@ export default function LinkVenmoScreen({ navigation, route }) {
       // Update Firebase
       const deviceToken = await getDeviceFCMToken();
       await storeDeviceToken(deviceToken);
-      await setDoc(doc(userRef, auth.currentUser.email), {
-        venmo: venmo,
-        onboarded: true,
-        fcmToken: deviceToken,
-        notificationsEnabled: false,
-      });
+      await userRef
+        .doc(auth.currentUser.email)
+        .set({
+          venmo: venmo,
+          onboarded: true,
+          fcmToken: deviceToken,
+          notificationsEnabled: false
+        })
 
       // Store user ID and username
       const accountId = createAccountRes.user?.id;
