@@ -1,5 +1,5 @@
+import { getDoc } from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
-import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -34,10 +34,10 @@ function Button(props) {
     }
     if (props.title == "Pay with Venmo") {
       try {
-        const myUserRef = doc(userRef, props.otherEmail);
+        const myUserRef = userRef.doc(props.otherEmail);
         const myUserDoc = await getDoc(myUserRef);
         var venmo = "";
-        if (myUserDoc.exists()) {
+        if (myUserDoc.exists) {
           venmo = myUserDoc.data().venmo;
         }
         if (venmo !== "") {

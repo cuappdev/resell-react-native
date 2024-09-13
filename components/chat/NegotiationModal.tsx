@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-native-modal";
 
-import { DocumentData } from "firebase/firestore";
+import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import Colors from "../../constants/Colors";
@@ -28,7 +28,7 @@ export function NegotiationModal({
   setHeight;
   screen;
   post;
-  items: DocumentData[];
+  items: FirebaseFirestoreTypes.DocumentData[];
 }) {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [negotiationBubbles, setNegotiationBubbles] = useState<JSX.Element[]>(

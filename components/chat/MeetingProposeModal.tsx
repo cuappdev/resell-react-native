@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
+import { setDoc, updateDoc } from "@react-native-firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -51,15 +51,15 @@ export default function MeetingProposeModal({
     setProposeLoading(true);
     // update the interaction history to include the time proposal
     // This stores the history of the seller's interactions with their buyers
-    const sellersInteractionHistory = doc(
-      collection(doc(historyRef, sellerEmail), "buyers"),
-      buyerEmail
-    );
+    const sellersInteractionHistory = historyRef
+      .doc(sellerEmail)
+      .collection("buyers")
+      .doc(buyerEmail);
     // this stores the history of the buyers interactions with thier sellers
-    const buyersInteractionHistory = doc(
-      collection(doc(historyRef, buyerEmail), "sellers"),
-      sellerEmail
-    );
+    const buyersInteractionHistory = historyRef
+      .doc(buyerEmail)
+      .collection("sellers")
+      .doc(sellerEmail);
     // we also wish to update this data for the sellers
     const updateData = {
       recentMessage: "Proposed a Time",
@@ -76,10 +76,10 @@ export default function MeetingProposeModal({
       state: "proposed",
     };
     // send the message as a chat message
-    const messageRef = doc(
-      collection(doc(chatRef, buyerEmail), sellerEmail),
-      `proposer_${auth.currentUser.email}`
-    );
+    const messageRef = chatRef
+      .doc(buyerEmail)
+      .collection(sellerEmail)
+      .doc(`proposer_${auth.currentUser.email}`);
 
     setDoc(messageRef, {
       text: `Proposed a Time`,
