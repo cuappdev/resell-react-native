@@ -1,7 +1,6 @@
+import { updateDoc } from "@react-native-firebase/firestore";
 import messaging from "@react-native-firebase/messaging";
-import { userRef } from "../config/firebase";
-import { doc, updateDoc } from "firebase/firestore";
-import { auth } from "../config/firebase";
+import { auth, userRef } from "../config/firebase";
 
 export async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
@@ -22,7 +21,7 @@ export async function getDeviceFCMToken() {
 
 export async function saveDeviceTokenToFireStore(userEmail, deviceToken) {
   try {
-    const ref = doc(userRef, userEmail);
+    const ref = userRef.doc(userEmail);
     updateDoc(ref, {
       fcmToken: deviceToken,
     });
@@ -37,7 +36,7 @@ export async function saveNotificationSettings(
   notificationsEnabled
 ) {
   try {
-    const ref = doc(userRef, userEmail);
+    const ref = userRef.doc(userEmail);
     updateDoc(ref, {
       notificationsEnabled: notificationsEnabled,
     });

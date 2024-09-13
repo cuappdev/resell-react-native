@@ -1,4 +1,4 @@
-import { collection, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { deleteDoc, updateDoc } from "@react-native-firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -62,10 +62,11 @@ export default function EditMeetingModal({
     setConfirmLoading(true);
     try {
       // update sellers and buyers history docs:
-      const sellerDoc = doc(
-        collection(doc(historyRef, sellerEmail), "buyers"),
-        buyerEmail
-      );
+      const sellerDoc = historyRef
+        .doc(sellerEmail)
+        .collection("buyers")
+        .doc(buyerEmail);
+
       updateDoc(sellerDoc, {
         confirmedTime: startDate,
         recentMessage: "Confirmed",
@@ -75,10 +76,11 @@ export default function EditMeetingModal({
         viewed: auth.currentUser.email === sellerEmail,
       });
 
-      const buyerDoc = doc(
-        collection(doc(historyRef, buyerEmail), "sellers"),
-        sellerEmail
-      );
+      const buyerDoc = historyRef
+        .doc(buyerEmail)
+        .collection("sellers")
+        .doc(sellerEmail);
+
       await updateDoc(buyerDoc, {
         recentMessage: "Confirmed",
         recentSender: auth?.currentUser?.email,
@@ -94,13 +96,12 @@ export default function EditMeetingModal({
       // so email references the email of the proposer
       // chats are stored by buyer emails
       // doc(doc(chatRef, buyerEmail), sellerEmail);
-      const chatCollection = collection(doc(chatRef, buyerEmail), sellerEmail);
+      const chatCollection = chatRef.doc(buyerEmail).collection(sellerEmail);
       // the message that the user is confirming
-      const messageRef = doc(chatCollection, `proposer_${otherEmail}`);
+      const messageRef = chatCollection.doc(`proposer_${otherEmail}`);
       // if there's another proposal we should delete if since this was confirmed
       // this document may or may not exist
-      const otherProposalRef = doc(
-        chatCollection,
+      const otherProposalRef = chatCollection.doc(
         `proposer_${auth.currentUser.email}`
       );
       // don't need to check if doc exists because we want an error to happen if it doesn't
@@ -126,10 +127,10 @@ export default function EditMeetingModal({
     setDeclineLoading(true);
     try {
       // update sellers and buyers history docs:
-      const sellerDoc = doc(
-        collection(doc(historyRef, sellerEmail), "buyers"),
-        buyerEmail
-      );
+      const sellerDoc = historyRef
+        .doc(sellerEmail)
+        .collection("buyers")
+        .doc(buyerEmail);
       const commonData = {
         recentMessage: "Declined",
         recentSender: auth.currentUser.email,
@@ -140,10 +141,10 @@ export default function EditMeetingModal({
         viewed: auth.currentUser.email === sellerEmail,
       });
 
-      const buyerDoc = doc(
-        collection(doc(historyRef, buyerEmail), "sellers"),
-        sellerEmail
-      );
+      const buyerDoc = historyRef
+        .doc(buyerEmail)
+        .collection("sellers")
+        .doc(sellerEmail);
       await updateDoc(buyerDoc, {
         ...commonData,
         viewed: auth.currentUser.email === buyerEmail,
@@ -153,9 +154,9 @@ export default function EditMeetingModal({
       // if the user just confirmed the meeting then that means they did not propose it
       // so email references the email of the proposer
       // chats are stored by buyer emails
-      const chatCollection = collection(doc(chatRef, buyerEmail), sellerEmail);
+      const chatCollection = chatRef.doc(buyerEmail).collection(sellerEmail);
       // the message that the user is confirming
-      const messageRef = doc(chatCollection, `proposer_${otherEmail}`);
+      const messageRef = chatCollection.doc(`proposer_${otherEmail}`);
 
       await updateDoc(messageRef, {
         "meetingInfo.state": MEETING_DECLINED,
@@ -175,10 +176,10 @@ export default function EditMeetingModal({
     setCancelLoading(true);
     try {
       //#region update sellers and buyers history docs:
-      const sellerDoc = doc(
-        collection(doc(historyRef, sellerEmail), "buyers"),
-        buyerEmail
-      );
+      const sellerDoc = historyRef
+        .doc(sellerEmail)
+        .collection("buyers")
+        .doc(buyerEmail);
       const commonData = {
         recentMessage: "Canceled",
         recentSender: auth.currentUser.email,
@@ -189,10 +190,10 @@ export default function EditMeetingModal({
         viewed: auth.currentUser.email === sellerEmail,
       });
 
-      const buyerDoc = doc(
-        collection(doc(historyRef, buyerEmail), "sellers"),
-        sellerEmail
-      );
+      const buyerDoc = historyRef
+        .doc(buyerEmail)
+        .collection("sellers")
+        .doc(sellerEmail);
       await updateDoc(buyerDoc, {
         ...commonData,
         viewed: auth.currentUser.email === buyerEmail,
@@ -200,9 +201,9 @@ export default function EditMeetingModal({
       //#endregion
 
       //#region update chat message
-      const chatCollection = collection(doc(chatRef, buyerEmail), sellerEmail);
+      const chatCollection = chatRef.doc(buyerEmail).collection(sellerEmail);
       // the message that the user is confirming
-      const messageRef = doc(chatCollection, `proposer_${proposer}`);
+      const messageRef = chatCollection.doc(`proposer_${proposer}`);
 
       await updateDoc(messageRef, {
         "meetingInfo.state": MEETING_CANCELED,
