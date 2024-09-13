@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { updateDoc } from "@react-native-firebase/firestore";
 import * as Calendar from "expo-calendar";
-import { collection, doc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Alert, Platform, StyleSheet, Text, View } from "react-native";
@@ -98,10 +98,7 @@ export default function ConfirmedMeetingModal({
   const updateViewed = () => {
     try {
       updateDoc(
-        doc(
-          collection(doc(historyRef, auth.currentUser.email), "sellers"),
-          email
-        ),
+        historyRef.doc(auth.currentUser.email).collection("sellers").doc(email),
         { confirmedView: true }
       );
     } catch (e) {

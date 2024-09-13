@@ -1,8 +1,10 @@
-import { DocumentData } from "firebase/firestore";
+import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
 
-export const itemsAsString = (items: DocumentData[]): string => {
+export const itemsAsString = (
+  items: FirebaseFirestoreTypes.DocumentData[]
+): string => {
   let shownItems: string[] = [];
   let numItems = 0;
   while (

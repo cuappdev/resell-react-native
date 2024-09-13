@@ -1,15 +1,7 @@
 import TimeAgo from "@andordavoti/react-native-timeago";
 import { Feather } from "@expo/vector-icons";
-import { useIsFocused } from "@react-navigation/native";
 import firestore from "@react-native-firebase/firestore";
-import {
-  Unsubscribe,
-  collection,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-} from "firebase/firestore";
+import { useIsFocused } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -56,10 +48,10 @@ export default function ChatScreen({ navigation }) {
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) { }
+    } catch (e: unknown) {}
   };
 
-  const getPurchase = (): Unsubscribe => {
+  const getPurchase = (): (() => void) => {
     if (purchase === null) {
       setIsLoadingPurchase(true);
     }
@@ -67,7 +59,7 @@ export default function ChatScreen({ navigation }) {
     try {
       const sellersQuery = historyRef
         .doc(auth.currentUser?.email)
-        .collection('sellers')
+        .collection("sellers");
 
       return sellersQuery.onSnapshot(async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
@@ -78,10 +70,9 @@ export default function ChatScreen({ navigation }) {
               .collection(`history/${document.id}/buyers`)
               .doc(auth.currentUser.email);
 
-            const items = (await sellerHistoryRef
-              .collection('items')
-              .get())
-              .docs.map((doc) => doc.data())
+            const items = (
+              await sellerHistoryRef.collection("items").get()
+            ).docs.map((doc) => doc.data());
 
             tempt.push({
               sellerName: document.data().name,
@@ -121,7 +112,7 @@ export default function ChatScreen({ navigation }) {
       console.log("Error getting user: ", e);
     }
   };
-  const getOffer = (): Unsubscribe => {
+  const getOffer = (): (() => void) => {
     if (offer === null) {
       setIsLoadingOffers(true);
     }
@@ -129,7 +120,7 @@ export default function ChatScreen({ navigation }) {
     try {
       const buyersQuery = historyRef
         .doc(auth.currentUser?.email)
-        .collection('buyers');
+        .collection("buyers");
 
       return buyersQuery.onSnapshot(async (querySnapshot) => {
         const tempt: ChatPreview[] = [];
@@ -140,9 +131,7 @@ export default function ChatScreen({ navigation }) {
               .collection(`history/${document.id}/sellers`)
               .doc(auth.currentUser.email);
             const items = (
-              await buyerHistoryRef
-                .collection('items')
-                .get()
+              await buyerHistoryRef.collection("items").get()
             ).docs.map((d) => d.data());
             tempt.push({
               sellerName: document.data().name, //buyername
@@ -241,7 +230,7 @@ export default function ChatScreen({ navigation }) {
             style={[
               styles.image,
               (isPurchase && purchaseUnread != 0) ||
-                (!isPurchase && offerUnread != 0)
+              (!isPurchase && offerUnread != 0)
                 ? { marginStart: 24 }
                 : { marginStart: 12 },
             ]}
@@ -261,10 +250,11 @@ export default function ChatScreen({ navigation }) {
                 <Text
                   numberOfLines={1}
                   style={[fonts.Title4, { color: Colors.secondaryGray }]}
-                >{`${chatPreview.items.length > 0
+                >{`${
+                  chatPreview.items.length > 0
                     ? chatPreview.items[0].title
                     : "loading..."
-                  }`}</Text>
+                }`}</Text>
               </View>
               {chatPreview.items.length > 1 && (
                 <>

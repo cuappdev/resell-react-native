@@ -1,8 +1,8 @@
-import firestore from '@react-native-firebase/firestore';
-import { DocumentData } from 'firebase/firestore';
 import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
+import firestore from "@react-native-firebase/firestore";
 import { ImageEditor } from "expo-image-editor";
 import { Subscription } from "expo-modules-core";
+import { DocumentData } from "firebase/firestore";
 import React, {
   ReactNode,
   useCallback,
@@ -377,8 +377,12 @@ export default function ChatWindow({ navigation, route }) {
       await sellerHistoryRef.set(sellerData);
 
       // update multiple items for buyer and seller
-      const buyerItemDoc = firestore().doc(`history/${sellerEmail}/items/${post.id}`);
-      const sellerItemDoc = firestore().doc(`history/${buyerEmail}/items/${post.id}`);
+      const buyerItemDoc = firestore().doc(
+        `history/${sellerEmail}/items/${post.id}`
+      );
+      const sellerItemDoc = firestore().doc(
+        `history/${buyerEmail}/items/${post.id}`
+      );
       await buyerItemDoc.set(post);
       await sellerItemDoc.set(post);
 
@@ -394,9 +398,8 @@ export default function ChatWindow({ navigation, route }) {
           image,
           product,
           createdAt,
-          user
-        })
-
+          user,
+        });
 
       const docRef = userRef.doc(email);
       const docSnap = await docRef.get();
@@ -488,7 +491,7 @@ export default function ChatWindow({ navigation, route }) {
       sellerId: post.user.id,
       postId: post.id,
       userId: "userId",
-      type: "User"
+      type: "User",
     });
   };
 
@@ -512,7 +515,7 @@ export default function ChatWindow({ navigation, route }) {
       } else {
         makeToast({ message: "Error blocking user", type: "ERROR" });
       }
-    } catch (e: unknown) { }
+    } catch (e: unknown) {}
   };
 
   const menuItems = [
@@ -678,7 +681,7 @@ export default function ChatWindow({ navigation, route }) {
               sellerId: "sellerId", // TODO: Add when Implementing Reporting Backend
               postId: post.id,
               userId: auth.currentUser.uid,
-              type: "Message"
+              type: "Message",
             });
             break;
         }
@@ -822,18 +825,17 @@ export default function ChatWindow({ navigation, route }) {
     // Get a reference to the current chat
     const currentChat = chatRef
       .doc(buyerEmail)
-      .collection('sellers')
+      .collection("sellers")
       .doc(sellerEmail)
-      .collection('messages')
-      .orderBy('createdAt', 'desc')
+      .collection("messages")
+      .orderBy("createdAt", "desc");
     /*
     When we call on snapshot we pass in a callback function that updates the 
     state of the chat whenever it changes according to Firebase. The call to
     onSnapshot returns a reference to a function that, when called, unsubscribes 
     the user from this chat. We call this on the dispose of the useEffect hook.
     */
-    const unsubscribeFromChat = currentChat
-      .onSnapshot((snapshot) => {
+    const unsubscribeFromChat = currentChat.onSnapshot((snapshot) => {
       // Set the messages to the most recent ones
       setMessages(
         snapshot.docs.map((doc) => ({
@@ -851,11 +853,11 @@ export default function ChatWindow({ navigation, route }) {
 
       historyRef
         .doc(auth.currentUser.email)
-        .collection(isBuyer ? 'sellers' : 'buyers')
+        .collection(isBuyer ? "sellers" : "buyers")
         .doc(email)
         .update({
           viewed: true,
-          confirmedViewed: true
+          confirmedViewed: true,
         });
     });
 
@@ -866,8 +868,8 @@ export default function ChatWindow({ navigation, route }) {
       .doc(buyerEmail);
 
     const unsubscribeFromItems = sellerHistoryRef
-      .collection('items')
-      .onSnapshot((snapshot) =>{
+      .collection("items")
+      .onSnapshot((snapshot) => {
         setItems(snapshot.docs.map((document) => document.data()));
       });
 
@@ -893,7 +895,7 @@ export default function ChatWindow({ navigation, route }) {
         setProposer(meetingInfo.proposer);
         setMeetingDetailText(
           (meetingInfo.proposer === auth.currentUser.email ? "You" : name) +
-          " confirmed the following meeting:"
+            " confirmed the following meeting:"
         );
       }
       if (
@@ -912,9 +914,9 @@ export default function ChatWindow({ navigation, route }) {
         setActionButtons((buttons) =>
           buttons.filter((b) => b.title.includes("View")).length === 0
             ? [
-              ...buttons,
-              { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
-            ]
+                ...buttons,
+                { title: `View ${name.split(" ")[0]}'s availability`, id: 3 },
+              ]
             : buttons
         );
       }
@@ -1101,9 +1103,9 @@ export default function ChatWindow({ navigation, route }) {
       sellerName: name,
       sellerId: post.user.id,
       sellerUsername: post.user.username,
-      isBlocked: false
+      isBlocked: false,
     });
-  }
+  };
 
   const ref = useRef<any>();
   return (
@@ -1142,20 +1144,20 @@ export default function ChatWindow({ navigation, route }) {
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity
-              onPress={displayExternalProfile}
-            >
+            <TouchableOpacity onPress={displayExternalProfile}>
               <Text
                 style={[fonts.Title1, { marginBottom: 4, textAlign: "center" }]}
               >
                 {name}
               </Text>
               <Text
-                style={[fonts.Title3, { color: "#787878", textAlign: "center" }]}
+                style={[
+                  fonts.Title3,
+                  { color: "#787878", textAlign: "center" },
+                ]}
               >
                 {items.length > 0 ? itemsAsString(items) : post.title}
               </Text>
-
             </TouchableOpacity>
           </View>
           <View>
