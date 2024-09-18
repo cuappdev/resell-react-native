@@ -1,8 +1,9 @@
 import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
-import firestore from "@react-native-firebase/firestore";
+import firestore, {
+  FirebaseFirestoreTypes,
+} from "@react-native-firebase/firestore";
 import { ImageEditor } from "expo-image-editor";
 import { Subscription } from "expo-modules-core";
-import { DocumentData } from "firebase/firestore";
 import React, {
   ReactNode,
   useCallback,
@@ -213,7 +214,7 @@ export default function ChatWindow({ navigation, route }) {
   const isKeyboardVisible = useKeyboardVisible();
 
   // keep track of multiple items
-  const [items, setItems] = useState<DocumentData[]>([]);
+  const [items, setItems] = useState<FirebaseFirestoreTypes.DocumentData[]>([]);
 
   interface notification {
     request;
@@ -390,7 +391,7 @@ export default function ChatWindow({ navigation, route }) {
 
       // Send new message to the db
       const messageRef = firestore()
-        .collection(`chat/${buyerEmail}/${sellerEmail}`)
+        .collection(`chats/${buyerEmail}/${sellerEmail}`)
         .add({
           _id,
           text,
@@ -825,10 +826,9 @@ export default function ChatWindow({ navigation, route }) {
     // Get a reference to the current chat
     const currentChat = chatRef
       .doc(buyerEmail)
-      .collection("sellers")
-      .doc(sellerEmail)
-      .collection("messages")
+      .collection(sellerEmail)
       .orderBy("createdAt", "desc");
+    console.log(`buyer email = ${buyerEmail}, seller email = ${sellerEmail}`);
     /*
     When we call on snapshot we pass in a callback function that updates the 
     state of the chat whenever it changes according to Firebase. The call to
@@ -887,6 +887,7 @@ export default function ChatWindow({ navigation, route }) {
   useEffect(() => {
     let foundConfirmedMeeting: boolean = false;
     let foundProposal: boolean = false;
+    console.log(`messages = ${JSON.stringify(messages)}`);
     messages.forEach((msg) => {
       const meetingInfo: MeetingInfo | undefined = msg.meetingInfo;
       if (meetingInfo?.state === "confirmed") {
