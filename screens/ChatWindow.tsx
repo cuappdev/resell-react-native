@@ -828,7 +828,6 @@ export default function ChatWindow({ navigation, route }) {
       .doc(buyerEmail)
       .collection(sellerEmail)
       .orderBy("createdAt", "desc");
-    console.log(`buyer email = ${buyerEmail}, seller email = ${sellerEmail}`);
     /*
     When we call on snapshot we pass in a callback function that updates the 
     state of the chat whenever it changes according to Firebase. The call to
@@ -887,7 +886,6 @@ export default function ChatWindow({ navigation, route }) {
   useEffect(() => {
     let foundConfirmedMeeting: boolean = false;
     let foundProposal: boolean = false;
-    console.log(`messages = ${JSON.stringify(messages)}`);
     messages.forEach((msg) => {
       const meetingInfo: MeetingInfo | undefined = msg.meetingInfo;
       if (meetingInfo?.state === "confirmed") {
