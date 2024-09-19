@@ -1,22 +1,22 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { LogBox, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { AppDevAnnouncements } from "react-native-appdev-announcements";
 import Modal from "react-native-modal";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DetailPullUpHeader } from "../components/GetStartedPullUp";
-import { FILTER } from "../data/filter";
-import { AppDevAnnouncements } from "react-native-appdev-announcements";
-import { useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import ApiClient from "../api/ApiClient";
 import { requestUserPermission } from "../api/FirebaseNotificationManager";
 import Header from "../assets/svg-components/header";
 import { ButtonBanner } from "../components/ButtonBanner";
 import { ExpandablePlusButton } from "../components/ExpandablePlusButton";
+import { DetailPullUpHeader } from "../components/GetStartedPullUp";
 import { ProductList } from "../components/ProductList";
 import PurpleButton from "../components/PurpleButton";
 import { auth } from "../config/firebase";
 import { pressedOpacity } from "../constants/Values";
+import { FILTER } from "../data/filter";
 import { fonts } from "../globalStyle/globalFont";
 import { HeaderIcon } from "../navigation/index";
 import LoadingScreen from "../screens/LoadingScreen";
@@ -33,7 +33,7 @@ LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 
 export default function HomeScreen({ navigation, route }) {
-  const [count, setCount] = useState(0);
+  const [selectedFilterIndex, setSelectedFilterIndex] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [posts, setPosts] = useState(null);
   const [blockedUsers, setBlockedUsers] = useState([]);
@@ -98,13 +98,13 @@ export default function HomeScreen({ navigation, route }) {
   // When they change the filter or navigate back to the screen, refresh posts
   useEffect(() => {
     if (isFocused) {
-      if (count === 0) {
+      if (selectedFilterIndex === 0) {
         getPosts();
       } else {
-        filterPost(FILTER[count].title);
+        filterPost(FILTER[selectedFilterIndex].title);
       }
     }
-  }, [count, isFocused]);
+  }, [selectedFilterIndex, isFocused]);
 
   const getPosts = async () => {
     setLoading(true);
@@ -175,10 +175,10 @@ export default function HomeScreen({ navigation, route }) {
     setLoading(true);
     setTimeout(async () => {
       await getBlockedUsers();
-      if (FILTER[count]?.title) {
-        filterPost(FILTER[count].title);
-      } else {
+      if (selectedFilterIndex === 0) {
         getPosts();
+      } else {
+        filterPost(FILTER[selectedFilterIndex].title);
       }
     }, 500);
   };
@@ -213,7 +213,11 @@ export default function HomeScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
-      <ButtonBanner count={count} setCount={setCount} data={FILTER} />
+      <ButtonBanner
+        count={selectedFilterIndex}
+        setCount={setSelectedFilterIndex}
+        data={FILTER}
+      />
       <View style={styles.listView}>
         {isLoading ? (
           <LoadingScreen screen={"Home"} />
