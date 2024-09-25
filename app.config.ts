@@ -3,7 +3,7 @@ export default {
   expo: {
     name: "Resell",
     slug: "Resell",
-    version: "1.0.4",
+    version: "1.0.5",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "myapp",
@@ -54,7 +54,7 @@ export default {
       googleServicesFile:
         process.env.GOOGLE_SERVICES_INFO_PLIST ||
         "./config/GoogleService-Info.plist",
-      buildNumber: "15",
+      buildNumber: "16",
       infoPlist: {
         NSCalendarsUsageDescription: "Allow Resell to access your calendar",
         NSRemindersUsageDescription: "Allow Resell to access your reminders",
