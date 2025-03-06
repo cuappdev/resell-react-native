@@ -1,3 +1,6 @@
+## 🚨 DEPRECATION NOTICE 🚨
+This repository is no longer maintained, and the development practices used should not be followed. Please see [Resell Android](https://github.com/cuappdev/resell-android) and [Resell iOS](https://github.com/cuappdev/resell-ios) instead.
+
 # Resell - Cornell Marketplace
 
 <p align="center"><img src="https://github.com/cuappdev/assets/blob/master/app-icons/resell-icon.png" width=210 /></p>
